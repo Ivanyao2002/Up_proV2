@@ -1,0 +1,14 @@
+{
+  "id": 12,
+  "company_name": "Cocody Express",
+  "legal_name": "Cocody Express SARL",
+  "contact_email": "contact@cocodyexpress.ci",
+  "contact_phone": "+225 07 00 00 12 12",
+  "address": "Cocody, Rue des Jardins, Immeuble Palmiers",
+  "city": "Abidjan",
+  "franchise_name": "Abidjan Sud",
+  "rccm": "CI-ABJ-2023-B-12845",
+  "status": "active",
+  "notification_email": "ops@cocodyexpress.ci",
+  "created_at": "2023-06-20T00:00:00Z"
+}

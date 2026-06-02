@@ -1,0 +1,26 @@
+{
+  "token": "mock-jwt-upjunoo-dev",
+  "user": {
+    "id": 1,
+    "name": "Administrateur Central",
+    "email": "admin@upjunoo.ci",
+    "role": "admin",
+    "scope": "platform",
+    "permissions": [
+      "ops.dashboard.view",
+      "ops.map.view",
+      "ops.trips.view",
+      "ops.trips.edit",
+      "network.franchises.view",
+      "network.zones.view",
+      "network.partners.view",
+      "fleet.drivers.view",
+      "fleet.drivers.status.bulk",
+      "fleet.drivers.ban",
+      "fleet.kyc.approve",
+      "finance.transactions.view",
+      "finance.withdrawals.approve",
+      "settings.roles.manage"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "token": "mock-jwt-franchise-abidjan-sud",
+  "user": {
+    "id": 5,
+    "name": "Abidjan Sud",
+    "email": "franchise@abidjansud.ci",
+    "role": "franchise",
+    "scope": "franchise",
+    "franchise_id": 1,
+    "permissions": [
+      "ops.dashboard.view",
+      "network.partners.view",
+      "fleet.drivers.view",
+      "finance.wallets.view"
+    ]
+  }
+}

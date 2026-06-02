@@ -1,0 +1,49 @@
+{
+  "data": [
+    {
+      "id": 12,
+      "name": "Cocody Express",
+      "franchise_name": "Abidjan Sud",
+      "franchise_id": 1,
+      "city": "Abidjan",
+      "drivers_count": 186,
+      "status": "active",
+      "contact_email": "contact@cocodyexpress.ci",
+      "contact_phone": "+225 07 00 00 12 12"
+    },
+    {
+      "id": 15,
+      "name": "Marcory Fleet",
+      "franchise_name": "Abidjan Sud",
+      "franchise_id": 1,
+      "city": "Abidjan",
+      "drivers_count": 94,
+      "status": "active",
+      "contact_email": "ops@marcoryfleet.ci",
+      "contact_phone": "+225 05 44 55 66 77"
+    },
+    {
+      "id": 22,
+      "name": "Abidjan Ouest Fleet",
+      "franchise_name": "Abidjan Ouest",
+      "franchise_id": 2,
+      "city": "Abidjan",
+      "drivers_count": 142,
+      "status": "active",
+      "contact_email": "fleet@abidjanouest.ci",
+      "contact_phone": "+225 01 22 33 44 55"
+    },
+    {
+      "id": 31,
+      "name": "Bouaké Transports",
+      "franchise_name": "Bouaké Centre",
+      "franchise_id": 3,
+      "city": "Bouaké",
+      "drivers_count": 67,
+      "status": "pending",
+      "contact_email": "admin@bouaketrans.ci",
+      "contact_phone": "+225 07 88 99 00 11"
+    }
+  ],
+  "meta": { "total": 53, "per_page": 25, "current_page": 1, "last_page": 3 }
+}

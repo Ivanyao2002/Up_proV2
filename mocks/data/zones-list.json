@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Cocody — Plateau",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Sud",
+      "type": "standard",
+      "drivers_active": 342,
+      "surge_multiplier": 1.0
+    },
+    {
+      "id": 2,
+      "name": "Yopougon centre",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Ouest",
+      "type": "surge",
+      "drivers_active": 218,
+      "surge_multiplier": 1.25
+    },
+    {
+      "id": 3,
+      "name": "Aéroport Félix Houphouët",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Sud",
+      "type": "airport",
+      "drivers_active": 89,
+      "surge_multiplier": 1.5
+    }
+  ],
+  "meta": { "total": 24, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

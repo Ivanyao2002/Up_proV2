@@ -1,0 +1,44 @@
+{
+  "fleet_name": "Cocody Express",
+  "trips_today": 48,
+  "trips_completed_today": 44,
+  "trips_cancelled_today": 4,
+  "drivers_total": 186,
+  "drivers_online": 42,
+  "drivers_pending_kyc": 1,
+  "revenue_today_fcfa": 198400,
+  "revenue_trend_pct": 8.2,
+  "wallet_balance_fcfa": 520000,
+  "pending_withdrawal_fcfa": 450000,
+  "chart_flux": [
+    { "day": "Lun", "revenue": 142000, "trips": 38 },
+    { "day": "Mar", "revenue": 118000, "trips": 32 },
+    { "day": "Mer", "revenue": 165000, "trips": 41 },
+    { "day": "Jeu", "revenue": 132000, "trips": 35 },
+    { "day": "Ven", "revenue": 210000, "trips": 52 },
+    { "day": "Sam", "revenue": 188000, "trips": 47 },
+    { "day": "Dim", "revenue": 198400, "trips": 48 }
+  ],
+  "recent_trips": [
+    {
+      "id": "1",
+      "ref": "TR-88421",
+      "from_label": "Cocody, Angré",
+      "to_label": "Riviera 2",
+      "driver_name": "Kouassi Jean",
+      "amount_fcfa": 4500,
+      "status": "completed",
+      "created_at": "2026-06-02T14:32:00Z"
+    },
+    {
+      "id": "2",
+      "ref": "TR-88410",
+      "from_label": "Cocody, Danga",
+      "to_label": "Plateau",
+      "driver_name": "Kouassi Jean",
+      "amount_fcfa": 5200,
+      "status": "in_progress",
+      "created_at": "2026-06-02T14:35:00Z"
+    }
+  ]
+}

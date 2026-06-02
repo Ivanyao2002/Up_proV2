@@ -1,0 +1,108 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "ref": "TR-88421",
+      "service": "taxi",
+      "from_label": "Abidjan, Cocody",
+      "to_label": "Cocody, Riviera",
+      "client_name": "Aya Koné",
+      "driver_name": "Kouassi Jean",
+      "amount_fcfa": 4500,
+      "status": "completed",
+      "payment_method": "wallet",
+      "created_at": "2026-06-02T14:32:00Z"
+    },
+    {
+      "id": "2",
+      "ref": "TR-88419",
+      "service": "delivery",
+      "from_label": "Plateau, Immeuble SCIAM",
+      "to_label": "Plateau, Zone 4",
+      "client_name": "Société BTP CI",
+      "driver_name": "Traoré Aminata",
+      "amount_fcfa": 2800,
+      "status": "in_progress",
+      "payment_method": "cash",
+      "created_at": "2026-06-02T14:20:00Z"
+    },
+    {
+      "id": "3",
+      "ref": "TR-88415",
+      "service": "taxi",
+      "from_label": "Yopougon, Selmer",
+      "to_label": "Marcory, Zone 4",
+      "client_name": "Yao N'Guessan",
+      "driver_name": "Bamba Serge",
+      "amount_fcfa": 6200,
+      "status": "completed",
+      "payment_method": "card",
+      "created_at": "2026-06-02T13:45:00Z"
+    },
+    {
+      "id": "4",
+      "ref": "TR-88410",
+      "service": "taxi",
+      "from_label": "Cocody, Angré",
+      "to_label": "Aéroport FHB",
+      "client_name": "Marie Diabaté",
+      "driver_name": "Kouassi Jean",
+      "amount_fcfa": 8500,
+      "status": "assigned",
+      "payment_method": "orange_money",
+      "created_at": "2026-06-02T14:35:00Z"
+    },
+    {
+      "id": "5",
+      "ref": "TR-88408",
+      "service": "freight",
+      "from_label": "Port de Pêche, Treichville",
+      "to_label": "Yopougon, Gesco",
+      "client_name": "Trans CI Logistics",
+      "amount_fcfa": 15000,
+      "status": "matching",
+      "payment_method": "wallet",
+      "created_at": "2026-06-02T14:38:00Z"
+    },
+    {
+      "id": "6",
+      "ref": "TR-88399",
+      "service": "taxi",
+      "from_label": "Plateau, Rue du Commerce",
+      "to_label": "Adjamé, Gare",
+      "client_name": "Ibrahim Touré",
+      "driver_name": "Diabaté Moussa",
+      "amount_fcfa": 3200,
+      "status": "cancelled",
+      "payment_method": "cash",
+      "created_at": "2026-06-02T13:10:00Z"
+    },
+    {
+      "id": "7",
+      "ref": "TR-88395",
+      "service": "delivery",
+      "from_label": "Marcory, Zone 4",
+      "to_label": "Cocody, Danga",
+      "client_name": "Restaurant Le Maquis",
+      "driver_name": "Traoré Aminata",
+      "amount_fcfa": 2100,
+      "status": "arrived",
+      "payment_method": "wallet",
+      "created_at": "2026-06-02T14:30:00Z"
+    },
+    {
+      "id": "8",
+      "ref": "TR-88390",
+      "service": "rental",
+      "from_label": "Abidjan, Plateau",
+      "to_label": "Grand-Bassam",
+      "client_name": "Hôtel Azur",
+      "driver_name": "Bamba Serge",
+      "amount_fcfa": 45000,
+      "status": "requested",
+      "payment_method": "card",
+      "created_at": "2026-06-02T14:40:00Z"
+    }
+  ],
+  "meta": { "total": 847, "per_page": 25, "current_page": 1, "last_page": 34 }
+}

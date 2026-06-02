@@ -1,0 +1,39 @@
+{
+  "id": 1,
+  "name": "Abidjan Sud",
+  "city": "Abidjan",
+  "status": "active",
+  "contact_email": "abidjansud@upjunoo.ci",
+  "contact_phone": "+225 27 22 00 11 00",
+  "created_at": "2023-01-10T00:00:00Z",
+  "stats": {
+    "partners_count": 24,
+    "drivers_count": 4120,
+    "zones_count": 8,
+    "trips_month": 48200,
+    "revenue_month_fcfa": 185000000,
+    "commission_month_fcfa": 46250000
+  },
+  "partners": [
+    { "id": 12, "name": "Cocody Express", "drivers_count": 186, "status": "active" },
+    { "id": 15, "name": "Marcory Fleet", "drivers_count": 94, "status": "active" }
+  ],
+  "zones": [
+    { "id": 1, "name": "Cocody — Plateau", "type": "standard", "drivers_active": 342 },
+    { "id": 3, "name": "Aéroport Félix Houphouët", "type": "airport", "drivers_active": 89 }
+  ],
+  "recent_transactions": [
+    {
+      "id": "TX-99201",
+      "label": "TR-88421",
+      "amount_fcfa": 4500,
+      "created_at": "2026-06-02T14:32:00Z"
+    },
+    {
+      "id": "TX-99188",
+      "label": "Retrait Cocody Express",
+      "amount_fcfa": -250000,
+      "created_at": "2026-06-02T11:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": 101,
+  "first_name": "Kouassi",
+  "last_name": "Jean",
+  "phone": "+225 07 12 34 56 78",
+  "email": "kouassi.jean@email.ci",
+  "rating": 4.82,
+  "zone": "Cocody",
+  "owner_name": "Cocody Express",
+  "owner_id": 12,
+  "vehicle_label": "Toyota Corolla · AB-452-CI",
+  "account_status": "approved",
+  "availability": "online",
+  "registered_at": "2024-03-15T08:00:00Z",
+  "approved_at": "2024-03-18T14:22:00Z",
+  "stats": {
+    "trips_total": 1247,
+    "trips_completed": 1189,
+    "trips_cancelled": 58,
+    "acceptance_rate_pct": 94.2,
+    "wallet_balance_fcfa": 45200
+  },
+  "timeline": [
+    {
+      "id": "t1",
+      "type": "approved",
+      "label": "Compte approuvé",
+      "description": "KYC validé par l'équipe Abidjan Sud",
+      "at": "2024-03-18T14:22:00Z"
+    },
+    {
+      "id": "t2",
+      "type": "kyc",
+      "label": "Documents soumis",
+      "description": "CNI, permis et carte grise",
+      "at": "2024-03-17T09:10:00Z"
+    },
+    {
+      "id": "t3",
+      "type": "registered",
+      "label": "Inscription",
+      "description": "Création du compte chauffeur",
+      "at": "2024-03-15T08:00:00Z"
+    }
+  ],
+  "kyc_documents": [
+    {
+      "id": "doc-cni",
+      "type": "cni",
+      "label": "Carte nationale d'identité",
+      "status": "approved",
+      "uploaded_at": "2024-03-17T09:05:00Z",
+      "reviewed_at": "2024-03-18T11:00:00Z"
+    },
+    {
+      "id": "doc-permis",
+      "type": "license",
+      "label": "Permis de conduire",
+      "status": "approved",
+      "uploaded_at": "2024-03-17T09:06:00Z",
+      "reviewed_at": "2024-03-18T11:05:00Z"
+    },
+    {
+      "id": "doc-grise",
+      "type": "registration",
+      "label": "Carte grise",
+      "status": "approved",
+      "uploaded_at": "2024-03-17T09:08:00Z",
+      "reviewed_at": "2024-03-18T11:10:00Z"
+    }
+  ]
+}

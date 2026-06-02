@@ -1,0 +1,35 @@
+{
+  "territory_name": "Abidjan Sud",
+  "partners_count": 24,
+  "drivers_total": 420,
+  "drivers_online": 89,
+  "trips_today": 312,
+  "trips_completed_today": 298,
+  "revenue_today_fcfa": 1248000,
+  "revenue_trend_pct": 5.4,
+  "pending_kyc": 7,
+  "pending_withdrawals_fcfa": 890000,
+  "chart_flux": [
+    { "day": "Lun", "revenue": 980000, "trips": 265 },
+    { "day": "Mar", "revenue": 1020000, "trips": 278 },
+    { "day": "Mer", "revenue": 1150000, "trips": 290 },
+    { "day": "Jeu", "revenue": 1080000, "trips": 285 },
+    { "day": "Ven", "revenue": 1320000, "trips": 340 },
+    { "day": "Sam", "revenue": 1280000, "trips": 325 },
+    { "day": "Dim", "revenue": 1248000, "trips": 312 }
+  ],
+  "recent_partners": [
+    {
+      "id": 12,
+      "name": "Cocody Express",
+      "drivers_count": 186,
+      "status": "active"
+    },
+    {
+      "id": 15,
+      "name": "Marcory Fleet",
+      "drivers_count": 94,
+      "status": "active"
+    }
+  ]
+}

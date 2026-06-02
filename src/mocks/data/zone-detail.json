@@ -1,0 +1,37 @@
+{
+  "id": 1,
+  "name": "Cocody — Plateau",
+  "city": "Abidjan",
+  "franchise_id": 1,
+  "franchise_name": "Abidjan Sud",
+  "type": "standard",
+  "surge_multiplier": 1.0,
+  "status": "active",
+  "stats": {
+    "drivers_active": 342,
+    "drivers_total": 890,
+    "trips_24h": 127,
+    "trips_month": 8400,
+    "revenue_month_fcfa": 38500000,
+    "avg_fare_fcfa": 4200
+  },
+  "polygon_geojson": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [-3.998, 5.348],
+        [-3.985, 5.352],
+        [-3.978, 5.338],
+        [-3.992, 5.325],
+        [-3.998, 5.348]
+      ]
+    ]
+  },
+  "surge_rules": [
+    { "label": "Heures de pointe", "multiplier": 1.15, "hours": "07h–09h, 17h–20h" },
+    { "label": "Pluie", "multiplier": 1.25, "hours": "Automatique" }
+  ],
+  "partners_in_zone": [
+    { "id": 12, "name": "Cocody Express", "drivers_count": 186 }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "data": [
+    {
+      "id": "WD-4401",
+      "owner_name": "Cocody Express",
+      "owner_id": 12,
+      "franchise_name": "Abidjan Sud",
+      "amount_fcfa": 450000,
+      "method": "orange_money",
+      "account_label": "OM · 07 ** ** 12 12",
+      "status": "pending",
+      "requested_at": "2026-06-02T10:30:00Z",
+      "wallet_balance_fcfa": 520000
+    },
+    {
+      "id": "WD-4400",
+      "owner_name": "Marcory Fleet",
+      "owner_id": 15,
+      "franchise_name": "Abidjan Sud",
+      "amount_fcfa": 180000,
+      "method": "bank_transfer",
+      "account_label": "SGCI · CI** **** 4521",
+      "status": "pending",
+      "requested_at": "2026-06-02T09:15:00Z",
+      "wallet_balance_fcfa": 210000
+    },
+    {
+      "id": "WD-4398",
+      "owner_name": "Kouassi Jean",
+      "owner_id": null,
+      "driver_id": 101,
+      "franchise_name": "Abidjan Sud",
+      "amount_fcfa": 75000,
+      "method": "orange_money",
+      "account_label": "OM · 07 12 34 56 78",
+      "status": "pending",
+      "requested_at": "2026-06-02T08:00:00Z",
+      "wallet_balance_fcfa": 45200
+    },
+    {
+      "id": "WD-4395",
+      "owner_name": "Abidjan Ouest Fleet",
+      "owner_id": 22,
+      "franchise_name": "Abidjan Ouest",
+      "amount_fcfa": 320000,
+      "method": "bank_transfer",
+      "account_label": "BICICI · CI** **** 8890",
+      "status": "approved",
+      "requested_at": "2026-06-01T16:00:00Z",
+      "processed_at": "2026-06-01T18:30:00Z",
+      "wallet_balance_fcfa": 380000
+    }
+  ],
+  "meta": { "total": 12, "per_page": 25, "current_page": 1, "last_page": 1 },
+  "summary": { "pending_count": 3, "pending_amount_fcfa": 705000 }
+}

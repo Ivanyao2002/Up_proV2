@@ -1,0 +1,12 @@
+@import "../styles/tokens.css";
+@import "../styles/motion.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-canvas font-sans text-[#212529] antialiased;
+  }
+}

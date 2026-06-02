@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "id": 101,
+      "first_name": "Kouassi",
+      "last_name": "Jean",
+      "phone": "+225 07 12 34 56 78",
+      "rating": 4.82,
+      "zone": "Cocody",
+      "owner_name": "Cocody Express",
+      "owner_id": 12,
+      "vehicle_label": "Toyota Corolla · AB-452-CI",
+      "account_status": "approved",
+      "availability": "online"
+    },
+    {
+      "id": 103,
+      "first_name": "Diabaté",
+      "last_name": "Moussa",
+      "phone": "+225 01 44 22 11 00",
+      "rating": 0,
+      "zone": "Plateau",
+      "owner_name": "Cocody Express",
+      "owner_id": 12,
+      "vehicle_label": null,
+      "account_status": "pending",
+      "availability": "offline"
+    }
+  ],
+  "meta": { "total": 186, "per_page": 25, "current_page": 1, "last_page": 8 }
+}

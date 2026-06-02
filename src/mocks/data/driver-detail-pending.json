@@ -1,0 +1,66 @@
+{
+  "id": 103,
+  "first_name": "Diabaté",
+  "last_name": "Moussa",
+  "phone": "+225 01 44 22 11 00",
+  "email": "diabate.moussa@email.ci",
+  "rating": 0,
+  "zone": "Plateau",
+  "owner_name": "Cocody Express",
+  "owner_id": 12,
+  "vehicle_label": null,
+  "account_status": "pending",
+  "availability": "offline",
+  "registered_at": "2026-06-01T10:30:00Z",
+  "approved_at": null,
+  "stats": {
+    "trips_total": 0,
+    "trips_completed": 0,
+    "trips_cancelled": 0,
+    "acceptance_rate_pct": 0,
+    "wallet_balance_fcfa": 0
+  },
+  "timeline": [
+    {
+      "id": "t1",
+      "type": "kyc",
+      "label": "Documents en attente",
+      "description": "Validation requise par un administrateur",
+      "at": "2026-06-01T16:45:00Z"
+    },
+    {
+      "id": "t2",
+      "type": "registered",
+      "label": "Inscription",
+      "description": "Création du compte chauffeur",
+      "at": "2026-06-01T10:30:00Z"
+    }
+  ],
+  "kyc_documents": [
+    {
+      "id": "doc-cni",
+      "type": "cni",
+      "label": "Carte nationale d'identité",
+      "status": "pending",
+      "uploaded_at": "2026-06-01T16:40:00Z",
+      "reviewed_at": null
+    },
+    {
+      "id": "doc-permis",
+      "type": "license",
+      "label": "Permis de conduire",
+      "status": "pending",
+      "uploaded_at": "2026-06-01T16:42:00Z",
+      "reviewed_at": null
+    },
+    {
+      "id": "doc-grise",
+      "type": "registration",
+      "label": "Carte grise",
+      "status": "rejected",
+      "status_note": "Photo illisible — merci de resoumettre",
+      "uploaded_at": "2026-06-01T16:43:00Z",
+      "reviewed_at": "2026-06-01T18:00:00Z"
+    }
+  ]
+}

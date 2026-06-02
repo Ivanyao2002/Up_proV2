@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Abidjan Sud",
+      "city": "Abidjan",
+      "status": "active",
+      "partners_count": 24,
+      "drivers_count": 4120,
+      "zones_count": 8,
+      "revenue_month_fcfa": 185000000
+    },
+    {
+      "id": 2,
+      "name": "Abidjan Ouest",
+      "city": "Abidjan",
+      "status": "active",
+      "partners_count": 18,
+      "drivers_count": 2890,
+      "zones_count": 6,
+      "revenue_month_fcfa": 142000000
+    },
+    {
+      "id": 3,
+      "name": "Bouaké Centre",
+      "city": "Bouaké",
+      "status": "active",
+      "partners_count": 9,
+      "drivers_count": 890,
+      "zones_count": 4,
+      "revenue_month_fcfa": 38000000
+    },
+    {
+      "id": 4,
+      "name": "Yamoussoukro",
+      "city": "Yamoussoukro",
+      "status": "pending",
+      "partners_count": 2,
+      "drivers_count": 120,
+      "zones_count": 2,
+      "revenue_month_fcfa": 5200000
+    }
+  ],
+  "meta": { "total": 12, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

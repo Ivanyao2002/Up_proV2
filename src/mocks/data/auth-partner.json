@@ -1,0 +1,19 @@
+{
+  "token": "mock-jwt-partner-cocody",
+  "user": {
+    "id": 2,
+    "name": "Cocody Express",
+    "email": "contact@cocodyexpress.ci",
+    "role": "partner",
+    "scope": "owner",
+    "owner_id": 12,
+    "franchise_id": 1,
+    "permissions": [
+      "ops.dashboard.view",
+      "fleet.drivers.view",
+      "fleet.drivers.status.bulk",
+      "ops.trips.view",
+      "finance.wallets.view"
+    ]
+  }
+}

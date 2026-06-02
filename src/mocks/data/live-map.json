@@ -1,0 +1,82 @@
+{
+  "zone_name": "Abidjan — Centre",
+  "city": "Abidjan",
+  "stats": {
+    "drivers_online": 342,
+    "drivers_on_trip": 89,
+    "active_trips": 127,
+    "avg_wait_min": 4.2
+  },
+  "bounds": {
+    "lat_min": 5.28,
+    "lat_max": 5.42,
+    "lng_min": -4.05,
+    "lng_max": -3.92
+  },
+  "drivers": [
+    {
+      "id": 101,
+      "name": "Kouassi Jean",
+      "lat": 5.359,
+      "lng": -3.987,
+      "availability": "on_trip",
+      "vehicle": "Toyota Corolla"
+    },
+    {
+      "id": 102,
+      "name": "Traoré Aminata",
+      "lat": 5.336,
+      "lng": -4.021,
+      "availability": "online",
+      "vehicle": "Suzuki Dzire"
+    },
+    {
+      "id": 104,
+      "name": "Bamba Serge",
+      "lat": 5.312,
+      "lng": -3.965,
+      "availability": "online",
+      "vehicle": "Honda Civic"
+    },
+    {
+      "id": 105,
+      "name": "Koné Aya",
+      "lat": 5.348,
+      "lng": -4.008,
+      "availability": "on_trip",
+      "vehicle": "Hyundai Accent"
+    },
+    {
+      "id": 106,
+      "name": "Ouattara Issa",
+      "lat": 5.295,
+      "lng": -4.032,
+      "availability": "online",
+      "vehicle": "Toyota Yaris"
+    },
+    {
+      "id": 107,
+      "name": "Coulibaly Fatou",
+      "lat": 5.368,
+      "lng": -3.951,
+      "availability": "paused",
+      "vehicle": "Suzuki Dzire"
+    },
+    {
+      "id": 108,
+      "name": "Yao N'Guessan",
+      "lat": 5.325,
+      "lng": -3.998,
+      "availability": "online",
+      "vehicle": "Peugeot 301"
+    },
+    {
+      "id": 109,
+      "name": "Diabaté Moussa",
+      "lat": 5.351,
+      "lng": -4.015,
+      "availability": "on_trip",
+      "vehicle": "Toyota Corolla"
+    }
+  ]
+}

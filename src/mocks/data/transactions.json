@@ -1,0 +1,88 @@
+{
+  "data": [
+    {
+      "id": "TX-99201",
+      "type": "trip_payment",
+      "label": "Paiement course TR-88421",
+      "entity_type": "trip",
+      "entity_ref": "TR-88421",
+      "amount_fcfa": 4500,
+      "direction": "credit",
+      "status": "completed",
+      "payment_method": "wallet",
+      "franchise_name": "Abidjan Sud",
+      "created_at": "2026-06-02T14:32:00Z"
+    },
+    {
+      "id": "TX-99200",
+      "type": "commission",
+      "label": "Commission plateforme TR-88419",
+      "entity_type": "trip",
+      "entity_ref": "TR-88419",
+      "amount_fcfa": 420,
+      "direction": "credit",
+      "status": "completed",
+      "payment_method": "cash",
+      "franchise_name": "Abidjan Sud",
+      "created_at": "2026-06-02T14:28:00Z"
+    },
+    {
+      "id": "TX-99188",
+      "type": "withdrawal",
+      "label": "Retrait partenaire Cocody Express",
+      "entity_type": "partner",
+      "entity_ref": "Cocody Express",
+      "amount_fcfa": 250000,
+      "direction": "debit",
+      "status": "completed",
+      "payment_method": "orange_money",
+      "franchise_name": "Abidjan Sud",
+      "created_at": "2026-06-02T11:00:00Z"
+    },
+    {
+      "id": "TX-99175",
+      "type": "trip_payment",
+      "label": "Paiement course TR-88415",
+      "entity_type": "trip",
+      "entity_ref": "TR-88415",
+      "amount_fcfa": 6200,
+      "direction": "credit",
+      "status": "completed",
+      "payment_method": "card",
+      "franchise_name": "Abidjan Sud",
+      "created_at": "2026-06-02T13:50:00Z"
+    },
+    {
+      "id": "TX-99160",
+      "type": "refund",
+      "label": "Remboursement course TR-88399",
+      "entity_type": "trip",
+      "entity_ref": "TR-88399",
+      "amount_fcfa": 3200,
+      "direction": "debit",
+      "status": "completed",
+      "payment_method": "wallet",
+      "franchise_name": "Abidjan Sud",
+      "created_at": "2026-06-02T13:15:00Z"
+    },
+    {
+      "id": "TX-99155",
+      "type": "trip_payment",
+      "label": "Paiement course TR-88408",
+      "entity_type": "trip",
+      "entity_ref": "TR-88408",
+      "amount_fcfa": 15000,
+      "direction": "credit",
+      "status": "pending",
+      "payment_method": "wallet",
+      "franchise_name": "Abidjan Ouest",
+      "created_at": "2026-06-02T14:40:00Z"
+    }
+  ],
+  "meta": { "total": 1842, "per_page": 25, "current_page": 1, "last_page": 74 },
+  "summary": {
+    "volume_today_fcfa": 2847500,
+    "credits_today_fcfa": 3120000,
+    "debits_today_fcfa": 272500
+  }
+}

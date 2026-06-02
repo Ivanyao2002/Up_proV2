@@ -1,0 +1,28 @@
+{
+  "balance_fcfa": 8450000,
+  "commission_month_fcfa": 620000,
+  "payouts_pending_fcfa": 890000,
+  "transactions": [
+    {
+      "id": "ft-1",
+      "label": "Commission courses Cocody Express",
+      "amount_fcfa": 42000,
+      "direction": "credit",
+      "created_at": "2026-06-02T10:00:00Z"
+    },
+    {
+      "id": "ft-2",
+      "label": "Retrait partenaire Marcory Fleet",
+      "amount_fcfa": 150000,
+      "direction": "debit",
+      "created_at": "2026-06-01T16:30:00Z"
+    },
+    {
+      "id": "ft-3",
+      "label": "Commission journée territoire",
+      "amount_fcfa": 185000,
+      "direction": "credit",
+      "created_at": "2026-06-01T23:59:00Z"
+    }
+  ]
+}

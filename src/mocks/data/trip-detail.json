@@ -1,0 +1,60 @@
+{
+  "id": "2",
+  "ref": "TR-88419",
+  "service": "delivery",
+  "from_label": "Plateau, Immeuble SCIAM",
+  "to_label": "Plateau, Zone 4",
+  "from_coords": { "lat": 5.324, "lng": -4.015 },
+  "to_coords": { "lat": 5.318, "lng": -4.008 },
+  "client_name": "Société BTP CI",
+  "client_phone": "+225 27 20 30 40 50",
+  "driver_id": 102,
+  "driver_name": "Traoré Aminata",
+  "driver_phone": "+225 05 98 76 54 32",
+  "amount_fcfa": 2800,
+  "commission_fcfa": 420,
+  "driver_earning_fcfa": 2380,
+  "status": "in_progress",
+  "payment_method": "cash",
+  "zone_name": "Plateau — Zone 4",
+  "franchise_name": "Abidjan Sud",
+  "created_at": "2026-06-02T14:20:00Z",
+  "estimated_arrival_at": "2026-06-02T14:45:00Z",
+  "timeline": [
+    {
+      "id": "e1",
+      "type": "in_progress",
+      "label": "Course en cours",
+      "description": "Le chauffeur transporte le colis",
+      "at": "2026-06-02T14:28:00Z"
+    },
+    {
+      "id": "e2",
+      "type": "arrived",
+      "label": "Chauffeur arrivé",
+      "description": "Point de collecte — Immeuble SCIAM",
+      "at": "2026-06-02T14:25:00Z"
+    },
+    {
+      "id": "e3",
+      "type": "assigned",
+      "label": "Chauffeur assigné",
+      "description": "Traoré Aminata a accepté la course",
+      "at": "2026-06-02T14:22:00Z"
+    },
+    {
+      "id": "e4",
+      "type": "matching",
+      "label": "Recherche chauffeur",
+      "description": "3 chauffeurs contactés",
+      "at": "2026-06-02T14:21:00Z"
+    },
+    {
+      "id": "e5",
+      "type": "requested",
+      "label": "Course demandée",
+      "description": "Commande via l'app partenaire",
+      "at": "2026-06-02T14:20:00Z"
+    }
+  ]
+}

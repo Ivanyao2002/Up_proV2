@@ -1,0 +1,55 @@
+{
+  "data": [
+    {
+      "id": 201,
+      "label": "Toyota Corolla",
+      "plate": "AB-452-CI",
+      "category": "taxi",
+      "year": 2019,
+      "color": "Blanc",
+      "driver_name": "Kouassi Jean",
+      "approval_status": "approved",
+      "created_at": "2024-02-10T00:00:00Z"
+    },
+    {
+      "id": 202,
+      "label": "Suzuki Dzire",
+      "plate": "YK-881-CI",
+      "category": "taxi",
+      "year": 2021,
+      "color": "Gris",
+      "driver_name": null,
+      "approval_status": "pending",
+      "created_at": "2026-05-28T00:00:00Z"
+    },
+    {
+      "id": 203,
+      "label": "Honda Civic",
+      "plate": "CI-902-AB",
+      "category": "taxi",
+      "year": 2018,
+      "color": "Noir",
+      "driver_name": "Bamba Serge",
+      "approval_status": "rejected",
+      "created_at": "2026-05-20T00:00:00Z"
+    },
+    {
+      "id": 204,
+      "label": "Hyundai Accent",
+      "plate": "—",
+      "category": "delivery",
+      "year": 2022,
+      "color": "Rouge",
+      "driver_name": null,
+      "approval_status": "draft",
+      "created_at": "2026-06-01T00:00:00Z"
+    }
+  ],
+  "meta": { "total": 24, "per_page": 25, "current_page": 1, "last_page": 1 },
+  "summary": {
+    "approved": 18,
+    "pending": 2,
+    "rejected": 1,
+    "draft": 3
+  }
+}

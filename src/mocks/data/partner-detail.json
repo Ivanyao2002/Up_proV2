@@ -1,0 +1,43 @@
+{
+  "id": 12,
+  "name": "Cocody Express",
+  "franchise_id": 1,
+  "franchise_name": "Abidjan Sud",
+  "city": "Abidjan",
+  "status": "active",
+  "contact_email": "contact@cocodyexpress.ci",
+  "contact_phone": "+225 07 00 00 12 12",
+  "address": "Cocody, Rue des Jardins, Abidjan",
+  "created_at": "2023-06-20T00:00:00Z",
+  "stats": {
+    "drivers_count": 186,
+    "drivers_online": 42,
+    "trips_month": 3200,
+    "revenue_month_fcfa": 14200000,
+    "wallet_balance_fcfa": 520000,
+    "pending_withdrawal_fcfa": 450000
+  },
+  "drivers": [
+    {
+      "id": 101,
+      "name": "Kouassi Jean",
+      "availability": "online",
+      "rating": 4.82
+    },
+    {
+      "id": 103,
+      "name": "Diabaté Moussa",
+      "availability": "offline",
+      "rating": 0
+    }
+  ],
+  "recent_trips": [
+    {
+      "id": "1",
+      "ref": "TR-88421",
+      "amount_fcfa": 4500,
+      "status": "completed",
+      "created_at": "2026-06-02T14:32:00Z"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "id": 12,
+      "name": "Cocody Express",
+      "city": "Abidjan",
+      "drivers_count": 186,
+      "status": "active",
+      "contact_email": "contact@cocodyexpress.ci",
+      "contact_phone": "+225 07 00 00 12 12",
+      "revenue_month_fcfa": 4200000
+    },
+    {
+      "id": 15,
+      "name": "Marcory Fleet",
+      "city": "Abidjan",
+      "drivers_count": 94,
+      "status": "active",
+      "contact_email": "ops@marcoryfleet.ci",
+      "contact_phone": "+225 05 44 55 66 77",
+      "revenue_month_fcfa": 2100000
+    },
+    {
+      "id": 18,
+      "name": "Riviera Mobility",
+      "city": "Abidjan",
+      "drivers_count": 62,
+      "status": "pending",
+      "contact_email": "contact@rivieramobility.ci",
+      "contact_phone": "+225 07 11 22 33 44",
+      "revenue_month_fcfa": 0
+    }
+  ],
+  "meta": { "total": 24, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

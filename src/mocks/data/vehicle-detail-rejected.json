@@ -1,0 +1,25 @@
+{
+  "id": 203,
+  "label": "Honda Civic",
+  "plate": "CI-902-AB",
+  "category": "taxi",
+  "year": 2018,
+  "color": "Noir",
+  "driver_name": "Bamba Serge",
+  "approval_status": "rejected",
+  "created_at": "2026-05-20T00:00:00Z",
+  "brand": "Honda",
+  "model": "Civic",
+  "seats": 4,
+  "owner_id": 12,
+  "approved_at": null,
+  "registration_document": {
+    "id": "vg-203",
+    "type": "registration",
+    "label": "Carte grise",
+    "status": "rejected",
+    "status_note": "Immatriculation illisible ou ne correspond pas au véhicule déclaré. Veuillez téléverser une photo nette.",
+    "uploaded_at": "2026-05-21T10:00:00Z",
+    "reviewed_at": "2026-05-22T16:00:00Z"
+  }
+}

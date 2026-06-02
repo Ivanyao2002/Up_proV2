@@ -1,0 +1,65 @@
+{
+  "net_profit_today_fcfa": 1245800,
+  "net_profit_trend_pct": 12.4,
+  "trips_completed_today": 847,
+  "trips_cancelled_today": 42,
+  "drivers_approved": 9252,
+  "drivers_pending_kyc": 8,
+  "users_registered": 14700,
+  "chart_flux": [
+    { "day": "Lun", "revenue": 820000, "commission": 310000 },
+    { "day": "Mar", "revenue": 650000, "commission": 240000 },
+    { "day": "Mer", "revenue": 1100000, "commission": 420000 },
+    { "day": "Jeu", "revenue": 780000, "commission": 290000 },
+    { "day": "Ven", "revenue": 1350000, "commission": 510000 },
+    { "day": "Sam", "revenue": 980000, "commission": 370000 },
+    { "day": "Dim", "revenue": 1245800, "commission": 468000 }
+  ],
+  "recent_trips": [
+    {
+      "id": "1",
+      "ref": "TR-88421",
+      "service": "taxi",
+      "from_label": "Abidjan, Cocody",
+      "to_label": "Cocody, Riviera",
+      "client_name": "Aya Koné",
+      "driver_name": "Kouassi Jean",
+      "amount_fcfa": 4500,
+      "status": "completed",
+      "payment_method": "wallet",
+      "created_at": "2026-06-02T14:32:00Z"
+    },
+    {
+      "id": "2",
+      "ref": "TR-88419",
+      "service": "delivery",
+      "from_label": "Plateau, Immeuble SCIAM",
+      "to_label": "Plateau, Zone 4",
+      "client_name": "Société BTP CI",
+      "driver_name": "Traoré Aminata",
+      "amount_fcfa": 2800,
+      "status": "in_progress",
+      "payment_method": "cash",
+      "created_at": "2026-06-02T14:20:00Z"
+    },
+    {
+      "id": "3",
+      "ref": "TR-88415",
+      "service": "taxi",
+      "from_label": "Yopougon, Selmer",
+      "to_label": "Marcory, Zone 4",
+      "client_name": "Yao N'Guessan",
+      "driver_name": "Bamba Serge",
+      "amount_fcfa": 6200,
+      "status": "completed",
+      "payment_method": "card",
+      "created_at": "2026-06-02T13:45:00Z"
+    }
+  ],
+  "active_zone": {
+    "name": "Cocody — Plateau",
+    "franchise": "Abidjan Sud",
+    "trips_24h": 127,
+    "drivers_online": 342
+  }
+}
