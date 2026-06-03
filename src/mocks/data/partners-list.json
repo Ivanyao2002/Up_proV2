@@ -3,7 +3,7 @@
     {
       "id": 12,
       "name": "Cocody Express",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "franchise_id": 1,
       "city": "Abidjan",
       "drivers_count": 186,
@@ -14,7 +14,7 @@
     {
       "id": 15,
       "name": "Marcory Fleet",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "franchise_id": 1,
       "city": "Abidjan",
       "drivers_count": 94,
@@ -24,25 +24,36 @@
     },
     {
       "id": 22,
-      "name": "Abidjan Ouest Fleet",
-      "franchise_name": "Abidjan Ouest",
+      "name": "Montréal North Mobility",
+      "franchise_name": "Canada",
       "franchise_id": 2,
-      "city": "Abidjan",
+      "city": "Montréal",
       "drivers_count": 142,
       "status": "active",
-      "contact_email": "fleet@abidjanouest.ci",
-      "contact_phone": "+225 01 22 33 44 55"
+      "contact_email": "ops@mtlnorth.ca",
+      "contact_phone": "+1 514 555 0122"
     },
     {
       "id": 31,
-      "name": "Bouaké Transports",
-      "franchise_name": "Bouaké Centre",
+      "name": "Île-de-France VTC",
+      "franchise_name": "Espace euro",
       "franchise_id": 3,
-      "city": "Bouaké",
+      "city": "Paris",
+      "drivers_count": 210,
+      "status": "active",
+      "contact_email": "contact@idf-vtc.eu",
+      "contact_phone": "+33 1 84 00 00 31"
+    },
+    {
+      "id": 38,
+      "name": "Dakar Rides",
+      "franchise_name": "Sénégal",
+      "franchise_id": 4,
+      "city": "Dakar",
       "drivers_count": 67,
       "status": "pending",
-      "contact_email": "admin@bouaketrans.ci",
-      "contact_phone": "+225 07 88 99 00 11"
+      "contact_email": "admin@dakarrides.sn",
+      "contact_phone": "+221 77 123 45 67"
     }
   ],
   "meta": { "total": 53, "per_page": 25, "current_page": 1, "last_page": 3 }

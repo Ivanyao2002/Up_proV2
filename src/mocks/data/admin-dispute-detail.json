@@ -7,7 +7,7 @@
   "category": "dispute",
   "reporter_name": "M. Ouattara",
   "reporter_phone": "+225 07 12 34 56 78",
-  "franchise_name": "Abidjan Sud",
+  "franchise_name": "Côte d'Ivoire",
   "trip_ref": "TR-88421",
   "trip_id": "3",
   "amount_disputed_fcfa": 4200,
@@ -25,7 +25,7 @@
     {
       "id": "e2",
       "label": "Assigné au support L2",
-      "description": "Équipe finance Abidjan Sud",
+      "description": "Équipe finance Côte d'Ivoire",
       "at": "2026-06-02T15:00:00Z",
       "actor": "Aya Koné"
     },

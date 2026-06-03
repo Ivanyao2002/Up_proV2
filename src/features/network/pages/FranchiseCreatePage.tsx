@@ -69,19 +69,21 @@ export function FranchiseCreatePage() {
         }}
       >
         <label className="block">
-          <span className="text-sm font-medium">Nom</span>
+          <span className="text-sm font-medium">Pays ou région</span>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
+            placeholder="Ex. Côte d'Ivoire, Canada, Espace euro"
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
             required
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium">Ville</span>
+          <span className="text-sm font-medium">Siège (ville principale)</span>
           <input
             value={city}
             onChange={(e) => setCity(e.target.value)}
+            placeholder="Ex. Abidjan, Montréal, Paris"
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
             required
           />

@@ -5,7 +5,7 @@
       "owner_type": "driver",
       "owner_id": 101,
       "owner_name": "Koné Ibrahim",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "balance_fcfa": 45200,
       "pending_fcfa": 0,
       "status": "active"
@@ -15,7 +15,7 @@
       "owner_type": "partner",
       "owner_id": 12,
       "owner_name": "Cocody Express",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "balance_fcfa": 520000,
       "pending_fcfa": 450000,
       "status": "active"
@@ -24,8 +24,8 @@
       "id": "W-FRN-1",
       "owner_type": "franchise",
       "owner_id": 1,
-      "owner_name": "Abidjan Sud",
-      "franchise_name": "Abidjan Sud",
+      "owner_name": "Côte d'Ivoire",
+      "franchise_name": "Côte d'Ivoire",
       "balance_fcfa": 12458000,
       "pending_fcfa": 890000,
       "status": "active"
@@ -35,7 +35,7 @@
       "owner_type": "driver",
       "owner_id": 103,
       "owner_name": "Diabaté Moussa",
-      "franchise_name": "Abidjan Ouest",
+      "franchise_name": "Côte d'Ivoire",
       "balance_fcfa": 12800,
       "pending_fcfa": 5000,
       "status": "frozen"

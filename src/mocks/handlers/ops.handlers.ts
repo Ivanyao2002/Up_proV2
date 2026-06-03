@@ -3,7 +3,11 @@ import tripsListSeed from "../data/trips-list.json";
 import { TRIPS_CATALOG, filterTrips } from "../lib/tripsCatalog";
 import { paginatedList, parseListQuery } from "../lib/listQuery";
 import tripDetail from "../data/trip-detail.json";
-import liveMap from "../data/live-map.json";
+import {
+  buildAdminLiveMap,
+  buildLocalAbidjanLiveMap,
+  getLiveMapCatalogDrivers,
+} from "../lib/liveMapBuilder";
 import dispatchConsoleSeed from "../data/dispatch-console.json";
 import tripForensic from "../data/trip-forensic.json";
 import crisisModeSeed from "../data/crisis-mode.json";
@@ -30,7 +34,8 @@ function buildDispatchQueue(): DispatchQueueItem[] {
 
 function dispatchConsoleResponse(): DispatchConsoleData {
   const queue = buildDispatchQueue();
-  const online = liveMap.drivers.filter((d) => d.availability === "online").length;
+  const localMap = buildLocalAbidjanLiveMap();
+  const online = localMap.drivers.filter((d) => d.availability === "online").length;
   return {
     stats: {
       queue_size: queue.length,
@@ -43,7 +48,7 @@ function dispatchConsoleResponse(): DispatchConsoleData {
 }
 
 const driverNames: Record<number, string> = Object.fromEntries(
-  liveMap.drivers.map((d) => [d.id, d.name])
+  getLiveMapCatalogDrivers().map((d) => [d.id, d.name])
 );
 
 let crisisState = { ...crisisModeSeed };
@@ -69,8 +74,14 @@ export const opsHandlers = [
     return HttpResponse.json({ ...tripDetail, id });
   }),
 
-  http.get("*/api/v2/admin/ops/map", () => {
-    return HttpResponse.json(liveMap);
+  http.get("*/api/v2/admin/ops/map", ({ request }) => {
+    const url = new URL(request.url);
+    return HttpResponse.json(
+      buildAdminLiveMap({
+        franchise_id: url.searchParams.get("franchise_id"),
+        partner_id: url.searchParams.get("partner_id"),
+      })
+    );
   }),
 
   http.get("*/api/v2/admin/ops/dispatch", () => {
@@ -113,7 +124,7 @@ export const opsHandlers = [
   }),
 
   http.get("*/api/v2/admin/ops/trips/:id/reassign-candidates", () => {
-    const candidates = liveMap.drivers
+    const candidates = buildLocalAbidjanLiveMap().drivers
       .filter((d) => d.availability === "online")
       .map((d) => ({ id: d.id, name: d.name, vehicle: d.vehicle }));
     return HttpResponse.json({ data: candidates });
@@ -131,7 +142,7 @@ export const opsHandlers = [
       return HttpResponse.json({ message: "Course introuvable" }, { status: 404 });
     }
     const trip = tripsState.data[idx];
-    const driver = liveMap.drivers.find((d) => d.id === driverId);
+    const driver = getLiveMapCatalogDrivers().find((d) => d.id === driverId);
     const driverName = driver?.name ?? driverNames[driverId] ?? `Chauffeur #${driverId}`;
     const updated: Trip = {
       ...trip,

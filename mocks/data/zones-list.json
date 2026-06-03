@@ -2,27 +2,27 @@
   "data": [
     {
       "id": 1,
-      "name": "Cocody — Plateau",
+      "name": "Abidjan — Cocody / Plateau",
       "city": "Abidjan",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "type": "standard",
       "drivers_active": 342,
       "surge_multiplier": 1.0
     },
     {
       "id": 2,
-      "name": "Yopougon centre",
-      "city": "Abidjan",
-      "franchise_name": "Abidjan Ouest",
+      "name": "Montréal — Centre-ville",
+      "city": "Montréal",
+      "franchise_name": "Canada",
       "type": "surge",
       "drivers_active": 218,
       "surge_multiplier": 1.25
     },
     {
       "id": 3,
-      "name": "Aéroport Félix Houphouët",
+      "name": "Abidjan — Aéroport Félix Houphouët",
       "city": "Abidjan",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "type": "airport",
       "drivers_active": 89,
       "surge_multiplier": 1.5

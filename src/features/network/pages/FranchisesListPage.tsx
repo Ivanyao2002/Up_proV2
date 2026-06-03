@@ -54,7 +54,7 @@ export function FranchisesListPage() {
   const columns: Column<Franchise>[] = [
     {
       id: "name",
-      header: "Franchise",
+      header: "Pays / région",
       cell: (f) => (
         <div>
           <Link

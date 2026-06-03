@@ -1,9 +1,9 @@
 {
-  "token": "mock-jwt-franchise-abidjan-sud",
+  "token": "mock-jwt-franchise-cote-divoire",
   "user": {
     "id": 5,
-    "name": "Abidjan Sud",
-    "email": "franchise@abidjansud.ci",
+    "name": "Côte d'Ivoire",
+    "email": "franchise@upjunoo.ci",
     "role": "franchise",
     "scope": "franchise",
     "franchise_id": 1,

@@ -11,7 +11,10 @@ import vehicleRejected from "../data/vehicle-detail-rejected.json";
 import vehicleDraft from "../data/vehicle-detail-draft.json";
 import driverDetail from "../data/driver-detail.json";
 import driverDetailPending from "../data/driver-detail-pending.json";
-import liveMap from "../data/live-map.json";
+import {
+  buildPartnerFleetLiveMap,
+  getLiveMapCatalogDrivers,
+} from "../lib/liveMapBuilder";
 import driverTripsSeed from "../data/driver-trips.json";
 import driverWalletTxSeed from "../data/driver-wallet-transactions.json";
 import bookingsListPartner from "../data/bookings-list-partner.json";
@@ -49,10 +52,6 @@ const PARTNER_DRIVERS = DRIVERS_CATALOG.filter(
   (d) => PARTNER_DRIVER_IDS.has(d.id) || d.owner_name === "Cocody Express"
 );
 
-const PARTNER_LIVE_MAP_IDS = new Set(
-  liveMap.drivers.map((d) => d.id)
-);
-
 const driverTripsById = driverTripsSeed as Record<
   string,
   { data: unknown[]; meta: { total: number; per_page: number; current_page: number; last_page: number } }
@@ -66,24 +65,6 @@ const emptyPage = {
   data: [],
   meta: { total: 0, per_page: 25, current_page: 1, last_page: 1 },
 };
-
-function buildPartnerLiveMapData() {
-  const drivers = liveMap.drivers.filter((d) => PARTNER_LIVE_MAP_IDS.has(d.id));
-  const online = drivers.filter((d) => d.availability === "online").length;
-  const onTrip = drivers.filter((d) => d.availability === "on_trip").length;
-  return {
-    zone_name: "Cocody Express · Flotte",
-    city: liveMap.city,
-    bounds: liveMap.bounds,
-    stats: {
-      drivers_online: online,
-      drivers_on_trip: onTrip,
-      active_trips: onTrip + Math.min(2, online),
-      avg_wait_min: 3.6,
-    },
-    drivers,
-  };
-}
 
 const PARTNER_BOOKINGS = [
   ...(bookingsListPartner.data as Trip[]),
@@ -234,22 +215,22 @@ export const partnerHandlers = [
   }),
 
   http.get("*/api/v2/partner/drivers/:id/live", ({ params }) => {
-    const id = Number(params.id);
-    const driver = liveMap.drivers.find((d) => d.id === id);
+    const id = String(params.id);
+    const driver = getLiveMapCatalogDrivers().find((d) => String(d.id) === id);
     if (!driver) {
       return HttpResponse.json({ message: "Chauffeur hors carte" }, { status: 404 });
     }
     return HttpResponse.json({
       driver,
-      bounds: liveMap.bounds,
+      bounds: buildPartnerFleetLiveMap().bounds,
       zone_name: "Cocody Express · Flotte",
-      city: liveMap.city,
+      city: "Côte d'Ivoire · Abidjan",
       updated_at: new Date().toISOString(),
     });
   }),
 
   http.get("*/api/v2/partner/ops/map", () => {
-    return HttpResponse.json(buildPartnerLiveMapData());
+    return HttpResponse.json(buildPartnerFleetLiveMap());
   }),
 
   http.post("*/api/v2/partner/drivers/:id/documents", async ({ params, request }) => {

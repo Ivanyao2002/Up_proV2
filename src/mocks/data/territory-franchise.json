@@ -1,16 +1,16 @@
 {
-  "franchise_name": "Abidjan Sud",
+  "franchise_name": "Côte d'Ivoire",
   "city": "Abidjan",
   "stats": {
-    "zones_count": 8,
+    "zones_count": 12,
     "partners_count": 24,
     "drivers_count": 4120,
-    "area_km2": 428
+    "area_km2": 322463
   },
   "zones": [
     {
       "id": 1,
-      "name": "Cocody — Plateau",
+      "name": "Abidjan — Cocody / Plateau",
       "type": "standard",
       "drivers_active": 342,
       "partners_count": 12,
@@ -29,7 +29,7 @@
     },
     {
       "id": 3,
-      "name": "Aéroport Félix Houphouët",
+      "name": "Abidjan — Aéroport Félix Houphouët",
       "type": "airport",
       "drivers_active": 89,
       "partners_count": 4,
@@ -48,7 +48,7 @@
     },
     {
       "id": 2,
-      "name": "Marcory — Zone 4",
+      "name": "Abidjan — Marcory / Zone 4",
       "type": "surge",
       "drivers_active": 156,
       "partners_count": 8,
@@ -61,6 +61,44 @@
             [-3.948, 5.295],
             [-3.962, 5.288],
             [-3.968, 5.302]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "name": "Bouaké centre",
+      "type": "standard",
+      "drivers_active": 78,
+      "partners_count": 3,
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-5.038, 7.698],
+            [-5.022, 7.705],
+            [-5.015, 7.688],
+            [-5.032, 7.682],
+            [-5.038, 7.698]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "name": "Yamoussoukro",
+      "type": "standard",
+      "drivers_active": 42,
+      "partners_count": 2,
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-5.302, 6.828],
+            [-5.288, 6.835],
+            [-5.282, 6.818],
+            [-5.298, 6.812],
+            [-5.302, 6.828]
           ]
         ]
       }

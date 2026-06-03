@@ -10,7 +10,7 @@ import franchiseSupport from "../data/franchise-support-tickets.json";
 import franchiseKycQueueSeed from "../data/franchise-kyc-queue.json";
 import driverDetail from "../data/driver-detail.json";
 import driverDetailPending from "../data/driver-detail-pending.json";
-import liveMap from "../data/live-map.json";
+import { buildAdminLiveMap } from "../lib/liveMapBuilder";
 import type {
   Driver,
   DriverDetail,
@@ -53,24 +53,6 @@ let franchiseDriverTransfers: PartnerDriverTransfer[] = [
 let franchiseRechargeStats: PartnerDriverRechargeStats = {
   ...franchiseTransfersSeed.stats,
 };
-
-function buildFranchiseLiveMapData() {
-  const drivers = liveMap.drivers.filter((d) => FRANCHISE_DRIVER_IDS.has(d.id));
-  const online = drivers.filter((d) => d.availability === "online").length;
-  const onTrip = drivers.filter((d) => d.availability === "on_trip").length;
-  return {
-    zone_name: `${territoryFranchise.franchise_name} · Territoire`,
-    city: liveMap.city,
-    bounds: liveMap.bounds,
-    stats: {
-      drivers_online: online,
-      drivers_on_trip: onTrip,
-      active_trips: onTrip + Math.min(3, online),
-      avg_wait_min: liveMap.stats.avg_wait_min,
-    },
-    drivers,
-  };
-}
 
 function franchiseAvailableFcfa() {
   return Math.max(
@@ -146,7 +128,7 @@ export const franchiseHandlers = [
   }),
 
   http.get("*/api/v2/franchise/ops/map", () => {
-    return HttpResponse.json(buildFranchiseLiveMapData());
+    return HttpResponse.json(buildAdminLiveMap({ franchise_id: "1" }));
   }),
 
   http.get("*/api/v2/franchise/territory", () => {
@@ -167,9 +149,9 @@ export const franchiseHandlers = [
     const partner = subPartners.data.find((p) => p.id === id) ?? subPartners.data[0];
     return HttpResponse.json({
       ...partner,
-      franchise_name: "Abidjan Sud",
+      franchise_name: territoryFranchise.franchise_name,
       legal_name: `${partner.name} SARL`,
-      address: "Abidjan",
+      address: partner.city,
       created_at: "2023-01-15T00:00:00Z",
       vehicles_count: Math.floor(partner.drivers_count * 0.8),
     });
@@ -220,7 +202,7 @@ export const franchiseHandlers = [
           id: "approved-now",
           type: "approved",
           label: "Compte approuvé",
-          description: "Validation franchise Abidjan Sud",
+          description: `Validation franchise ${territoryFranchise.franchise_name}`,
           at: now,
         },
         ...detail.timeline,

@@ -1,6 +1,9 @@
 import { http, HttpResponse } from "msw";
 import dispatchConsoleSeed from "../data/dispatch-console.json";
-import liveMap from "../data/live-map.json";
+import {
+  buildLocalAbidjanLiveMap,
+  getLiveMapCatalogDrivers,
+} from "../lib/liveMapBuilder";
 import tripsListSeed from "../data/trips-list.json";
 import type { DispatchConsoleData, DispatchQueueItem, Trip } from "@/shared/types";
 
@@ -25,7 +28,8 @@ function buildDispatchQueue(): DispatchQueueItem[] {
 
 function dispatchConsoleResponse(): DispatchConsoleData {
   const queue = buildDispatchQueue();
-  const online = liveMap.drivers.filter((d) => d.availability === "online").length;
+  const localMap = buildLocalAbidjanLiveMap();
+  const online = localMap.drivers.filter((d) => d.availability === "online").length;
   return {
     stats: {
       queue_size: queue.length,
@@ -38,7 +42,7 @@ function dispatchConsoleResponse(): DispatchConsoleData {
 }
 
 const driverNames: Record<number, string> = Object.fromEntries(
-  liveMap.drivers.map((d) => [d.id, d.name])
+  getLiveMapCatalogDrivers().map((d) => [d.id, d.name])
 );
 
 function nextTripRef(): string {
@@ -52,7 +56,7 @@ export const dispatchHandlers = [
   }),
 
   http.get("*/api/v2/dispatch/ops/map", () => {
-    return HttpResponse.json(liveMap);
+    return HttpResponse.json(buildLocalAbidjanLiveMap());
   }),
 
   http.post("*/api/v2/dispatch/ops/trips/:id/assign", async ({ params, request }) => {

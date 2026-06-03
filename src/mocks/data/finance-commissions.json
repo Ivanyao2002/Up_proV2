@@ -3,7 +3,7 @@
     {
       "id": "COM-2026-06",
       "period_label": "Juin 2026",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "trips_count": 8420,
       "gross_fcfa": 38500000,
       "commission_fcfa": 5775000,
@@ -13,7 +13,7 @@
     {
       "id": "COM-2026-05",
       "period_label": "Mai 2026",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "trips_count": 7980,
       "gross_fcfa": 36200000,
       "commission_fcfa": 5430000,
@@ -23,7 +23,7 @@
     {
       "id": "COM-2026-05-O",
       "period_label": "Mai 2026",
-      "franchise_name": "Abidjan Ouest",
+      "franchise_name": "Canada",
       "trips_count": 5120,
       "gross_fcfa": 22100000,
       "commission_fcfa": 3315000,

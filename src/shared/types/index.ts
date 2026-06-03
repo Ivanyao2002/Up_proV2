@@ -305,6 +305,27 @@ export interface LiveMapDriver {
   lng: number;
   availability: Driver["availability"];
   vehicle: string;
+  franchise_id?: number;
+  franchise_name?: string;
+  partner_id?: number;
+  partner_name?: string;
+  zone_name?: string;
+}
+
+export type LiveMapScope = "global" | "franchise" | "partner";
+
+export interface LiveMapFilterFranchise {
+  id: number;
+  name: string;
+  city: string;
+}
+
+export interface LiveMapFilterPartner {
+  id: number;
+  name: string;
+  franchise_id: number;
+  franchise_name: string;
+  city: string;
 }
 
 export interface DispatchDriverCandidate {
@@ -388,6 +409,7 @@ export interface PricingRule {
 export interface LiveMapData {
   zone_name: string;
   city: string;
+  scope?: LiveMapScope;
   stats: {
     drivers_online: number;
     drivers_on_trip: number;
@@ -401,6 +423,21 @@ export interface LiveMapData {
     lng_max: number;
   };
   drivers: LiveMapDriver[];
+  filter_options?: {
+    franchises: LiveMapFilterFranchise[];
+    partners: LiveMapFilterPartner[];
+  };
+  active_filter?: {
+    franchise_id: number | null;
+    partner_id: number | null;
+  };
+  /** Résumé par franchise (vue mondiale) */
+  franchise_summary?: {
+    franchise_id: number;
+    franchise_name: string;
+    drivers_visible: number;
+    drivers_active: number;
+  }[];
 }
 
 export interface DashboardPartnerKpi {

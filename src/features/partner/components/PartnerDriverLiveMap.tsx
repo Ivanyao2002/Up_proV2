@@ -11,19 +11,7 @@ const PIN_COLORS: Record<LiveMapDriver["availability"], string> = {
   offline: "bg-muted/50",
 };
 
-function projectDriver(
-  driver: LiveMapDriver,
-  bounds: LiveMapData["bounds"]
-): { left: string; top: string } {
-  const latPct =
-    ((driver.lat - bounds.lat_min) / (bounds.lat_max - bounds.lat_min)) * 100;
-  const lngPct =
-    ((driver.lng - bounds.lng_min) / (bounds.lng_max - bounds.lng_min)) * 100;
-  return {
-    left: `${Math.min(92, Math.max(8, lngPct))}%`,
-    top: `${Math.min(88, Math.max(12, 100 - latPct))}%`,
-  };
-}
+import { projectDriver } from "@/features/ops/lib/liveMapProjection";
 
 interface PartnerDriverLiveMapProps {
   driverId: string;

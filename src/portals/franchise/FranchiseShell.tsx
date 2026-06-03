@@ -8,7 +8,7 @@ export function FranchiseShell({ children }: { children: React.ReactNode }) {
       <PortalSidebar nav={FRANCHISE_NAV} subtitle="Franchise" />
       <div className="flex min-w-0 flex-1 flex-col">
         <PortalTopbar
-          scopeLabel="Territoire · Abidjan Sud"
+          scopeLabel="Pays · Côte d'Ivoire"
           badge="Franchise"
           loginPath="/franchise/login"
         />

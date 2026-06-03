@@ -3,11 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { liveMapKeys } from "./liveMap.keys";
 import { liveMapService } from "./liveMap.service";
+import type { LiveMapScopeFiltersValue } from "./liveMap.types";
 
-export function useLiveMap() {
+export function useLiveMap(filters?: LiveMapScopeFiltersValue) {
   return useQuery({
-    queryKey: liveMapKeys.admin(),
-    queryFn: () => liveMapService.getAdmin(),
+    queryKey: liveMapKeys.admin(filters),
+    queryFn: () => liveMapService.getAdmin(filters),
     refetchInterval: 30_000,
   });
 }

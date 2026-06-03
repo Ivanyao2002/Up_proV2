@@ -2,8 +2,8 @@
   "data": [
     {
       "id": 1,
-      "code": "ABJSUD20",
-      "label": "−20 % première course Abidjan Sud",
+      "code": "CIWELCOME20",
+      "label": "−20 % première course Côte d'Ivoire",
       "discount_pct": 20,
       "uses_count": 142,
       "max_uses": 500,
@@ -13,7 +13,7 @@
     {
       "id": 2,
       "code": "COCODY500",
-      "label": "500 FCFA offerts Cocody",
+      "label": "500 FCFA offerts Abidjan",
       "discount_pct": 0,
       "fixed_discount_fcfa": 500,
       "uses_count": 89,

@@ -1,12 +1,12 @@
 {
-  "city": "Abidjan",
+  "city": "Réseau multi-pays",
   "zones": [
     {
       "id": 1,
-      "name": "Cocody — Plateau",
+      "name": "Abidjan — Cocody / Plateau",
       "type": "standard",
       "city": "Abidjan",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "polygon_geojson": {
         "type": "Polygon",
         "coordinates": [
@@ -22,10 +22,10 @@
     },
     {
       "id": 2,
-      "name": "Yopougon centre",
+      "name": "Abidjan — Yopougon",
       "type": "surge",
       "city": "Abidjan",
-      "franchise_name": "Abidjan Ouest",
+      "franchise_name": "Côte d'Ivoire",
       "polygon_geojson": {
         "type": "Polygon",
         "coordinates": [
@@ -41,10 +41,10 @@
     },
     {
       "id": 3,
-      "name": "Aéroport Félix Houphouët",
+      "name": "Abidjan — Aéroport FHB",
       "type": "airport",
       "city": "Abidjan",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "polygon_geojson": {
         "type": "Polygon",
         "coordinates": [
@@ -60,10 +60,10 @@
     },
     {
       "id": 4,
-      "name": "Marcory — Zone 4",
+      "name": "Abidjan — Marcory",
       "type": "surge",
       "city": "Abidjan",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "polygon_geojson": {
         "type": "Polygon",
         "coordinates": [
@@ -79,19 +79,19 @@
     },
     {
       "id": 5,
-      "name": "Plateau — Zone 4",
+      "name": "Montréal — Centre-ville",
       "type": "standard",
-      "city": "Abidjan",
-      "franchise_name": "Abidjan Sud",
+      "city": "Montréal",
+      "franchise_name": "Canada",
       "polygon_geojson": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-4.018, 5.328],
-            [-4.005, 5.335],
-            [-4.002, 5.318],
-            [-4.012, 5.312],
-            [-4.018, 5.328]
+            [-73.58, 45.51],
+            [-73.56, 45.52],
+            [-73.55, 45.50],
+            [-73.57, 45.49],
+            [-73.58, 45.51]
           ]
         ]
       }

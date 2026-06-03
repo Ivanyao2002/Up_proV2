@@ -7,7 +7,7 @@
       "priority": "high",
       "status": "open",
       "reporter_name": "M. Ouattara",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "dispute_id": "DSP-501",
       "created_at": "2026-06-02T14:20:00Z",
       "updated_at": "2026-06-02T16:00:00Z"
@@ -19,7 +19,7 @@
       "priority": "normal",
       "status": "in_progress",
       "reporter_name": "Cocody Express",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "created_at": "2026-06-01T09:00:00Z",
       "updated_at": "2026-06-02T10:15:00Z"
     },
@@ -30,7 +30,7 @@
       "priority": "normal",
       "status": "resolved",
       "reporter_name": "Koné Ibrahim",
-      "franchise_name": "Abidjan Sud",
+      "franchise_name": "Côte d'Ivoire",
       "created_at": "2026-05-29T11:30:00Z",
       "updated_at": "2026-05-30T09:00:00Z"
     }
