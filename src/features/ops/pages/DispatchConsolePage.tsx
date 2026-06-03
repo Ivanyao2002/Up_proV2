@@ -42,7 +42,7 @@ function QueueCard({
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="font-medium text-navy">{item.trip.ref}</span>
+        <span className="font-medium text-foreground">{item.trip.ref}</span>
         <StatusPill status={item.trip.status} />
       </div>
       <p className="mt-1 text-xs text-muted line-clamp-1">{item.trip.from_label}</p>
@@ -81,11 +81,11 @@ function CandidateRow({
       }`}
     >
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-navy">{candidate.name}</p>
+        <p className="font-medium text-foreground">{candidate.name}</p>
         <p className="text-xs text-muted">{candidate.vehicle}</p>
       </div>
       <div className="text-right text-xs tabular-nums">
-        <p className="font-medium text-navy">{candidate.distance_km.toFixed(1)} km</p>
+        <p className="font-medium text-foreground">{candidate.distance_km.toFixed(1)} km</p>
         <p className="text-muted">~{candidate.eta_min} min</p>
       </div>
       <div className="text-right text-xs">
@@ -225,23 +225,23 @@ export function DispatchConsolePage({
               <>
                 <div className="rounded-card border border-border bg-surface p-5 shadow-card">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-lg font-semibold text-navy">
+                    <h2 className="text-lg font-semibold text-heading">
                       {selected.trip.ref}
                     </h2>
                     <ServicePill service={selected.trip.service} />
                     <StatusPill status={selected.trip.status} />
                   </div>
-                  <p className="mt-2 text-sm text-navy">{selected.trip.client_name}</p>
+                  <p className="mt-2 text-sm text-foreground">{selected.trip.client_name}</p>
                   <div className="mt-3 space-y-1 text-sm text-muted">
                     <p>
                       <span className="text-teal">●</span> {selected.trip.from_label}
                     </p>
                     <p>
-                      <span className="text-navy">●</span> {selected.trip.to_label}
+                      <span className="text-teal">●</span> {selected.trip.to_label}
                     </p>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
-                    <span className="text-lg font-semibold tabular-nums text-navy">
+                    <span className="text-lg font-semibold tabular-nums text-heading">
                       {formatFCFA(selected.trip.amount_fcfa)}
                     </span>
                     {selected.zone_name && (

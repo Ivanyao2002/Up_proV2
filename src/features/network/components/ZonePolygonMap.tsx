@@ -21,7 +21,7 @@ export function ZonePolygonMap({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-card border border-border bg-[#e8eaf0] ${className}`}
+      className={`relative overflow-hidden rounded-card border border-border bg-map ${className}`}
     >
       <div
         className="absolute inset-0 opacity-30"
@@ -45,7 +45,7 @@ export function ZonePolygonMap({
           strokeWidth="0.8"
         />
       </svg>
-      <p className="absolute bottom-3 left-3 rounded bg-surface/90 px-2 py-1 text-xs font-medium text-navy shadow-sm">
+      <p className="absolute bottom-3 left-3 rounded bg-surface/90 px-2 py-1 text-xs font-medium text-foreground shadow-sm">
         {zoneName} · polygone actif
       </p>
     </div>

@@ -108,7 +108,7 @@ export function PartnerWalletPage() {
               className="flex items-center justify-between gap-4 px-6 py-4"
             >
               <div>
-                <p className="font-medium text-[#212529]">{m.label}</p>
+                <p className="font-medium text-foreground">{m.label}</p>
                 <p className="text-xs text-muted">{formatDateTime(m.created_at)}</p>
               </div>
               <span

@@ -58,7 +58,7 @@ export function ZonesListPage() {
         <div>
           <Link
             href={`/admin/network/zones/${z.id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {z.name}
           </Link>

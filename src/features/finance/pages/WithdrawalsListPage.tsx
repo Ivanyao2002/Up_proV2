@@ -66,7 +66,7 @@ export function WithdrawalsListPage() {
     {
       id: "id",
       header: "Réf.",
-      cell: (w) => <span className="font-medium text-navy">{w.id}</span>,
+      cell: (w) => <span className="font-medium text-foreground">{w.id}</span>,
       exportValue: (w) => w.id,
     },
     {
@@ -77,14 +77,14 @@ export function WithdrawalsListPage() {
           {w.owner_id ? (
             <Link
               href={`/admin/network/partners/${w.owner_id}`}
-              className="font-medium text-navy hover:text-teal"
+              className="font-medium text-foreground hover:text-teal"
             >
               {w.owner_name}
             </Link>
           ) : w.driver_id ? (
             <Link
               href={`/admin/fleet/drivers/${w.driver_id}`}
-              className="font-medium text-navy hover:text-teal"
+              className="font-medium text-foreground hover:text-teal"
             >
               {w.owner_name}
             </Link>

@@ -58,7 +58,7 @@ export function ClientsListPage() {
         <div>
           <Link
             href={`/admin/fleet/clients/${c.id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {c.full_name}
           </Link>

@@ -13,6 +13,7 @@
       "fleet.drivers.view",
       "fleet.drivers.status.bulk",
       "ops.trips.view",
+      "ops.map.view",
       "finance.wallets.view"
     ]
   }

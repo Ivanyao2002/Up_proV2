@@ -21,7 +21,7 @@ export function FilterChips<T extends string>({
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-150 ${
               active
                 ? "bg-teal text-white"
-                : "bg-surface text-muted border border-border hover:bg-canvas hover:text-navy"
+                : "bg-surface text-muted border border-border hover:bg-surface-hover hover:text-foreground"
             }`}
           >
             {opt.label}

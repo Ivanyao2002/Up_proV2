@@ -58,7 +58,7 @@ export function FranchiseTerritoryPage() {
         />
         <aside className="space-y-4">
           <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <h2 className="text-sm font-semibold text-navy">Zones du territoire</h2>
+            <h2 className="text-sm font-semibold text-heading">Zones du territoire</h2>
             <div className="mt-4">
               <FranchiseTerritoryLegend
                 zones={data.zones}
@@ -69,7 +69,7 @@ export function FranchiseTerritoryPage() {
           </div>
           {selected && (
             <div className="rounded-card border border-teal/30 bg-teal/5 p-4 text-sm">
-              <p className="font-semibold text-navy">{selected.name}</p>
+              <p className="font-semibold text-heading">{selected.name}</p>
               <p className="mt-2 text-muted">
                 {selected.drivers_active} chauffeurs actifs sur cette zone
               </p>

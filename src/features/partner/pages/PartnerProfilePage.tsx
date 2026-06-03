@@ -43,7 +43,7 @@ export function PartnerProfilePage() {
 
       <div className="space-y-6">
         <section className="rounded-card border border-border bg-surface p-6 shadow-card">
-          <h2 className="text-sm font-semibold text-[#212529]">Entreprise</h2>
+          <h2 className="text-sm font-semibold text-foreground">Entreprise</h2>
           <dl className="mt-4 space-y-3 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-muted">Raison sociale</dt>
@@ -80,7 +80,7 @@ export function PartnerProfilePage() {
             });
           }}
         >
-          <h2 className="text-sm font-semibold text-[#212529]">Coordonnées</h2>
+          <h2 className="text-sm font-semibold text-foreground">Coordonnées</h2>
           <p className="text-xs text-muted">
             Ces informations sont visibles par votre franchise et le support UpJunoo.
           </p>

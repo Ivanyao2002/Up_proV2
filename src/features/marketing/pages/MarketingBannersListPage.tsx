@@ -50,7 +50,7 @@ export function MarketingBannersListPage() {
       header: "Bannière",
       cell: (b) => (
         <div>
-          <p className="font-medium text-navy">{b.title}</p>
+          <p className="font-medium text-foreground">{b.title}</p>
           <p className="text-xs text-muted">{b.placement}</p>
         </div>
       ),

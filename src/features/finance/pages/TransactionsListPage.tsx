@@ -67,7 +67,7 @@ export function TransactionsListPage() {
     {
       id: "id",
       header: "Réf.",
-      cell: (t) => <span className="font-medium text-navy">{t.id}</span>,
+      cell: (t) => <span className="font-medium text-foreground">{t.id}</span>,
       exportValue: (t) => t.id,
     },
     {

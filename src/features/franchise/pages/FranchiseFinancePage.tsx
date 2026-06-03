@@ -85,7 +85,7 @@ export function FranchiseFinancePage() {
                 className="flex items-center justify-between gap-4 px-6 py-3 text-sm"
               >
                 <div>
-                  <p className="font-medium text-navy">{tx.label}</p>
+                  <p className="font-medium text-foreground">{tx.label}</p>
                   <p className="text-xs text-muted">{formatDateTime(tx.created_at)}</p>
                 </div>
                 <p

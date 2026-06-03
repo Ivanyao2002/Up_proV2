@@ -60,7 +60,7 @@ export function FranchiseSupportPage() {
       header: "Ticket",
       cell: (t) => (
         <div>
-          <p className="font-mono font-medium text-navy">{t.id}</p>
+          <p className="font-mono font-medium text-foreground">{t.id}</p>
           <p className="text-xs text-muted">{t.category}</p>
         </div>
       ),
@@ -71,7 +71,7 @@ export function FranchiseSupportPage() {
       header: "Sujet",
       cell: (t) => (
         <div>
-          <p className="text-sm font-medium text-[#212529]">{t.subject}</p>
+          <p className="text-sm font-medium text-foreground">{t.subject}</p>
           <p className="text-xs text-muted">{t.partner_name}</p>
         </div>
       ),
@@ -86,7 +86,7 @@ export function FranchiseSupportPage() {
             t.priority === "high"
               ? "text-red-600"
               : t.priority === "normal"
-                ? "text-navy"
+                ? "text-foreground"
                 : "text-muted"
           }`}
         >
@@ -105,7 +105,7 @@ export function FranchiseSupportPage() {
               ? "bg-teal/15 text-teal-dark"
               : t.status === "in_progress"
                 ? "bg-amber-50 text-amber-700"
-                : "bg-navy/10 text-navy"
+                : "bg-navy/10 text-foreground"
           }`}
         >
           {STATUS_LABELS[t.status]}

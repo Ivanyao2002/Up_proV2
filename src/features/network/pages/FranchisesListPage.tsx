@@ -59,7 +59,7 @@ export function FranchisesListPage() {
         <div>
           <Link
             href={`/admin/network/franchises/${f.id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {f.name}
           </Link>

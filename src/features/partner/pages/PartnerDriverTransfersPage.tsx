@@ -45,7 +45,7 @@ export function PartnerDriverTransfersPage() {
       id: "ref",
       header: "Réf.",
       cell: (t) => (
-        <span className="font-mono text-sm font-medium text-navy">{t.ref}</span>
+        <span className="font-mono text-sm font-medium text-foreground">{t.ref}</span>
       ),
       exportValue: (t) => t.ref,
     },
@@ -56,7 +56,7 @@ export function PartnerDriverTransfersPage() {
         <div>
           <Link
             href={`/partner/drivers/${t.driver_id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {t.driver_name}
           </Link>

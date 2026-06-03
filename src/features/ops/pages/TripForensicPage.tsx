@@ -73,19 +73,19 @@ export function TripForensicPage({ tripId }: TripForensicPageProps) {
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-card border border-border bg-surface p-4 shadow-card">
           <p className="text-xs text-muted">Distance enregistrée</p>
-          <p className="mt-1 text-xl font-semibold tabular-nums text-navy">
+          <p className="mt-1 text-xl font-semibold tabular-nums text-heading">
             {data.distance_km} km
           </p>
         </div>
         <div className="rounded-card border border-border bg-surface p-4 shadow-card">
           <p className="text-xs text-muted">Durée</p>
-          <p className="mt-1 text-xl font-semibold tabular-nums text-navy">
+          <p className="mt-1 text-xl font-semibold tabular-nums text-heading">
             {data.duration_min} min
           </p>
         </div>
         <div className="rounded-card border border-border bg-surface p-4 shadow-card">
           <p className="text-xs text-muted">Anomalies</p>
-          <p className="mt-1 text-xl font-semibold tabular-nums text-navy">
+          <p className="mt-1 text-xl font-semibold tabular-nums text-heading">
             {data.anomalies.length}
           </p>
         </div>
@@ -110,7 +110,7 @@ export function TripForensicPage({ tripId }: TripForensicPageProps) {
                     : "border-border bg-surface"
               }`}
             >
-              <p className="font-medium text-[#212529]">{a.label}</p>
+              <p className="font-medium text-foreground">{a.label}</p>
               <p className="mt-1 text-sm text-muted">{a.description}</p>
             </li>
           ))}
@@ -118,7 +118,7 @@ export function TripForensicPage({ tripId }: TripForensicPageProps) {
       )}
 
       <div className="mt-8">
-        <h2 className="mb-3 text-sm font-semibold text-navy">Points GPS</h2>
+        <h2 className="mb-3 text-sm font-semibold text-heading">Points GPS</h2>
         <DataTable
           columns={columns}
           data={data.gps_trace}

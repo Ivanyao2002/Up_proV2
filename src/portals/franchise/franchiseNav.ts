@@ -11,9 +11,15 @@ export const FRANCHISE_NAV: NavGroup[] = [
         permission: "ops.dashboard.view",
       },
       {
+        label: "Carte live",
+        path: "/franchise/map",
+        icon: "map",
+        permission: "ops.map.view",
+      },
+      {
         label: "Carte territoire",
         path: "/franchise/territory",
-        icon: "map",
+        icon: "territory",
         permission: "ops.dashboard.view",
       },
       {

@@ -46,7 +46,7 @@ export function SettingsAuditPage() {
     {
       id: "resource",
       header: "Ressource",
-      cell: (e) => <span className="font-medium text-navy">{e.resource}</span>,
+      cell: (e) => <span className="font-medium text-foreground">{e.resource}</span>,
       exportValue: (e) => e.resource,
     },
     {

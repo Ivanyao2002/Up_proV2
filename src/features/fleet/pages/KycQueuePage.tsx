@@ -47,7 +47,7 @@ export function KycQueuePage() {
         <div>
           <Link
             href={`/admin/fleet/drivers/${row.driver_id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {row.first_name} {row.last_name}
           </Link>

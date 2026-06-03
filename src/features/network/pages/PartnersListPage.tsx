@@ -58,7 +58,7 @@ export function PartnersListPage() {
         <div>
           <Link
             href={`/admin/network/partners/${p.id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {p.name}
           </Link>

@@ -52,7 +52,7 @@ export function FranchiseDashboardPage() {
 
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-[#212529]">Flux 7 jours</h2>
+            <h2 className="text-sm font-semibold text-foreground">Flux 7 jours</h2>
             <div className="mt-4 flex h-36 items-end justify-between gap-1">
               {data.chart_flux.map((p) => {
                 const max = Math.max(...data.chart_flux.map((x) => x.revenue), 1);
@@ -79,7 +79,7 @@ export function FranchiseDashboardPage() {
                   <div>
                     <Link
                       href={`/franchise/partners/${p.id}`}
-                      className="font-medium text-navy hover:text-teal"
+                      className="font-medium text-foreground hover:text-teal"
                     >
                       {p.name}
                     </Link>

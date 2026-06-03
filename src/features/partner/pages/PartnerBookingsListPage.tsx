@@ -58,7 +58,7 @@ export function PartnerBookingsListPage() {
       cell: (b) => (
         <Link
           href={`/partner/bookings/${b.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {b.ref}
         </Link>
@@ -70,7 +70,7 @@ export function PartnerBookingsListPage() {
       header: "Trajet",
       cell: (b) => (
         <div className="min-w-[200px]">
-          <p className="text-sm text-[#212529]">{b.from_label}</p>
+          <p className="text-sm text-foreground">{b.from_label}</p>
           <p className="text-xs text-muted">→ {b.to_label}</p>
         </div>
       ),

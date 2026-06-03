@@ -18,7 +18,7 @@ function MapSkeleton() {
             />
           ))}
         </div>
-        <div className="h-[min(520px,70vh)] animate-pulse rounded-card bg-[#d8dbe4]" />
+        <div className="h-[min(520px,70vh)] animate-pulse rounded-card bg-map" />
       </div>
       <div className="h-[min(560px,72vh)] animate-pulse rounded-card bg-navy/20" />
     </div>

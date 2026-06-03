@@ -63,7 +63,7 @@ export function PricingListPage() {
     {
       id: "zone",
       header: "Zone",
-      cell: (p) => <span className="font-medium text-navy">{p.zone_name}</span>,
+      cell: (p) => <span className="font-medium text-foreground">{p.zone_name}</span>,
       exportValue: (p) => p.zone_name,
     },
     {

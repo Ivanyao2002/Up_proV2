@@ -49,13 +49,13 @@ export function PricingForm({
       <div className="block">
         <span className="text-sm font-medium">Zone</span>
         {mode === "edit" ? (
-          <p className="mt-2 rounded-lg border border-border bg-canvas px-3 py-2.5 text-sm font-medium text-navy">
+          <p className="mt-2 rounded-lg border border-border bg-canvas px-3 py-2.5 text-sm font-medium text-foreground">
             {values.zone_name}
           </p>
         ) : selectedZone ? (
           <div className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-teal/30 bg-teal/5 px-3 py-2.5">
             <div>
-              <p className="font-medium text-navy">{selectedZone.name}</p>
+              <p className="font-medium text-foreground">{selectedZone.name}</p>
               {selectedZone.franchise_name && (
                 <p className="text-xs text-muted">{selectedZone.franchise_name}</p>
               )}

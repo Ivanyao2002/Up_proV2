@@ -29,7 +29,7 @@ export function ConfirmModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-navy/40 animate-fade-up"
+        className="absolute inset-0 bg-overlay animate-fade-up"
         aria-label="Fermer"
         onClick={onCancel}
       />
@@ -38,7 +38,7 @@ export function ConfirmModal({
         aria-modal
         className="relative w-full max-w-md rounded-card bg-surface p-6 shadow-card animate-fade-up"
       >
-        <h2 className="text-lg font-semibold text-[#212529]">{title}</h2>
+        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
         <p className="mt-2 text-sm text-muted">{message}</p>
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="secondary" onClick={onCancel}>

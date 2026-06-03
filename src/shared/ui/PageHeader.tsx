@@ -13,7 +13,7 @@ export function PageHeader({ title, breadcrumb, actions }: PageHeaderProps) {
             {breadcrumb.join(" / ")}
           </nav>
         )}
-        <h1 className="text-[22px] font-semibold tracking-tight text-[#212529]">
+        <h1 className="text-[22px] font-semibold tracking-tight text-heading">
           {title}
         </h1>
       </div>

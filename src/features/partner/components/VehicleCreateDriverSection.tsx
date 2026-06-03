@@ -38,7 +38,7 @@ export function VehicleCreateDriverSection({
           className="mt-1 h-4 w-4 rounded border-border text-teal focus:ring-teal/30"
         />
         <div>
-          <span className="text-sm font-semibold text-[#212529]">
+          <span className="text-sm font-semibold text-foreground">
             Créer et assigner un chauffeur
           </span>
           <p className="mt-1 text-sm text-muted">

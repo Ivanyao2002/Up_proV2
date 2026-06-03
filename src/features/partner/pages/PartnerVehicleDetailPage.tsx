@@ -73,31 +73,31 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
             <dl className="mt-3 space-y-2 text-muted">
               <div className="flex justify-between gap-2">
                 <dt>Plaque</dt>
-                <dd className="text-[#212529]">{vehicle.plate || "—"}</dd>
+                <dd className="text-foreground">{vehicle.plate || "—"}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Catégorie</dt>
-                <dd className="text-[#212529]">
+                <dd className="text-foreground">
                   {getVehicleCategoryLabel(vehicle.category)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Année · Couleur</dt>
-                <dd className="text-[#212529]">
+                <dd className="text-foreground">
                   {vehicle.year} · {vehicle.color}
                 </dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Places</dt>
-                <dd className="text-[#212529]">{vehicle.seats}</dd>
+                <dd className="text-foreground">{vehicle.seats}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Chauffeur</dt>
-                <dd className="text-[#212529]">{vehicle.driver_name ?? "Non assigné"}</dd>
+                <dd className="text-foreground">{vehicle.driver_name ?? "Non assigné"}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Créé le</dt>
-                <dd className="text-[#212529]">{formatDateTime(vehicle.created_at)}</dd>
+                <dd className="text-foreground">{formatDateTime(vehicle.created_at)}</dd>
               </div>
               {vehicle.approved_at && (
                 <div className="flex justify-between gap-2">

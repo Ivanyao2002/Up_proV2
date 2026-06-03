@@ -57,7 +57,7 @@ export function RoleDetailPage({ roleId }: RoleDetailPageProps) {
         breadcrumb={["Admin", "Paramètres", "Rôles", data.name]}
         actions={
           data.is_system ? (
-            <span className="rounded-full bg-navy/10 px-3 py-1 text-xs font-medium text-navy">
+            <span className="rounded-full bg-navy/10 px-3 py-1 text-xs font-medium text-foreground">
               Rôle système
             </span>
           ) : metaEditing ? (
@@ -145,7 +145,7 @@ export function RoleDetailPage({ roleId }: RoleDetailPageProps) {
             key={group.module}
             className="rounded-card border border-border bg-surface p-6 shadow-card"
           >
-            <h2 className="text-sm font-semibold text-navy">{group.module}</h2>
+            <h2 className="text-sm font-semibold text-heading">{group.module}</h2>
             <ul className="mt-4 divide-y divide-border">
               {group.permissions.map((perm) => (
                 <li
@@ -153,7 +153,7 @@ export function RoleDetailPage({ roleId }: RoleDetailPageProps) {
                   className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
                 >
                   <div>
-                    <p className="text-sm font-medium text-[#212529]">{perm.label}</p>
+                    <p className="text-sm font-medium text-foreground">{perm.label}</p>
                     <p className="text-xs font-mono text-muted">{perm.key}</p>
                   </div>
                   {editing ? (

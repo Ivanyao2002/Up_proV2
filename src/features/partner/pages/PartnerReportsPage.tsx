@@ -30,7 +30,7 @@ export function PartnerReportsPage() {
       header: "Période",
       cell: (r) => (
         <div>
-          <p className="font-medium text-navy">{r.period_label}</p>
+          <p className="font-medium text-foreground">{r.period_label}</p>
           <p className="text-xs text-muted">{r.id}</p>
         </div>
       ),

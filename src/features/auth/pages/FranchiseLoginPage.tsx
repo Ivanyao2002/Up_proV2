@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/shared/ui/Button";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 import { useLoginMutation } from "../api/auth.mutations";
 import { env } from "@/core/config/env";
 
@@ -12,13 +13,14 @@ export function FranchiseLoginPage() {
   const login = useLoginMutation("franchise");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas p-6">
+    <div className="relative flex min-h-screen items-center justify-center bg-canvas p-6">
+      <ThemeToggle className="absolute right-6 top-6" />
       <div className="w-full max-w-md animate-fade-up rounded-hero border border-border bg-surface p-8 shadow-card">
         <div className="mb-8 text-center">
           <p className="text-xs font-medium uppercase tracking-wider text-teal">
             {env.appName}
           </p>
-          <h1 className="mt-2 text-2xl font-semibold text-navy">Connexion franchise</h1>
+          <h1 className="mt-2 text-2xl font-semibold text-heading">Connexion franchise</h1>
           <p className="mt-2 text-sm text-muted">Gestion du territoire · scope franchise</p>
         </div>
 
@@ -30,7 +32,7 @@ export function FranchiseLoginPage() {
           }}
         >
           <label className="block">
-            <span className="text-sm font-medium text-[#212529]">Email</span>
+            <span className="text-sm font-medium text-foreground">Email</span>
             <input
               type="email"
               value={email}
@@ -40,7 +42,7 @@ export function FranchiseLoginPage() {
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-[#212529]">Mot de passe</span>
+            <span className="text-sm font-medium text-foreground">Mot de passe</span>
             <input
               type="password"
               value={password}

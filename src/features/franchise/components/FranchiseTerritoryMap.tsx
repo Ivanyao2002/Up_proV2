@@ -40,7 +40,7 @@ export function FranchiseTerritoryMap({
   franchiseName,
 }: FranchiseTerritoryMapProps) {
   return (
-    <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border bg-[#e8eaf0] shadow-card">
+    <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border bg-map shadow-card">
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -51,7 +51,7 @@ export function FranchiseTerritoryMap({
           backgroundSize: "28px 28px",
         }}
       />
-      <p className="absolute left-3 top-3 z-10 rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-navy shadow-sm">
+      <p className="absolute left-3 top-3 z-10 rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
         {franchiseName}
       </p>
 
@@ -101,7 +101,7 @@ export function FranchiseTerritoryLegend({
             }`}
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="font-medium text-navy">{zone.name}</span>
+              <span className="font-medium text-foreground">{zone.name}</span>
               <ZoneTypePill type={zone.type} />
             </div>
             <p className="mt-1 text-xs text-muted">

@@ -56,7 +56,7 @@ export function PartnerDashboardPage() {
 
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-[#212529]">Flux 7 jours</h2>
+            <h2 className="text-sm font-semibold text-foreground">Flux 7 jours</h2>
             <div className="mt-4 flex h-36 items-end justify-between gap-1">
               {data.chart_flux.map((p) => {
                 const max = Math.max(...data.chart_flux.map((x) => x.revenue), 1);
@@ -81,7 +81,7 @@ export function PartnerDashboardPage() {
               {data.recent_trips.map((trip) => (
                 <li key={trip.id} className="flex items-center justify-between gap-3 px-6 py-3">
                   <div className="min-w-0">
-                    <p className="font-medium text-navy">{trip.ref}</p>
+                    <p className="font-medium text-foreground">{trip.ref}</p>
                     <p className="truncate text-xs text-muted">
                       {trip.from_label} → {trip.to_label}
                     </p>

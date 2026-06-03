@@ -37,7 +37,7 @@ export function DispatchMapPreview({
     : null;
 
   return (
-    <div className="relative h-[min(320px,45vh)] w-full overflow-hidden rounded-card border border-border bg-[#e8eaf0] shadow-card">
+    <div className="relative h-[min(320px,45vh)] w-full overflow-hidden rounded-card border border-border bg-map shadow-card">
       <div
         className="absolute inset-0 opacity-40"
         style={{
@@ -48,7 +48,7 @@ export function DispatchMapPreview({
           backgroundSize: "40px 40px",
         }}
       />
-      <p className="absolute left-3 top-3 rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-navy shadow-sm">
+      <p className="absolute left-3 top-3 rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
         {map.zone_name}
       </p>
 

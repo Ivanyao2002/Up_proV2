@@ -1,0 +1,84 @@
+/* Utilitaires thème */
+.bg-overlay {
+  background-color: var(--color-overlay);
+}
+
+/* Composants globaux — mode clair / nuit */
+
+[data-theme="dark"] .shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+/* Champs formulaire */
+.input-field,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="date"],
+select,
+textarea {
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-muted);
+  opacity: 0.85;
+}
+
+/* Tableaux */
+[data-theme="dark"] thead th {
+  color: var(--color-muted);
+}
+
+[data-theme="dark"] tbody tr:hover {
+  background-color: var(--color-surface-hover);
+}
+
+/* Toasts react-hot-toast — fonds adaptés en dark via notificationService */
+
+/* Carte live */
+.live-map-canvas {
+  background-color: var(--color-map-bg);
+  border-color: var(--color-border);
+}
+
+.live-map-canvas .live-map-grid {
+  background-image:
+    linear-gradient(var(--color-map-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-map-grid) 1px, transparent 1px);
+}
+
+/* Panneau Territoire — reste clair en mode nuit (lisibilité carte) */
+.live-map-territory-panel {
+  --color-text: #212529;
+  --color-heading: #212529;
+  --color-muted: #878a99;
+  --color-border: #e9ebec;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f8f9fc;
+  background-color: #ffffff;
+  border-color: #e9ebec;
+  color: var(--color-text);
+}
+
+.live-map-territory-panel .text-teal-dark {
+  color: var(--color-teal-dark);
+}
+
+/* Transition douce au changement de thème */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 0.25s var(--ease-premium),
+    border-color 0.25s var(--ease-premium),
+    color 0.2s var(--ease-premium),
+    box-shadow 0.25s var(--ease-premium) !important;
+}

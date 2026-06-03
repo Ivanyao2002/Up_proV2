@@ -29,7 +29,7 @@ export function PartnerShiftsPage() {
       header: "Chauffeur",
       cell: (s) => (
         <div>
-          <p className="font-medium text-navy">{s.driver_name}</p>
+          <p className="font-medium text-foreground">{s.driver_name}</p>
           <p className="text-xs text-muted">{s.vehicle_label}</p>
         </div>
       ),

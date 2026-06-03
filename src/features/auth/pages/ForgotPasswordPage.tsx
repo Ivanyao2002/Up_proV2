@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/shared/ui/Button";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 import { notificationService } from "@/core/http/notificationService";
 import { authService } from "../api/auth.service";
 import { env } from "@/core/config/env";
@@ -40,13 +41,14 @@ export function ForgotPasswordPage({ portal }: ForgotPasswordPageProps) {
   });
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas p-6">
+    <div className="relative flex min-h-screen items-center justify-center bg-canvas p-6">
+      <ThemeToggle className="absolute right-6 top-6" />
       <div className="w-full max-w-md animate-fade-up rounded-hero border border-border bg-surface p-8 shadow-card">
         <div className="mb-8 text-center">
           <p className="text-xs font-medium uppercase tracking-wider text-teal">
             {env.appName}
           </p>
-          <h1 className="mt-2 text-2xl font-semibold text-navy">Mot de passe oublié</h1>
+          <h1 className="mt-2 text-2xl font-semibold text-heading">Mot de passe oublié</h1>
           <p className="mt-2 text-sm text-muted">
             Portail {PORTAL_LABELS[portal]}
           </p>
@@ -55,7 +57,7 @@ export function ForgotPasswordPage({ portal }: ForgotPasswordPageProps) {
         {sent ? (
           <div className="space-y-4 text-center">
             <p className="text-sm text-muted">
-              Si un compte existe pour <strong className="text-navy">{email}</strong>, vous
+              Si un compte existe pour <strong className="text-foreground">{email}</strong>, vous
               recevrez un lien de réinitialisation (simulation mock).
             </p>
             <Link href={LOGIN_PATHS[portal]}>
@@ -71,7 +73,7 @@ export function ForgotPasswordPage({ portal }: ForgotPasswordPageProps) {
             }}
           >
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Email</span>
+              <span className="text-sm font-medium text-foreground">Email</span>
               <input
                 type="email"
                 value={email}

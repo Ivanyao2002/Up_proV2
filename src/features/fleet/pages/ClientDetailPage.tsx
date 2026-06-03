@@ -51,7 +51,7 @@ export function ClientDetailPage({ clientId }: ClientDetailPageProps) {
       cell: (t) => (
         <Link
           href={`/admin/ops/trips/${t.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {t.ref}
         </Link>
@@ -98,7 +98,7 @@ export function ClientDetailPage({ clientId }: ClientDetailPageProps) {
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`rounded-full px-3 py-1 text-xs font-medium uppercase ${
-                data.type === "b2b" ? "bg-navy/10 text-navy" : "bg-teal/15 text-teal-dark"
+                data.type === "b2b" ? "bg-navy/10 text-foreground" : "bg-teal/15 text-teal-dark"
               }`}
             >
               {data.type}
@@ -152,7 +152,7 @@ export function ClientDetailPage({ clientId }: ClientDetailPageProps) {
         </p>
       )}
 
-      <h2 className="mb-3 text-sm font-semibold text-navy">Courses récentes</h2>
+      <h2 className="mb-3 text-sm font-semibold text-heading">Courses récentes</h2>
       <DataTable
         columns={tripCols}
         data={data.recent_trips}

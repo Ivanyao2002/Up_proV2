@@ -83,7 +83,7 @@ export function DispatchBookRidePage() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-sm font-medium text-navy">Client</span>
+            <span className="text-sm font-medium text-foreground">Client</span>
             <input
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
@@ -93,7 +93,7 @@ export function DispatchBookRidePage() {
             />
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-navy">Téléphone</span>
+            <span className="text-sm font-medium text-foreground">Téléphone</span>
             <input
               value={clientPhone}
               onChange={(e) => setClientPhone(e.target.value)}
@@ -106,7 +106,7 @@ export function DispatchBookRidePage() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-sm font-medium text-navy">Service</span>
+            <span className="text-sm font-medium text-foreground">Service</span>
             <select
               value={service}
               onChange={(e) =>
@@ -119,7 +119,7 @@ export function DispatchBookRidePage() {
             </select>
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-navy">Paiement</span>
+            <span className="text-sm font-medium text-foreground">Paiement</span>
             <select
               value={paymentMethod}
               onChange={(e) =>
@@ -137,7 +137,7 @@ export function DispatchBookRidePage() {
         </div>
 
         <label className="block">
-          <span className="text-sm font-medium text-navy">Notes (optionnel)</span>
+          <span className="text-sm font-medium text-foreground">Notes (optionnel)</span>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

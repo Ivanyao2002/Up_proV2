@@ -90,7 +90,7 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
           />
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-[#212529]">Suivi</h2>
+            <h2 className="text-sm font-semibold text-foreground">Suivi</h2>
             <div className="mt-4">
               <Timeline items={timelineItems} />
             </div>
@@ -101,7 +101,7 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                 Client
               </h3>
-              <p className="mt-2 font-medium text-[#212529]">{booking.client_name}</p>
+              <p className="mt-2 font-medium text-foreground">{booking.client_name}</p>
               {booking.client_phone && (
                 <p className="text-sm text-muted">{booking.client_phone}</p>
               )}
@@ -114,7 +114,7 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
                 <>
                   <Link
                     href={`/partner/drivers/${booking.driver_id ?? ""}`}
-                    className="mt-2 block font-medium text-navy hover:text-teal"
+                    className="mt-2 block font-medium text-foreground hover:text-teal"
                   >
                     {booking.driver_name}
                   </Link>
@@ -133,7 +133,7 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                 Notes
               </h3>
-              <p className="mt-2 text-sm text-[#212529]">{booking.notes}</p>
+              <p className="mt-2 text-sm text-foreground">{booking.notes}</p>
             </div>
           )}
         </div>
@@ -143,7 +143,7 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
             <p className="text-xs font-medium uppercase tracking-wider text-muted">
               Montant
             </p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-navy">
+            <p className="mt-2 text-3xl font-semibold tabular-nums text-heading">
               {formatFCFA(booking.amount_fcfa)}
             </p>
             {booking.payment_method && (
@@ -154,24 +154,24 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
           </div>
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-[#212529]">Détails</h3>
+            <h3 className="font-semibold text-foreground">Détails</h3>
             <dl className="mt-3 space-y-2 text-muted">
               <div className="flex justify-between gap-2">
                 <dt>Départ</dt>
-                <dd className="max-w-[55%] text-right text-[#212529]">{booking.from_label}</dd>
+                <dd className="max-w-[55%] text-right text-foreground">{booking.from_label}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Arrivée</dt>
-                <dd className="max-w-[55%] text-right text-[#212529]">{booking.to_label}</dd>
+                <dd className="max-w-[55%] text-right text-foreground">{booking.to_label}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Créée le</dt>
-                <dd className="text-[#212529]">{formatDateTime(booking.created_at)}</dd>
+                <dd className="text-foreground">{formatDateTime(booking.created_at)}</dd>
               </div>
               {booking.estimated_arrival_at && (
                 <div className="flex justify-between gap-2">
                   <dt>Arrivée estimée</dt>
-                  <dd className="text-[#212529]">
+                  <dd className="text-foreground">
                     {formatDateTime(booking.estimated_arrival_at)}
                   </dd>
                 </div>

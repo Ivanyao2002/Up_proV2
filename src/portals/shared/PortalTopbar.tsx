@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/core/auth/authStore";
 import { clearAuthCookie } from "@/core/auth/authCookie";
 import { Button } from "@/shared/ui/Button";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
 interface PortalTopbarProps {
   scopeLabel: string;
@@ -20,8 +21,9 @@ export function PortalTopbar({ scopeLabel, badge, loginPath }: PortalTopbarProps
         {scopeLabel}
       </span>
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <span className="hidden text-sm text-muted sm:inline">{user?.name}</span>
-        <span className="rounded-full bg-teal/15 px-2.5 py-1 text-xs font-medium text-teal-dark">
+        <span className="rounded-full bg-teal-soft px-2.5 py-1 text-xs font-medium text-teal-dark">
           {badge}
         </span>
         <Button

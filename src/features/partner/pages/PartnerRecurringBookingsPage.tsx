@@ -36,7 +36,7 @@ export function PartnerRecurringBookingsPage() {
       header: "Client",
       cell: (b) => (
         <div>
-          <p className="font-medium text-navy">{b.client_name}</p>
+          <p className="font-medium text-foreground">{b.client_name}</p>
           <p className="text-xs text-muted">{b.id}</p>
         </div>
       ),

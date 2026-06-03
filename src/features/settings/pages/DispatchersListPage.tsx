@@ -73,7 +73,7 @@ export function DispatchersListPage() {
       cell: (d) => (
         <Link
           href={`/admin/settings/dispatchers/${d.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {d.name}
         </Link>

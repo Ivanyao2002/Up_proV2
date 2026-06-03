@@ -48,7 +48,7 @@ export function ReconciliationListPage() {
       header: "Date",
       cell: (r) => (
         <div>
-          <p className="font-medium text-navy">{r.date_label}</p>
+          <p className="font-medium text-foreground">{r.date_label}</p>
           <p className="text-xs text-muted">{r.id}</p>
         </div>
       ),

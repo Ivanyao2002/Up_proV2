@@ -88,7 +88,7 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
           />
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-[#212529]">Timeline</h2>
+            <h2 className="text-sm font-semibold text-foreground">Timeline</h2>
             <div className="mt-4">
               <Timeline items={timelineItems} />
             </div>
@@ -99,7 +99,7 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                 Client
               </h3>
-              <p className="mt-2 font-medium text-[#212529]">{trip.client_name}</p>
+              <p className="mt-2 font-medium text-foreground">{trip.client_name}</p>
               {trip.client_phone && (
                 <p className="text-sm text-muted">{trip.client_phone}</p>
               )}
@@ -112,7 +112,7 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
                 <>
                   <Link
                     href={`/admin/fleet/drivers/${trip.driver_id ?? ""}`}
-                    className="mt-2 block font-medium text-navy hover:text-teal"
+                    className="mt-2 block font-medium text-foreground hover:text-teal"
                   >
                     {trip.driver_name}
                   </Link>
@@ -132,13 +132,13 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
             <p className="text-xs font-medium uppercase tracking-wider text-muted">
               Montant course
             </p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-navy">
+            <p className="mt-2 text-3xl font-semibold tabular-nums text-heading">
               {formatFCFA(trip.amount_fcfa)}
             </p>
             <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
               <div className="flex justify-between text-muted">
                 <dt>Commission plateforme</dt>
-                <dd className="tabular-nums text-[#212529]">
+                <dd className="tabular-nums text-foreground">
                   {formatFCFA(trip.commission_fcfa)}
                 </dd>
               </div>
@@ -150,34 +150,34 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
               </div>
               <div className="flex justify-between text-muted">
                 <dt>Paiement</dt>
-                <dd className="text-[#212529]">{getPaymentLabel(trip.payment_method)}</dd>
+                <dd className="text-foreground">{getPaymentLabel(trip.payment_method)}</dd>
               </div>
             </dl>
           </div>
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-[#212529]">Contexte</h3>
+            <h3 className="font-semibold text-foreground">Contexte</h3>
             <dl className="mt-3 space-y-2 text-muted">
               {trip.zone_name && (
                 <div className="flex justify-between gap-2">
                   <dt>Zone</dt>
-                  <dd className="text-[#212529]">{trip.zone_name}</dd>
+                  <dd className="text-foreground">{trip.zone_name}</dd>
                 </div>
               )}
               {trip.franchise_name && (
                 <div className="flex justify-between gap-2">
                   <dt>Franchise</dt>
-                  <dd className="text-[#212529]">{trip.franchise_name}</dd>
+                  <dd className="text-foreground">{trip.franchise_name}</dd>
                 </div>
               )}
               <div className="flex justify-between gap-2">
                 <dt>Créée le</dt>
-                <dd className="text-[#212529]">{formatDateTime(trip.created_at)}</dd>
+                <dd className="text-foreground">{formatDateTime(trip.created_at)}</dd>
               </div>
               {trip.estimated_arrival_at && (
                 <div className="flex justify-between gap-2">
                   <dt>Arrivée estimée</dt>
-                  <dd className="text-[#212529]">
+                  <dd className="text-foreground">
                     {formatDateTime(trip.estimated_arrival_at)}
                   </dd>
                 </div>

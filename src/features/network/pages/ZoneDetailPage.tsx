@@ -130,7 +130,7 @@ export function ZoneDetailPage({ zoneId }: ZoneDetailPageProps) {
                     className="flex items-center justify-between rounded-card border border-border bg-surface p-4 shadow-card"
                   >
                     <div>
-                      <p className="font-medium text-[#212529]">{rule.label}</p>
+                      <p className="font-medium text-foreground">{rule.label}</p>
                       <p className="text-sm text-muted">{rule.hours}</p>
                     </div>
                     <span className="text-lg font-semibold text-teal-dark">
@@ -153,7 +153,7 @@ export function ZoneDetailPage({ zoneId }: ZoneDetailPageProps) {
                     href={`/admin/network/partners/${p.id}`}
                     className="flex justify-between text-sm hover:text-teal"
                   >
-                    <span className="font-medium text-navy">{p.name}</span>
+                    <span className="font-medium text-foreground">{p.name}</span>
                     <span className="text-muted">{p.drivers_count} ch.</span>
                   </Link>
                 </li>

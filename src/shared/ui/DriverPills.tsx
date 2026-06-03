@@ -42,7 +42,7 @@ export function AvailabilityPill({
   return (
     <span
       className={`relative inline-flex items-center gap-1.5 text-xs font-medium ${
-        onDark ? "text-white/85" : "text-[#212529]"
+        onDark ? "text-white/85" : "text-foreground"
       }`}
     >
       {isOnline && (

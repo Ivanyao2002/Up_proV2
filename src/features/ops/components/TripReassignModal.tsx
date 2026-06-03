@@ -29,7 +29,7 @@ export function TripReassignModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-navy/40"
+        className="absolute inset-0 bg-overlay"
         aria-label="Fermer"
         onClick={onClose}
       />
@@ -38,7 +38,7 @@ export function TripReassignModal({
         aria-modal
         className="relative w-full max-w-md rounded-card bg-surface p-6 shadow-card"
       >
-        <h2 className="text-lg font-semibold text-navy">Réassigner la course</h2>
+        <h2 className="text-lg font-semibold text-heading">Réassigner la course</h2>
         <p className="mt-1 text-sm text-muted">{tripRef}</p>
 
         <label className="mt-4 block">

@@ -118,7 +118,7 @@ export function PartnerVehicleCreatePage() {
       >
         <div className="grid items-start gap-6 lg:grid-cols-2">
           <div className="space-y-4 rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-[#212529]">Informations véhicule</h2>
+            <h2 className="text-sm font-semibold text-foreground">Informations véhicule</h2>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">

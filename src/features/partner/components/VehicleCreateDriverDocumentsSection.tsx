@@ -34,7 +34,7 @@ export function VehicleCreateDriverDocumentsSection({
   return (
     <section className="rounded-card border border-border bg-surface p-5">
       <div className="mb-4">
-        <h2 className="text-sm font-semibold text-[#212529]">Documents du chauffeur</h2>
+        <h2 className="text-sm font-semibold text-foreground">Documents du chauffeur</h2>
         <p className="mt-1 text-sm text-muted">
           Optionnel à la création. Sans document, le dossier reste en attente — vous pourrez les
           ajouter sur la fiche chauffeur.

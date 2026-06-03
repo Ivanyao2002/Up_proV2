@@ -47,7 +47,7 @@ export function KycDocumentCard({
     <div className="rounded-card border border-border bg-surface p-4 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-medium text-[#212529]">{document.label}</p>
+          <p className="font-medium text-foreground">{document.label}</p>
           {hasUpload ? (
             <p className="mt-1 text-xs text-muted">
               Soumis le {formatDateTime(document.uploaded_at)}

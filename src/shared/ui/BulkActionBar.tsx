@@ -13,7 +13,7 @@ export function BulkActionBar({ count, onClear, actions = [] }: BulkActionBarPro
 
   return (
     <div className="sticky bottom-6 z-20 mx-auto flex max-w-2xl items-center justify-between gap-4 rounded-card border border-teal/20 bg-teal/10 px-5 py-3 shadow-card backdrop-blur-sm animate-fade-up">
-      <span className="text-sm font-medium text-navy">
+      <span className="text-sm font-medium text-foreground">
         {count} élément{count > 1 ? "s" : ""} sélectionné{count > 1 ? "s" : ""}
       </span>
       <div className="flex items-center gap-2">

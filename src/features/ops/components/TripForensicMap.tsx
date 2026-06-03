@@ -37,7 +37,7 @@ export function TripForensicMap({
   const anomalyIdx = trace.findIndex((p) => p.speed_kmh >= 80);
 
   return (
-    <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border bg-[#e8eaf0] shadow-card">
+    <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border bg-map shadow-card">
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -48,7 +48,7 @@ export function TripForensicMap({
           backgroundSize: "28px 28px",
         }}
       />
-      <p className="absolute left-3 top-3 z-10 rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-navy shadow-sm">
+      <p className="absolute left-3 top-3 z-10 rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
         Trace GPS · {trace.length} points · max {maxSpeed} km/h
       </p>
 
@@ -97,8 +97,8 @@ export function TripForensicMap({
       </svg>
 
       <div className="absolute bottom-3 left-3 flex gap-2 text-[10px]">
-        <span className="rounded bg-surface/90 px-2 py-1 text-navy shadow-sm">Départ</span>
-        <span className="rounded bg-surface/90 px-2 py-1 text-navy shadow-sm">Arrivée</span>
+        <span className="rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">Départ</span>
+        <span className="rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">Arrivée</span>
         {anomalyIdx >= 0 && (
           <span className="rounded bg-red-100 px-2 py-1 text-red-700 shadow-sm">
             Anomalie {formatDateTime(trace[anomalyIdx].at)}

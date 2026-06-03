@@ -45,7 +45,7 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
       cell: (d) => (
         <Link
           href={`/admin/fleet/drivers/${d.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {d.name}
         </Link>
@@ -129,10 +129,10 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
                   <Link
                     key={trip.id}
                     href={`/admin/ops/trips/${trip.id}`}
-                    className="flex items-center justify-between rounded-card border border-border bg-surface p-4 shadow-card transition-colors hover:bg-canvas/50"
+                    className="flex items-center justify-between rounded-card border border-border bg-surface p-4 shadow-card transition-colors hover:bg-surface-hover/80"
                   >
                     <div>
-                      <p className="font-medium text-navy">{trip.ref}</p>
+                      <p className="font-medium text-foreground">{trip.ref}</p>
                       <p className="text-xs text-muted">
                         {formatDateTime(trip.created_at)}
                       </p>
@@ -155,7 +155,7 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
             <p className="text-xs font-medium uppercase tracking-wider text-muted">
               Portefeuille
             </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-navy">
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
               {formatFCFA(data.stats.wallet_balance_fcfa)}
             </p>
             {data.stats.pending_withdrawal_fcfa > 0 && (

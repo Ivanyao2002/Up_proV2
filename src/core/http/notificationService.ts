@@ -20,7 +20,7 @@ const baseToastStyle: CSSProperties = {
   padding: "12px 16px",
   fontSize: "14px",
   fontWeight: "500",
-  boxShadow: "0 4px 14px rgba(26, 46, 53, 0.12)",
+  boxShadow: "var(--shadow-card)",
 };
 
 class NotificationService {
@@ -49,13 +49,13 @@ class NotificationService {
       position: options?.position ?? this.defaultPosition,
       style: {
         ...baseToastStyle,
-        background: "#fef2f2",
-        color: "#991b1b",
-        border: "1px solid #fecaca",
+        background: "var(--color-elevated)",
+        color: "var(--color-text)",
+        border: "1px solid rgba(239, 68, 68, 0.45)",
       },
       iconTheme: {
-        primary: "#991b1b",
-        secondary: "#fef2f2",
+        primary: "#f87171",
+        secondary: "var(--color-surface)",
       },
     });
   }
@@ -66,9 +66,9 @@ class NotificationService {
       position: options?.position ?? this.defaultPosition,
       style: {
         ...baseToastStyle,
-        background: "#fffbeb",
-        color: "#92400e",
-        border: "1px solid #fde68a",
+        background: "var(--color-elevated)",
+        color: "var(--color-text)",
+        border: "1px solid rgba(245, 158, 11, 0.4)",
       },
       icon: null,
     });
@@ -80,9 +80,9 @@ class NotificationService {
       position: options?.position ?? this.defaultPosition,
       style: {
         ...baseToastStyle,
-        background: "#ffffff",
-        color: "#1a2e35",
-        border: "1px solid rgba(10, 179, 156, 0.35)",
+        background: "var(--color-elevated)",
+        color: "var(--color-text)",
+        border: "1px solid var(--color-border)",
       },
       icon: null,
     });

@@ -12,7 +12,7 @@ const TRIP_LABELS: Record<TripStatus, string> = {
 
 const TRIP_STYLES: Record<TripStatus, string> = {
   requested: "bg-canvas text-muted",
-  matching: "bg-canvas text-navy",
+  matching: "bg-canvas text-foreground",
   assigned: "bg-teal/10 text-teal-dark",
   arrived: "bg-teal/10 text-teal-dark",
   in_progress: "bg-teal/15 text-teal-dark",

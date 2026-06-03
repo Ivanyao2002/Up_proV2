@@ -74,7 +74,7 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
         <div>
           <Link
             href={`/partner/fleet/${v.id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {v.label}
           </Link>

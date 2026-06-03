@@ -40,7 +40,7 @@ export function DocumentUploadRow({
     <li className="rounded-lg border border-border bg-surface p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[#212529]">
+          <p className="text-sm font-medium text-foreground">
             {label}
             {requiredForApproval && (
               <span className="ml-1 text-xs font-normal text-amber-700">
@@ -67,7 +67,7 @@ export function DocumentUploadRow({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-navy transition-colors hover:bg-canvas"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-surface-hover"
           >
             {file ? "Remplacer" : "Choisir un fichier"}
           </button>

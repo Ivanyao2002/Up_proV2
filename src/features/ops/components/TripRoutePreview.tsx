@@ -14,7 +14,7 @@ export function TripRoutePreview({
   const hasCoords = fromCoords && toCoords;
 
   return (
-    <div className="relative h-48 overflow-hidden rounded-card border border-border bg-[#e8eaf0]">
+    <div className="relative h-48 overflow-hidden rounded-card border border-border bg-map">
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -45,10 +45,10 @@ export function TripRoutePreview({
         </div>
       )}
       <div className="absolute bottom-3 left-3 right-3 flex justify-between gap-2 text-[10px]">
-        <span className="max-w-[45%] truncate rounded bg-surface/90 px-2 py-1 text-navy shadow-sm">
+        <span className="max-w-[45%] truncate rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">
           {fromLabel}
         </span>
-        <span className="max-w-[45%] truncate rounded bg-surface/90 px-2 py-1 text-navy shadow-sm">
+        <span className="max-w-[45%] truncate rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">
           {toLabel}
         </span>
       </div>

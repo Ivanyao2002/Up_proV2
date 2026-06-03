@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: ["selector", '[data-theme="dark"]'],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -13,31 +14,44 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          DEFAULT: "#405189",
-          dark: "#364574",
-          hero: "#2f3d66",
+          DEFAULT: "var(--color-navy)",
+          dark: "var(--color-navy-dark)",
+          hero: "var(--color-navy-hero)",
+          display: "var(--color-navy-display)",
         },
         teal: {
-          DEFAULT: "#0ab39c",
-          dark: "#099885",
+          DEFAULT: "var(--color-teal)",
+          dark: "var(--color-teal-dark)",
+          soft: "var(--color-teal-soft)",
         },
-        canvas: "#f3f3f9",
-        surface: "#ffffff",
-        muted: "#878a99",
-        border: "#e9ebec",
+        canvas: "var(--color-canvas)",
+        surface: {
+          DEFAULT: "var(--color-surface)",
+          hover: "var(--color-surface-hover)",
+        },
+        elevated: "var(--color-elevated)",
+        foreground: "var(--color-text)",
+        heading: "var(--color-heading)",
+        muted: "var(--color-muted)",
+        border: {
+          DEFAULT: "var(--color-border)",
+          subtle: "var(--color-border-subtle)",
+        },
+        map: "var(--color-map-bg)",
       },
       fontFamily: {
         sans: ["var(--font-poppins)", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        card: "14px",
-        hero: "20px",
+        card: "var(--radius-card)",
+        hero: "var(--radius-hero)",
       },
       boxShadow: {
-        card: "0 1px 2px rgba(33,37,41,0.04), 0 8px 24px rgba(64,81,137,0.06)",
+        card: "var(--shadow-card)",
+        elevated: "var(--shadow-elevated)",
       },
       transitionTimingFunction: {
-        premium: "cubic-bezier(0.22, 1, 0.36, 1)",
+        premium: "var(--ease-premium)",
       },
       keyframes: {
         "fade-up": {

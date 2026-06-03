@@ -58,7 +58,7 @@ export function WalletsListPage() {
     {
       id: "id",
       header: "Wallet",
-      cell: (w) => <span className="font-mono text-sm text-navy">{w.id}</span>,
+      cell: (w) => <span className="font-mono text-sm text-foreground">{w.id}</span>,
       exportValue: (w) => w.id,
     },
     {
@@ -69,7 +69,7 @@ export function WalletsListPage() {
         return (
           <div>
             {href ? (
-              <Link href={href} className="font-medium text-navy hover:text-teal">
+              <Link href={href} className="font-medium text-foreground hover:text-teal">
                 {w.owner_name}
               </Link>
             ) : (

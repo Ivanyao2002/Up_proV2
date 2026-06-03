@@ -57,7 +57,7 @@ export function FranchisePartnersListPage() {
       cell: (p) => (
         <Link
           href={`/franchise/partners/${p.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {p.name}
         </Link>

@@ -40,7 +40,7 @@ export function DispatchRulesForm({
 
   return (
     <form
-      className="max-w-xl space-y-6"
+      className="max-w-5xl space-y-6 justify-center items-center mx-auto"
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
@@ -56,7 +56,7 @@ export function DispatchRulesForm({
 
       <section className="rounded-card border border-border bg-surface p-6 space-y-4">
         <label className="block">
-          <span className="text-sm font-medium text-[#212529]">Rayon de matching (km)</span>
+          <span className="text-sm font-medium text-foreground">Rayon de matching (km)</span>
           <input
             type="number"
             min={0.1}
@@ -67,7 +67,7 @@ export function DispatchRulesForm({
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-[#212529]">Timeout assignation (sec)</span>
+          <span className="text-sm font-medium text-foreground">Timeout assignation (sec)</span>
           <input
             type="number"
             min={1}
@@ -77,7 +77,7 @@ export function DispatchRulesForm({
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-[#212529]">Taille max file d&apos;attente</span>
+          <span className="text-sm font-medium text-foreground">Taille max file d&apos;attente</span>
           <input
             type="number"
             min={1}
@@ -88,7 +88,7 @@ export function DispatchRulesForm({
         </label>
 
         <fieldset>
-          <legend className="text-sm font-medium text-[#212529]">Mode priorité</legend>
+          <legend className="text-sm font-medium text-foreground">Mode priorité</legend>
           <div className="mt-2 flex flex-wrap gap-4">
             {PRIORITY_OPTIONS.map((opt) => (
               <label key={opt.value} className="flex items-center gap-2 text-sm">
@@ -117,7 +117,7 @@ export function DispatchRulesForm({
       </section>
 
       <section className="rounded-card border border-border bg-surface p-6">
-        <h2 className="text-sm font-semibold text-navy">Zones actives (surge)</h2>
+        <h2 className="text-sm font-semibold text-heading">Zones actives (surge)</h2>
         <p className="mt-1 text-xs text-muted">
           Zones où le dispatch automatique et le surge s&apos;appliquent
         </p>
@@ -125,7 +125,7 @@ export function DispatchRulesForm({
           {zones.map((z) => (
             <label
               key={z.id}
-              className="flex cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2.5 hover:bg-canvas"
+              className="flex cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2.5 hover:bg-surface-hover"
             >
               <input
                 type="checkbox"
@@ -133,7 +133,7 @@ export function DispatchRulesForm({
                 onChange={() => toggleZone(z.id)}
                 className="h-4 w-4 rounded border-border text-teal"
               />
-              <span className="text-sm text-navy">{z.name}</span>
+              <span className="text-sm text-foreground">{z.name}</span>
               {z.surge_multiplier && z.surge_multiplier > 1 && (
                 <span className="ml-auto text-xs font-medium text-amber-700">
                   ×{z.surge_multiplier}

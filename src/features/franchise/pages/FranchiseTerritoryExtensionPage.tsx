@@ -56,7 +56,7 @@ export function FranchiseTerritoryExtensionPage() {
       </div>
 
       <section className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold text-navy">Territoire actuel</h2>
+        <h2 className="mb-3 text-sm font-semibold text-heading">Territoire actuel</h2>
         <AbidjanZonesMap
           mode="select"
           zones={data.zones}
@@ -69,7 +69,7 @@ export function FranchiseTerritoryExtensionPage() {
       </section>
 
       <section className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold text-navy">
+        <h2 className="mb-3 text-sm font-semibold text-heading">
           Zone demandée (nouveau périmètre)
         </h2>
         <AbidjanZonesMap

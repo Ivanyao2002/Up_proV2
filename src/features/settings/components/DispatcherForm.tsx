@@ -73,10 +73,10 @@ export function DispatcherForm({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-card border border-border bg-surface p-6">
-          <h2 className="text-sm font-semibold text-navy">Identité</h2>
+          <h2 className="text-sm font-semibold text-heading">Identité</h2>
           <div className="mt-4 space-y-4">
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Nom complet</span>
+              <span className="text-sm font-medium text-foreground">Nom complet</span>
               <input
                 value={values.name}
                 onChange={(e) => set({ name: e.target.value })}
@@ -85,7 +85,7 @@ export function DispatcherForm({
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Email</span>
+              <span className="text-sm font-medium text-foreground">Email</span>
               <input
                 type="email"
                 value={values.email}
@@ -95,7 +95,7 @@ export function DispatcherForm({
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Téléphone</span>
+              <span className="text-sm font-medium text-foreground">Téléphone</span>
               <input
                 value={values.phone}
                 onChange={(e) => set({ phone: e.target.value })}
@@ -104,7 +104,7 @@ export function DispatcherForm({
             </label>
             {mode === "create" && (
               <label className="block">
-                <span className="text-sm font-medium text-[#212529]">Mot de passe</span>
+                <span className="text-sm font-medium text-foreground">Mot de passe</span>
                 <input
                   type="password"
                   value={values.password}
@@ -115,7 +115,7 @@ export function DispatcherForm({
               </label>
             )}
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Franchise</span>
+              <span className="text-sm font-medium text-foreground">Franchise</span>
               <select
                 value={values.franchise_id === "" ? "" : String(values.franchise_id)}
                 onChange={(e) =>
@@ -134,7 +134,7 @@ export function DispatcherForm({
               </select>
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Horaires / shift</span>
+              <span className="text-sm font-medium text-foreground">Horaires / shift</span>
               <input
                 value={values.shift_label}
                 onChange={(e) => set({ shift_label: e.target.value })}
@@ -143,7 +143,7 @@ export function DispatcherForm({
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Statut</span>
+              <span className="text-sm font-medium text-foreground">Statut</span>
               <select
                 value={values.status}
                 onChange={(e) =>
@@ -160,13 +160,13 @@ export function DispatcherForm({
 
         <div className="space-y-6">
           <section className="rounded-card border border-border bg-surface p-6">
-            <h2 className="text-sm font-semibold text-navy">Zones autorisées</h2>
+            <h2 className="text-sm font-semibold text-heading">Zones autorisées</h2>
             <p className="mt-1 text-xs text-muted">Au moins une zone requise</p>
             <div className="mt-4 space-y-2">
               {zones.map((z) => (
                 <label
                   key={z.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2.5 hover:bg-canvas"
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border px-3 py-2.5 hover:bg-surface-hover"
                 >
                   <input
                     type="checkbox"
@@ -174,7 +174,7 @@ export function DispatcherForm({
                     onChange={() => toggleZone(z.id)}
                     className="h-4 w-4 rounded border-border text-teal focus:ring-teal"
                   />
-                  <span className="text-sm text-navy">{z.name}</span>
+                  <span className="text-sm text-foreground">{z.name}</span>
                   <span className="ml-auto text-xs text-muted">{z.franchise_name}</span>
                 </label>
               ))}
@@ -182,7 +182,7 @@ export function DispatcherForm({
           </section>
 
           <section className="rounded-card border border-border bg-surface p-6">
-            <h2 className="text-sm font-semibold text-navy">Permissions dispatch</h2>
+            <h2 className="text-sm font-semibold text-heading">Permissions dispatch</h2>
             <div className="mt-4 space-y-2">
               <label className="flex items-center gap-3 text-sm">
                 <input

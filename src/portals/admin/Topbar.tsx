@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/core/auth/authStore";
 import { clearAuthCookie } from "@/core/auth/authCookie";
 import { Button } from "@/shared/ui/Button";
+import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
 export function Topbar() {
   const user = useAuthStore((s) => s.user);
@@ -23,8 +24,9 @@ export function Topbar() {
         </span>
       </div>
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <span className="hidden text-sm text-muted sm:inline">{user?.name}</span>
-        <span className="rounded-full bg-navy/10 px-2.5 py-1 text-xs font-medium text-navy">
+        <span className="rounded-full bg-teal-soft px-2.5 py-1 text-xs font-medium text-foreground-display">
           Administrateur
         </span>
         <Button

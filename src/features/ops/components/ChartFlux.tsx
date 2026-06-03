@@ -9,7 +9,7 @@ export function ChartFlux({ data }: ChartFluxProps) {
 
   return (
     <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-      <h2 className="text-sm font-semibold text-[#212529]">Flux hebdomadaire</h2>
+      <h2 className="text-sm font-semibold text-foreground">Flux hebdomadaire</h2>
       <p className="text-xs text-muted">Revenus vs commissions</p>
       <div className="mt-6 flex h-48 items-end justify-between gap-2">
         {data.map((point, i) => (

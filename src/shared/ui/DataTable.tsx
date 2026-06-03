@@ -232,7 +232,7 @@ export function DataTable<T>({
                       setPageSize(next);
                     }
                   }}
-                  className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-[#212529]"
+                  className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-foreground"
                 >
                   {pageSizeOptions.map((n) => (
                     <option key={n} value={n}>
@@ -276,7 +276,7 @@ export function DataTable<T>({
             {!isLoading && data.length === 0 && (
               <tr>
                 <td colSpan={colCount} className="px-6 py-16 text-center">
-                  <p className="font-medium text-[#212529]">{emptyTitle}</p>
+                  <p className="font-medium text-foreground">{emptyTitle}</p>
                   {emptyDescription && (
                     <p className="mt-1 text-sm text-muted">{emptyDescription}</p>
                   )}
@@ -290,7 +290,7 @@ export function DataTable<T>({
                 return (
                   <tr
                     key={key}
-                    className={`${rowClass} border-t border-border/50 transition-colors duration-120 hover:bg-canvas/80 ${
+                    className={`${rowClass} border-t border-border/50 transition-colors duration-120 hover:bg-surface-hover/80 ${
                       selected ? "bg-teal/[0.04]" : ""
                     }`}
                   >

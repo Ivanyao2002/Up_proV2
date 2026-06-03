@@ -51,7 +51,7 @@ export function PricingNewPage() {
       />
 
       <section className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold text-navy">
+        <h2 className="mb-3 text-sm font-semibold text-heading">
           Choisir une zone sur la carte
         </h2>
         {mapLoading ? (

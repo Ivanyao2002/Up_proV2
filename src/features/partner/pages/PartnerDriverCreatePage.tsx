@@ -72,7 +72,7 @@ export function PartnerDriverCreatePage() {
       >
         <div className="grid items-start gap-6 lg:grid-cols-2">
           <section className="space-y-4 rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-[#212529]">Informations chauffeur</h2>
+            <h2 className="text-sm font-semibold text-foreground">Informations chauffeur</h2>
             <p className="text-sm text-muted">
               Le compte sera créé en attente de validation KYC avant de pouvoir prendre des
               courses.

@@ -111,7 +111,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
       cell: (t) => (
         <Link
           href={`/admin/ops/trips/${t.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {t.ref}
         </Link>
@@ -258,7 +258,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                   />
                 </div>
                 <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-                  <h3 className="text-sm font-semibold text-[#212529]">Historique</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Historique</h3>
                   <div className="mt-4">
                     <Timeline items={timelineItems} />
                   </div>
@@ -286,7 +286,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
             <p className="text-xs font-medium uppercase tracking-wider text-muted">
               Portefeuille
             </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-navy">
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
               {formatFCFA(driver.stats.wallet_balance_fcfa)}
             </p>
             <Button
@@ -314,27 +314,27 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
           </div>
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-[#212529]">Informations</h3>
+            <h3 className="font-semibold text-foreground">Informations</h3>
             <dl className="mt-3 space-y-2 text-muted">
               <div className="flex justify-between gap-2">
                 <dt>Inscrit le</dt>
-                <dd className="text-[#212529]">{formatDateTime(driver.registered_at)}</dd>
+                <dd className="text-foreground">{formatDateTime(driver.registered_at)}</dd>
               </div>
               {driver.approved_at && (
                 <div className="flex justify-between gap-2">
                   <dt>Approuvé le</dt>
-                  <dd className="text-[#212529]">{formatDateTime(driver.approved_at)}</dd>
+                  <dd className="text-foreground">{formatDateTime(driver.approved_at)}</dd>
                 </div>
               )}
               <div className="flex justify-between gap-2">
                 <dt>Partenaire ID</dt>
-                <dd className="text-[#212529]">{driver.owner_id ?? "—"}</dd>
+                <dd className="text-foreground">{driver.owner_id ?? "—"}</dd>
               </div>
             </dl>
           </div>
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <h3 className="text-sm font-semibold text-[#212529]">Actions rapides</h3>
+            <h3 className="text-sm font-semibold text-foreground">Actions rapides</h3>
             <div className="mt-3 flex flex-col gap-2">
               {canSuspend && (
                 <Button

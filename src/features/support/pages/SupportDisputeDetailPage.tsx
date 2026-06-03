@@ -93,23 +93,23 @@ export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPage
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-navy">Description</h2>
+            <h2 className="text-sm font-semibold text-heading">Description</h2>
             <p className="mt-3 text-sm text-muted">{data.description}</p>
           </div>
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-navy">Historique</h2>
+            <h2 className="text-sm font-semibold text-heading">Historique</h2>
             <div className="mt-4">
               <Timeline items={timelineItems} />
             </div>
           </div>
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-navy">Pièces jointes</h2>
+            <h2 className="text-sm font-semibold text-heading">Pièces jointes</h2>
             <ul className="mt-3 divide-y divide-border">
               {data.evidence.map((ev) => (
                 <li key={ev.id} className="flex justify-between py-3 text-sm first:pt-0">
-                  <span className="text-[#212529]">{ev.label}</span>
+                  <span className="text-foreground">{ev.label}</span>
                   <span className="text-xs text-muted">{formatDateTime(ev.uploaded_at)}</span>
                 </li>
               ))}
@@ -119,15 +119,15 @@ export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPage
 
         <aside className="space-y-4">
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-navy">Détails</h3>
+            <h3 className="font-semibold text-heading">Détails</h3>
             <dl className="mt-3 space-y-2 text-muted">
               <div className="flex justify-between gap-2">
                 <dt>Signaleur</dt>
-                <dd className="text-[#212529]">{data.reporter_name}</dd>
+                <dd className="text-foreground">{data.reporter_name}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Franchise</dt>
-                <dd className="text-[#212529]">{data.franchise_name}</dd>
+                <dd className="text-foreground">{data.franchise_name}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Course</dt>
@@ -142,13 +142,13 @@ export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPage
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Montant litigieux</dt>
-                <dd className="font-medium tabular-nums text-[#212529]">
+                <dd className="font-medium tabular-nums text-foreground">
                   {formatFCFA(data.amount_disputed_fcfa)}
                 </dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Créé le</dt>
-                <dd className="text-[#212529]">{formatDateTime(data.created_at)}</dd>
+                <dd className="text-foreground">{formatDateTime(data.created_at)}</dd>
               </div>
             </dl>
           </div>
@@ -162,9 +162,9 @@ export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPage
       </div>
 
       {showResolve && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/40 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4">
           <div className="w-full max-w-md rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-lg font-semibold text-navy">Résoudre le litige</h2>
+            <h2 className="text-lg font-semibold text-heading">Résoudre le litige</h2>
             <div className="mt-4 space-y-4">
               <label className="block">
                 <span className="text-sm font-medium">Décision</span>

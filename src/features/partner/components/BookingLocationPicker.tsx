@@ -158,7 +158,7 @@ export function BookingLocationPicker({
         ref={mapRef}
         role="presentation"
         onClick={handleMapClick}
-        className="relative h-[min(380px,50vh)] w-full cursor-crosshair overflow-hidden rounded-card border border-border bg-[#e8eaf0] shadow-card"
+        className="relative h-[min(380px,50vh)] w-full cursor-crosshair overflow-hidden rounded-card border border-border bg-map shadow-card"
         aria-label="Carte — cliquez pour placer la destination"
       >
         <div
@@ -175,7 +175,7 @@ export function BookingLocationPicker({
         <div className="absolute left-[18%] top-[22%] h-20 w-28 rounded-2xl border border-teal/25 bg-teal/10" />
         <div className="absolute right-[15%] bottom-[28%] h-16 w-24 rounded-2xl border border-navy/20 bg-navy/5" />
 
-        <p className="absolute left-3 top-3 rounded-lg bg-surface/95 px-3 py-1.5 text-xs font-medium text-navy shadow-sm backdrop-blur">
+        <p className="absolute left-3 top-3 rounded-lg bg-surface/95 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur">
           Abidjan · Cliquez pour l&apos;arrivée
         </p>
 
@@ -209,7 +209,7 @@ export function BookingLocationPicker({
         <div className="space-y-3">
           <div>
             <div className="mb-1 flex items-center justify-between gap-2">
-              <span className="text-sm font-medium text-[#212529]">Départ</span>
+              <span className="text-sm font-medium text-foreground">Départ</span>
               <Button
                 type="button"
                 variant="secondary"
@@ -228,7 +228,7 @@ export function BookingLocationPicker({
 
           <div className="relative">
             <label className="block">
-              <span className="text-sm font-medium text-[#212529]">Arrivée</span>
+              <span className="text-sm font-medium text-foreground">Arrivée</span>
               <input
                 value={search}
                 onChange={(e) => {
@@ -248,7 +248,7 @@ export function BookingLocationPicker({
                   <li key={place.id}>
                     <button
                       type="button"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-canvas"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-surface-hover"
                       onClick={() => selectPlace(place)}
                     >
                       {place.name}

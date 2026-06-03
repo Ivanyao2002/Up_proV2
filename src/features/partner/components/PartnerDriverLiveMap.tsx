@@ -62,21 +62,12 @@ export function PartnerDriverLiveMap({
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
             Position live
           </p>
-          <p className="text-sm font-semibold text-navy">{driverName}</p>
+          <p className="text-sm font-semibold text-heading">{driverName}</p>
         </div>
         <AvailabilityPill status={driver.availability} />
       </div>
-      <div className="relative h-52 w-full overflow-hidden bg-[#d4d8e2] sm:h-56">
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(64,81,137,0.08) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(64,81,137,0.08) 1px, transparent 1px)
-            `,
-            backgroundSize: "32px 32px",
-          }}
-        />
+      <div className="live-map-canvas relative h-52 w-full overflow-hidden sm:h-56">
+        <div className="live-map-grid absolute inset-0 opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-br from-navy/8 via-transparent to-teal/6" />
         <p className="absolute left-3 top-3 rounded-lg bg-[#1e2838]/90 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur">
           {data.zone_name}
@@ -98,7 +89,7 @@ export function PartnerDriverLiveMap({
             />
           </span>
         </button>
-        <p className="absolute bottom-3 right-3 text-[10px] text-navy/60">
+        <p className="absolute bottom-3 right-3 text-[10px] text-muted">
           MAJ {new Date(data.updated_at).toLocaleTimeString("fr-CI", { hour: "2-digit", minute: "2-digit" })}
         </p>
       </div>

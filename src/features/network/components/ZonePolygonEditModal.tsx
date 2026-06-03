@@ -50,7 +50,7 @@ export function ZonePolygonEditModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-navy/40"
+        className="absolute inset-0 bg-overlay"
         aria-label="Fermer"
         onClick={onClose}
       />
@@ -60,7 +60,7 @@ export function ZonePolygonEditModal({
         className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-card bg-surface shadow-card"
       >
         <div className="border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-navy">Modifier le polygone</h2>
+          <h2 className="text-lg font-semibold text-heading">Modifier le polygone</h2>
           <p className="mt-1 text-sm text-muted">{zoneName}</p>
         </div>
 

@@ -79,7 +79,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
       cell: (t) => (
         <Link
           href={`/partner/bookings/${t.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {t.ref}
         </Link>
@@ -217,7 +217,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
 
                 <div className="rounded-card border border-border bg-surface shadow-card overflow-hidden">
                   <div className="border-b border-border px-6 py-4">
-                    <h2 className="text-sm font-semibold text-navy">Courses récentes</h2>
+                    <h2 className="text-sm font-semibold text-heading">Courses récentes</h2>
                     <p className="mt-0.5 text-xs text-muted">
                       Historique des trajets effectués par ce chauffeur
                     </p>
@@ -270,7 +270,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             <p className="text-xs font-medium uppercase tracking-wider text-muted">
               Portefeuille mobile
             </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-navy">
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
               {formatFCFA(driver.stats.wallet_balance_fcfa)}
             </p>
             <p className="mt-1 text-xs text-muted">
@@ -307,21 +307,21 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
           </div>
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-navy">Informations</h3>
+            <h3 className="font-semibold text-heading">Informations</h3>
             <dl className="mt-3 space-y-2 text-muted">
               <div className="flex justify-between gap-2">
                 <dt>Inscrit le</dt>
-                <dd className="text-[#212529]">{formatDateTime(driver.registered_at)}</dd>
+                <dd className="text-foreground">{formatDateTime(driver.registered_at)}</dd>
               </div>
               {driver.approved_at && (
                 <div className="flex justify-between gap-2">
                   <dt>Approuvé le</dt>
-                  <dd className="text-[#212529]">{formatDateTime(driver.approved_at)}</dd>
+                  <dd className="text-foreground">{formatDateTime(driver.approved_at)}</dd>
                 </div>
               )}
               <div className="flex justify-between gap-2">
                 <dt>Véhicule</dt>
-                <dd className="text-right text-[#212529]">
+                <dd className="text-right text-foreground">
                   {driver.vehicle_label ?? "—"}
                 </dd>
               </div>

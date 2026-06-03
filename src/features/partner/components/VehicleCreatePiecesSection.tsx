@@ -36,11 +36,11 @@ export function VehicleCreatePiecesSection({
   return (
     <section className="rounded-card border border-border bg-surface p-5">
       <div className="mb-4">
-        <h2 className="text-sm font-semibold text-[#212529]">Pièces jointes</h2>
+        <h2 className="text-sm font-semibold text-foreground">Pièces jointes</h2>
         <p className="mt-1 text-sm text-muted">
           Optionnel à la création. Sans pièce, le véhicule est enregistré en brouillon — vous
           pourrez les ajouter ensuite sur la fiche véhicule. La{" "}
-          <strong className="font-medium text-navy">carte grise</strong> est nécessaire pour
+          <strong className="font-medium text-foreground">carte grise</strong> est nécessaire pour
           l&apos;approbation.
         </p>
       </div>

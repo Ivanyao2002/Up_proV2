@@ -22,7 +22,7 @@ export function Tabs({ tabs, active, onChange }: TabsProps) {
           className={`relative px-4 py-3 text-sm font-medium transition-colors duration-150 ${
             active === tab.id
               ? "text-teal-dark"
-              : "text-muted hover:text-navy"
+              : "text-muted hover:text-foreground"
           }`}
         >
           {tab.label}

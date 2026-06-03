@@ -63,7 +63,7 @@ export function TripsListPage() {
       cell: (t) => (
         <Link
           href={`/admin/ops/trips/${t.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {t.ref}
         </Link>
@@ -81,7 +81,7 @@ export function TripsListPage() {
       header: "Trajet",
       cell: (t) => (
         <div className="max-w-[220px]">
-          <span className="block truncate text-[#212529]">{t.from_label}</span>
+          <span className="block truncate text-foreground">{t.from_label}</span>
           <span className="block truncate text-xs text-muted">→ {t.to_label}</span>
         </div>
       ),

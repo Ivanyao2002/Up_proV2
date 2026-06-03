@@ -9,7 +9,7 @@ const LABELS: Record<Zone["type"], string> = {
 const STYLES: Record<Zone["type"], string> = {
   standard: "bg-canvas text-muted",
   surge: "bg-teal/15 text-teal-dark",
-  airport: "bg-navy/10 text-navy",
+  airport: "bg-navy/10 text-foreground",
 };
 
 export function ZoneTypePill({ type }: { type: Zone["type"] }) {

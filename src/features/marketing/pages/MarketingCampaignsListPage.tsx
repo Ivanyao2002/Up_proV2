@@ -65,7 +65,7 @@ export function MarketingCampaignsListPage() {
       header: "Campagne",
       cell: (c) => (
         <div>
-          <p className="font-medium text-navy">{c.name}</p>
+          <p className="font-medium text-foreground">{c.name}</p>
           <p className="text-xs text-muted">{c.id}</p>
         </div>
       ),
@@ -116,7 +116,7 @@ export function MarketingCampaignsListPage() {
             c.status === "running"
               ? "bg-teal/15 text-teal-dark"
               : c.status === "scheduled"
-                ? "bg-navy/10 text-navy"
+                ? "bg-navy/10 text-foreground"
                 : c.status === "completed"
                   ? "bg-canvas text-muted"
                   : "bg-amber-50 text-amber-700"

@@ -54,7 +54,7 @@ export function FranchiseDetailPage({ franchiseId }: FranchiseDetailPageProps) {
       cell: (p) => (
         <Link
           href={`/admin/network/partners/${p.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {p.name}
         </Link>
@@ -85,7 +85,7 @@ export function FranchiseDetailPage({ franchiseId }: FranchiseDetailPageProps) {
       cell: (z) => (
         <Link
           href={`/admin/network/zones/${z.id}`}
-          className="font-medium text-navy hover:text-teal"
+          className="font-medium text-foreground hover:text-teal"
         >
           {z.name}
         </Link>

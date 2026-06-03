@@ -10,6 +10,7 @@ import franchiseSupport from "../data/franchise-support-tickets.json";
 import franchiseKycQueueSeed from "../data/franchise-kyc-queue.json";
 import driverDetail from "../data/driver-detail.json";
 import driverDetailPending from "../data/driver-detail-pending.json";
+import liveMap from "../data/live-map.json";
 import type {
   Driver,
   DriverDetail,
@@ -52,6 +53,24 @@ let franchiseDriverTransfers: PartnerDriverTransfer[] = [
 let franchiseRechargeStats: PartnerDriverRechargeStats = {
   ...franchiseTransfersSeed.stats,
 };
+
+function buildFranchiseLiveMapData() {
+  const drivers = liveMap.drivers.filter((d) => FRANCHISE_DRIVER_IDS.has(d.id));
+  const online = drivers.filter((d) => d.availability === "online").length;
+  const onTrip = drivers.filter((d) => d.availability === "on_trip").length;
+  return {
+    zone_name: `${territoryFranchise.franchise_name} · Territoire`,
+    city: liveMap.city,
+    bounds: liveMap.bounds,
+    stats: {
+      drivers_online: online,
+      drivers_on_trip: onTrip,
+      active_trips: onTrip + Math.min(3, online),
+      avg_wait_min: liveMap.stats.avg_wait_min,
+    },
+    drivers,
+  };
+}
 
 function franchiseAvailableFcfa() {
   return Math.max(
@@ -124,6 +143,10 @@ export const franchiseHandlers = [
       ...dashboardFranchise,
       pending_kyc: kycQueueState.meta.total,
     });
+  }),
+
+  http.get("*/api/v2/franchise/ops/map", () => {
+    return HttpResponse.json(buildFranchiseLiveMapData());
   }),
 
   http.get("*/api/v2/franchise/territory", () => {

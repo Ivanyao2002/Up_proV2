@@ -102,7 +102,7 @@ export function FranchiseDriversListPage({ pendingOnly }: FranchiseDriversListPa
         <div>
           <Link
             href={`/franchise/drivers/${d.id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {d.first_name} {d.last_name}
           </Link>

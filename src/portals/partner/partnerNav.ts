@@ -35,6 +35,12 @@ export const PARTNER_NAV: NavGroup[] = [
         icon: "drivers-pending",
         permission: "fleet.drivers.view",
       },
+      {
+        label: "Carte live",
+        path: "/partner/map",
+        icon: "map",
+        permission: "ops.map.view",
+      },
     ],
   },
   {
@@ -69,12 +75,6 @@ export const PARTNER_NAV: NavGroup[] = [
         path: "/partner/reports",
         icon: "reports",
         permission: "ops.trips.view",
-      },
-      {
-        label: "Carte live",
-        path: "/partner/map",
-        icon: "map",
-        permission: "ops.map.view",
       },
     ],
   },

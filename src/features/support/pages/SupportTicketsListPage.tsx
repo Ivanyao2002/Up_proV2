@@ -61,7 +61,7 @@ export function SupportTicketsListPage() {
       header: "Ticket",
       cell: (t) => (
         <div>
-          <p className="font-mono font-medium text-navy">{t.id}</p>
+          <p className="font-mono font-medium text-foreground">{t.id}</p>
           <p className="text-xs text-muted">{t.category}</p>
         </div>
       ),
@@ -72,7 +72,7 @@ export function SupportTicketsListPage() {
       header: "Sujet",
       cell: (t) => (
         <div>
-          <p className="font-medium text-[#212529]">{t.subject}</p>
+          <p className="font-medium text-foreground">{t.subject}</p>
           <p className="text-xs text-muted">{t.reporter_name}</p>
         </div>
       ),
@@ -93,7 +93,7 @@ export function SupportTicketsListPage() {
             t.priority === "high"
               ? "text-red-600"
               : t.priority === "normal"
-                ? "text-navy"
+                ? "text-foreground"
                 : "text-muted"
           }`}
         >
@@ -112,7 +112,7 @@ export function SupportTicketsListPage() {
               ? "bg-teal/15 text-teal-dark"
               : t.status === "in_progress"
                 ? "bg-amber-50 text-amber-700"
-                : "bg-navy/10 text-navy"
+                : "bg-navy/10 text-foreground"
           }`}
         >
           {STATUS_LABELS[t.status]}

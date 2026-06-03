@@ -38,7 +38,7 @@ export function SettingsIntegrationsPage() {
               className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-border bg-surface p-5 shadow-card"
             >
               <div>
-                <p className="font-medium text-navy">{item.name}</p>
+                <p className="font-medium text-foreground">{item.name}</p>
                 <p className="text-xs text-muted">
                   {CATEGORY_LABELS[item.category]}
                   {item.last_sync_at

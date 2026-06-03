@@ -19,7 +19,7 @@ function MapSkeleton() {
             />
           ))}
         </div>
-        <div className="h-[min(520px,70vh)] animate-pulse rounded-card bg-[#d8dbe4]" />
+        <div className="h-[min(520px,70vh)] animate-pulse rounded-card bg-map" />
       </div>
       <div className="h-[min(560px,72vh)] animate-pulse rounded-card bg-border" />
     </div>
@@ -85,12 +85,12 @@ function PartnerLiveMapDriversPanel({
   ).length;
 
   return (
-    <aside className="flex max-h-[min(560px,72vh)] flex-col overflow-hidden rounded-card border border-border bg-surface shadow-card">
+    <aside className="live-map-territory-panel flex max-h-[min(560px,72vh)] flex-col overflow-hidden rounded-card border shadow-card">
       <div className="shrink-0 border-b border-border px-5 py-4">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted">
           Ma flotte
         </p>
-        <h2 className="mt-1 text-base font-semibold text-navy">{data.zone_name}</h2>
+        <h2 className="mt-1 text-base font-semibold text-heading">{data.zone_name}</h2>
         <p className="mt-0.5 text-xs text-muted">{data.city}</p>
         <div className="mt-3 flex gap-4 text-xs text-muted">
           <span>
@@ -98,7 +98,7 @@ function PartnerLiveMapDriversPanel({
             actifs
           </span>
           <span>
-            <span className="font-semibold tabular-nums text-navy">
+            <span className="font-semibold tabular-nums text-heading">
               {data.drivers.length}
             </span>{" "}
             sur la carte
@@ -110,10 +110,10 @@ function PartnerLiveMapDriversPanel({
           <Link
             key={d.id}
             href={`/partner/drivers/${d.id}`}
-            className="flex items-center justify-between gap-2 border-t border-border/50 py-3 first:border-0 transition-colors hover:bg-canvas/80"
+            className="flex items-center justify-between gap-2 border-t border-border/50 py-3 first:border-0 transition-colors hover:bg-surface-hover"
           >
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-navy hover:text-teal">
+              <p className="truncate text-sm font-medium text-foreground hover:text-teal">
                 {d.name}
               </p>
               <p className="truncate text-xs text-muted">{d.vehicle}</p>

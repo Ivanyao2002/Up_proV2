@@ -48,7 +48,7 @@ export function MarketingPromosListPage() {
       header: "Code",
       cell: (p) => (
         <div>
-          <p className="font-mono font-medium text-navy">{p.code}</p>
+          <p className="font-mono font-medium text-foreground">{p.code}</p>
           <p className="text-xs text-muted">{p.label}</p>
         </div>
       ),

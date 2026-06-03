@@ -55,7 +55,7 @@ export function AdminDriverTransfersPage() {
       id: "ref",
       header: "Réf.",
       cell: (t) => (
-        <span className="font-mono text-sm font-medium text-navy">{t.ref}</span>
+        <span className="font-mono text-sm font-medium text-foreground">{t.ref}</span>
       ),
       exportValue: (t) => t.ref,
     },
@@ -64,7 +64,7 @@ export function AdminDriverTransfersPage() {
       header: "Émetteur",
       cell: (t) => (
         <div>
-          <p className="font-medium text-navy">{t.owner_name}</p>
+          <p className="font-medium text-foreground">{t.owner_name}</p>
           <p className="text-xs capitalize text-muted">{t.source}</p>
         </div>
       ),
@@ -75,7 +75,7 @@ export function AdminDriverTransfersPage() {
       header: "Chauffeur",
       cell: (t) => (
         <div>
-          <p className="font-medium text-navy">{t.driver_name}</p>
+          <p className="font-medium text-foreground">{t.driver_name}</p>
           <p className="text-xs text-muted">{t.driver_phone}</p>
         </div>
       ),

@@ -42,7 +42,7 @@ export function FranchiseDriverRechargeModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-navy/40"
+        className="absolute inset-0 bg-overlay"
         aria-label="Fermer"
         onClick={onClose}
       />
@@ -51,7 +51,7 @@ export function FranchiseDriverRechargeModal({
         aria-modal
         className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-card bg-surface p-6 shadow-card"
       >
-        <h2 className="text-lg font-semibold text-navy">
+        <h2 className="text-lg font-semibold text-heading">
           Recharger un chauffeur
         </h2>
         <p className="mt-1 text-sm text-muted">

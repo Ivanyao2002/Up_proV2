@@ -45,7 +45,7 @@ export function CommissionsListPage() {
       header: "Période",
       cell: (c) => (
         <div>
-          <p className="font-medium text-navy">{c.period_label}</p>
+          <p className="font-medium text-foreground">{c.period_label}</p>
           <p className="text-xs text-muted">{c.id}</p>
         </div>
       ),

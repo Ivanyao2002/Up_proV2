@@ -49,6 +49,9 @@ export function isNavItemActive(pathname: string, itemPath: string): boolean {
       /^\/franchise\/partners\/\d+$/.test(pathname)
     );
   }
+  if (itemPath === "/franchise/map") {
+    return pathname === "/franchise/map";
+  }
   if (itemPath === "/franchise/territory") {
     return (
       pathname === "/franchise/territory" &&

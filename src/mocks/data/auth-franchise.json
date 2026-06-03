@@ -9,6 +9,7 @@
     "franchise_id": 1,
     "permissions": [
       "ops.dashboard.view",
+      "ops.map.view",
       "network.partners.view",
       "fleet.drivers.view",
       "fleet.kyc.approve",

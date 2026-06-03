@@ -33,7 +33,7 @@ export function RolesListPage() {
         <div>
           <Link
             href={`/admin/settings/roles/${r.id}`}
-            className="font-medium text-navy hover:text-teal"
+            className="font-medium text-foreground hover:text-teal"
           >
             {r.name}
           </Link>
