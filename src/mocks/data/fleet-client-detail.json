@@ -1,0 +1,38 @@
+{
+  "id": 1001,
+  "full_name": "Ouattara Koffi",
+  "phone": "+225 07 12 34 56 78",
+  "email": "k.offi@gmail.com",
+  "type": "b2c",
+  "status": "active",
+  "registered_at": "2025-11-10T08:00:00Z",
+  "last_trip_at": "2026-06-01T18:30:00Z",
+  "stats": {
+    "trips_total": 48,
+    "trips_cancelled": 3,
+    "wallet_balance_fcfa": 12500,
+    "total_spent_fcfa": 186400,
+    "avg_fare_fcfa": 3880
+  },
+  "recent_trips": [
+    {
+      "id": "5",
+      "ref": "TR-88415",
+      "from_label": "Cocody, Angré",
+      "to_label": "Plateau, SCIAM",
+      "status": "completed",
+      "amount_fcfa": 4200,
+      "created_at": "2026-06-01T18:30:00Z"
+    },
+    {
+      "id": "4",
+      "ref": "TR-88390",
+      "from_label": "Plateau",
+      "to_label": "Marcory Zone 4",
+      "status": "completed",
+      "amount_fcfa": 3500,
+      "created_at": "2026-05-28T12:00:00Z"
+    }
+  ],
+  "notes": "Client fidèle — programme fidélité niveau 2"
+}

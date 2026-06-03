@@ -243,6 +243,7 @@ export interface KycDocument {
   status_note?: string;
   uploaded_at: string;
   reviewed_at: string | null;
+  preview_url?: string;
 }
 
 export interface DriverTimelineEvent {
@@ -301,6 +302,84 @@ export interface LiveMapDriver {
   lng: number;
   availability: Driver["availability"];
   vehicle: string;
+}
+
+export interface DispatchDriverCandidate {
+  id: number;
+  name: string;
+  vehicle: string;
+  availability: Driver["availability"];
+  rating: number;
+  distance_km: number;
+  eta_min: number;
+  lat: number;
+  lng: number;
+}
+
+export interface DispatchQueueItem {
+  trip: Trip;
+  from_coords: { lat: number; lng: number };
+  to_coords?: { lat: number; lng: number };
+  zone_name?: string;
+  waiting_min: number;
+  candidates: DispatchDriverCandidate[];
+}
+
+export interface DispatchConsoleData {
+  stats: {
+    queue_size: number;
+    online_nearby: number;
+    avg_wait_min: number;
+  };
+  queue: DispatchQueueItem[];
+  map: Pick<LiveMapData, "bounds" | "zone_name" | "city">;
+}
+
+export interface RolePermissionGroup {
+  module: string;
+  permissions: { key: string; label: string; enabled: boolean }[];
+}
+
+export interface AdminRole {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  users_count: number;
+  is_system: boolean;
+  permission_groups: RolePermissionGroup[];
+}
+
+export interface FranchiseTerritoryZone {
+  id: number;
+  name: string;
+  type: Zone["type"];
+  drivers_active: number;
+  partners_count: number;
+  polygon_geojson?: ZoneDetail["polygon_geojson"];
+}
+
+export interface FranchiseTerritory {
+  franchise_name: string;
+  city: string;
+  stats: {
+    zones_count: number;
+    partners_count: number;
+    drivers_count: number;
+    area_km2: number;
+  };
+  zones: FranchiseTerritoryZone[];
+}
+
+export interface PricingRule {
+  id: number;
+  zone_name: string;
+  service: Trip["service"];
+  base_fare_fcfa: number;
+  per_km_fcfa: number;
+  min_fare_fcfa: number;
+  surge_multiplier: number;
+  status: "active" | "draft";
 }
 
 export interface LiveMapData {
@@ -397,6 +476,43 @@ export interface PartnerWallet {
     direction: "credit" | "debit";
     created_at: string;
   }[];
+}
+
+export type DispatcherStatus = "active" | "suspended";
+
+export interface DispatcherPermissions {
+  assign_trips: boolean;
+  view_live_map: boolean;
+}
+
+export interface DispatcherAccount {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  franchise_id?: number;
+  franchise_name?: string;
+  zone_ids: number[];
+  zone_names?: string[];
+  status: DispatcherStatus;
+  last_login_at?: string | null;
+}
+
+export interface DispatcherAccountDetail extends DispatcherAccount {
+  shift_label?: string;
+  permissions: DispatcherPermissions;
+}
+
+export type DispatchPriorityMode = "distance" | "rating" | "balanced";
+
+export interface DispatchRules {
+  match_radius_km: number;
+  assign_timeout_sec: number;
+  max_queue_size: number;
+  priority_mode: DispatchPriorityMode;
+  auto_reassign: boolean;
+  active_zone_ids: number[];
+  updated_at: string;
 }
 
 export interface DashboardAdminKpi {

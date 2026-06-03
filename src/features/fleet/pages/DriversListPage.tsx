@@ -7,7 +7,6 @@ import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { BulkActionBar } from "@/shared/ui/BulkActionBar";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
-import { Button } from "@/shared/ui/Button";
 import { notificationService } from "@/core/http/notificationService";
 import {
   getDriverAccountStatusLabel,
@@ -103,11 +102,6 @@ export function DriversListPage() {
       <PageHeader
         title="Chauffeurs"
         breadcrumb={["Admin", "Flotte"]}
-        actions={
-          <Button variant="secondary" disabled>
-            Exporter
-          </Button>
-        }
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">

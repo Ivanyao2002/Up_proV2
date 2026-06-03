@@ -1,0 +1,27 @@
+{
+  "trip_id": "2",
+  "ref": "TR-88419",
+  "driver_name": "Traoré Aminata",
+  "recorded_at": "2026-06-02T14:35:00Z",
+  "distance_km": 4.2,
+  "duration_min": 12,
+  "anomalies": [
+    {
+      "id": "a1",
+      "type": "speed",
+      "label": "Vitesse anormale",
+      "description": "Pic à 92 km/h sur voie urbaine (14:26)",
+      "severity": "warning"
+    }
+  ],
+  "gps_trace": [
+    { "at": "2026-06-02T14:20:00Z", "lat": 5.324, "lng": -4.015, "speed_kmh": 0 },
+    { "at": "2026-06-02T14:22:00Z", "lat": 5.322, "lng": -4.012, "speed_kmh": 28 },
+    { "at": "2026-06-02T14:24:00Z", "lat": 5.321, "lng": -4.010, "speed_kmh": 35 },
+    { "at": "2026-06-02T14:26:00Z", "lat": 5.320, "lng": -4.008, "speed_kmh": 92 },
+    { "at": "2026-06-02T14:28:00Z", "lat": 5.319, "lng": -4.009, "speed_kmh": 42 },
+    { "at": "2026-06-02T14:30:00Z", "lat": 5.318, "lng": -4.008, "speed_kmh": 18 }
+  ],
+  "from_coords": { "lat": 5.324, "lng": -4.015 },
+  "to_coords": { "lat": 5.318, "lng": -4.008 }
+}

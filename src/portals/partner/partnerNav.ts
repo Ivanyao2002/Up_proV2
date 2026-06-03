@@ -46,6 +46,21 @@ export const PARTNER_NAV: NavGroup[] = [
         permission: "ops.trips.view",
       },
       {
+        label: "Réservations récurrentes",
+        path: "/partner/bookings/recurring",
+        permission: "ops.trips.view",
+      },
+      {
+        label: "Planning shifts",
+        path: "/partner/shifts",
+        permission: "fleet.drivers.view",
+      },
+      {
+        label: "Rapports",
+        path: "/partner/reports",
+        permission: "ops.trips.view",
+      },
+      {
         label: "Portefeuille",
         path: "/partner/wallet",
         permission: "finance.wallets.view",

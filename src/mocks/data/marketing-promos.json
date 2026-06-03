@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "code": "BIENVENUE20",
+      "label": "−20 % première course",
+      "discount_pct": 20,
+      "uses_count": 1240,
+      "max_uses": 5000,
+      "status": "active",
+      "expires_at": "2026-12-31T23:59:59Z"
+    },
+    {
+      "id": 2,
+      "code": "PLATEAU500",
+      "label": "500 FCFA Plateau",
+      "discount_pct": 0,
+      "fixed_discount_fcfa": 500,
+      "uses_count": 890,
+      "max_uses": 2000,
+      "status": "active",
+      "expires_at": "2026-09-30T23:59:59Z"
+    },
+    {
+      "id": 3,
+      "code": "NOEL2025",
+      "label": "Promo fin d'année",
+      "discount_pct": 15,
+      "uses_count": 5000,
+      "max_uses": 5000,
+      "status": "expired",
+      "expires_at": "2025-12-31T23:59:59Z"
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

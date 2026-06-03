@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Livraison express Plateau",
+      "placement": "home_hero",
+      "status": "active",
+      "impressions": 45200,
+      "clicks": 3890,
+      "starts_at": "2026-06-01T00:00:00Z",
+      "ends_at": "2026-06-30T23:59:59Z"
+    },
+    {
+      "id": 2,
+      "title": "Devenez chauffeur UpJunoo",
+      "placement": "driver_app",
+      "status": "active",
+      "impressions": 12800,
+      "clicks": 920,
+      "starts_at": "2026-05-15T00:00:00Z",
+      "ends_at": "2026-12-31T23:59:59Z"
+    },
+    {
+      "id": 3,
+      "title": "Offre rentrée 2025",
+      "placement": "home_hero",
+      "status": "archived",
+      "impressions": 89000,
+      "clicks": 6200,
+      "starts_at": "2025-09-01T00:00:00Z",
+      "ends_at": "2025-09-30T23:59:59Z"
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

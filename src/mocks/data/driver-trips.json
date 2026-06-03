@@ -1,0 +1,47 @@
+{
+  "101": {
+    "data": [
+      {
+        "id": "2",
+        "ref": "TR-88435",
+        "from_label": "Cocody, Riviera 2",
+        "to_label": "Marcory, Zone 4",
+        "status": "in_progress",
+        "amount_fcfa": 5200,
+        "created_at": "2026-06-02T15:10:00Z"
+      },
+      {
+        "id": "1",
+        "ref": "TR-88421",
+        "from_label": "Cocody, Angré",
+        "to_label": "Plateau, BCEAO",
+        "status": "completed",
+        "amount_fcfa": 4500,
+        "created_at": "2026-06-02T14:32:00Z"
+      },
+      {
+        "id": "15",
+        "ref": "TR-88312",
+        "from_label": "Plateau, BCEAO",
+        "to_label": "Cocody, Angré",
+        "status": "completed",
+        "amount_fcfa": 3800,
+        "created_at": "2026-06-01T09:15:00Z"
+      },
+      {
+        "id": "22",
+        "ref": "TR-88201",
+        "from_label": "Yopougon, Siporex",
+        "to_label": "Adjamé, Gare",
+        "status": "cancelled",
+        "amount_fcfa": 6100,
+        "created_at": "2026-05-30T18:45:00Z"
+      }
+    ],
+    "meta": { "total": 4, "per_page": 25, "current_page": 1, "last_page": 1 }
+  },
+  "103": {
+    "data": [],
+    "meta": { "total": 0, "per_page": 25, "current_page": 1, "last_page": 1 }
+  }
+}

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { ServicePill } from "@/shared/ui/ServicePill";
 import { Timeline, type TimelineItem } from "@/shared/ui/Timeline";
 import { Button } from "@/shared/ui/Button";
 import { TripRoutePreview } from "../components/TripRoutePreview";
+import { TripReassignModal } from "../components/TripReassignModal";
 import { useTripDetail } from "../api/tripDetail.queries";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getPaymentLabel } from "@/shared/lib/paymentLabels";
@@ -26,6 +28,7 @@ interface TripDetailPageProps {
 }
 
 export function TripDetailPage({ tripId }: TripDetailPageProps) {
+  const [reassignOpen, setReassignOpen] = useState(false);
   const { data: trip, isLoading, isError } = useTripDetail(tripId);
 
   if (isLoading) {
@@ -182,11 +185,28 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
             </dl>
           </div>
 
-          <Button variant="secondary" className="w-full" disabled>
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => setReassignOpen(true)}
+            disabled={trip.status === "completed" || trip.status === "cancelled"}
+          >
             Réassigner le chauffeur
           </Button>
+          <Link href={`/admin/ops/trips/${tripId}/forensic`} className="block">
+            <Button variant="ghost" className="w-full !text-xs">
+              Forensic GPS
+            </Button>
+          </Link>
         </aside>
       </div>
+
+      <TripReassignModal
+        tripId={tripId}
+        tripRef={trip.ref}
+        open={reassignOpen}
+        onClose={() => setReassignOpen(false)}
+      />
     </div>
   );
 }

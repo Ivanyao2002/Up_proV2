@@ -11,6 +11,8 @@
       "ops.map.view",
       "ops.trips.view",
       "ops.trips.edit",
+      "ops.dispatch.view",
+      "ops.dispatch.assign",
       "network.franchises.view",
       "network.zones.view",
       "network.partners.view",
@@ -20,7 +22,13 @@
       "fleet.kyc.approve",
       "finance.transactions.view",
       "finance.withdrawals.approve",
-      "settings.roles.manage"
+      "settings.roles.manage",
+      "settings.dispatchers.view",
+      "settings.dispatchers.create",
+      "settings.dispatchers.edit",
+      "settings.dispatch_rules.view",
+      "settings.dispatch_rules.edit",
+      "settings.pricing.view"
     ]
   }
 }

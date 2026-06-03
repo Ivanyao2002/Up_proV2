@@ -1,0 +1,41 @@
+{
+  "data": [
+    {
+      "id": "RB-101",
+      "client_name": "Société Ivoire Tech",
+      "from_label": "Plateau, Immeuble SCIAM",
+      "to_label": "Cocody, Riviera Palmeraie",
+      "frequency": "weekly",
+      "weekdays": ["lun", "mer", "ven"],
+      "time": "07:30",
+      "amount_fcfa": 4500,
+      "status": "active",
+      "next_occurrence_at": "2026-06-03T07:30:00Z"
+    },
+    {
+      "id": "RB-102",
+      "client_name": "Mme Bamba",
+      "from_label": "Yopougon, Niangon",
+      "to_label": "Marcory, Zone 4",
+      "frequency": "daily",
+      "weekdays": [],
+      "time": "18:00",
+      "amount_fcfa": 3200,
+      "status": "active",
+      "next_occurrence_at": "2026-06-02T18:00:00Z"
+    },
+    {
+      "id": "RB-103",
+      "client_name": "Clinique du Plateau",
+      "from_label": "Plateau, Boulevard VGE",
+      "to_label": "Aéroport FHB",
+      "frequency": "monthly",
+      "weekdays": [],
+      "time": "05:45",
+      "amount_fcfa": 8500,
+      "status": "paused",
+      "next_occurrence_at": null
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

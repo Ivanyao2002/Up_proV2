@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "id": "TK-4401",
+      "subject": "Chauffeur signalé — comportement client",
+      "category": "incident",
+      "priority": "high",
+      "status": "open",
+      "partner_name": "Cocody Express",
+      "created_at": "2026-06-02T09:15:00Z",
+      "updated_at": "2026-06-02T11:30:00Z"
+    },
+    {
+      "id": "TK-4398",
+      "subject": "Demande augmentation plafond retrait",
+      "category": "finance",
+      "priority": "normal",
+      "status": "in_progress",
+      "partner_name": "Yop Express",
+      "created_at": "2026-06-01T14:00:00Z",
+      "updated_at": "2026-06-02T08:00:00Z"
+    },
+    {
+      "id": "TK-4390",
+      "subject": "Question tarification zone Marcory",
+      "category": "pricing",
+      "priority": "low",
+      "status": "resolved",
+      "partner_name": "Marcory Fleet",
+      "created_at": "2026-05-28T10:00:00Z",
+      "updated_at": "2026-05-29T16:45:00Z"
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

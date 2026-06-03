@@ -1,0 +1,11 @@
+{
+  "platform_name": "UpJunoo Pro",
+  "support_email": "support@upjunoo.ci",
+  "default_city": "Abidjan",
+  "default_currency": "XOF",
+  "default_locale": "fr-CI",
+  "min_app_version_driver": "2.4.0",
+  "min_app_version_client": "3.1.0",
+  "maintenance_mode": false,
+  "updated_at": "2026-06-01T08:00:00Z"
+}

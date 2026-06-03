@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "code": "ABJSUD20",
+      "label": "−20 % première course Abidjan Sud",
+      "discount_pct": 20,
+      "uses_count": 142,
+      "max_uses": 500,
+      "status": "active",
+      "expires_at": "2026-08-31T23:59:59Z"
+    },
+    {
+      "id": 2,
+      "code": "COCODY500",
+      "label": "500 FCFA offerts Cocody",
+      "discount_pct": 0,
+      "fixed_discount_fcfa": 500,
+      "uses_count": 89,
+      "max_uses": 200,
+      "status": "active",
+      "expires_at": "2026-07-15T23:59:59Z"
+    },
+    {
+      "id": 3,
+      "code": "ETE2025",
+      "label": "Promo été 2025 (expirée)",
+      "discount_pct": 15,
+      "uses_count": 500,
+      "max_uses": 500,
+      "status": "expired",
+      "expires_at": "2025-09-30T23:59:59Z"
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

@@ -10,6 +10,16 @@ export const FRANCHISE_NAV: NavGroup[] = [
         permission: "ops.dashboard.view",
       },
       {
+        label: "Carte territoire",
+        path: "/franchise/territory",
+        permission: "ops.dashboard.view",
+      },
+      {
+        label: "Extension territoire",
+        path: "/franchise/territory/extension",
+        permission: "ops.dashboard.view",
+      },
+      {
         label: "Sous-partenaires",
         path: "/franchise/partners",
         permission: "network.partners.view",
@@ -22,7 +32,7 @@ export const FRANCHISE_NAV: NavGroup[] = [
       {
         label: "Modération KYC",
         path: "/franchise/drivers/moderation",
-        permission: "fleet.drivers.view",
+        permission: "fleet.kyc.approve",
       },
     ],
   },
@@ -33,6 +43,21 @@ export const FRANCHISE_NAV: NavGroup[] = [
         label: "Finance locale",
         path: "/franchise/finance",
         permission: "finance.wallets.view",
+      },
+      {
+        label: "Codes promo",
+        path: "/franchise/promos",
+        permission: "ops.dashboard.view",
+      },
+    ],
+  },
+  {
+    group: "SUPPORT",
+    items: [
+      {
+        label: "Tickets partenaires",
+        path: "/franchise/support",
+        permission: "network.partners.view",
       },
     ],
   },

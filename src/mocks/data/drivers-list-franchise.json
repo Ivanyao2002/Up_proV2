@@ -38,6 +38,19 @@
       "vehicle_label": "Hyundai i10",
       "account_status": "approved",
       "availability": "on_trip"
+    },
+    {
+      "id": 112,
+      "first_name": "Koné",
+      "last_name": "Aminata",
+      "phone": "+225 05 11 22 33 44",
+      "rating": 0,
+      "zone": "Cocody",
+      "owner_name": "Cocody Express",
+      "owner_id": 12,
+      "vehicle_label": null,
+      "account_status": "pending",
+      "availability": "offline"
     }
   ],
   "meta": { "total": 420, "per_page": 25, "current_page": 1, "last_page": 17 }

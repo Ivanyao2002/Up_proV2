@@ -1,5 +1,5 @@
-import { FranchiseDriversListPage } from "@/features/franchise/pages/FranchiseDriversListPage";
+import { FranchiseKycModerationPage } from "@/features/franchise/pages/FranchiseKycModerationPage";
 
 export default function Page() {
-  return <FranchiseDriversListPage pendingOnly />;
+  return <FranchiseKycModerationPage />;
 }

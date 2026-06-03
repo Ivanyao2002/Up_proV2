@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { notificationService } from "@/core/http/notificationService";
 import {
   partnerBookingsService,
   type CreateBookingPayload,
@@ -33,6 +34,18 @@ export function useCreatePartnerBooking() {
     mutationFn: (data: CreateBookingPayload) => partnerBookingsService.create(data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: partnerBookingsKeys.all });
+    },
+  });
+}
+
+export function useCancelPartnerBooking(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => partnerBookingsService.cancel(id),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: partnerBookingsKeys.detail(id) });
+      void qc.invalidateQueries({ queryKey: partnerBookingsKeys.list() });
+      notificationService.success(data.message);
     },
   });
 }

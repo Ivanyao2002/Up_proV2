@@ -60,6 +60,11 @@ export function AdminLoginPage() {
           >
             {login.isPending ? "Connexion…" : "Se connecter"}
           </Button>
+          <p className="text-right">
+            <Link href="/admin/forgot-password" className="text-xs text-teal hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </p>
         </form>
 
         <p className="mt-6 text-center text-xs text-muted">

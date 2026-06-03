@@ -1,0 +1,9 @@
+{
+  "match_radius_km": 3,
+  "assign_timeout_sec": 45,
+  "max_queue_size": 12,
+  "priority_mode": "balanced",
+  "auto_reassign": true,
+  "active_zone_ids": [1, 2, 3],
+  "updated_at": "2026-05-12T14:32:00.000Z"
+}

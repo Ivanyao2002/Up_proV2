@@ -51,3 +51,32 @@ export function clampCoordsToBounds(
     lng: Math.min(bounds.lng_max, Math.max(bounds.lng_min, lng)),
   };
 }
+
+/** Ring GeoJSON [lng, lat][] → attribut points SVG (viewBox 0–100) */
+export function ringLngLatToSvgPoints(
+  ring: number[][],
+  bounds = ABIDJAN_MAP_BOUNDS
+): string {
+  return ring
+    .map(([lng, lat]) => {
+      const x =
+        ((lng - bounds.lng_min) / (bounds.lng_max - bounds.lng_min)) * 100;
+      const y =
+        (1 - (lat - bounds.lat_min) / (bounds.lat_max - bounds.lat_min)) * 100;
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
+/** Clic sur la carte (viewBox 0–100) → coordonnées géo */
+export function svgPointToLatLng(
+  xPct: number,
+  yPct: number,
+  bounds = ABIDJAN_MAP_BOUNDS
+): MapCoords {
+  const lat =
+    bounds.lat_max - (yPct / 100) * (bounds.lat_max - bounds.lat_min);
+  const lng =
+    bounds.lng_min + (xPct / 100) * (bounds.lng_max - bounds.lng_min);
+  return clampCoordsToBounds(lat, lng);
+}

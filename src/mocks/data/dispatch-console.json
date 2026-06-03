@@ -1,0 +1,114 @@
+{
+  "stats": {
+    "queue_size": 2,
+    "online_nearby": 4,
+    "avg_wait_min": 3.5
+  },
+  "map": {
+    "zone_name": "Abidjan — Centre",
+    "city": "Abidjan",
+    "bounds": {
+      "lat_min": 5.28,
+      "lat_max": 5.42,
+      "lng_min": -4.05,
+      "lng_max": -3.92
+    }
+  },
+  "queue": [
+    {
+      "trip": {
+        "id": "5",
+        "ref": "TR-88408",
+        "service": "freight",
+        "from_label": "Port de Pêche, Treichville",
+        "to_label": "Yopougon, Gesco",
+        "client_name": "Trans CI Logistics",
+        "amount_fcfa": 15000,
+        "status": "matching",
+        "payment_method": "wallet",
+        "created_at": "2026-06-02T14:38:00Z"
+      },
+      "from_coords": { "lat": 5.298, "lng": -4.012 },
+      "to_coords": { "lat": 5.335, "lng": -4.045 },
+      "zone_name": "Treichville — Port",
+      "waiting_min": 4,
+      "candidates": [
+        {
+          "id": 106,
+          "name": "Ouattara Issa",
+          "vehicle": "Toyota Yaris",
+          "availability": "online",
+          "rating": 4.82,
+          "distance_km": 1.2,
+          "eta_min": 5,
+          "lat": 5.295,
+          "lng": -4.032
+        },
+        {
+          "id": 108,
+          "name": "Yao N'Guessan",
+          "vehicle": "Peugeot 301",
+          "availability": "online",
+          "rating": 4.71,
+          "distance_km": 2.1,
+          "eta_min": 8,
+          "lat": 5.325,
+          "lng": -3.998
+        },
+        {
+          "id": 104,
+          "name": "Bamba Serge",
+          "vehicle": "Honda Civic",
+          "availability": "online",
+          "rating": 4.65,
+          "distance_km": 3.4,
+          "eta_min": 12,
+          "lat": 5.312,
+          "lng": -3.965
+        }
+      ]
+    },
+    {
+      "trip": {
+        "id": "8",
+        "ref": "TR-88390",
+        "service": "rental",
+        "from_label": "Abidjan, Plateau",
+        "to_label": "Grand-Bassam",
+        "client_name": "Hôtel Azur",
+        "amount_fcfa": 45000,
+        "status": "requested",
+        "payment_method": "card",
+        "created_at": "2026-06-02T14:40:00Z"
+      },
+      "from_coords": { "lat": 5.322, "lng": -4.018 },
+      "to_coords": { "lat": 5.211, "lng": -3.738 },
+      "zone_name": "Plateau — Centre",
+      "waiting_min": 2,
+      "candidates": [
+        {
+          "id": 102,
+          "name": "Traoré Aminata",
+          "vehicle": "Suzuki Dzire",
+          "availability": "online",
+          "rating": 4.91,
+          "distance_km": 0.8,
+          "eta_min": 4,
+          "lat": 5.336,
+          "lng": -4.021
+        },
+        {
+          "id": 107,
+          "name": "Coulibaly Fatou",
+          "vehicle": "Suzuki Dzire",
+          "availability": "paused",
+          "rating": 4.58,
+          "distance_km": 1.5,
+          "eta_min": 7,
+          "lat": 5.368,
+          "lng": -3.951
+        }
+      ]
+    }
+  ]
+}

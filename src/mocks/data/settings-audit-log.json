@@ -1,0 +1,37 @@
+{
+  "data": [
+    {
+      "id": "AUD-1042",
+      "at": "2026-06-02T16:00:00Z",
+      "actor_email": "admin@upjunoo.ci",
+      "action": "settings.crisis.update",
+      "resource": "Mode crise",
+      "detail": "Surge global ×1.5 activé"
+    },
+    {
+      "id": "AUD-1041",
+      "at": "2026-06-02T14:30:00Z",
+      "actor_email": "aya@upjunoo.ci",
+      "action": "ops.trip.reassign",
+      "resource": "TR-88419",
+      "detail": "Réassignation chauffeur #102"
+    },
+    {
+      "id": "AUD-1040",
+      "at": "2026-06-02T10:15:00Z",
+      "actor_email": "admin@upjunoo.ci",
+      "action": "settings.pricing.create",
+      "resource": "Grille Cocody — Angré",
+      "detail": "Nouvelle grille tarifaire brouillon"
+    },
+    {
+      "id": "AUD-1039",
+      "at": "2026-06-01T17:00:00Z",
+      "actor_email": "finance@upjunoo.ci",
+      "action": "finance.withdrawal.approve",
+      "resource": "WD-4390",
+      "detail": "Retrait 200 000 FCFA approuvé"
+    }
+  ],
+  "meta": { "total": 4, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

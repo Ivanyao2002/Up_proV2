@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": "int-orange-money",
+      "name": "Orange Money",
+      "category": "payment",
+      "status": "connected",
+      "last_sync_at": "2026-06-02T12:00:00Z"
+    },
+    {
+      "id": "int-google-maps",
+      "name": "Google Maps Platform",
+      "category": "maps",
+      "status": "connected",
+      "last_sync_at": "2026-06-02T11:45:00Z"
+    },
+    {
+      "id": "int-twilio",
+      "name": "Twilio SMS",
+      "category": "messaging",
+      "status": "connected",
+      "last_sync_at": "2026-06-02T10:30:00Z"
+    },
+    {
+      "id": "int-sentry",
+      "name": "Sentry",
+      "category": "monitoring",
+      "status": "disconnected",
+      "last_sync_at": null
+    }
+  ]
+}

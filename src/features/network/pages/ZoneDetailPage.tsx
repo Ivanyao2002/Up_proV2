@@ -9,8 +9,10 @@ import { EntityStatusPill } from "@/shared/ui/EntityStatusPill";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { ZonePolygonMap } from "../components/ZonePolygonMap";
+import { ZonePolygonEditModal } from "../components/ZonePolygonEditModal";
 import { formatFCFA } from "@/shared/lib/format";
-import { useZoneDetail } from "../api/zoneDetail.queries";
+import { useZoneDetail, useUpdateZonePolygon } from "../api/zoneDetail.queries";
+import { useZonesMapOverview } from "../api/zones.queries";
 
 interface ZoneDetailPageProps {
   zoneId: string;
@@ -18,7 +20,10 @@ interface ZoneDetailPageProps {
 
 export function ZoneDetailPage({ zoneId }: ZoneDetailPageProps) {
   const [tab, setTab] = useState("map");
+  const [editPolygonOpen, setEditPolygonOpen] = useState(false);
   const { data, isLoading, isError } = useZoneDetail(zoneId);
+  const { data: mapOverview } = useZonesMapOverview();
+  const updatePolygon = useUpdateZonePolygon(zoneId);
 
   if (isLoading) {
     return <div className="h-64 animate-pulse rounded-card bg-border" />;
@@ -81,8 +86,12 @@ export function ZoneDetailPage({ zoneId }: ZoneDetailPageProps) {
                 <ZonePolygonMap
                   polygon={data.polygon_geojson}
                   zoneName={data.name}
+                  className="h-[min(380px,50vh)]"
                 />
-                <Button variant="secondary" disabled>
+                <Button
+                  variant="secondary"
+                  onClick={() => setEditPolygonOpen(true)}
+                >
                   Modifier le polygone
                 </Button>
               </div>
@@ -159,6 +168,22 @@ export function ZoneDetailPage({ zoneId }: ZoneDetailPageProps) {
           </Link>
         </aside>
       </div>
+
+      <ZonePolygonEditModal
+        open={editPolygonOpen}
+        zoneId={data.id}
+        zoneName={data.name}
+        initialRing={data.polygon_geojson?.coordinates?.[0] ?? []}
+        referenceZones={mapOverview?.zones ?? []}
+        cityLabel={data.city}
+        onClose={() => setEditPolygonOpen(false)}
+        isSaving={updatePolygon.isPending}
+        onSave={(ring) => {
+          updatePolygon.mutate(ring, {
+            onSuccess: () => setEditPolygonOpen(false),
+          });
+        }}
+      />
     </div>
   );
 }

@@ -1,0 +1,55 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "zone_name": "Cocody — Plateau",
+      "service": "taxi",
+      "base_fare_fcfa": 500,
+      "per_km_fcfa": 350,
+      "min_fare_fcfa": 1500,
+      "surge_multiplier": 1.0,
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "zone_name": "Yopougon centre",
+      "service": "taxi",
+      "base_fare_fcfa": 500,
+      "per_km_fcfa": 320,
+      "min_fare_fcfa": 1400,
+      "surge_multiplier": 1.25,
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "zone_name": "Aéroport Félix Houphouët",
+      "service": "taxi",
+      "base_fare_fcfa": 800,
+      "per_km_fcfa": 400,
+      "min_fare_fcfa": 2500,
+      "surge_multiplier": 1.5,
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "zone_name": "Plateau — Zone 4",
+      "service": "delivery",
+      "base_fare_fcfa": 400,
+      "per_km_fcfa": 280,
+      "min_fare_fcfa": 1200,
+      "surge_multiplier": 1.0,
+      "status": "active"
+    },
+    {
+      "id": 5,
+      "zone_name": "Abidjan — Grand-Bassam",
+      "service": "rental",
+      "base_fare_fcfa": 5000,
+      "per_km_fcfa": 450,
+      "min_fare_fcfa": 15000,
+      "surge_multiplier": 1.0,
+      "status": "draft"
+    }
+  ],
+  "meta": { "total": 5, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

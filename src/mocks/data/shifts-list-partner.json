@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "driver_name": "Koné Ibrahim",
+      "vehicle_label": "Toyota Corolla · CI-4521-AB",
+      "day_label": "Lundi",
+      "start_time": "06:00",
+      "end_time": "14:00",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "driver_name": "Traoré Aminata",
+      "vehicle_label": "Hyundai Accent · CI-8890-CD",
+      "day_label": "Lundi",
+      "start_time": "14:00",
+      "end_time": "22:00",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "driver_name": "Diabaté Moussa",
+      "vehicle_label": "Suzuki Dzire · CI-3312-EF",
+      "day_label": "Mardi",
+      "start_time": "08:00",
+      "end_time": "16:00",
+      "status": "draft"
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

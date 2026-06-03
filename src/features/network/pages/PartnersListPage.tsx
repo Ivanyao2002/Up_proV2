@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { SearchInput } from "@/shared/ui/SearchInput";
@@ -17,6 +18,7 @@ const ENTITY_STATUS_LABELS = {
 import { usePartnersList } from "../api/partners.queries";
 
 export function PartnersListPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const { data, isLoading, isError } = usePartnersList();
 
@@ -95,7 +97,7 @@ export function PartnersListPage() {
         title="Partenaires"
         breadcrumb={["Admin", "Réseau"]}
         actions={
-          <Button variant="primary" disabled>
+          <Button variant="primary" onClick={() => router.push("/admin/network/partners/new")}>
             Nouveau partenaire
           </Button>
         }

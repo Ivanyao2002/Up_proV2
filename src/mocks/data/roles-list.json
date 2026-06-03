@@ -1,0 +1,78 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Super administrateur",
+      "slug": "super_admin",
+      "description": "Accès complet plateforme",
+      "users_count": 2,
+      "is_system": true,
+      "permission_groups": [
+        {
+          "module": "Opérations",
+          "permissions": [
+            { "key": "ops.dashboard.view", "label": "Tableau de bord", "enabled": true },
+            { "key": "ops.map.view", "label": "Carte live", "enabled": true },
+            { "key": "ops.trips.view", "label": "Courses", "enabled": true },
+            { "key": "ops.dispatch.view", "label": "Console dispatch", "enabled": true },
+            { "key": "ops.dispatch.assign", "label": "Assigner courses", "enabled": true }
+          ]
+        },
+        {
+          "module": "Paramètres",
+          "permissions": [
+            { "key": "settings.dispatchers.view", "label": "Dispatchers", "enabled": true },
+            { "key": "settings.dispatch_rules.edit", "label": "Règles dispatch", "enabled": true },
+            { "key": "settings.roles.manage", "label": "Gérer les rôles", "enabled": true }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Opérateur dispatch",
+      "slug": "dispatch_operator",
+      "description": "Assignation manuelle et suivi ops",
+      "users_count": 8,
+      "is_system": false,
+      "permission_groups": [
+        {
+          "module": "Opérations",
+          "permissions": [
+            { "key": "ops.dashboard.view", "label": "Tableau de bord", "enabled": true },
+            { "key": "ops.map.view", "label": "Carte live", "enabled": true },
+            { "key": "ops.trips.view", "label": "Courses", "enabled": true },
+            { "key": "ops.dispatch.view", "label": "Console dispatch", "enabled": true },
+            { "key": "ops.dispatch.assign", "label": "Assigner courses", "enabled": true }
+          ]
+        },
+        {
+          "module": "Paramètres",
+          "permissions": [
+            { "key": "settings.dispatchers.view", "label": "Dispatchers", "enabled": true },
+            { "key": "settings.dispatch_rules.view", "label": "Règles dispatch", "enabled": true },
+            { "key": "settings.roles.manage", "label": "Gérer les rôles", "enabled": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Finance",
+      "slug": "finance",
+      "description": "Transactions et retraits",
+      "users_count": 4,
+      "is_system": false,
+      "permission_groups": [
+        {
+          "module": "Finance",
+          "permissions": [
+            { "key": "finance.transactions.view", "label": "Transactions", "enabled": true },
+            { "key": "finance.withdrawals.approve", "label": "Approuver retraits", "enabled": true }
+          ]
+        }
+      ]
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

@@ -1,0 +1,69 @@
+{
+  "franchise_name": "Abidjan Sud",
+  "city": "Abidjan",
+  "stats": {
+    "zones_count": 8,
+    "partners_count": 24,
+    "drivers_count": 4120,
+    "area_km2": 428
+  },
+  "zones": [
+    {
+      "id": 1,
+      "name": "Cocody — Plateau",
+      "type": "standard",
+      "drivers_active": 342,
+      "partners_count": 12,
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-3.998, 5.348],
+            [-3.985, 5.352],
+            [-3.978, 5.338],
+            [-3.992, 5.325],
+            [-3.998, 5.348]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "name": "Aéroport Félix Houphouët",
+      "type": "airport",
+      "drivers_active": 89,
+      "partners_count": 4,
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-3.945, 5.255],
+            [-3.928, 5.262],
+            [-3.922, 5.248],
+            [-3.938, 5.242],
+            [-3.945, 5.255]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "name": "Marcory — Zone 4",
+      "type": "surge",
+      "drivers_active": 156,
+      "partners_count": 8,
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-3.968, 5.302],
+            [-3.955, 5.308],
+            [-3.948, 5.295],
+            [-3.962, 5.288],
+            [-3.968, 5.302]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -14,6 +14,22 @@ export function useDriverDetail(id: string) {
   });
 }
 
+export function useDriverTrips(id: string) {
+  return useQuery({
+    queryKey: driverDetailKeys.trips(id),
+    queryFn: () => driverDetailService.getTrips(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useDriverWalletTransactions(id: string, enabled = true) {
+  return useQuery({
+    queryKey: driverDetailKeys.walletTransactions(id),
+    queryFn: () => driverDetailService.getWalletTransactions(id),
+    enabled: Boolean(id) && enabled,
+  });
+}
+
 export function useApproveDriverKyc(id: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -33,6 +49,30 @@ export function useRejectDriverKyc(id: string) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: driverDetailKeys.detail(id) });
       notificationService.warning("Demande de correction envoyée");
+    },
+  });
+}
+
+export function useSuspendDriver(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => driverDetailService.suspend(id),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: driverDetailKeys.detail(id) });
+      void qc.invalidateQueries({ queryKey: driversKeys.all });
+      notificationService.success(data.message);
+    },
+  });
+}
+
+export function useActivateDriver(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => driverDetailService.activate(id),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: driverDetailKeys.detail(id) });
+      void qc.invalidateQueries({ queryKey: driversKeys.all });
+      notificationService.success(data.message);
     },
   });
 }

@@ -35,4 +35,15 @@ export const authHandlers = [
   http.post("*/api/v2/auth/logout", () => {
     return HttpResponse.json({ ok: true });
   }),
+
+  http.post("*/api/v2/auth/forgot-password", async ({ request }) => {
+    const body = (await request.json()) as { email?: string };
+    if (!body.email?.trim()) {
+      return HttpResponse.json({ message: "Email requis" }, { status: 422 });
+    }
+    return HttpResponse.json({
+      ok: true,
+      message: "Si le compte existe, un email a été envoyé.",
+    });
+  }),
 ];

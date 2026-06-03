@@ -1,0 +1,11 @@
+{
+  "active": false,
+  "level": "normal",
+  "pause_dispatch": false,
+  "global_surge_multiplier": 1,
+  "alert_title": "",
+  "alert_message": "",
+  "affected_zones": [],
+  "updated_at": "2026-06-02T08:00:00Z",
+  "updated_by": "admin@upjunoo.ci"
+}

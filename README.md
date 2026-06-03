@@ -27,6 +27,29 @@ npm run dev
 - Détail franchise : http://localhost:3000/admin/network/franchises/1
 - Détail partenaire : http://localhost:3000/admin/network/partners/12
 - Détail zone : http://localhost:3000/admin/network/zones/1
+- Dispatchers : http://localhost:3000/admin/settings/dispatchers
+- Règles de dispatch : http://localhost:3000/admin/settings/dispatch-rules
+- Nouveau dispatcher : http://localhost:3000/admin/settings/dispatchers/new
+- Console dispatch : http://localhost:3000/admin/ops/dispatch
+- Rôles : http://localhost:3000/admin/settings/roles
+- Tarification : http://localhost:3000/admin/settings/pricing · édition `/admin/settings/pricing/1`
+- Clients B2C/B2B : http://localhost:3000/admin/fleet/clients
+- Forensic GPS : http://localhost:3000/admin/ops/trips/2/forensic
+- Mode crise : http://localhost:3000/admin/ops/crisis
+- Wallets : http://localhost:3000/admin/finance/wallets
+- Commissions : http://localhost:3000/admin/finance/commissions
+- Réconciliation : http://localhost:3000/admin/finance/reconciliation
+- Support tickets : http://localhost:3000/admin/support/tickets
+- Litige : http://localhost:3000/admin/support/disputes/DSP-501
+- Marketing promos : http://localhost:3000/admin/marketing/promos
+- Intégrations : http://localhost:3000/admin/settings/integrations
+- Audit : http://localhost:3000/admin/settings/audit
+- Paramètres généraux : http://localhost:3000/admin/settings/general
+- Nouvelle franchise : http://localhost:3000/admin/network/franchises/new
+- Nouvelle zone : http://localhost:3000/admin/network/zones/new
+- Nouveau partenaire : http://localhost:3000/admin/network/partners/new
+- Franchise territoire : http://localhost:3000/franchise/territory
+- Franchise modération KYC : http://localhost:3000/franchise/drivers/moderation
 
 ### Portail Partenaire
 
@@ -39,7 +62,10 @@ npm run dev
 - Véhicule (carte grise) : http://localhost:3000/partner/fleet/204 (brouillon) · `/203` (rejeté) · `/202` (en validation)
 - Ajouter chauffeur : http://localhost:3000/partner/drivers/new
 - Réserver course : http://localhost:3000/partner/bookings/new
-- Liste réservations : http://localhost:3000/partner/bookings
+- Liste réservations : http://localhost:3000/partner/bookings · détail `/partner/bookings/3` (annulable)
+- Shifts : http://localhost:3000/partner/shifts
+- Récurrentes : http://localhost:3000/partner/bookings/recurring
+- Rapports : http://localhost:3000/partner/reports
 
 ### Portail Franchise
 
@@ -49,6 +75,9 @@ npm run dev
 - Chauffeurs : http://localhost:3000/franchise/drivers
 - Modération KYC : http://localhost:3000/franchise/drivers/moderation
 - Finance : http://localhost:3000/franchise/finance
+- Promos : http://localhost:3000/franchise/promos
+- Support : http://localhost:3000/franchise/support
+- Extension territoire : http://localhost:3000/franchise/territory/extension
 
 ## Variables d’environnement
 
@@ -71,7 +100,5 @@ src/
 
 ## Docs projet
 
-- `CONTEXTE.md` — état d’avancement (fait / reste à faire, dispatchers P0)
-- `REACT_REFONTE_KICKSTART.md` — cahier technique
+- `CONTEXTE.md` — état d’avancement (fait / reste à faire)
 - `BACKOFFICE_VISION_DESIGN.md` — vision UI / motion
-"# Up_proV2" 

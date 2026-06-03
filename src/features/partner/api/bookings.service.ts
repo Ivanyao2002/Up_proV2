@@ -58,4 +58,9 @@ export const partnerBookingsService = {
 
   create: (data: CreateBookingPayload) =>
     apiClient.post<BookingCreated>("/partner/bookings", data),
+
+  cancel: (id: string) =>
+    apiClient.post<{ ok: boolean; message: string; booking: PartnerBookingDetail }>(
+      `/partner/bookings/${id}/cancel`
+    ),
 };

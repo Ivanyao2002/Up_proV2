@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": "RPT-2026-05",
+      "period_label": "Mai 2026",
+      "trips_count": 342,
+      "revenue_fcfa": 1845000,
+      "acceptance_rate_pct": 91,
+      "generated_at": "2026-06-01T08:00:00Z"
+    },
+    {
+      "id": "RPT-2026-04",
+      "period_label": "Avril 2026",
+      "trips_count": 298,
+      "revenue_fcfa": 1620000,
+      "acceptance_rate_pct": 88,
+      "generated_at": "2026-05-01T08:00:00Z"
+    },
+    {
+      "id": "RPT-2026-03",
+      "period_label": "Mars 2026",
+      "trips_count": 275,
+      "revenue_fcfa": 1498000,
+      "acceptance_rate_pct": 87,
+      "generated_at": "2026-04-01T08:00:00Z"
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

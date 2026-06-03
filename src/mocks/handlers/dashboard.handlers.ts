@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import adminDashboard from "../data/dashboard-admin.json";
 import driversList from "../data/drivers-list.json";
-import zonesList from "../data/zones-list.json";
+import { zonesState } from "./network-state";
 
 export const dashboardHandlers = [
   http.get("*/api/v2/admin/dashboard", () => {
@@ -13,6 +13,6 @@ export const dashboardHandlers = [
   }),
 
   http.get("*/api/v2/admin/network/zones", () => {
-    return HttpResponse.json(zonesList);
+    return HttpResponse.json(zonesState);
   }),
 ];

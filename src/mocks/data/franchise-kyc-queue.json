@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "driver_id": 103,
+      "first_name": "Diabaté",
+      "last_name": "Moussa",
+      "phone": "+225 01 44 22 11 00",
+      "zone": "Plateau",
+      "owner_name": "Cocody Express",
+      "documents_pending": 2,
+      "documents_rejected": 1,
+      "submitted_at": "2026-06-01T16:45:00Z",
+      "waiting_hours": 18
+    },
+    {
+      "driver_id": 112,
+      "first_name": "Koné",
+      "last_name": "Aminata",
+      "phone": "+225 05 11 22 33 44",
+      "zone": "Cocody",
+      "owner_name": "Cocody Express",
+      "documents_pending": 3,
+      "documents_rejected": 0,
+      "submitted_at": "2026-06-02T08:20:00Z",
+      "waiting_hours": 6
+    }
+  ],
+  "meta": { "total": 2, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

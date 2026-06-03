@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { SearchInput } from "@/shared/ui/SearchInput";
@@ -17,6 +18,7 @@ const ZONE_TYPE_LABELS: Record<Zone["type"], string> = {
 import { useZonesList } from "../api/zones.queries";
 
 export function ZonesListPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const { data, isLoading, isError } = useZonesList();
 
@@ -91,7 +93,7 @@ export function ZonesListPage() {
         title="Zones"
         breadcrumb={["Admin", "Réseau"]}
         actions={
-          <Button variant="primary" disabled>
+          <Button variant="primary" onClick={() => router.push("/admin/network/zones/new")}>
             Nouvelle zone
           </Button>
         }

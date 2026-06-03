@@ -6,16 +6,23 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { Tabs } from "@/shared/ui/Tabs";
 import { Timeline, type TimelineItem } from "@/shared/ui/Timeline";
 import { KycDocumentCard } from "@/shared/ui/KycDocumentCard";
-import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { DataTable, type Column } from "@/shared/ui/DataTable";
+import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { getTripStatusLabel } from "@/shared/lib/tripLabels";
 import type { DriverTimelineEvent } from "@/shared/types";
+import type { DriverTripRow, DriverWalletTransaction } from "../api/driverDetail.service";
 import {
   useDriverDetail,
+  useDriverTrips,
+  useDriverWalletTransactions,
   useApproveDriverKyc,
   useRejectDriverKyc,
+  useSuspendDriver,
+  useActivateDriver,
 } from "../api/driverDetail.queries";
 import { notificationService } from "@/core/http/notificationService";
 
@@ -40,12 +47,21 @@ interface DriverDetailPageProps {
 
 export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const [tab, setTab] = useState("kyc");
+  const [showWallet, setShowWallet] = useState(false);
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [confirmReject, setConfirmReject] = useState(false);
+  const [confirmSuspend, setConfirmSuspend] = useState(false);
 
   const { data: driver, isLoading, isError } = useDriverDetail(driverId);
+  const { data: tripsData, isLoading: tripsLoading } = useDriverTrips(driverId);
+  const { data: walletData, isLoading: walletLoading } = useDriverWalletTransactions(
+    driverId,
+    showWallet
+  );
   const approveKyc = useApproveDriverKyc(driverId);
   const rejectKyc = useRejectDriverKyc(driverId);
+  const suspendDriver = useSuspendDriver(driverId);
+  const activateDriver = useActivateDriver(driverId);
 
   if (isLoading) {
     return (
@@ -72,6 +88,8 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
 
   const fullName = `${driver.first_name} ${driver.last_name}`;
   const isPending = driver.account_status === "pending";
+  const isSuspended = driver.account_status === "suspended";
+  const canSuspend = driver.account_status === "approved";
   const timelineItems: TimelineItem[] = driver.timeline.map((e) => ({
     id: e.id,
     label: e.label,
@@ -86,6 +104,85 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
     { id: "activity", label: "Activité" },
   ];
 
+  const tripColumns: Column<DriverTripRow>[] = [
+    {
+      id: "ref",
+      header: "Réf.",
+      cell: (t) => (
+        <Link
+          href={`/admin/ops/trips/${t.id}`}
+          className="font-medium text-navy hover:text-teal"
+        >
+          {t.ref}
+        </Link>
+      ),
+      exportValue: (t) => t.ref,
+    },
+    {
+      id: "route",
+      header: "Trajet",
+      cell: (t) => (
+        <span className="text-sm">
+          {t.from_label} → {t.to_label}
+        </span>
+      ),
+      exportValue: (t) => `${t.from_label} → ${t.to_label}`,
+    },
+    {
+      id: "amount",
+      header: "Montant",
+      className: "tabular-nums",
+      cell: (t) => formatFCFA(t.amount_fcfa),
+      exportValue: (t) => t.amount_fcfa,
+    },
+    {
+      id: "status",
+      header: "Statut",
+      cell: (t) => <StatusPill status={t.status} />,
+      exportValue: (t) => getTripStatusLabel(t.status),
+    },
+    {
+      id: "date",
+      header: "Date",
+      cell: (t) => formatDateTime(t.created_at),
+      exportValue: (t) => t.created_at,
+    },
+  ];
+
+  const walletColumns: Column<DriverWalletTransaction>[] = [
+    {
+      id: "label",
+      header: "Libellé",
+      cell: (tx) => <span className="text-sm">{tx.label}</span>,
+      exportValue: (tx) => tx.label,
+    },
+    {
+      id: "amount",
+      header: "Montant",
+      className: "tabular-nums",
+      cell: (tx) => (
+        <span className={tx.type === "credit" ? "text-teal-dark" : "text-red-600"}>
+          {tx.type === "credit" ? "+" : "−"}
+          {formatFCFA(tx.amount_fcfa)}
+        </span>
+      ),
+      exportValue: (tx) => (tx.type === "credit" ? tx.amount_fcfa : -tx.amount_fcfa),
+    },
+    {
+      id: "balance",
+      header: "Solde après",
+      className: "tabular-nums",
+      cell: (tx) => formatFCFA(tx.balance_after_fcfa),
+      exportValue: (tx) => tx.balance_after_fcfa,
+    },
+    {
+      id: "date",
+      header: "Date",
+      cell: (tx) => formatDateTime(tx.created_at),
+      exportValue: (tx) => tx.created_at,
+    },
+  ];
+
   return (
     <div className="animate-fade-up">
       {/* Header sticky résumé */}
@@ -95,8 +192,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
           breadcrumb={["Admin", "Flotte", "Chauffeurs", fullName]}
           actions={
             <div className="flex flex-wrap items-center gap-2">
-              <AccountStatusPill status={driver.account_status} />
-              <AvailabilityPill status={driver.availability} />
+              
               {isPending && (
                 <>
                   <Button onClick={() => setConfirmApprove(true)}>
@@ -171,9 +267,15 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
             )}
 
             {tab === "activity" && (
-              <div className="rounded-card border border-dashed border-border bg-surface p-12 text-center text-sm text-muted">
-                Historique des courses — disponible en P1 avec l&apos;API trips.
-              </div>
+              <DataTable
+                columns={tripColumns}
+                data={tripsData?.data ?? []}
+                rowKey={(t) => t.id}
+                isLoading={tripsLoading}
+                exportFileName={`chauffeur-${driverId}-courses`}
+                emptyTitle="Aucune course"
+                emptyDescription="Ce chauffeur n'a pas encore effectué de course."
+              />
             )}
           </div>
         </div>
@@ -187,9 +289,28 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
             <p className="mt-2 text-2xl font-semibold tabular-nums text-navy">
               {formatFCFA(driver.stats.wallet_balance_fcfa)}
             </p>
-            <Button variant="secondary" className="mt-4 w-full !text-xs" disabled>
-              Voir les transactions
+            <Button
+              variant="secondary"
+              className="mt-4 w-full !text-xs"
+              onClick={() => setShowWallet((v) => !v)}
+            >
+              {showWallet ? "Masquer les transactions" : "Voir les transactions"}
             </Button>
+            {showWallet && (
+              <div className="mt-4 border-t border-border pt-4">
+                {walletLoading ? (
+                  <div className="h-24 animate-pulse rounded bg-border" />
+                ) : (
+                  <DataTable
+                    columns={walletColumns}
+                    data={walletData?.data ?? []}
+                    rowKey={(tx) => tx.id}
+                    exportFileName={`chauffeur-${driverId}-wallet`}
+                    emptyTitle="Aucune transaction"
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
@@ -215,12 +336,25 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
           <div className="rounded-card border border-border bg-surface p-5 shadow-card">
             <h3 className="text-sm font-semibold text-[#212529]">Actions rapides</h3>
             <div className="mt-3 flex flex-col gap-2">
-              <Button variant="secondary" className="w-full !text-xs" disabled>
-                Suspendre
-              </Button>
-              <Button variant="ghost" className="w-full !text-xs" disabled>
-                Contacter
-              </Button>
+              {canSuspend && (
+                <Button
+                  variant="secondary"
+                  className="w-full !text-xs"
+                  onClick={() => setConfirmSuspend(true)}
+                >
+                  Suspendre
+                </Button>
+              )}
+              {isSuspended && (
+                <Button
+                  variant="secondary"
+                  className="w-full !text-xs"
+                  onClick={() => activateDriver.mutate()}
+                  disabled={activateDriver.isPending}
+                >
+                  Réactiver
+                </Button>
+              )}
             </div>
           </div>
         </aside>
@@ -249,6 +383,18 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
           setConfirmReject(false);
         }}
         onCancel={() => setConfirmReject(false)}
+      />
+
+      <ConfirmModal
+        open={confirmSuspend}
+        title="Suspendre ce chauffeur ?"
+        message="Il ne pourra plus recevoir de courses tant que le compte est suspendu."
+        confirmLabel="Suspendre"
+        variant="danger"
+        onConfirm={() => {
+          suspendDriver.mutate(undefined, { onSuccess: () => setConfirmSuspend(false) });
+        }}
+        onCancel={() => setConfirmSuspend(false)}
       />
     </div>
   );

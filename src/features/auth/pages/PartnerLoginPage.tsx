@@ -56,6 +56,11 @@ export function PartnerLoginPage() {
           <Button type="submit" className="w-full" disabled={login.isPending}>
             {login.isPending ? "Connexion…" : "Se connecter"}
           </Button>
+          <p className="text-right">
+            <Link href="/partner/forgot-password" className="text-xs text-teal hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </p>
         </form>
 
         <p className="mt-6 text-center text-xs text-muted">

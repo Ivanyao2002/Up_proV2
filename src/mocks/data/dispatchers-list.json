@@ -1,0 +1,53 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Aya Koné",
+      "email": "aya.kone@upjunoo.ci",
+      "phone": "+225 07 12 34 56 78",
+      "franchise_id": 1,
+      "franchise_name": "Abidjan Sud",
+      "zone_ids": [1, 3],
+      "zone_names": ["Cocody — Plateau", "Aéroport Félix Houphouët"],
+      "status": "active",
+      "last_login_at": "2026-06-02T20:15:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Jean Traoré",
+      "email": "jean.traore@upjunoo.ci",
+      "phone": "+225 05 44 22 11 00",
+      "franchise_id": 2,
+      "franchise_name": "Abidjan Ouest",
+      "zone_ids": [2],
+      "zone_names": ["Yopougon centre"],
+      "status": "suspended",
+      "last_login_at": null
+    },
+    {
+      "id": 3,
+      "name": "Fatou Bamba",
+      "email": "fatou.bamba@upjunoo.ci",
+      "phone": "+225 01 03 45 67 89",
+      "franchise_id": 1,
+      "franchise_name": "Abidjan Sud",
+      "zone_ids": [1, 2, 3],
+      "zone_names": ["Cocody — Plateau", "Yopougon centre", "Aéroport Félix Houphouët"],
+      "status": "active",
+      "last_login_at": "2026-06-02T14:30:00.000Z"
+    },
+    {
+      "id": 4,
+      "name": "Kouadio N'Guessan",
+      "email": "kouadio.nguessan@upjunoo.ci",
+      "phone": "+225 07 88 99 00 11",
+      "franchise_id": 1,
+      "franchise_name": "Abidjan Sud",
+      "zone_ids": [1],
+      "zone_names": ["Cocody — Plateau"],
+      "status": "active",
+      "last_login_at": "2026-06-01T09:00:00.000Z"
+    }
+  ],
+  "meta": { "total": 4, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

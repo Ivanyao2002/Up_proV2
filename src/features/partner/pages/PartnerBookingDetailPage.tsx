@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { ServicePill } from "@/shared/ui/ServicePill";
 import { Timeline, type TimelineItem } from "@/shared/ui/Timeline";
 import { Button } from "@/shared/ui/Button";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { TripRoutePreview } from "@/features/ops/components/TripRoutePreview";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getPaymentLabel } from "@/shared/lib/paymentLabels";
 import type { TripTimelineEvent } from "@/shared/types";
-import { usePartnerBookingDetail } from "../api/bookings.queries";
+import { usePartnerBookingDetail, useCancelPartnerBooking } from "../api/bookings.queries";
 
 function timelineVariant(
   type: TripTimelineEvent["type"]
@@ -26,7 +28,9 @@ interface PartnerBookingDetailPageProps {
 }
 
 export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPageProps) {
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const { data: booking, isLoading, isError } = usePartnerBookingDetail(bookingId);
+  const cancelBooking = useCancelPartnerBooking(bookingId);
 
   if (isLoading) {
     return <div className="h-64 animate-pulse rounded-card bg-border" />;
@@ -63,7 +67,12 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
             {booking.service && <ServicePill service={booking.service} />}
             <StatusPill status={booking.status} pulse={booking.status === "in_progress"} />
             {canCancel && (
-              <Button variant="secondary" className="!text-xs" disabled>
+              <Button
+                variant="secondary"
+                className="!text-xs"
+                disabled={cancelBooking.isPending}
+                onClick={() => setConfirmCancel(true)}
+              >
                 Annuler
               </Button>
             )}
@@ -177,6 +186,18 @@ export function PartnerBookingDetailPage({ bookingId }: PartnerBookingDetailPage
           </Link>
         </aside>
       </div>
+
+      <ConfirmModal
+        open={confirmCancel}
+        title="Annuler cette réservation ?"
+        message="La course sera retirée de la file d'attente. Cette action est irréversible."
+        confirmLabel="Annuler la réservation"
+        variant="danger"
+        onConfirm={() => {
+          cancelBooking.mutate(undefined, { onSuccess: () => setConfirmCancel(false) });
+        }}
+        onCancel={() => setConfirmCancel(false)}
+      />
     </div>
   );
 }

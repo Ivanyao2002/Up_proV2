@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { HeroKpi } from "@/features/ops/components/HeroKpi";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { usePartnerWallet } from "../api/wallet.queries";
+import { PartnerWalletWithdrawModal } from "../components/PartnerWalletWithdrawModal";
 
 export function PartnerWalletPage() {
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
   const { data, isLoading, isError } = usePartnerWallet();
 
   if (isLoading) {
@@ -24,7 +27,11 @@ export function PartnerWalletPage() {
         title="Portefeuille"
         breadcrumb={["Partenaire", "Finance"]}
         actions={
-          <Button variant="primary" disabled>
+          <Button
+            variant="primary"
+            disabled={data.available_fcfa <= 0}
+            onClick={() => setWithdrawOpen(true)}
+          >
             Demander un retrait
           </Button>
         }
@@ -79,6 +86,12 @@ export function PartnerWalletPage() {
           ))}
         </ul>
       </div>
+
+      <PartnerWalletWithdrawModal
+        open={withdrawOpen}
+        availableFcfa={data.available_fcfa}
+        onClose={() => setWithdrawOpen(false)}
+      />
     </div>
   );
 }

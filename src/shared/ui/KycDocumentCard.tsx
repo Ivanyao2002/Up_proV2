@@ -2,7 +2,9 @@
 
 import { useRef } from "react";
 import type { KycDocument } from "@/shared/types";
+import { resolveKycPreviewUrl } from "@/shared/lib/documentPreview";
 import { formatDateTime } from "@/shared/lib/format";
+import { DocumentPreviewThumbnail } from "./DocumentPreviewThumbnail";
 import { Button } from "./Button";
 
 const STATUS_LABELS: Record<KycDocument["status"], string> = {
@@ -39,6 +41,7 @@ export function KycDocumentCard({
   const inputRef = useRef<HTMLInputElement>(null);
   const hasUpload = Boolean(document.uploaded_at);
   const needsUpload = canUpload && (document.status === "rejected" || !hasUpload);
+  const previewUrl = resolveKycPreviewUrl(document);
 
   return (
     <div className="rounded-card border border-border bg-surface p-4 shadow-card">
@@ -62,11 +65,11 @@ export function KycDocumentCard({
         )}
       </div>
 
-      <div className="mt-4 flex min-h-[7rem] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-canvas p-4">
+      <div className="mt-4">
         {needsUpload ? (
-          <>
+          <div className="flex min-h-[7rem] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-canvas p-4">
             <p className="mb-3 text-center text-sm text-muted">
-              Téléversez la carte grise pour soumettre le véhicule à validation.
+              Téléversez le document pour soumettre à validation.
             </p>
             <input
               ref={inputRef}
@@ -87,22 +90,30 @@ export function KycDocumentCard({
               Choisir un fichier
             </Button>
             <p className="mt-2 text-[10px] text-muted">{uploadHint}</p>
-          </>
+          </div>
+        ) : hasUpload ? (
+          <DocumentPreviewThumbnail
+            src={previewUrl}
+            alt={document.label}
+            subtitle={`Soumis le ${formatDateTime(document.uploaded_at)}`}
+          />
         ) : (
-          <svg
-            className="h-10 w-10 text-muted/40"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+          <div className="flex min-h-[7rem] items-center justify-center rounded-lg border border-dashed border-border bg-canvas p-4">
+            <svg
+              className="h-10 w-10 text-muted/40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
         )}
       </div>
 

@@ -1,0 +1,53 @@
+{
+  "data": [
+    {
+      "id": 1001,
+      "full_name": "Ouattara Koffi",
+      "phone": "+225 07 12 34 56 78",
+      "email": "k.offi@gmail.com",
+      "type": "b2c",
+      "status": "active",
+      "trips_count": 48,
+      "wallet_balance_fcfa": 12500,
+      "registered_at": "2025-11-10T08:00:00Z",
+      "last_trip_at": "2026-06-01T18:30:00Z"
+    },
+    {
+      "id": 1002,
+      "full_name": "Société BTP CI",
+      "phone": "+225 27 20 30 40 50",
+      "email": "courses@btpci.ci",
+      "type": "b2b",
+      "status": "active",
+      "trips_count": 312,
+      "wallet_balance_fcfa": 850000,
+      "registered_at": "2024-03-15T00:00:00Z",
+      "last_trip_at": "2026-06-02T14:20:00Z"
+    },
+    {
+      "id": 1003,
+      "full_name": "Bamba Aïcha",
+      "phone": "+225 05 44 33 22 11",
+      "email": null,
+      "type": "b2c",
+      "status": "suspended",
+      "trips_count": 12,
+      "wallet_balance_fcfa": 0,
+      "registered_at": "2026-01-20T12:00:00Z",
+      "last_trip_at": "2026-05-28T09:15:00Z"
+    },
+    {
+      "id": 1004,
+      "full_name": "Clinique du Plateau",
+      "phone": "+225 27 20 11 22 33",
+      "email": "transport@cliniqueplateau.ci",
+      "type": "b2b",
+      "status": "active",
+      "trips_count": 89,
+      "wallet_balance_fcfa": 420000,
+      "registered_at": "2025-06-01T00:00:00Z",
+      "last_trip_at": "2026-06-02T07:45:00Z"
+    }
+  ],
+  "meta": { "total": 4, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

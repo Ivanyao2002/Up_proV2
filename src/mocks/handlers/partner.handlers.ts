@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import dashboardPartner from "../data/dashboard-partner.json";
 import driversListPartner from "../data/drivers-list-partner.json";
-import walletPartner from "../data/wallet-partner.json";
+import walletPartnerSeed from "../data/wallet-partner.json";
 import partnerProfile from "../data/partner-profile.json";
 import fleetList from "../data/fleet-list.json";
 import vehicleApproved from "../data/vehicle-detail-approved.json";
@@ -11,7 +11,13 @@ import vehicleDraft from "../data/vehicle-detail-draft.json";
 import driverDetail from "../data/driver-detail.json";
 import driverDetailPending from "../data/driver-detail-pending.json";
 import bookingsListPartner from "../data/bookings-list-partner.json";
-import type { TripStatus } from "@/shared/types";
+import type { TripStatus, PartnerWallet } from "@/shared/types";
+
+import shiftsListPartner from "../data/shifts-list-partner.json";
+import recurringBookingsPartner from "../data/recurring-bookings-partner.json";
+import reportsPartner from "../data/reports-partner.json";
+
+let walletState: PartnerWallet = { ...(walletPartnerSeed as PartnerWallet) };
 
 function bookingTimeline(status: TripStatus, createdAt: string) {
   const base = new Date(createdAt);
@@ -287,7 +293,63 @@ export const partnerHandlers = [
   }),
 
   http.get("*/api/v2/partner/wallet", () => {
-    return HttpResponse.json(walletPartner);
+    return HttpResponse.json(walletState);
+  }),
+
+  http.post("*/api/v2/partner/wallet/withdraw", async ({ request }) => {
+    const body = (await request.json()) as { amount_fcfa?: number };
+    const amount = body.amount_fcfa ?? 0;
+    if (amount <= 0) {
+      return HttpResponse.json({ message: "Montant invalide" }, { status: 422 });
+    }
+    if (amount > walletState.available_fcfa) {
+      return HttpResponse.json(
+        { message: "Solde disponible insuffisant" },
+        { status: 422 }
+      );
+    }
+    const ref = `WD-${Math.floor(4400 + Math.random() * 999)}`;
+    const now = new Date().toISOString();
+    walletState = {
+      ...walletState,
+      balance_fcfa: walletState.balance_fcfa - amount,
+      available_fcfa: walletState.available_fcfa - amount,
+      pending_withdrawal_fcfa: walletState.pending_withdrawal_fcfa + amount,
+      last_withdrawal: {
+        id: ref,
+        amount_fcfa: amount,
+        status: "pending",
+        processed_at: now,
+      },
+      recent_movements: [
+        {
+          id: `M-${Date.now()}`,
+          label: `Demande retrait ${ref}`,
+          amount_fcfa: amount,
+          direction: "debit",
+          created_at: now,
+        },
+        ...walletState.recent_movements,
+      ],
+    };
+    return HttpResponse.json({
+      ok: true,
+      message: "Demande de retrait enregistrée",
+      withdrawal_id: ref,
+      wallet: walletState,
+    });
+  }),
+
+  http.get("*/api/v2/partner/shifts", () => {
+    return HttpResponse.json(shiftsListPartner);
+  }),
+
+  http.get("*/api/v2/partner/bookings/recurring", () => {
+    return HttpResponse.json(recurringBookingsPartner);
+  }),
+
+  http.get("*/api/v2/partner/reports", () => {
+    return HttpResponse.json(reportsPartner);
   }),
 
   http.get("*/api/v2/partner/bookings", () => {
@@ -300,6 +362,27 @@ export const partnerHandlers = [
       return HttpResponse.json({ message: "Réservation introuvable" }, { status: 404 });
     }
     return HttpResponse.json(detail);
+  }),
+
+  http.post("*/api/v2/partner/bookings/:id/cancel", ({ params }) => {
+    const id = String(params.id);
+    const idx = bookingsListPartner.data.findIndex((b) => b.id === id);
+    if (idx < 0) {
+      return HttpResponse.json({ message: "Réservation introuvable" }, { status: 404 });
+    }
+    const booking = bookingsListPartner.data[idx];
+    if (!["requested", "matching", "assigned"].includes(booking.status)) {
+      return HttpResponse.json(
+        { message: "Cette réservation ne peut plus être annulée" },
+        { status: 422 }
+      );
+    }
+    bookingsListPartner.data[idx] = { ...booking, status: "cancelled" };
+    return HttpResponse.json({
+      ok: true,
+      message: "Réservation annulée",
+      booking: bookingDetailById(id),
+    });
   }),
 
   http.post("*/api/v2/partner/bookings", async ({ request }) => {

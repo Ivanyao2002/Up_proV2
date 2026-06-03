@@ -1,37 +1,28 @@
 "use client";
 
+import { ringLngLatToSvgPoints } from "@/shared/lib/mapProjection";
+
 interface ZonePolygonMapProps {
   polygon?: {
     type: "Polygon";
     coordinates: number[][][];
   };
   zoneName: string;
+  className?: string;
 }
 
-/** Projection simplifiée lng/lat → % pour aperçu polygone */
-function ringToPoints(ring: number[][]): string {
-  const lngs = ring.map((c) => c[0]);
-  const lats = ring.map((c) => c[1]);
-  const lngMin = Math.min(...lngs);
-  const lngMax = Math.max(...lngs);
-  const latMin = Math.min(...lats);
-  const latMax = Math.max(...lats);
-
-  return ring
-    .map(([lng, lat]) => {
-      const x = ((lng - lngMin) / (lngMax - lngMin || 1)) * 80 + 10;
-      const y = (1 - (lat - latMin) / (latMax - latMin || 1)) * 70 + 15;
-      return `${x},${y}`;
-    })
-    .join(" ");
-}
-
-export function ZonePolygonMap({ polygon, zoneName }: ZonePolygonMapProps) {
+export function ZonePolygonMap({
+  polygon,
+  zoneName,
+  className = "h-64",
+}: ZonePolygonMapProps) {
   const ring = polygon?.coordinates?.[0];
-  const points = ring ? ringToPoints(ring) : "30,70 70,20 85,55 50,85";
+  const points = ring ? ringLngLatToSvgPoints(ring) : "30,70 70,20 85,55 50,85";
 
   return (
-    <div className="relative h-64 overflow-hidden rounded-card border border-border bg-[#e8eaf0]">
+    <div
+      className={`relative overflow-hidden rounded-card border border-border bg-[#e8eaf0] ${className}`}
+    >
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -42,10 +33,14 @@ export function ZonePolygonMap({ polygon, zoneName }: ZonePolygonMapProps) {
           backgroundSize: "28px 28px",
         }}
       />
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
         <polygon
           points={points}
-          fill="rgba(10,179,156,0.2)"
+          fill="rgba(10,179,156,0.25)"
           stroke="#0ab39c"
           strokeWidth="0.8"
         />

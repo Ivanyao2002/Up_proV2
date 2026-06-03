@@ -11,6 +11,7 @@
       "ops.dashboard.view",
       "network.partners.view",
       "fleet.drivers.view",
+      "fleet.kyc.approve",
       "finance.wallets.view"
     ]
   }

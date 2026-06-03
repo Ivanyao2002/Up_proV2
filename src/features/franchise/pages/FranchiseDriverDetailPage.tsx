@@ -5,18 +5,34 @@ import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Tabs } from "@/shared/ui/Tabs";
 import { KycDocumentCard } from "@/shared/ui/KycDocumentCard";
-import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
 import { KpiCard } from "@/shared/ui/KpiCard";
+import { Button } from "@/shared/ui/Button";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { usePermission } from "@/core/auth/usePermission";
 import { formatFCFA } from "@/shared/lib/format";
-import { useFranchiseDriverDetail } from "../api/drivers.queries";
+import {
+  useApproveFranchiseDocument,
+  useApproveFranchiseDriverKyc,
+  useFranchiseDriverDetail,
+  useRejectFranchiseDocument,
+  useRejectFranchiseDriverKyc,
+} from "../api/drivers.queries";
 
 interface FranchiseDriverDetailPageProps {
   driverId: string;
 }
 
 export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPageProps) {
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("kyc");
+  const [confirmApprove, setConfirmApprove] = useState(false);
+  const [confirmReject, setConfirmReject] = useState(false);
+  const canModerate = usePermission("fleet.kyc.approve");
+
   const { data: driver, isLoading, isError } = useFranchiseDriverDetail(driverId);
+  const approveKyc = useApproveFranchiseDriverKyc();
+  const rejectKyc = useRejectFranchiseDriverKyc();
+  const approveDoc = useApproveFranchiseDocument(driverId);
+  const rejectDoc = useRejectFranchiseDocument(driverId);
 
   if (isLoading) {
     return <div className="h-64 animate-pulse rounded-card bg-border" />;
@@ -34,6 +50,7 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
   }
 
   const fullName = `${driver.first_name} ${driver.last_name}`;
+  const isPending = driver.account_status === "pending";
 
   return (
     <div className="animate-fade-up">
@@ -41,12 +58,20 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
         title={fullName}
         breadcrumb={["Franchise", "Chauffeurs", fullName]}
         actions={
-          <div className="flex gap-2">
-            <AccountStatusPill status={driver.account_status} />
-            <AvailabilityPill status={driver.availability} />
-          </div>
+          isPending && canModerate ? (
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={() => setConfirmApprove(true)}>Approuver le compte</Button>
+              <Button variant="secondary" onClick={() => setConfirmReject(true)}>
+                Rejeter
+              </Button>
+            </div>
+          ) : undefined
         }
       />
+
+      <p className="mb-6 text-sm text-muted">
+        {driver.phone} · {driver.zone} · {driver.owner_name}
+      </p>
 
       <Tabs
         tabs={[
@@ -75,14 +100,42 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
               <KycDocumentCard
                 key={doc.id}
                 document={doc}
-                canReview={doc.status === "pending" && Boolean(doc.uploaded_at)}
-                onApprove={() => undefined}
-                onReject={() => undefined}
+                canReview={canModerate && doc.status === "pending" && Boolean(doc.uploaded_at)}
+                onApprove={() => approveDoc.mutate(doc.id)}
+                onReject={() =>
+                  rejectDoc.mutate({ docId: doc.id, reason: "Document illisible ou incomplet" })
+                }
               />
             ))}
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={confirmApprove}
+        title="Approuver ce chauffeur ?"
+        message="Validation complète du dossier KYC sur le territoire franchise."
+        confirmLabel="Approuver"
+        onConfirm={() => {
+          approveKyc.mutate(driverId, { onSuccess: () => setConfirmApprove(false) });
+        }}
+        onCancel={() => setConfirmApprove(false)}
+      />
+
+      <ConfirmModal
+        open={confirmReject}
+        title="Rejeter la demande ?"
+        confirmLabel="Rejeter"
+        variant="danger"
+        message="Le chauffeur devra soumettre de nouveaux documents."
+        onConfirm={() => {
+          rejectKyc.mutate(
+            { driverId, reason: "Dossier incomplet — modération franchise" },
+            { onSuccess: () => setConfirmReject(false) }
+          );
+        }}
+        onCancel={() => setConfirmReject(false)}
+      />
     </div>
   );
 }

@@ -1,0 +1,54 @@
+{
+  "id": "DSP-501",
+  "ticket_id": "ADM-TK-501",
+  "subject": "Litige course TR-88421 — double débit",
+  "status": "open",
+  "priority": "high",
+  "category": "dispute",
+  "reporter_name": "M. Ouattara",
+  "reporter_phone": "+225 07 12 34 56 78",
+  "franchise_name": "Abidjan Sud",
+  "trip_ref": "TR-88421",
+  "trip_id": "3",
+  "amount_disputed_fcfa": 4200,
+  "created_at": "2026-06-02T14:20:00Z",
+  "updated_at": "2026-06-02T16:00:00Z",
+  "description": "Le client signale un double prélèvement sur son portefeuille pour la même course TR-88421.",
+  "timeline": [
+    {
+      "id": "e1",
+      "label": "Ticket ouvert",
+      "description": "Signalement via app client",
+      "at": "2026-06-02T14:20:00Z",
+      "actor": "Système"
+    },
+    {
+      "id": "e2",
+      "label": "Assigné au support L2",
+      "description": "Équipe finance Abidjan Sud",
+      "at": "2026-06-02T15:00:00Z",
+      "actor": "Aya Koné"
+    },
+    {
+      "id": "e3",
+      "label": "Analyse en cours",
+      "description": "Vérification des transactions wallet",
+      "at": "2026-06-02T16:00:00Z",
+      "actor": "Aya Koné"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev1",
+      "label": "Capture écran app client",
+      "type": "screenshot",
+      "uploaded_at": "2026-06-02T14:22:00Z"
+    },
+    {
+      "id": "ev2",
+      "label": "Historique transactions TR-88421",
+      "type": "system",
+      "uploaded_at": "2026-06-02T15:30:00Z"
+    }
+  ]
+}

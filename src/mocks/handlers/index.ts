@@ -6,6 +6,9 @@ import { networkHandlers } from "./network.handlers";
 import { financeHandlers } from "./finance.handlers";
 import { partnerHandlers } from "./partner.handlers";
 import { franchiseHandlers } from "./franchise.handlers";
+import { settingsHandlers } from "./settings.handlers";
+import { supportHandlers } from "./support.handlers";
+import { marketingHandlers } from "./marketing.handlers";
 
 export const handlers = [
   ...authHandlers,
@@ -16,4 +19,7 @@ export const handlers = [
   ...financeHandlers,
   ...partnerHandlers,
   ...franchiseHandlers,
+  ...settingsHandlers,
+  ...supportHandlers,
+  ...marketingHandlers,
 ];

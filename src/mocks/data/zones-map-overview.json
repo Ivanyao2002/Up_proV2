@@ -1,0 +1,100 @@
+{
+  "city": "Abidjan",
+  "zones": [
+    {
+      "id": 1,
+      "name": "Cocody — Plateau",
+      "type": "standard",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Sud",
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-3.998, 5.348],
+            [-3.985, 5.352],
+            [-3.978, 5.338],
+            [-3.992, 5.325],
+            [-3.998, 5.348]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "name": "Yopougon centre",
+      "type": "surge",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Ouest",
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-4.078, 5.348],
+            [-4.058, 5.355],
+            [-4.048, 5.332],
+            [-4.068, 5.318],
+            [-4.078, 5.348]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "name": "Aéroport Félix Houphouët",
+      "type": "airport",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Sud",
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-3.945, 5.255],
+            [-3.928, 5.262],
+            [-3.922, 5.248],
+            [-3.938, 5.242],
+            [-3.945, 5.255]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "name": "Marcory — Zone 4",
+      "type": "surge",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Sud",
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-3.968, 5.302],
+            [-3.955, 5.308],
+            [-3.948, 5.295],
+            [-3.962, 5.288],
+            [-3.968, 5.302]
+          ]
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "name": "Plateau — Zone 4",
+      "type": "standard",
+      "city": "Abidjan",
+      "franchise_name": "Abidjan Sud",
+      "polygon_geojson": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-4.018, 5.328],
+            [-4.005, 5.335],
+            [-4.002, 5.318],
+            [-4.012, 5.312],
+            [-4.018, 5.328]
+          ]
+        ]
+      }
+    }
+  ]
+}

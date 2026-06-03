@@ -1,0 +1,38 @@
+{
+  "data": [
+    {
+      "id": "CMP-2026-ETE",
+      "name": "Été 2026 — Abidjan",
+      "channel": "push",
+      "audience": "Clients actifs Cocody",
+      "status": "running",
+      "sent_count": 12400,
+      "open_rate_pct": 34,
+      "starts_at": "2026-06-01T00:00:00Z",
+      "ends_at": "2026-08-31T23:59:59Z"
+    },
+    {
+      "id": "CMP-2026-AERO",
+      "name": "Aéroport — navette premium",
+      "channel": "sms",
+      "audience": "Voyageurs récurrents",
+      "status": "scheduled",
+      "sent_count": 0,
+      "open_rate_pct": 0,
+      "starts_at": "2026-07-01T06:00:00Z",
+      "ends_at": "2026-09-30T23:59:59Z"
+    },
+    {
+      "id": "CMP-2026-DRV",
+      "name": "Recrutement chauffeurs Yopougon",
+      "channel": "in_app",
+      "audience": "Chauffeurs zone Ouest",
+      "status": "completed",
+      "sent_count": 820,
+      "open_rate_pct": 61,
+      "starts_at": "2026-04-01T00:00:00Z",
+      "ends_at": "2026-05-15T23:59:59Z"
+    }
+  ],
+  "meta": { "total": 3, "per_page": 25, "current_page": 1, "last_page": 1 }
+}

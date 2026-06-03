@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { SearchInput } from "@/shared/ui/SearchInput";
@@ -18,6 +19,7 @@ const ENTITY_STATUS_LABELS = {
 import { useFranchisesList } from "../api/franchises.queries";
 
 export function FranchisesListPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const { data, isLoading, isError } = useFranchisesList();
 
@@ -93,7 +95,7 @@ export function FranchisesListPage() {
         title="Franchises"
         breadcrumb={["Admin", "Réseau"]}
         actions={
-          <Button variant="primary" disabled>
+          <Button variant="primary" onClick={() => router.push("/admin/network/franchises/new")}>
             Nouvelle franchise
           </Button>
         }

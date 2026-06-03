@@ -16,4 +16,10 @@ export const authService = {
   me: () => apiClient.get<User>("/me"),
 
   logout: () => apiClient.post<{ ok: boolean }>("/auth/logout"),
+
+  forgotPassword: (email: string, portal: LoginPortal) =>
+    apiClient.post<{ ok: boolean; message: string }>("/auth/forgot-password", {
+      email,
+      portal,
+    }),
 };
