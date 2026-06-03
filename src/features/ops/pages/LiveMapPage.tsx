@@ -1,33 +1,26 @@
 "use client";
 
 import { PageHeader } from "@/shared/ui/PageHeader";
-import { KpiCard } from "@/shared/ui/KpiCard";
-import { AvailabilityPill } from "@/shared/ui/DriverPills";
 import { useLiveMap } from "../api/liveMap.queries";
 import { LiveMapCanvas } from "../components/LiveMapCanvas";
-import type { LiveMapDriver } from "@/shared/types";
+import { LiveMapStatsBar } from "../components/LiveMapStatsBar";
+import { LiveMapDriversPanel } from "../components/LiveMapDriversPanel";
 
 function MapSkeleton() {
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
-      <div className="h-[min(520px,70vh)] animate-pulse rounded-card bg-border" />
-      <div className="space-y-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-20 animate-pulse rounded-card bg-border" />
-        ))}
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-[5.5rem] animate-pulse rounded-card bg-gradient-to-br from-[#1e2838] to-navy/30"
+            />
+          ))}
+        </div>
+        <div className="h-[min(520px,70vh)] animate-pulse rounded-card bg-[#d8dbe4]" />
       </div>
-    </div>
-  );
-}
-
-function DriverRow({ driver }: { driver: LiveMapDriver }) {
-  return (
-    <div className="flex items-center justify-between gap-2 border-t border-border/50 py-3 first:border-0">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-[#212529]">{driver.name}</p>
-        <p className="truncate text-xs text-muted">{driver.vehicle}</p>
-      </div>
-      <AvailabilityPill status={driver.availability} />
+      <div className="h-[min(560px,72vh)] animate-pulse rounded-card bg-navy/20" />
     </div>
   );
 }
@@ -51,41 +44,18 @@ export function LiveMapPage() {
         title="Carte live"
         breadcrumb={["Admin", "Opérations"]}
         actions={
-          <span className="text-xs text-muted">MAJ {updated} · refresh 30s</span>
+          <span className="rounded-full bg-navy/8 px-3 py-1 text-xs font-medium text-muted">
+            MAJ {updated} · refresh 30s
+          </span>
         }
       />
 
-      <div className="animate-stagger mb-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="En ligne"
-          value={String(data.stats.drivers_online)}
-          hint="chauffeurs disponibles"
-        />
-        <KpiCard
-          label="En course"
-          value={String(data.stats.drivers_on_trip)}
-        />
-        <KpiCard
-          label="Courses actives"
-          value={String(data.stats.active_trips)}
-        />
-        <KpiCard
-          label="Attente moy."
-          value={`${data.stats.avg_wait_min} min`}
-        />
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
-        <LiveMapCanvas data={data} />
-        <aside className="rounded-card border border-border bg-surface p-5 shadow-card">
-          <h2 className="text-sm font-semibold text-[#212529]">Sur la carte</h2>
-          <p className="text-xs text-muted">{data.drivers.length} chauffeurs visibles</p>
-          <div className="mt-3 max-h-[420px] overflow-y-auto">
-            {data.drivers.map((d) => (
-              <DriverRow key={d.id} driver={d} />
-            ))}
-          </div>
-        </aside>
+      <div className="animate-stagger grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        <div className="flex min-w-0 flex-col gap-3">
+          <LiveMapStatsBar stats={data.stats} />
+          <LiveMapCanvas data={data} />
+        </div>
+        <LiveMapDriversPanel data={data} />
       </div>
     </div>
   );

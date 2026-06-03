@@ -64,10 +64,12 @@ export function PartnerWalletPage() {
         />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
+            index={0}
             label="Disponible"
             value={formatFCFA(data.available_fcfa)}
           />
           <KpiCard
+            index={1}
             label="En attente de retrait"
             value={formatFCFA(data.pending_withdrawal_fcfa)}
             hint={
@@ -79,11 +81,13 @@ export function PartnerWalletPage() {
           {rechargeStats ? (
             <>
               <KpiCard
+                index={2}
                 label="Recharges chauffeurs (total)"
                 value={formatFCFA(rechargeStats.total_spent_fcfa)}
                 hint={`${rechargeStats.transfers_count} transfert(s)`}
               />
               <KpiCard
+                index={3}
                 label="Recharges ce mois"
                 value={formatFCFA(rechargeStats.month_spent_fcfa)}
                 hint={`${rechargeStats.month_transfers_count} ce mois`}

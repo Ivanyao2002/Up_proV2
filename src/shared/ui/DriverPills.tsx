@@ -31,10 +31,20 @@ export function AccountStatusPill({ status }: { status: Driver["account_status"]
   );
 }
 
-export function AvailabilityPill({ status }: { status: Driver["availability"] }) {
+export function AvailabilityPill({
+  status,
+  onDark = false,
+}: {
+  status: Driver["availability"];
+  onDark?: boolean;
+}) {
   const isOnline = status === "online" || status === "on_trip";
   return (
-    <span className="relative inline-flex items-center gap-1.5 text-xs font-medium text-[#212529]">
+    <span
+      className={`relative inline-flex items-center gap-1.5 text-xs font-medium ${
+        onDark ? "text-white/85" : "text-[#212529]"
+      }`}
+    >
       {isOnline && (
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-teal opacity-75" />

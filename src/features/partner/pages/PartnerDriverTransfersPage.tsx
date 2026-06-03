@@ -144,19 +144,23 @@ export function PartnerDriverTransfersPage() {
       ) : stats ? (
         <div className="animate-stagger mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
+            index={0}
             label="Total dépensé (recharges)"
             value={formatFCFA(stats.total_spent_fcfa)}
           />
           <KpiCard
+            index={1}
             label="Nombre de transferts"
             value={String(stats.transfers_count)}
           />
           <KpiCard
+            index={2}
             label="Ce mois"
             value={formatFCFA(stats.month_spent_fcfa)}
             hint={`${stats.month_transfers_count} transfert(s)`}
           />
           <KpiCard
+            index={3}
             label="Dernière recharge"
             value={
               stats.last_transfer_at

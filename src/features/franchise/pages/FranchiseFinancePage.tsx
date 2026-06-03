@@ -53,17 +53,20 @@ export function FranchiseFinancePage() {
         <HeroKpi amount={data.balance_fcfa} trendPct={0} label="Solde territoire" />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <KpiCard label="Disponible recharges" value={formatFCFA(available)} />
+          <KpiCard index={0} label="Disponible recharges" value={formatFCFA(available)} />
           <KpiCard
+            index={1}
             label="Commissions du mois"
             value={formatFCFA(data.commission_month_fcfa)}
           />
           <KpiCard
+            index={2}
             label="Paiements en attente"
             value={formatFCFA(data.payouts_pending_fcfa)}
           />
           {rechargeStats ? (
             <KpiCard
+              index={3}
               label="Recharges chauffeurs (total)"
               value={formatFCFA(rechargeStats.total_spent_fcfa)}
               hint={`${rechargeStats.transfers_count} transfert(s)`}

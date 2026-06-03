@@ -25,7 +25,7 @@ const PIN_COLORS: Record<LiveMapDriver["availability"], string> = {
 
 export function LiveMapCanvas({ data }: { data: LiveMapData }) {
   return (
-    <div className="relative h-[min(520px,70vh)] w-full overflow-hidden rounded-card border border-border bg-[#e8eaf0] shadow-card">
+    <div className="relative h-[min(520px,70vh)] w-full overflow-hidden rounded-card border border-navy/15 bg-[#d4d8e2] shadow-[0_4px_24px_rgba(36,48,73,0.12)]">
       {/* Grille stylisée — pas de placeholder gris */}
       <div
         className="absolute inset-0 opacity-40"
@@ -37,13 +37,13 @@ export function LiveMapCanvas({ data }: { data: LiveMapData }) {
           backgroundSize: "40px 40px",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-teal/5 via-transparent to-navy/10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-navy/8 via-transparent to-teal/6" />
 
       {/* Zones fictives */}
       <div className="absolute left-[15%] top-[20%] h-24 w-32 rounded-2xl border border-teal/30 bg-teal/10" />
       <div className="absolute right-[20%] bottom-[25%] h-20 w-28 rounded-2xl border border-navy/20 bg-navy/5" />
 
-      <p className="absolute left-4 top-4 rounded-lg bg-surface/90 px-3 py-1.5 text-xs font-medium text-navy shadow-sm backdrop-blur">
+      <p className="absolute left-4 top-4 rounded-lg bg-[#1e2838]/90 px-3 py-1.5 text-xs font-medium text-white shadow-md backdrop-blur">
         {data.zone_name} · {data.city}
       </p>
 
@@ -76,7 +76,7 @@ export function LiveMapCanvas({ data }: { data: LiveMapData }) {
         );
       })}
 
-      <div className="absolute bottom-4 left-4 flex flex-wrap gap-3 rounded-lg bg-surface/95 px-3 py-2 text-[10px] text-muted shadow-sm backdrop-blur">
+      <div className="absolute bottom-4 left-4 flex flex-wrap gap-3 rounded-lg bg-surface/95 text-black px-3 py-2 text-[10px] text-white/75 shadow-md backdrop-blur">
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-teal" /> En ligne
         </span>

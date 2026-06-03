@@ -69,13 +69,19 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
 
       <div className="mt-6">
         {tab === "overview" && (
-          <div className="grid gap-4 sm:grid-cols-3">
-            <KpiCard label="Courses totales" value={String(driver.stats.trips_total)} />
+          <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
             <KpiCard
+              index={0}
+              label="Courses totales"
+              value={String(driver.stats.trips_total)}
+            />
+            <KpiCard
+              index={1}
               label="Taux d'acceptation"
               value={`${driver.stats.acceptance_rate_pct} %`}
             />
             <KpiCard
+              index={2}
               label="Portefeuille chauffeur"
               value={formatFCFA(driver.stats.wallet_balance_fcfa)}
             />

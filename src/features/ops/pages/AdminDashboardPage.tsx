@@ -12,7 +12,10 @@ function DashboardSkeleton() {
       <div className="h-40 rounded-hero bg-navy/10" />
       <div className="grid gap-4 md:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-28 rounded-card bg-border" />
+          <div
+            key={i}
+            className="h-28 rounded-card bg-gradient-to-br from-navy/10 via-teal/10 to-border animate-pulse"
+          />
         ))}
       </div>
     </div>
@@ -50,11 +53,13 @@ export function AdminDashboardPage() {
           </div>
           <div className="space-y-5">
             <KpiCard
+              index={0}
               label="Courses terminées"
               value={String(data.trips_completed_today)}
               hint={`${data.trips_cancelled_today} annulées`}
             />
             <KpiCard
+              index={1}
               label="Zone active"
               value={data.active_zone.name}
               hint={`${data.active_zone.drivers_online} chauffeurs en ligne · ${data.active_zone.trips_24h} courses / 24h`}
@@ -64,15 +69,18 @@ export function AdminDashboardPage() {
 
         <div className="grid gap-5 md:grid-cols-3">
           <KpiCard
+            index={0}
             label="Chauffeurs approuvés"
             value={data.drivers_approved.toLocaleString("fr-CI")}
           />
           <KpiCard
+            index={1}
             label="KYC en attente"
             value={String(data.drivers_pending_kyc)}
             trend={data.drivers_pending_kyc > 0 ? "Action requise" : undefined}
           />
           <KpiCard
+            index={2}
             label="Utilisateurs inscrits"
             value={data.users_registered.toLocaleString("fr-CI")}
           />
