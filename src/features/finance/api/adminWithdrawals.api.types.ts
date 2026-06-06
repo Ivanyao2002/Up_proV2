@@ -21,6 +21,8 @@ export interface ApiAdminWithdrawalItem {
   ownerName?: string | null;
   ownerId?: string | null;
   franchiseName?: string | null;
+  franchiseId?: string | null;
+  franchise_id?: string | null;
   method?: string | null;
   walletBalanceXof?: number | null;
 }

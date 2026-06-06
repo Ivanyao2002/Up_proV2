@@ -11,6 +11,7 @@ alwaysApply: false
 **Toujours** consulter [https://api.upjunoo-dev.tech/docs](https://api.upjunoo-dev.tech/docs) avant d'intégrer ou modifier une route `/v1/...`.
 
 - `SWAGGER.md` (racine) = export local, **peut être en retard** sur l'API live.
+- Déploiement + état audit API : `VERCEL-DEPLOIEMENT.md`
 - Contexte complet : `docs/API-SWAGGER-CONTEXT.md`
 - Écarts UI : `docs/ECARTS-API-V1-BACKOFFICE.md`
 

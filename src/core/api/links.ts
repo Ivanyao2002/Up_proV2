@@ -56,6 +56,9 @@ export const LINKS = {
     drivers: {
       getById: (id: string) => `${DRIVERS_V1_BASE}/${id}`,
     },
+    files: {
+      getById: (id: string) => `/v1/files/${id}`,
+    },
   },
 
   auth: {
@@ -115,6 +118,9 @@ export const LINKS = {
       userById: (id: string) => `${ADMIN_V1_BASE}/users/${id}`,
       userSuspend: (id: string) => `${ADMIN_V1_BASE}/users/${id}/suspend`,
       userActivate: (id: string) => `${ADMIN_V1_BASE}/users/${id}/activate`,
+      filterOptions: `${ADMIN_V1_BASE}/filter-options`,
+      driverApprove: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/approve`,
+      driverReject: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/reject`,
       vehicles: `${ADMIN_V1_BASE}/vehicles`,
     },
 

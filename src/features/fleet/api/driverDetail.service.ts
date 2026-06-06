@@ -121,7 +121,10 @@ async function attachDriverKycDocuments(
   }
 
   try {
-    const items = await fetchAdminKycDocuments();
+    const items = await fetchAdminKycDocuments({
+      subject_id: driverId,
+      subject_type: "DRIVER",
+    });
     const documents = mapApiKycItemsForDriver(items, driverId);
     return {
       ...detail,
@@ -196,10 +199,30 @@ export const driverDetailService = {
     ),
 
   approveKyc: (id: string | number) =>
-    apiWithNotify.post(`/admin/drivers/${id}/kyc/approve`, undefined, "KYC approuvé"),
+    useLegacyDriverDetail()
+      ? apiWithNotify.post(
+          `/admin/drivers/${id}/kyc/approve`,
+          undefined,
+          "KYC approuvé"
+        )
+      : apiWithNotify.post(
+          LINKS.admin.v1.driverApprove(String(id)),
+          undefined,
+          "Compte chauffeur approuvé"
+        ),
 
   rejectKyc: (id: string | number, reason: string) =>
-    apiWithNotify.post(`/admin/drivers/${id}/kyc/reject`, { reason }, "Document rejeté"),
+    useLegacyDriverDetail()
+      ? apiWithNotify.post(
+          `/admin/drivers/${id}/kyc/reject`,
+          { reason },
+          "Document rejeté"
+        )
+      : apiWithNotify.post(
+          LINKS.admin.v1.driverReject(String(id)),
+          { reason, rejection_reason: reason },
+          "Demande rejetée"
+        ),
 
   suspend: (id: string | number) =>
     apiClient.post<{ ok: boolean; message: string; driver: DriverDetail }>(

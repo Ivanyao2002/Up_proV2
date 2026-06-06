@@ -9,9 +9,12 @@ import { Timeline } from "@/shared/ui/Timeline";
 import { tripTimelineToItems } from "@/shared/lib/tripTimeline";
 import { Button } from "@/shared/ui/Button";
 import { TripRoutePreview } from "@/features/ops/components/TripRoutePreview";
+import { TripAssignedVehicleCard } from "@/features/ops/components/TripAssignedVehicleCard";
+import { isTripLiveOnMap } from "@/shared/lib/tripDriver";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getPaymentLabel } from "@/shared/lib/paymentLabels";
 import { useFranchiseTripDetail } from "../api/trips.queries";
+import { useTripDriverLiveLocation } from "@/features/ops/hooks/useTripDriverLiveLocation";
 
 interface FranchiseTripDetailPageProps {
   tripId: string;
@@ -19,6 +22,14 @@ interface FranchiseTripDetailPageProps {
 
 export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps) {
   const { data: trip, isLoading, isError } = useFranchiseTripDetail(tripId);
+  const liveTracking = Boolean(
+    trip && isTripLiveOnMap(trip.status) && trip.driver_id
+  );
+  const { location: driverLiveLocation, isRealtime } = useTripDriverLiveLocation({
+    driverId: trip?.driver_id,
+    initial: trip?.driver_location,
+    enabled: liveTracking,
+  });
 
   if (isLoading) {
     return <DetailPageSkeleton />;
@@ -38,6 +49,7 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
   const timelineItems = tripTimelineToItems(trip.timeline, {
     driverLinkBase: "/franchise/drivers",
   });
+  const showDriverOnMap = liveTracking && Boolean(driverLiveLocation);
 
   return (
     <div className="animate-fade-up mx-auto w-full max-w-6xl">
@@ -59,6 +71,8 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
             toLabel={trip.to_label}
             fromCoords={trip.from_coords}
             toCoords={trip.to_coords}
+            driverLocation={showDriverOnMap ? driverLiveLocation : undefined}
+            driverLive={isRealtime}
           />
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
@@ -111,6 +125,11 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
                 <p className="mt-2 text-sm text-muted">En cours d&apos;assignation</p>
               )}
             </div>
+            <TripAssignedVehicleCard
+              trip={trip}
+              driverLocation={driverLiveLocation}
+              driverLive={isRealtime}
+            />
           </div>
 
         </div>

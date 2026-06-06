@@ -11,6 +11,10 @@ import type {
 } from "./liveMap.api.types";
 import { liveMapOrderStatusLabel } from "./liveMap.labels";
 import {
+  formatApiVehicleLabel,
+  mapApiLocationToTripDriverLocation,
+} from "./adminOrderVehicle";
+import {
   mapApiOrderStatus,
   mapApiPaymentMethod,
   mapApiServiceType,
@@ -136,7 +140,7 @@ function buildTimeline(
   push("created", "requested", "Commande créée", order.created_at ?? "");
 
   return events.sort(
-    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
+    (a, b) => new Date(a.at).getTime() - new Date(b.at).getTime()
   );
 }
 
@@ -202,6 +206,11 @@ export function mapApiOrderToTripDetail(
     partner_name: assignedDriver?.partnerName,
     zone_name: assignedDriver?.zoneName,
     timeline: buildTimeline(order, driversById),
+    vehicle_label:
+      formatApiVehicleLabel(undefined, assignedDriver?.vehicleLabel) ??
+      assignedDriver?.vehicleLabel ??
+      undefined,
+    driver_location: mapApiLocationToTripDriverLocation(assignedDriver?.location),
   };
 }
 

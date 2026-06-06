@@ -11,6 +11,8 @@
   "driver_id": 102,
   "driver_name": "Traoré Aminata",
   "driver_phone": "+225 05 98 76 54 32",
+  "vehicle_label": "Suzuki Dzire · CD-881-CI",
+  "vehicle_plate": "CD-881-CI",
   "amount_fcfa": 2800,
   "commission_fcfa": 420,
   "driver_earning_fcfa": 2380,

@@ -1,7 +1,11 @@
 "use client";
 
-import { latLngToPercent } from "@/shared/lib/mapProjection";
+import { useEffect, useMemo, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { env } from "@/core/config/env";
 import { formatDateTime } from "@/shared/lib/format";
+import { latLngToPercent } from "@/shared/lib/mapProjection";
 
 export interface GpsTracePoint {
   at: string;
@@ -16,7 +20,24 @@ interface TripForensicMapProps {
   toCoords: { lat: number; lng: number };
 }
 
-export function TripForensicMap({
+const MAP_STYLE = "mapbox://styles/mapbox/light-v11";
+const TRACE_SOURCE = "forensic-trace-line";
+const TRACE_LAYER = "forensic-trace-line";
+const POINTS_SOURCE = "forensic-trace-points";
+const POINTS_LAYER = "forensic-trace-points";
+
+function createMarkerElement(color: string): HTMLDivElement {
+  const el = document.createElement("div");
+  el.style.width = "14px";
+  el.style.height = "14px";
+  el.style.borderRadius = "50%";
+  el.style.backgroundColor = color;
+  el.style.border = "2px solid #fff";
+  el.style.boxShadow = "0 1px 4px rgba(0,0,0,0.35)";
+  return el;
+}
+
+function TripForensicMapFallback({
   trace,
   fromCoords,
   toCoords,
@@ -107,4 +128,184 @@ export function TripForensicMap({
       </div>
     </div>
   );
+}
+
+function TripForensicMapbox({
+  trace,
+  fromCoords,
+  toCoords,
+}: TripForensicMapProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const [ready, setReady] = useState(false);
+
+  const anomalyIdx = useMemo(
+    () => trace.findIndex((p) => p.speed_kmh >= 80),
+    [trace]
+  );
+  const maxSpeed = useMemo(
+    () => Math.max(...trace.map((p) => p.speed_kmh), 0),
+    [trace]
+  );
+
+  const lineCoordinates = useMemo(
+    () => trace.map((p) => [p.lng, p.lat] as [number, number]),
+    [trace]
+  );
+
+  useEffect(() => {
+    if (!env.mapboxToken || !containerRef.current || mapRef.current) return;
+
+    mapboxgl.accessToken = env.mapboxToken;
+
+    const center = trace[0]
+      ? ([trace[0].lng, trace[0].lat] as [number, number])
+      : ([fromCoords.lng, fromCoords.lat] as [number, number]);
+
+    const map = new mapboxgl.Map({
+      container: containerRef.current,
+      style: MAP_STYLE,
+      center,
+      zoom: 13,
+      attributionControl: true,
+    });
+
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+    map.on("load", () => setReady(true));
+    mapRef.current = map;
+
+    return () => {
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
+      map.remove();
+      mapRef.current = null;
+      setReady(false);
+    };
+  }, [trace, fromCoords, toCoords]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    const fromMarker = new mapboxgl.Marker({
+      element: createMarkerElement("#405189"),
+      anchor: "center",
+    })
+      .setLngLat([fromCoords.lng, fromCoords.lat])
+      .addTo(map);
+    const toMarker = new mapboxgl.Marker({
+      element: createMarkerElement("#0ab39c"),
+      anchor: "center",
+    })
+      .setLngLat([toCoords.lng, toCoords.lat])
+      .addTo(map);
+    markersRef.current = [fromMarker, toMarker];
+
+    if (map.getLayer(POINTS_LAYER)) map.removeLayer(POINTS_LAYER);
+    if (map.getSource(POINTS_SOURCE)) map.removeSource(POINTS_SOURCE);
+    if (map.getLayer(TRACE_LAYER)) map.removeLayer(TRACE_LAYER);
+    if (map.getSource(TRACE_SOURCE)) map.removeSource(TRACE_SOURCE);
+
+    if (lineCoordinates.length >= 2) {
+      map.addSource(TRACE_SOURCE, {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: lineCoordinates },
+        },
+      });
+      map.addLayer({
+        id: TRACE_LAYER,
+        type: "line",
+        source: TRACE_SOURCE,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": "#405189",
+          "line-width": 4,
+          "line-opacity": 0.85,
+        },
+      });
+    }
+
+    map.addSource(POINTS_SOURCE, {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: trace.map((p, i) => ({
+          type: "Feature" as const,
+          properties: {
+            speed: p.speed_kmh,
+            anomaly: i === anomalyIdx,
+          },
+          geometry: {
+            type: "Point" as const,
+            coordinates: [p.lng, p.lat],
+          },
+        })),
+      },
+    });
+    map.addLayer({
+      id: POINTS_LAYER,
+      type: "circle",
+      source: POINTS_SOURCE,
+      paint: {
+        "circle-radius": ["case", ["get", "anomaly"], 7, 4],
+        "circle-color": [
+          "case",
+          ["get", "anomaly"],
+          "#ef4444",
+          "#0ab39c",
+        ],
+        "circle-stroke-width": 1.5,
+        "circle-stroke-color": "#ffffff",
+      },
+    });
+
+    const bounds = new mapboxgl.LngLatBounds();
+    bounds.extend([fromCoords.lng, fromCoords.lat]);
+    bounds.extend([toCoords.lng, toCoords.lat]);
+    for (const p of trace) bounds.extend([p.lng, p.lat]);
+    map.fitBounds(bounds, { padding: 48, maxZoom: 15, duration: 0 });
+  }, [
+    ready,
+    trace,
+    lineCoordinates,
+    fromCoords,
+    toCoords,
+    anomalyIdx,
+  ]);
+
+  return (
+    <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border shadow-card">
+      <div ref={containerRef} className="h-full w-full" />
+      <p className="pointer-events-none absolute left-3 top-3 z-10 rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
+        Trace GPS · {trace.length} points · max {maxSpeed} km/h
+      </p>
+      <div className="pointer-events-none absolute bottom-3 left-3 flex gap-2 text-[10px]">
+        <span className="rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">
+          Départ
+        </span>
+        <span className="rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">
+          Arrivée
+        </span>
+        {anomalyIdx >= 0 && (
+          <span className="rounded bg-red-100 px-2 py-1 text-red-700 shadow-sm">
+            Anomalie {formatDateTime(trace[anomalyIdx].at)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function TripForensicMap(props: TripForensicMapProps) {
+  if (env.mapboxToken) {
+    return <TripForensicMapbox {...props} />;
+  }
+  return <TripForensicMapFallback {...props} />;
 }

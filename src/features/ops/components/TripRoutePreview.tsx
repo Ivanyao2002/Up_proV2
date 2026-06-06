@@ -1,18 +1,26 @@
+"use client";
+
+import { env } from "@/core/config/env";
+import { TripRouteMapbox } from "@/shared/components/map/TripRouteMapbox";
+import type { TripDriverLocation } from "@/shared/types";
+
 interface TripRoutePreviewProps {
   fromLabel: string;
   toLabel: string;
   fromCoords?: { lat: number; lng: number };
   toCoords?: { lat: number; lng: number };
+  driverLocation?: TripDriverLocation;
+  driverLive?: boolean;
 }
-
-export function TripRoutePreview({
+function TripRoutePreviewFallback({
   fromLabel,
   toLabel,
-  fromCoords,
-  toCoords,
-}: TripRoutePreviewProps) {
-  const hasCoords = fromCoords && toCoords;
-
+  hasCoords,
+}: {
+  fromLabel: string;
+  toLabel: string;
+  hasCoords: boolean;
+}) {
   return (
     <div className="relative h-48 overflow-hidden rounded-card border border-border bg-map">
       <div
@@ -53,5 +61,36 @@ export function TripRoutePreview({
         </span>
       </div>
     </div>
+  );
+}
+
+export function TripRoutePreview({
+  fromLabel,
+  toLabel,
+  fromCoords,
+  toCoords,
+  driverLocation,
+  driverLive,
+}: TripRoutePreviewProps) {
+  const hasCoords = Boolean(fromCoords && toCoords);
+
+  if (env.mapboxToken && hasCoords && fromCoords && toCoords) {
+    return (
+      <TripRouteMapbox
+        fromCoords={fromCoords}
+        toCoords={toCoords}
+        fromLabel={fromLabel}
+        toLabel={toLabel}
+        driverLocation={driverLocation}
+        driverLive={driverLive}
+      />
+    );
+  }
+  return (
+    <TripRoutePreviewFallback
+      fromLabel={fromLabel}
+      toLabel={toLabel}
+      hasCoords={hasCoords}
+    />
   );
 }

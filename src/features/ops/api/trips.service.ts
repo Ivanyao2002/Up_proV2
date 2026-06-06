@@ -1,6 +1,7 @@
 import { apiClient } from "@/core/http/apiClient";
 import { LINKS } from "@/core/api/links";
 import { useLegacyAdminApi } from "@/core/api/v1AdminMode";
+import { fetchAdminFilterOptions } from "@/features/admin/api/adminFilterOptions.service";
 import {
   fetchAdminDriversList,
   fetchAdminOrdersList,
@@ -20,6 +21,12 @@ async function resolveTripsFilterOptions(
   const hasFranchises = ordersFilterOptions.franchises.length > 0;
   const hasPartners = ordersFilterOptions.partners.length > 0;
   if (hasFranchises && hasPartners) return ordersFilterOptions;
+
+  try {
+    return await fetchAdminFilterOptions();
+  } catch {
+    // fallback dashboard
+  }
 
   try {
     const dashboard = await apiClient.get<ApiAdminDashboardResponse>(

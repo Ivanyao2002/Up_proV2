@@ -55,7 +55,7 @@ export function mapAdminDriverItemToListDriver(
     last_name,
     phone: item.profile?.phone ?? item.phone ?? "—",
     rating: item.rating_avg ?? 0,
-    zone: item.zoneName ?? (item.city_id ? String(item.city_id).slice(0, 8) : "—"),
+    zone: item.zoneName ?? item.city_id ?? "—",
     owner_name:
       item.partnerName ??
       (item.partner_id

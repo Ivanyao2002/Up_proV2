@@ -9,6 +9,7 @@ export interface ApiAdminKycDocumentItem {
   file_url?: string | null;
   file_download_url?: string | null;
   file_urls?: string[];
+  file_id?: string | null;
   status?: string;
   submitted_at?: string;
   uploaded_at?: string;

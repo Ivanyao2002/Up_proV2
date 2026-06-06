@@ -1,5 +1,5 @@
 import { apiClient, apiWithNotify } from "@/core/http/apiClient";
-import { LINKS } from "@/core/api/links";
+import { LINKS, createUrl } from "@/core/api/links";
 import { useLegacyAdminApi } from "@/core/api/v1AdminMode";
 import { fetchAdminDriversList } from "@/features/admin/api/adminEntityLookup.service";
 import type { KycQueueItem, Paginated } from "@/shared/types";
@@ -15,12 +15,21 @@ import {
   mapNativeKycQueueToPaginated,
 } from "./adminKyc.mapper";
 
-export async function fetchAdminKycDocuments(): Promise<
-  ApiAdminKycDocumentItem[]
-> {
-  const response = await apiClient.get<ApiAdminKycDocumentsResponse>(
-    LINKS.admin.v1.kycDocuments
-  );
+export interface FetchKycDocumentsParams {
+  subject_id?: string;
+  subject_type?: string;
+  status?: string;
+}
+
+export async function fetchAdminKycDocuments(
+  filters?: FetchKycDocumentsParams
+): Promise<ApiAdminKycDocumentItem[]> {
+  const url = createUrl(LINKS.admin.v1.kycDocuments, {
+    subject_id: filters?.subject_id,
+    subject_type: filters?.subject_type ?? (filters?.subject_id ? "DRIVER" : undefined),
+    status: filters?.status,
+  });
+  const response = await apiClient.get<ApiAdminKycDocumentsResponse>(url);
   return response.items ?? [];
 }
 

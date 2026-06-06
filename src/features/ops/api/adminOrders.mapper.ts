@@ -34,12 +34,29 @@ function driverLabel(
   );
 }
 
+function partnerLabel(order: ApiLiveMapOrderBase): string | undefined {
+  return (
+    order.partnerName?.trim() ||
+    order.partner?.tradeName?.trim() ||
+    order.partner?.trade_name?.trim() ||
+    order.partner?.displayName?.trim() ||
+    undefined
+  );
+}
+
+function franchiseLabel(order: ApiLiveMapOrderBase): string | undefined {
+  return order.franchiseName?.trim() || order.franchise?.name?.trim() || undefined;
+}
+
 export function mapApiOrderToTrip(
   order: ApiLiveMapOrderBase,
   driversById: Map<string, ApiAdminDriverItem>
 ): Trip {
   const amount =
     order.final_price_xof ?? order.estimated_price_xof ?? 0;
+
+  const partnerId = order.partner_id ?? order.partner?.id ?? undefined;
+  const franchiseId = order.franchise_id ?? order.franchise?.id ?? undefined;
 
   return {
     id: order.id,
@@ -58,11 +75,10 @@ export function mapApiOrderToTrip(
     status: mapApiOrderStatus(order.status),
     payment_method: mapApiPaymentMethod(order.payment_method_code),
     created_at: order.created_at ?? new Date().toISOString(),
-    franchise_id: order.franchise_id
-      ? String(order.franchise_id)
-      : undefined,
-    franchise_name: order.franchiseName ?? undefined,
-    partner_name: order.partnerName ?? undefined,
+    franchise_id: franchiseId ? String(franchiseId) : undefined,
+    franchise_name: franchiseLabel(order),
+    partner_id: partnerId ? String(partnerId) : undefined,
+    partner_name: partnerLabel(order),
   };
 }
 
@@ -141,7 +157,7 @@ export function mapAdminOrdersToTripsListResponse(
 
   const trips = orders
     .map((o) => mapApiOrderToTrip(o, driversById))
-    .filter((t) => tripMatchesFilters(t, params));
+    .filter((t) => (serverPagination ? true : tripMatchesFilters(t, params)));
 
   if (serverPagination) {
     return {

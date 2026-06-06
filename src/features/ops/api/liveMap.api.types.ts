@@ -67,6 +67,12 @@ export interface ApiLiveMapOrderBase {
   partnerName?: string | null;
   franchiseName?: string | null;
   franchise_id?: string | null;
+  partner_id?: string | null;
+  partner?: ApiLiveMapOrderParty & {
+    tradeName?: string | null;
+    trade_name?: string | null;
+  } | null;
+  franchise?: { id?: string; name?: string | null } | null;
   status?: string;
   service_type?: string;
   pickup_address?: string | null;

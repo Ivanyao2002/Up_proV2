@@ -108,4 +108,6 @@ src/
 ## Docs projet
 
 - `CONTEXTE.md` — état d’avancement (fait / reste à faire)
-- `BACKOFFICE_VISION_DESIGN.md` — vision UI / motion
+- Swagger live : https://api.upjunoo-dev.tech/docs
+- Déploiement Vercel : `VERCEL-DEPLOIEMENT.md`
+- Audit API : `npm run audit:backend` · `npm run audit:swagger`

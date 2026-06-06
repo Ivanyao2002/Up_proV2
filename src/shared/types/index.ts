@@ -86,12 +86,24 @@ export interface TripTimelineEvent {
   matching_drivers?: TripMatchingDriver[];
 }
 
+export interface TripDriverLocation {
+  lat: number;
+  lng: number;
+  heading?: number;
+  speed_kmh?: number;
+  recorded_at?: string;
+}
+
 export interface TripDetail extends Trip {
   from_coords?: { lat: number; lng: number };
   to_coords?: { lat: number; lng: number };
   client_phone?: string;
   driver_id?: string | number;
   driver_phone?: string;
+  vehicle_id?: string;
+  vehicle_label?: string;
+  vehicle_plate?: string;
+  driver_location?: TripDriverLocation;
   commission_fcfa: number;
   driver_earning_fcfa: number;
   zone_name?: string;

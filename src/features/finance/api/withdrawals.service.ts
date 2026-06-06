@@ -2,6 +2,7 @@ import { apiClient, apiWithNotify } from "@/core/http/apiClient";
 import { LINKS } from "@/core/api/links";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyAdminApi } from "@/core/api/v1AdminMode";
+import { fetchFranchiseNameMap } from "@/features/admin/api/adminFilterOptions.service";
 import type { WithdrawalsResponse } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import type { ApiAdminWithdrawalsResponse } from "./adminWithdrawals.api.types";
@@ -15,13 +16,18 @@ export const withdrawalsService = {
       );
     }
 
-    const response = await apiClient.get<ApiAdminWithdrawalsResponse>(
-      `${LINKS.admin.v1.withdrawals}${buildV1ListQuery(params)}`
-    );
+    const [response, franchiseMap] = await Promise.all([
+      apiClient.get<ApiAdminWithdrawalsResponse>(
+        `${LINKS.admin.v1.withdrawals}${buildV1ListQuery(params)}`
+      ),
+      fetchFranchiseNameMap(),
+    ]);
+
     return mapAdminWithdrawalsToResponse(
       response,
       params,
-      response.pagination
+      response.pagination,
+      franchiseMap
     );
   },
 

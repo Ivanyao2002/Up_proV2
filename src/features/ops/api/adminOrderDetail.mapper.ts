@@ -17,6 +17,8 @@ import type {
   ApiAdminOrderDispatchOffer,
 } from "./adminOrderDetail.api.types";
 import type { ApiLiveMapOrderBase } from "./liveMap.api.types";
+import { liveMapOrderStatusLabel } from "./liveMap.labels";
+import { extractTripVehicleFields } from "./adminOrderVehicle";
 
 const EVENT_LABELS: Record<string, string> = {
   "ride.created": "Commande créée",
@@ -81,7 +83,7 @@ function mapEventsToTimeline(
   return [...events]
     .sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
     .map((ev) => ({
       id: ev.id,
@@ -90,7 +92,7 @@ function mapEventsToTimeline(
       at: ev.created_at,
       description:
         ev.new_status && ev.old_status
-          ? `${ev.old_status} → ${ev.new_status}`
+          ? `${liveMapOrderStatusLabel(ev.old_status)} → ${liveMapOrderStatusLabel(ev.new_status)}`
           : undefined,
     }));
 }
@@ -104,10 +106,9 @@ function mapTimelineSteps(
     .map((s, i) => ({
       id: `step-${s.status}-${i}`,
       type: mapApiOrderStatus(s.status) as TripStatus,
-      label: s.status,
+      label: liveMapOrderStatusLabel(s.status),
       at: s.at!,
-    }))
-    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+    }));
 }
 
 function resolveRide(payload: ApiAdminOrderDetailPayload): ApiLiveMapOrderBase {
@@ -147,6 +148,18 @@ export function mapAdminOrderDetailToTripDetail(
     payload.dispatch?.dispatch?.candidates;
   const matchingDrivers = mapDispatchOffers(offers);
 
+  const partnerId = ride.partner_id ?? ride.partner?.id;
+  const franchiseId = ride.franchise_id ?? ride.franchise?.id;
+  const partnerName =
+    payload.partnerName ??
+    ride.partnerName ??
+    ride.partner?.tradeName ??
+    ride.partner?.trade_name ??
+    ride.partner?.displayName ??
+    undefined;
+  const franchiseName =
+    payload.franchiseName ?? ride.franchiseName ?? ride.franchise?.name ?? undefined;
+
   let timeline = mapEventsToTimeline(payload.events);
   if (timeline.length === 0) {
     timeline = mapTimelineSteps(payload);
@@ -170,6 +183,7 @@ export function mapAdminOrderDetailToTripDetail(
   const status = mapApiOrderStatus(
     payload.timeline?.current ?? ride.status
   );
+  const vehicleFields = extractTripVehicleFields(payload);
 
   return {
     id: ride.id,
@@ -201,8 +215,11 @@ export function mapAdminOrderDetailToTripDetail(
     status,
     payment_method: mapApiPaymentMethod(ride.payment_method_code),
     created_at: ride.created_at ?? new Date().toISOString(),
-    franchise_name: ride.franchiseName ?? undefined,
-    partner_name: ride.partnerName ?? undefined,
+    franchise_id: franchiseId ? String(franchiseId) : undefined,
+    franchise_name: franchiseName,
+    partner_id: partnerId ? String(partnerId) : undefined,
+    partner_name: partnerName,
+    ...vehicleFields,
     timeline,
   };
 }

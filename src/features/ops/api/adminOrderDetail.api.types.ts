@@ -62,6 +62,8 @@ export interface ApiAdminOrderDetailPayload {
     };
   };
   driver?: { id?: string; displayName?: string | null; phone?: string | null } | null;
+  partnerName?: string | null;
+  franchiseName?: string | null;
   driverSummary?: Record<string, unknown> | null;
   profile?: Record<string, unknown> | null;
   receipt?: Record<string, unknown> | null;

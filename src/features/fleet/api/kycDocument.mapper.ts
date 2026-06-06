@@ -1,4 +1,5 @@
 import { env } from "@/core/config/env";
+import { LINKS } from "@/core/api/links";
 import type { KycDocument, KycDocumentStatus } from "@/shared/types";
 import type { ApiAdminKycDocumentItem } from "./adminKyc.api.types";
 
@@ -56,17 +57,30 @@ function resolveDocumentMeta(
   return { type, label };
 }
 
-/** Chemin relatif API → URL absolue si possible (sinon placeholder SVG côté UI). */
+/** Chemin relatif API → URL absolue ; fallback GET /v1/files/:id si besoin. */
 export function resolveKycFileUrl(
   fileUrl?: string | null,
-  fileUrls?: string[]
+  fileUrls?: string[],
+  fileDownloadUrl?: string | null,
+  fileId?: string | null
 ): string | undefined {
+  const download = fileDownloadUrl?.trim();
+  if (download && /^https?:\/\//i.test(download)) return download;
+
   const raw = fileUrl ?? fileUrls?.[0];
-  if (!raw) return undefined;
-  if (/^https?:\/\//i.test(raw)) return raw;
-  const base = env.apiUrl.replace(/\/$/, "");
-  const path = raw.startsWith("/") ? raw : `/${raw}`;
-  return `${base}${path}`;
+  if (raw) {
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const base = env.apiUrl.replace(/\/$/, "");
+    const path = raw.startsWith("/") ? raw : `/${raw}`;
+    return `${base}${path}`;
+  }
+
+  if (fileId?.trim()) {
+    const base = env.apiUrl.replace(/\/$/, "");
+    return `${base}${LINKS.v1.files.getById(fileId.trim())}`;
+  }
+
+  return undefined;
 }
 
 export function mapApiKycItemToKycDocument(
@@ -77,8 +91,10 @@ export function mapApiKycItemToKycDocument(
     item.document_type_label
   );
   const previewUrl = resolveKycFileUrl(
-    item.file_download_url ?? item.file_url,
-    item.file_urls
+    item.file_url,
+    item.file_urls,
+    item.file_download_url,
+    item.file_id
   );
 
   return {

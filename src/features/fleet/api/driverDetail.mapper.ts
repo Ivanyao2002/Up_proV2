@@ -186,6 +186,18 @@ function buildTimelineFromV1(
   );
 }
 
+function formatDriverZoneLabel(
+  zoneName?: string | null,
+  city?: { name?: string | null; label?: string | null } | null
+): string {
+  const zone = zoneName?.trim();
+  const cityLabel = city?.label?.trim() || city?.name?.trim();
+  if (zone && cityLabel && zone.toLowerCase() !== cityLabel.toLowerCase()) {
+    return `${cityLabel} · ${zone}`;
+  }
+  return zone ?? cityLabel ?? "—";
+}
+
 /** GET /v1/drivers/:id → modèle fiche back-office */
 export function mapApiV1DriverDetailToDriverDetail(
   response: ApiV1DriverDetailResponse
@@ -255,7 +267,7 @@ export function mapApiV1DriverDetailToDriverDetail(
       "—",
     email: profile?.email ?? undefined,
     rating: typeof rating === "number" ? rating : 0,
-    zone: response.zoneName ?? city?.name ?? city?.label ?? "—",
+    zone: formatDriverZoneLabel(response.zoneName, city),
     owner_name:
       partner?.tradeName ??
       partner?.trade_name ??

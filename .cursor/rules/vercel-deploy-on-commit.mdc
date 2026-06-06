@@ -1,0 +1,34 @@
+---
+description: Après un commit git réussi, déployer le back-office sur Vercel
+alwaysApply: true
+---
+
+# Déploiement Vercel après commit
+
+Quand l'utilisateur demande de **créer un commit git** et que le commit **réussit** :
+
+1. Lire `VERCEL-DEPLOIEMENT.md` pour les variables et la checklist.
+2. Optionnel avant deploy : `npm run audit:backend` si le commit touche l'intégration API.
+3. Vérifier que `npm run build` passe (si le commit modifie du code applicatif).
+4. **Déployer sur Vercel** :
+
+```bash
+npm run deploy:vercel
+```
+
+Équivalent : `npx vercel --prod --yes`
+
+5. Afficher l'URL de déploiement retournée par la CLI.
+6. Si `vercel` n'est pas installé ou le projet n'est pas lié (`vercel link`), proposer :
+   - `npx vercel login` puis `npx vercel link`
+   - ou push sur la branche connectée à Vercel (auto-deploy Git)
+
+## Ne pas déployer si
+
+- L'utilisateur demande explicitement de **ne pas** déployer.
+- Le commit ne contient que de la doc sans impact runtime.
+- Le build local échoue — corriger d'abord.
+
+## Ne pas committer
+
+- `.vercel/`, `.env.local`, tokens Mapbox ou mots de passe.

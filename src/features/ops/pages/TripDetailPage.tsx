@@ -9,9 +9,12 @@ import { Timeline } from "@/shared/ui/Timeline";
 import { tripTimelineToItems } from "@/shared/lib/tripTimeline";
 import { Button } from "@/shared/ui/Button";
 import { TripRoutePreview } from "../components/TripRoutePreview";
+import { TripAssignedVehicleCard } from "../components/TripAssignedVehicleCard";
 import { TripReassignModal } from "../components/TripReassignModal";
+import { isTripLiveOnMap } from "@/shared/lib/tripDriver";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { useTripDetail } from "../api/tripDetail.queries";
+import { useTripDriverLiveLocation } from "../hooks/useTripDriverLiveLocation";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getPaymentLabel } from "@/shared/lib/paymentLabels";
 interface TripDetailPageProps {
@@ -21,6 +24,14 @@ interface TripDetailPageProps {
 export function TripDetailPage({ tripId }: TripDetailPageProps) {
   const [reassignOpen, setReassignOpen] = useState(false);
   const { data: trip, isLoading, isError } = useTripDetail(tripId);
+  const liveTracking = Boolean(
+    trip && isTripLiveOnMap(trip.status) && trip.driver_id
+  );
+  const { location: driverLiveLocation, isRealtime } = useTripDriverLiveLocation({
+    driverId: trip?.driver_id,
+    initial: trip?.driver_location,
+    enabled: liveTracking,
+  });
 
   if (isLoading) {
     return (
@@ -45,6 +56,7 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
   }
 
   const timelineItems = tripTimelineToItems(trip.timeline);
+  const showDriverOnMap = liveTracking && Boolean(driverLiveLocation);
 
   const canCancel = ["requested", "matching", "assigned", "in_progress"].includes(
     trip.status
@@ -77,16 +89,18 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
             toLabel={trip.to_label}
             fromCoords={trip.from_coords}
             toCoords={trip.to_coords}
+            driverLocation={showDriverOnMap ? driverLiveLocation : undefined}
+            driverLive={isRealtime}
           />
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold text-foreground">Timeline</h2>
+            <h2 className="text-sm font-semibold text-foreground">Suivi</h2>
             <div className="mt-4">
               <Timeline items={timelineItems} />
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-card border border-border bg-surface p-5 shadow-card">
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                 Client
@@ -116,6 +130,11 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
                 <p className="mt-2 text-sm text-muted">Non assigné</p>
               )}
             </div>
+            <TripAssignedVehicleCard
+              trip={trip}
+              driverLocation={driverLiveLocation}
+              driverLive={isRealtime}
+            />
           </div>
         </div>
 

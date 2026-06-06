@@ -25,7 +25,8 @@ function mapWithdrawalStatus(status?: string | null): Withdrawal["status"] {
 }
 
 export function mapAdminWithdrawalItemToWithdrawal(
-  item: ApiAdminWithdrawalItem
+  item: ApiAdminWithdrawalItem,
+  franchiseNames?: Map<string, string>
 ): Withdrawal {
   const beneficiary =
     item.beneficiaryName ??
@@ -33,6 +34,12 @@ export function mapAdminWithdrawalItemToWithdrawal(
     (item.requested_by
       ? `Utilisateur ${String(item.requested_by).slice(0, 8)}`
       : "Bénéficiaire");
+
+  const franchiseId =
+    item.franchiseId ?? item.franchise_id ?? null;
+  const franchiseFromApi = item.franchiseName?.trim();
+  const franchiseFromLookup =
+    franchiseId && franchiseNames?.get(String(franchiseId));
 
   return {
     id: item.id,
@@ -44,7 +51,7 @@ export function mapAdminWithdrawalItemToWithdrawal(
     status: mapWithdrawalStatus(item.status),
     requested_at: item.created_at ?? new Date().toISOString(),
     processed_at: item.approved_at ?? item.paid_at ?? undefined,
-    franchise_name: item.franchiseName ?? "—",
+    franchise_name: franchiseFromApi || franchiseFromLookup || "—",
     wallet_balance_fcfa: item.walletBalanceXof ?? 0,
   };
 }
@@ -60,11 +67,12 @@ function withdrawalMatchesFilters(
 export function mapAdminWithdrawalsToResponse(
   response: ApiAdminWithdrawalsResponse,
   params?: ListParams,
-  serverPagination?: ApiV1Pagination
+  serverPagination?: ApiV1Pagination,
+  franchiseNames?: Map<string, string>
 ): WithdrawalsResponse {
   const items = response.items ?? [];
   const mapped = items
-    .map(mapAdminWithdrawalItemToWithdrawal)
+    .map((item) => mapAdminWithdrawalItemToWithdrawal(item, franchiseNames))
     .filter((w) => withdrawalMatchesFilters(w, params));
   const pending = mapped.filter((w) => w.status === "pending");
 
