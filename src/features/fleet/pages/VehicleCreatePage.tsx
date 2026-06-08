@@ -227,7 +227,9 @@ export function VehicleCreatePage() {
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm"
                   required
                 >
-                  <option value="">— Modèle —</option>
+                  <option value="">
+                    {!brandCode ? "— Choisir une marque d'abord —" : "— Modèle —"}
+                  </option>
                   {(models ?? []).map((m) => (
                     <option key={m.code} value={m.code}>
                       {m.label}

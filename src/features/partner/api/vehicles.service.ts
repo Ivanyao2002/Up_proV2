@@ -14,7 +14,9 @@ import {
   mapUiCategoryToApiCode,
 } from "@/features/fleet/api/adminVehicles.mapper";
 import type { ApiV1VehicleCreateResponse } from "@/features/fleet/api/adminVehicles.api.types";
-import { fetchVehicleCatalogLookups } from "@/features/fleet/api/vehicleCatalog.service";
+import {
+  fetchVehicleCatalogLookupsForItems,
+} from "@/features/fleet/api/vehicleCatalog.service";
 import {
   applyVehicleCreateFlow,
   assignDriverV1,
@@ -62,14 +64,13 @@ function buildSummary(items: Vehicle[]): VehiclesListResponse["summary"] {
 
 async function listV1(params?: ListParams): Promise<VehiclesListResponse> {
   const partnerId = resolvePartnerId();
-  const [response, lookups] = await Promise.all([
-    apiClient.get<ApiAdminVehiclesListResponse>(
-      `${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery(params)}`
-    ),
-    fetchVehicleCatalogLookups(),
-  ]);
+  const response = await apiClient.get<ApiAdminVehiclesListResponse>(
+    `${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery(params)}`
+  );
+  const items = response.items ?? [];
+  const lookups = await fetchVehicleCatalogLookupsForItems(items);
   const paginated = mapAdminVehiclesToPaginated(
-    response.items ?? [],
+    items,
     params,
     response.pagination,
     lookups
@@ -86,11 +87,9 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
       LINKS.v1.vehicles.getById(id)
     );
     if (response.vehicle && typeof response.vehicle === "object") {
-      const lookups = await fetchVehicleCatalogLookups();
-      return mapApiVehicleToVehicleDetail(
-        response.vehicle as Parameters<typeof mapApiVehicleToVehicleDetail>[0],
-        lookups
-      );
+      const vehicle = response.vehicle as Parameters<typeof mapApiVehicleToVehicleDetail>[0];
+      const lookups = await fetchVehicleCatalogLookupsForItems([vehicle]);
+      return mapApiVehicleToVehicleDetail(vehicle, lookups);
     }
   } catch {
     // Fallback liste partenaire — GET /v1/vehicles/:id indisponible côté API
@@ -138,8 +137,22 @@ async function createV1(data: CreateVehiclePayload): Promise<VehicleDetail> {
     throw new Error("Création véhicule sans identifiant en réponse.");
   }
 
-  const lookups = await fetchVehicleCatalogLookups();
-  return mapApiVehicleToVehicleDetail(response.vehicle, lookups);
+  const detail = mapApiVehicleToVehicleDetail(response.vehicle, {
+    categoryById: new Map(),
+    categoryByCode: new Map(),
+    brandById: new Map(),
+    modelById: new Map(),
+    colorById: new Map(),
+    partnerNameById: new Map(),
+  });
+
+  return {
+    ...detail,
+    label: [data.brand, data.model].filter(Boolean).join(" ").trim() || detail.label,
+    brand: data.brand.trim() || detail.brand,
+    model: data.model.trim() || detail.model,
+    color: data.color.trim() || detail.color,
+  };
 }
 
 export const partnerVehiclesService = {

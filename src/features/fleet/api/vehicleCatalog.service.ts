@@ -8,6 +8,7 @@ import type {
   ApiCatalogVehicleCategory,
   ApiCatalogVehicleColor,
   ApiCatalogVehicleModel,
+  ApiV1VehicleItem,
 } from "./adminVehicles.api.types";
 
 export interface VehicleCatalogLookups {
@@ -19,7 +20,10 @@ export interface VehicleCatalogLookups {
   partnerNameById: Map<string, string>;
 }
 
-let catalogCache: VehicleCatalogLookups | null = null;
+type BaseVehicleCatalogLookups = Omit<VehicleCatalogLookups, "modelById">;
+
+let baseCatalogCache: BaseVehicleCatalogLookups | null = null;
+const modelsByBrandCache = new Map<string, ApiCatalogVehicleModel[]>();
 
 export async function fetchVehicleCategories(): Promise<ApiCatalogVehicleCategory[]> {
   const response = await apiClient.get<ApiCatalogListResponse<ApiCatalogVehicleCategory>>(
@@ -39,10 +43,16 @@ export async function fetchVehicleBrandModels(
   brandCode: string
 ): Promise<ApiCatalogVehicleModel[]> {
   if (!brandCode.trim()) return [];
+
+  const cached = modelsByBrandCache.get(brandCode);
+  if (cached) return cached;
+
   const response = await apiClient.get<ApiCatalogBrandModelsResponse>(
     `${LINKS.v1.catalog.vehicleBrandModels(brandCode)}?limit=100`
   );
-  return (response.items ?? []).filter((item) => item.active !== false);
+  const models = (response.items ?? []).filter((item) => item.active !== false);
+  modelsByBrandCache.set(brandCode, models);
+  return models;
 }
 
 export async function fetchVehicleColors(): Promise<ApiCatalogVehicleColor[]> {
@@ -68,8 +78,8 @@ async function fetchPartnerNameById(): Promise<Map<string, string>> {
   }
 }
 
-export async function fetchVehicleCatalogLookups(): Promise<VehicleCatalogLookups> {
-  if (catalogCache) return catalogCache;
+async function fetchBaseVehicleCatalogLookups(): Promise<BaseVehicleCatalogLookups> {
+  if (baseCatalogCache) return baseCatalogCache;
 
   const [categories, brands, colors, partnerNameById] = await Promise.all([
     fetchVehicleCategories(),
@@ -77,10 +87,6 @@ export async function fetchVehicleCatalogLookups(): Promise<VehicleCatalogLookup
     fetchVehicleColors(),
     fetchPartnerNameById(),
   ]);
-
-  const brandModels = await Promise.all(
-    brands.slice(0, 30).map((brand) => fetchVehicleBrandModels(brand.code))
-  );
 
   const categoryById = new Map<string, { code: string; label: string }>();
   const categoryByCode = new Map<string, { id: string; label: string }>();
@@ -94,30 +100,81 @@ export async function fetchVehicleCatalogLookups(): Promise<VehicleCatalogLookup
     brandById.set(brand.id, { code: brand.code, label: brand.label });
   }
 
-  const modelById = new Map<string, { label: string; code: string }>();
-  for (const models of brandModels) {
-    for (const model of models) {
-      modelById.set(model.id, { label: model.label, code: model.code });
-    }
-  }
-
   const colorById = new Map<string, { code: string; label: string }>();
   for (const color of colors) {
     colorById.set(color.id, { code: color.code, label: color.label });
   }
 
-  catalogCache = {
+  baseCatalogCache = {
     categoryById,
     categoryByCode,
     brandById,
-    modelById,
     colorById,
     partnerNameById,
   };
 
-  return catalogCache;
+  return baseCatalogCache;
+}
+
+export function extractBrandCodesFromItems(
+  items: ApiV1VehicleItem[],
+  base: Pick<BaseVehicleCatalogLookups, "brandById">
+): string[] {
+  const codes = new Set<string>();
+  for (const item of items) {
+    if (!item.brand_id) continue;
+    const brand = base.brandById.get(item.brand_id);
+    if (brand?.code) codes.add(brand.code);
+  }
+  return [...codes];
+}
+
+export async function fetchModelByIdMapForBrandCodes(
+  brandCodes: string[]
+): Promise<Map<string, { label: string; code: string }>> {
+  const uniqueCodes = [...new Set(brandCodes.map((code) => code.trim()).filter(Boolean))];
+  if (!uniqueCodes.length) return new Map();
+
+  const modelById = new Map<string, { label: string; code: string }>();
+  const modelsPerBrand = await Promise.all(
+    uniqueCodes.map((brandCode) => fetchVehicleBrandModels(brandCode))
+  );
+
+  for (const models of modelsPerBrand) {
+    for (const model of models) {
+      modelById.set(model.id, { label: model.label, code: model.code });
+    }
+  }
+
+  return modelById;
+}
+
+/** Catalogue sans modèles — pour les formulaires (marques / couleurs / catégories). */
+export async function fetchVehicleCatalogLookups(): Promise<VehicleCatalogLookups> {
+  const base = await fetchBaseVehicleCatalogLookups();
+  return { ...base, modelById: new Map() };
+}
+
+/** Charge les modèles uniquement pour les marques concernées (liste, détail). */
+export async function fetchVehicleCatalogLookupsForItems(
+  items: ApiV1VehicleItem[]
+): Promise<VehicleCatalogLookups> {
+  const base = await fetchBaseVehicleCatalogLookups();
+  const brandCodes = extractBrandCodesFromItems(items, base);
+  const modelById = await fetchModelByIdMapForBrandCodes(brandCodes);
+  return { ...base, modelById };
+}
+
+/** Charge les modèles d'une seule marque (création véhicule après POST). */
+export async function fetchVehicleCatalogLookupsForBrand(
+  brandCode: string
+): Promise<VehicleCatalogLookups> {
+  const base = await fetchBaseVehicleCatalogLookups();
+  const modelById = await fetchModelByIdMapForBrandCodes([brandCode]);
+  return { ...base, modelById };
 }
 
 export function clearVehicleCatalogCache(): void {
-  catalogCache = null;
+  baseCatalogCache = null;
+  modelsByBrandCache.clear();
 }

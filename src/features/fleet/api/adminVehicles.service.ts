@@ -17,7 +17,10 @@ import type { CreateDriverPayload } from "@/features/partner/api/drivers.service
 import { partnerDriversService } from "@/features/partner/api/drivers.service";
 import type { VehiclePieceFile } from "@/features/partner/components/VehicleCreatePiecesSection";
 import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
-import { fetchVehicleCatalogLookups } from "./vehicleCatalog.service";
+import {
+  fetchVehicleCatalogLookupsForBrand,
+  fetchVehicleCatalogLookupsForItems,
+} from "./vehicleCatalog.service";
 import {
   applyVehicleCreateFlow,
   assignDriverV1,
@@ -35,19 +38,13 @@ export const adminVehiclesService = {
       );
     }
 
-    const [response, lookups] = await Promise.all([
-      apiClient.get<ApiAdminVehiclesListResponse>(
-        `${LINKS.admin.v1.vehicles}${buildV1ListQuery(params)}`
-      ),
-      fetchVehicleCatalogLookups(),
-    ]);
-
-    return mapAdminVehiclesToPaginated(
-      response.items ?? [],
-      params,
-      response.pagination,
-      lookups
+    const response = await apiClient.get<ApiAdminVehiclesListResponse>(
+      `${LINKS.admin.v1.vehicles}${buildV1ListQuery(params)}`
     );
+    const items = response.items ?? [];
+    const lookups = await fetchVehicleCatalogLookupsForItems(items);
+
+    return mapAdminVehiclesToPaginated(items, params, response.pagination, lookups);
   },
 
   create: async (payload: AdminVehicleCreatePayload): Promise<VehicleDetail> => {
@@ -64,7 +61,7 @@ export const adminVehiclesService = {
       throw new Error("Création véhicule sans identifiant en réponse.");
     }
 
-    const lookups = await fetchVehicleCatalogLookups();
+    const lookups = await fetchVehicleCatalogLookupsForBrand(payload.brandCode);
     return mapApiVehicleToVehicleDetail(response.vehicle, lookups);
   },
 
