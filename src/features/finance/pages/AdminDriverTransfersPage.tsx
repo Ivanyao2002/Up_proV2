@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/shared/ui/Button";
 import { PageHeader } from "@/shared/ui/PageHeader";
+import { AdminDriverRechargeModal } from "../components/AdminDriverRechargeModal";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
@@ -26,6 +28,7 @@ const SOURCE_OPTIONS = [
 ];
 
 export function AdminDriverTransfersPage() {
+  const [rechargeOpen, setRechargeOpen] = useState(false);
   const [sourceFilter, setSourceFilter] =
     useState<(typeof SOURCE_OPTIONS)[number]["value"]>("all");
 
@@ -122,6 +125,11 @@ export function AdminDriverTransfersPage() {
       <PageHeader
         title="Recharges chauffeurs"
         breadcrumb={["Admin", "Finance", "Recharges"]}
+        actions={
+          <Button variant="primary" onClick={() => setRechargeOpen(true)}>
+            Nouvelle recharge
+          </Button>
+        }
       />
 
       <p className="mb-6 max-w-2xl text-sm text-muted">
@@ -194,6 +202,11 @@ export function AdminDriverTransfersPage() {
           )}
         />
       )}
+
+      <AdminDriverRechargeModal
+        open={rechargeOpen}
+        onClose={() => setRechargeOpen(false)}
+      />
     </div>
   );
 }

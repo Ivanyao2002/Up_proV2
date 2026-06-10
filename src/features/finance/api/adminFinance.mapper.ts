@@ -12,6 +12,7 @@ import type {
 import type { ListParams } from "@/shared/types/listParams";
 import { paginateClientList } from "@/shared/lib/clientList";
 import type { TripsScopeFilterOptions } from "@/shared/types";
+import { buildAdminDriverDetailPath } from "@/features/fleet/lib/driverRoutes";
 import type {
   ApiFinanceCommissionItem,
   ApiFinanceDashboardResponse,
@@ -24,6 +25,21 @@ import type {
 } from "./adminFinance.api.types";
 import type { CommissionRow, ReconciliationRow } from "./commissions.service";
 import type { PlatformWallet } from "./wallets.service";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Ignore libellés où l’API renvoie l’UUID à la place du nom (FN-TRANS-LABELS-01). */
+function resolveEntityDisplayName(
+  ...candidates: Array<string | null | undefined>
+): string | undefined {
+  for (const raw of candidates) {
+    const value = raw?.trim();
+    if (!value || UUID_RE.test(value)) continue;
+    return value;
+  }
+  return undefined;
+}
 
 function mapFinanceAlertSeverity(level?: string | null): FinanceAlertSeverity {
   const key = String(level ?? "info").toLowerCase();
@@ -196,15 +212,39 @@ export function mapFinanceDashboardResponse(
 
 function resolveFranchiseName(item: ApiFinanceTransactionItem): string {
   return (
-    item.franchise_name?.trim() ||
-    item.franchise?.name?.trim() ||
-    "—"
+    resolveEntityDisplayName(item.franchise_name, item.franchise?.name) ?? "—"
   );
+}
+
+function resolveTransactionDriverId(
+  item: ApiFinanceTransactionItem
+): string | undefined {
+  const ownerId = item.wallet?.owner?.id?.trim();
+  if (!ownerId) return undefined;
+
+  const ownerType = String(item.wallet?.ownerType ?? "").toLowerCase();
+  if (ownerType === "driver" || ownerType.includes("driver")) {
+    return ownerId;
+  }
+
+  const entryType = String(item.entry_type ?? item.type ?? "").toLowerCase();
+  if (entryType.includes("driver")) {
+    return ownerId;
+  }
+
+  const entityType = String(item.entity_type ?? "").toLowerCase();
+  if (entityType === "driver" || entityType.includes("driver")) {
+    return ownerId;
+  }
+
+  return undefined;
 }
 
 export interface FinanceTransactionDetail extends Transaction {
   partner_name: string;
   owner_name: string;
+  driver_id?: string;
+  driver_detail_path?: string;
   wallet_owner_type?: string;
   order_id?: string;
   order_ref?: string;
@@ -216,17 +256,24 @@ export function mapFinanceTransactionDetail(
   item: ApiFinanceTransactionItem
 ): FinanceTransactionDetail {
   const base = mapFinanceTransactionItem(item);
+  const driverId = resolveTransactionDriverId(item);
   return {
     ...base,
     partner_name:
-      item.partner_name?.trim() ||
-      item.partner?.tradeName?.trim() ||
-      item.partner?.name?.trim() ||
-      "—",
+      resolveEntityDisplayName(
+        item.partner_name,
+        item.partner?.tradeName,
+        item.partner?.name
+      ) ?? "—",
     owner_name:
       item.owner_name?.trim() ||
       item.wallet?.owner?.displayName?.trim() ||
+      item.wallet?.owner?.driverCode?.trim() ||
       "—",
+    driver_id: driverId,
+    driver_detail_path: driverId
+      ? buildAdminDriverDetailPath(driverId)
+      : undefined,
     wallet_owner_type: item.wallet?.ownerType,
     order_id: item.order?.id,
     order_ref: item.order?.ref,

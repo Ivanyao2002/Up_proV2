@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   franchiseFinanceService,
-  type FranchiseDriverRechargePayload,
+  type FranchiseDriverRechargeBatchPayload,
   type FranchisePartnerRechargePayload,
 } from "./finance.service";
 import { notificationService } from "@/core/http/notificationService";
@@ -45,8 +45,8 @@ export function useFranchiseDriverTransfers(params?: ListParams) {
 export function useFranchiseDriverRecharge() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: FranchiseDriverRechargePayload) =>
-      franchiseFinanceService.rechargeDriver(payload),
+    mutationFn: (payload: FranchiseDriverRechargeBatchPayload) =>
+      franchiseFinanceService.rechargeDrivers(payload),
     onSuccess: (data) => {
       void qc.invalidateQueries({ queryKey: franchiseFinanceKeys.all });
       notificationService.success(data.message);

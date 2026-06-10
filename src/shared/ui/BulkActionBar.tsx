@@ -5,7 +5,12 @@ import { Button } from "./Button";
 interface BulkActionBarProps {
   count: number;
   onClear: () => void;
-  actions?: { label: string; onClick: () => void; variant?: "primary" | "secondary" }[];
+  actions?: {
+    label: string;
+    onClick: () => void;
+    variant?: "primary" | "secondary";
+    disabled?: boolean;
+  }[];
 }
 
 export function BulkActionBar({ count, onClear, actions = [] }: BulkActionBarProps) {
@@ -22,6 +27,7 @@ export function BulkActionBar({ count, onClear, actions = [] }: BulkActionBarPro
             key={action.label}
             variant={action.variant ?? "secondary"}
             className="!py-1.5 !text-xs"
+            disabled={action.disabled}
             onClick={action.onClick}
           >
             {action.label}

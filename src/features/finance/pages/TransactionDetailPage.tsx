@@ -59,7 +59,15 @@ export function TransactionDetailPage({ transactionId }: TransactionDetailPagePr
           value={`${data.direction === "debit" ? "−" : "+"}${formatFCFA(data.amount_fcfa)}`}
         />
         <KpiCard label="Franchise" value={data.franchise_name} />
-        <KpiCard label="Propriétaire" value={data.owner_name} />
+        <KpiCard
+          label={data.driver_id ? "Chauffeur" : "Propriétaire"}
+          value={data.owner_name}
+          hint={
+            data.driver_detail_path
+              ? "Voir la fiche chauffeur ci-dessous →"
+              : undefined
+          }
+        />
         <KpiCard label="Paiement" value={getPaymentLabel(data.payment_method)} />
       </div>
 
@@ -70,6 +78,23 @@ export function TransactionDetailPage({ transactionId }: TransactionDetailPagePr
             <div className="flex justify-between gap-4">
               <dt className="text-muted">Partenaire</dt>
               <dd className="text-right">{data.partner_name}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">
+                {data.driver_id ? "Chauffeur" : "Propriétaire"}
+              </dt>
+              <dd className="text-right">
+                {data.driver_detail_path ? (
+                  <Link
+                    href={data.driver_detail_path}
+                    className="font-medium text-teal hover:underline"
+                  >
+                    {data.owner_name}
+                  </Link>
+                ) : (
+                  data.owner_name
+                )}
+              </dd>
             </div>
             {data.wallet_owner_type ? (
               <div className="flex justify-between gap-4">
@@ -102,8 +127,21 @@ export function TransactionDetailPage({ transactionId }: TransactionDetailPagePr
                 <dd>{formatFCFA(breakdown.grossAmountXof ?? 0)}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-muted">Chauffeur</dt>
-                <dd>{formatFCFA(breakdown.driverAmountXof ?? 0)}</dd>
+                <dt className="text-muted">Part chauffeur</dt>
+                <dd className="text-right">
+                  <span>{formatFCFA(breakdown.driverAmountXof ?? 0)}</span>
+                  {data.driver_detail_path ? (
+                    <>
+                      {" · "}
+                      <Link
+                        href={data.driver_detail_path}
+                        className="text-teal hover:underline"
+                      >
+                        Fiche chauffeur
+                      </Link>
+                    </>
+                  ) : null}
+                </dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-muted">Partenaire</dt>

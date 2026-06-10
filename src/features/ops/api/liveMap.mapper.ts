@@ -293,15 +293,20 @@ export function mapApiLiveMapToData(
   const order_markers = collectOrderMarkers(allOrders);
   const trip_routes = buildTripRoutes(allOrders);
 
-  const activeOrders = allOrders.filter((o) =>
-    ACTIVE_ORDER_STATUSES.has(String(o.status ?? "").toLowerCase())
-  );
-
   const driversOnTrip = drivers.filter((d) => d.availability === "on_trip").length;
+  const driversOnTripInPayload = activeByDriver.size;
+  const inProgressStatuses = new Set(["in_progress", "started", "picked_up"]);
+  const activeTripsInPayload = allOrders.filter((o) =>
+    inProgressStatuses.has(String(o.status ?? "").toLowerCase())
+  ).length;
   const driversOnlineInPayload = rawDrivers.filter((d) => {
     const status = String(d.availabilityStatus ?? "").toLowerCase();
     return status === "online" || status === "available";
   }).length;
+  const driversOnlineSnapshot =
+    meta?.withRecentLocation ??
+    drivers.length ??
+    driversOnlineInPayload;
   const points = [
     ...drivers.map((d) => ({ lat: d.lat, lng: d.lng })),
     ...order_markers.map((m) => ({ lat: m.lat, lng: m.lng })),
@@ -311,9 +316,9 @@ export function mapApiLiveMapToData(
   const applied = response.filters?.applied;
 
   const stats = mapApiLiveMapStats(response, {
-    drivers_online: meta?.onlineInDatabase ?? driversOnlineInPayload,
-    drivers_on_trip: Math.max(driversOnTrip, trip_routes.length),
-    active_trips: activeOrders.length,
+    drivers_online: driversOnlineSnapshot,
+    drivers_on_trip: Math.max(driversOnTrip, driversOnTripInPayload),
+    active_trips: activeTripsInPayload,
     avg_wait_min: 0,
   });
 

@@ -1,5 +1,6 @@
 import driversList from "../data/drivers-list.json";
 import type { Driver } from "@/shared/types";
+import { applyDriverAdminOverrides } from "./driverAdminOverrides";
 import type { ListQuery } from "./listQuery";
 import { matchesSearch } from "./listQuery";
 
@@ -24,7 +25,8 @@ function buildCatalog(): Driver[] {
       owner_name: OWNERS[i % OWNERS.length],
       rating: Number((3.8 + (i % 12) * 0.08).toFixed(2)),
       availability: i % 5 === 0 ? "offline" : "online",
-      account_status: i % 17 === 0 ? "pending" : "approved",
+      account_status:
+        i % 31 === 0 ? "suspended" : i % 17 === 0 ? "pending" : "approved",
     });
   }
   return rows;
@@ -52,7 +54,7 @@ export function filterDrivers(rows: Driver[], query: ListQuery): Driver[] {
   if (query.zone) {
     list = list.filter((d) => d.zone === query.zone);
   }
-  return list;
+  return list.map(applyDriverAdminOverrides);
 }
 
 export const DRIVER_ZONE_OPTIONS = [

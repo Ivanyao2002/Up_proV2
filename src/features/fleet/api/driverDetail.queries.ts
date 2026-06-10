@@ -110,3 +110,17 @@ export function useActivateDriver(id: string) {
     },
   });
 }
+
+export function useSetDriverAvailability(id: string) {
+  const qc = useQueryClient();
+  const scopeKey = useScopeQueryKey();
+  return useMutation({
+    mutationFn: (availability: "online" | "offline") =>
+      driverDetailService.setAvailability(id, availability),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: driverDetailKeys.detail(id) });
+      void qc.invalidateQueries({ queryKey: driversKeys.all(scopeKey) });
+      notificationService.success(data.message);
+    },
+  });
+}

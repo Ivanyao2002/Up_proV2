@@ -21,6 +21,7 @@ function mapAvailability(item: ApiAdminDriverItem): Driver["availability"] {
   }
   if (key === "paused" || key === "break") return "paused";
   if (key === "offline") return "offline";
+  if (key === "online" || key === "available") return "online";
   return "online";
 }
 
@@ -90,9 +91,7 @@ export function mapAdminDriversToPaginated(
   params?: ListParams,
   serverPagination?: ApiV1Pagination
 ): Paginated<Driver> {
-  const drivers = items
-    .map(mapAdminDriverItemToListDriver)
-    .filter((d) => driverMatchesFilters(d, params));
+  const drivers = items.map(mapAdminDriverItemToListDriver);
 
   if (serverPagination) {
     return {

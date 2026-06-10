@@ -10,37 +10,24 @@ function readStatNumber(value: unknown): number | undefined {
   return undefined;
 }
 
-/** Mappe `stats` de GET /v1/admin/live-map vers le modèle front. */
+/**
+ * KPI carte alignés sur le snapshot HTTP (meta + payload), pas sur `stats.*` globaux plateforme.
+ * Voir LM-STATS-01 — `stats.online` peut valoir 788 alors que `meta.withRecentLocation` vaut 51.
+ */
 export function mapApiLiveMapStats(
   response: ApiAdminLiveMapResponse,
-  fallback: LiveMapData["stats"]
+  snapshot: LiveMapData["stats"]
 ): LiveMapData["stats"] {
-  const raw = response.stats;
-  if (!raw) return fallback;
-
-  const block = raw as Record<string, unknown>;
+  const raw = response.stats as Record<string, unknown> | undefined;
 
   return {
-    drivers_online:
-      readStatNumber(block.online) ??
-      readStatNumber(block.drivers_online) ??
-      readStatNumber(block.driversOnline) ??
-      fallback.drivers_online,
-    drivers_on_trip:
-      readStatNumber(block.onTrip) ??
-      readStatNumber(block.on_trip) ??
-      readStatNumber(block.drivers_on_trip) ??
-      readStatNumber(block.driversOnTrip) ??
-      fallback.drivers_on_trip,
-    active_trips:
-      readStatNumber(block.activeTrips) ??
-      readStatNumber(block.active_trips) ??
-      readStatNumber(block.activeTripsCount) ??
-      fallback.active_trips,
+    drivers_online: snapshot.drivers_online,
+    drivers_on_trip: snapshot.drivers_on_trip,
+    active_trips: snapshot.active_trips,
     avg_wait_min:
-      readStatNumber(block.avgWaitMin) ??
-      readStatNumber(block.avg_wait_min) ??
-      readStatNumber(block.avgWaitMinutes) ??
-      fallback.avg_wait_min,
+      readStatNumber(raw?.avgWaitMin) ??
+      readStatNumber(raw?.avg_wait_min) ??
+      readStatNumber(raw?.avgWaitMinutes) ??
+      snapshot.avg_wait_min,
   };
 }

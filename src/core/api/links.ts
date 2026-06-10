@@ -75,6 +75,27 @@ export const LINKS = {
         `/v1/partners/${partnerId}/vehicles/${vehicleId}`,
       drivers: (partnerId: string) => `/v1/partners/${partnerId}/drivers`,
       members: (partnerId: string) => `/v1/partners/${partnerId}/members`,
+      wallet: (partnerId: string) => `/v1/partners/${partnerId}/wallet`,
+      ledger: (partnerId: string) => `/v1/partners/${partnerId}/ledger`,
+      driverRecharge: (partnerId: string) =>
+        `/v1/partners/${partnerId}/wallet/driver-recharge`,
+      driverTransfers: (partnerId: string) =>
+        `/v1/partners/${partnerId}/wallet/driver-transfers`,
+      driverTransferStats: (partnerId: string) =>
+        `/v1/partners/${partnerId}/wallet/driver-transfers/stats`,
+    },
+    franchise: {
+      finance: {
+        driverRecharge: "/v1/franchise/finance/driver-recharge",
+        driverTransfers: "/v1/franchise/finance/driver-transfers",
+        driverTransferStats: "/v1/franchise/finance/driver-transfers/stats",
+      },
+      driverRecharge: (franchiseId: string) =>
+        `/v1/franchises/${franchiseId}/driver-recharge`,
+      driverTransfers: (franchiseId: string) =>
+        `/v1/franchises/${franchiseId}/driver-transfers`,
+      driverTransferStats: (franchiseId: string) =>
+        `/v1/franchises/${franchiseId}/driver-transfers/stats`,
     },
     catalog: {
       bootstrap: "/v1/catalog/bootstrap",
@@ -171,6 +192,7 @@ export const LINKS = {
       userSuspend: (id: string) => `${ADMIN_V1_BASE}/users/${id}/suspend`,
       userActivate: (id: string) => `${ADMIN_V1_BASE}/users/${id}/activate`,
       filterOptions: `${ADMIN_V1_BASE}/filter-options`,
+      driverById: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}`,
       driverApprove: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/approve`,
       driverReject: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/reject`,
       vehicles: `${ADMIN_V1_BASE}/vehicles`,

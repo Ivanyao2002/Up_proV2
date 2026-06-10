@@ -8,8 +8,6 @@ import { BulkActionBar } from "@/shared/ui/BulkActionBar";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { SelectFilter } from "@/shared/ui/SelectFilter";
 import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
-import { notificationService } from "@/core/http/notificationService";
-import { driverBulkStatusMessage } from "@/shared/lib/bulkLabels";
 import {
   getDriverAccountStatusLabel,
   getDriverAvailabilityLabel,
@@ -20,7 +18,13 @@ import {
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
 import type { Driver } from "@/shared/types";
-import { useDriversList } from "../api/drivers.queries";
+import {
+  useBulkActivateDrivers,
+  useBulkDriverAvailability,
+  useBulkSuspendDrivers,
+  useDriversList,
+} from "../api/drivers.queries";
+import { getDriverTableRowClassName } from "../lib/driverRowStyles";
 
 const ZONE_OPTIONS = [
   { value: "all" as const, label: "Toutes les zones" },
@@ -40,7 +44,7 @@ const ACCOUNT_OPTIONS = [
 ];
 
 const AVAILABILITY_OPTIONS = [
-  { value: "all" as const, label: "Toutes dispo." },
+  { value: "all" as const, label: "Toutes les disponibilités" },
   { value: "online", label: "En ligne" },
   { value: "offline", label: "Hors ligne" },
   { value: "on_trip", label: "En course" },
@@ -78,9 +82,31 @@ export function DriversListPage() {
   });
 
   const { data, isLoading, isError } = useDriversList(table.listParams);
+  const bulkOnline = useBulkDriverAvailability();
+  const bulkOffline = useBulkDriverAvailability();
+  const bulkSuspend = useBulkSuspendDrivers();
+  const bulkActivate = useBulkActivateDrivers();
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
+
+  const selectedIds = Array.from(selected);
+  const selectedRows = rows.filter((d) => selected.has(d.id));
+  const hasSuspendedSelected = selectedRows.some(
+    (d) => d.account_status === "suspended"
+  );
+  const hasApprovedSelected = selectedRows.some(
+    (d) => d.account_status === "approved"
+  );
+  const bulkBusy =
+    bulkOnline.isPending ||
+    bulkOffline.isPending ||
+    bulkSuspend.isPending ||
+    bulkActivate.isPending;
+
+  const clearSelection = () => setSelected(new Set());
+  const bulkPayload = { drivers: rows, ids: selectedIds };
+  const bulkOpts = { onSuccess: () => clearSelection() };
 
   const columns: Column<Driver>[] = [
     {
@@ -160,20 +186,23 @@ export function DriversListPage() {
         hasActiveFilters={hasActiveFilters}
         onReset={resetAll}
       >
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-end gap-3">
           <SelectFilter
+            wide
             label="Zone"
             value={zoneFilter}
             onChange={setZoneFilter}
             options={ZONE_OPTIONS}
           />
           <SelectFilter
+            wide
             label="Compte"
             value={accountFilter}
             onChange={setAccountFilter}
             options={ACCOUNT_OPTIONS}
           />
           <SelectFilter
+            wide
             label="Disponibilité"
             value={availabilityFilter}
             onChange={setAvailabilityFilter}
@@ -193,6 +222,7 @@ export function DriversListPage() {
         selectable
         selectedKeys={selected}
         onSelectionChange={setSelected}
+        getRowClassName={getDriverTableRowClassName}
         pagination={false}
         serverPagination={serverPaginationFromMeta(
           meta,
@@ -203,27 +233,46 @@ export function DriversListPage() {
 
       <BulkActionBar
         count={selected.size}
-        onClear={() => setSelected(new Set())}
+        onClear={clearSelection}
         actions={[
-          {
-            label: "Mettre en ligne",
-            onClick: () => {
-              notificationService.success(
-                driverBulkStatusMessage(selected.size, "online")
-              );
-              setSelected(new Set());
-            },
-          },
-          {
-            label: "Hors ligne",
-            variant: "secondary",
-            onClick: () => {
-              notificationService.warning(
-                driverBulkStatusMessage(selected.size, "offline")
-              );
-              setSelected(new Set());
-            },
-          },
+          ...(hasApprovedSelected
+            ? [
+                {
+                  label: "Mettre en ligne",
+                  disabled: bulkBusy,
+                  onClick: () =>
+                    bulkOnline.mutate(
+                      { ...bulkPayload, availability: "online" },
+                      bulkOpts
+                    ),
+                },
+                {
+                  label: "Hors ligne",
+                  variant: "secondary" as const,
+                  disabled: bulkBusy,
+                  onClick: () =>
+                    bulkOffline.mutate(
+                      { ...bulkPayload, availability: "offline" },
+                      bulkOpts
+                    ),
+                },
+                {
+                  label: "Suspendre",
+                  variant: "secondary" as const,
+                  disabled: bulkBusy,
+                  onClick: () => bulkSuspend.mutate(bulkPayload, bulkOpts),
+                },
+              ]
+            : []),
+          ...(hasSuspendedSelected
+            ? [
+                {
+                  label: "Réactiver",
+                  disabled: bulkBusy,
+                  onClick: () => bulkActivate.mutate(bulkPayload, bulkOpts),
+                },
+              ]
+            : []),
         ]}
       />
     </div>

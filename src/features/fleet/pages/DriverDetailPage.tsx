@@ -11,6 +11,7 @@ import { KycDocumentCard } from "@/shared/ui/KycDocumentCard";
 import { KycDocumentGroupCard } from "@/shared/ui/KycDocumentGroupCard";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
+import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { RejectReasonModal } from "@/shared/ui/RejectReasonModal";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
@@ -31,7 +32,9 @@ import {
   useRejectKycDocument,
   useSuspendDriver,
   useActivateDriver,
+  useSetDriverAvailability,
 } from "../api/driverDetail.queries";
+import { canSetDriverAvailability } from "../api/driverAdminActions.service";
 
 interface DriverDetailPageProps {
   driverId: string;
@@ -57,6 +60,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const rejectDoc = useRejectKycDocument(driverId);
   const suspendDriver = useSuspendDriver(driverId);
   const activateDriver = useActivateDriver(driverId);
+  const setAvailability = useSetDriverAvailability(driverId);
 
   if (isLoading) {
     return (
@@ -78,7 +82,11 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const fullName = `${driver.first_name} ${driver.last_name}`;
   const isPending = driver.account_status === "pending";
   const isSuspended = driver.account_status === "suspended";
-  const canSuspend = driver.account_status === "approved";
+  const canManageAvailability = canSetDriverAvailability(driver);
+  const actionBusy =
+    suspendDriver.isPending ||
+    activateDriver.isPending ||
+    setAvailability.isPending;
   const timelineItems = driverTimelineToItems(driver.timeline);
   const vehicleDetailHref = driver.vehicle_id
     ? buildAdminVehicleDetailPath(driver.vehicle_id, driver.owner_id)
@@ -191,16 +199,17 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
     },
   ];
 
+  const isOffline =
+    driver.availability === "offline" || driver.availability === "paused";
+
   return (
     <div className="animate-fade-up">
-      {/* Header sticky résumé */}
       <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
         <PageHeader
           title={fullName}
           breadcrumb={["Admin", "Flotte", "Chauffeurs", fullName]}
           actions={
             <div className="flex flex-wrap items-center gap-2">
-              
               {isPending && (
                 <>
                   <Button onClick={() => setConfirmApprove(true)}>
@@ -211,10 +220,50 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                   </Button>
                 </>
               )}
+              {isSuspended && (
+                <Button
+                  disabled={actionBusy}
+                  onClick={() => activateDriver.mutate()}
+                >
+                  Réactiver
+                </Button>
+              )}
+              {canManageAvailability && (
+                <>
+                  {isOffline ? (
+                    <Button
+                      disabled={actionBusy}
+                      onClick={() => setAvailability.mutate("online")}
+                    >
+                      Mettre en ligne
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      disabled={actionBusy}
+                      onClick={() => setAvailability.mutate("offline")}
+                    >
+                      Hors ligne
+                    </Button>
+                  )}
+                  <Button
+                    variant="secondary"
+                    className="!text-xs"
+                    disabled={actionBusy}
+                    onClick={() => setConfirmSuspend(true)}
+                  >
+                    Suspendre
+                  </Button>
+                </>
+              )}
+              <AccountStatusPill status={driver.account_status} />
+              {canManageAvailability && (
+                <AvailabilityPill status={driver.availability} />
+              )}
             </div>
           }
         />
-        <p className="mt-1 text-sm text-muted">
+        <p className="text-sm text-muted">
           {driver.driver_code ? (
             <span className="font-medium text-foreground">{driver.driver_code}</span>
           ) : null}
@@ -427,30 +476,6 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
             </dl>
           </div>
 
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <h3 className="text-sm font-semibold text-foreground">Actions rapides</h3>
-            <div className="mt-3 flex flex-col gap-2">
-              {canSuspend && (
-                <Button
-                  variant="secondary"
-                  className="w-full !text-xs"
-                  onClick={() => setConfirmSuspend(true)}
-                >
-                  Suspendre
-                </Button>
-              )}
-              {isSuspended && (
-                <Button
-                  variant="secondary"
-                  className="w-full !text-xs"
-                  onClick={() => activateDriver.mutate()}
-                  disabled={activateDriver.isPending}
-                >
-                  Réactiver
-                </Button>
-              )}
-            </div>
-          </div>
         </aside>
       </div>
 

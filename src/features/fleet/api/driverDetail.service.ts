@@ -34,6 +34,12 @@ import type {
   ApiDriverLedgerResponse,
   ApiDriverWalletResponse,
 } from "./driverWallet.api.types";
+import {
+  activateDriverAccount,
+  setDriverAvailability,
+  suspendDriverAccount,
+  type DriverAvailabilityAction,
+} from "./driverAdminActions.service";
 
 export interface DriverTripRow {
   id: string;
@@ -309,13 +315,33 @@ export const driverDetailService = {
           "Demande rejetée"
         ),
 
-  suspend: (id: string | number) =>
-    apiClient.post<{ ok: boolean; message: string; driver: DriverDetail }>(
-      `/admin/drivers/${id}/suspend`
-    ),
+  setAvailability: async (
+    id: string | number,
+    availability: DriverAvailabilityAction
+  ) => {
+    const result = await setDriverAvailability(id, availability);
+    return {
+      ok: result.ok,
+      message: result.message,
+      driver: {} as DriverDetail,
+    };
+  },
 
-  activate: (id: string | number) =>
-    apiClient.post<{ ok: boolean; message: string; driver: DriverDetail }>(
-      `/admin/drivers/${id}/activate`
-    ),
+  suspend: async (id: string | number) => {
+    const result = await suspendDriverAccount(id);
+    return {
+      ok: result.ok,
+      message: result.message,
+      driver: {} as DriverDetail,
+    };
+  },
+
+  activate: async (id: string | number) => {
+    const result = await activateDriverAccount(id);
+    return {
+      ok: result.ok,
+      message: result.message,
+      driver: {} as DriverDetail,
+    };
+  },
 };

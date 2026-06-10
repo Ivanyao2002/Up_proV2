@@ -53,6 +53,8 @@ interface DataTableProps<T> {
   exportFileName?: string;
   /** Hauteur des lignes : default 52px, compact 40px */
   rowHeight?: DataTableRowHeight;
+  /** Classes CSS additionnelles par ligne */
+  getRowClassName?: (row: T) => string | undefined;
 }
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -96,6 +98,7 @@ export function DataTable<T>({
   maxHeight = "520px",
   exportFileName,
   rowHeight = "default",
+  getRowClassName,
 }: DataTableProps<T>) {
   const serverMode = Boolean(serverPagination);
   const paginationEnabled = !serverMode && pagination !== false;
@@ -287,12 +290,13 @@ export function DataTable<T>({
               visibleData.map((row) => {
                 const key = rowKey(row);
                 const selected = selectedKeys?.has(key);
+                const extraRowClass = getRowClassName?.(row) ?? "";
                 return (
                   <tr
                     key={key}
                     className={`${rowClass} border-t border-border/50 transition-colors duration-120 hover:bg-surface-hover/80 ${
                       selected ? "bg-teal/[0.04]" : ""
-                    }`}
+                    } ${extraRowClass}`}
                   >
                     {selectable && (
                       <td className="px-6">
