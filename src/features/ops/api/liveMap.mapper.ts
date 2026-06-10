@@ -18,6 +18,17 @@ import {
   LIVE_MAP_ACTIVE_TRIP_STATUSES,
 } from "./liveMap.labels";
 import type { LiveMapScopeFiltersValue } from "./liveMap.types";
+import {
+  extractLiveMapDriverVehicleColor,
+  extractLiveMapDriverVehicleColorHex,
+  extractLiveMapDriverVehicleColorLabel,
+} from "./liveMapVehicleColor";
+import { resolveVehicleMapIconUrl } from "@/shared/lib/vehicleMapIcons";
+import { mapApiLiveMapStats } from "./liveMapStats";
+
+export interface LiveMapMapperContext {
+  colorById?: Map<string, { code: string; label: string }>;
+}
 
 const ABIDJAN_BOUNDS = {
   lat_min: 5.28,
@@ -101,7 +112,8 @@ function indexActiveTripsByDriver(
 
 function mapDriver(
   driver: ApiLiveMapDriver,
-  activeOrder?: ApiLiveMapOrderBase
+  activeOrder: ApiLiveMapOrderBase | undefined,
+  context?: LiveMapMapperContext
 ): LiveMapDriver | null {
   let coords = readDriverCoords(driver);
   if (!coords && activeOrder) {
@@ -114,6 +126,15 @@ function mapDriver(
 
   const active_trip = activeOrder ? mapActiveTrip(activeOrder) : undefined;
   const loc = driver.location;
+  const vehicle_color = extractLiveMapDriverVehicleColor(
+    driver,
+    context?.colorById
+  );
+  const vehicle_color_label = extractLiveMapDriverVehicleColorLabel(
+    driver,
+    context?.colorById
+  );
+  const vehicle_color_hex = extractLiveMapDriverVehicleColorHex(driver);
 
   return {
     id: driver.id,
@@ -127,6 +148,10 @@ function mapDriver(
       Boolean(active_trip)
     ),
     vehicle: driver.vehicleLabel ?? driver.rideCategoryCode ?? "",
+    vehicle_color: vehicle_color ?? null,
+    vehicle_color_label: vehicle_color_label ?? null,
+    vehicle_color_hex: vehicle_color_hex ?? null,
+    vehicle_icon_url: resolveVehicleMapIconUrl(vehicle_color),
     franchise_id: driver.franchiseId ?? undefined,
     franchise_name: driver.franchiseName,
     partner_id: driver.partnerId ?? undefined,
@@ -250,7 +275,8 @@ function resolveScope(filters?: LiveMapScopeFiltersValue): LiveMapScope {
 /** Mappe GET /v1/admin/live-map vers le modèle carte back-office. */
 export function mapApiLiveMapToData(
   response: ApiAdminLiveMapResponse,
-  filters?: LiveMapScopeFiltersValue
+  filters?: LiveMapScopeFiltersValue,
+  context?: LiveMapMapperContext
 ): LiveMapData {
   const meta = response.meta;
   const rawDrivers = response.drivers ?? [];
@@ -261,7 +287,7 @@ export function mapApiLiveMapToData(
   const activeByDriver = indexActiveTripsByDriver(allOrders);
 
   const drivers = rawDrivers
-    .map((d) => mapDriver(d, activeByDriver.get(d.id)))
+    .map((d) => mapDriver(d, activeByDriver.get(d.id), context))
     .filter((d): d is LiveMapDriver => d != null);
 
   const order_markers = collectOrderMarkers(allOrders);
@@ -272,6 +298,10 @@ export function mapApiLiveMapToData(
   );
 
   const driversOnTrip = drivers.filter((d) => d.availability === "on_trip").length;
+  const driversOnlineInPayload = rawDrivers.filter((d) => {
+    const status = String(d.availabilityStatus ?? "").toLowerCase();
+    return status === "online" || status === "available";
+  }).length;
   const points = [
     ...drivers.map((d) => ({ lat: d.lat, lng: d.lng })),
     ...order_markers.map((m) => ({ lat: m.lat, lng: m.lng })),
@@ -279,6 +309,13 @@ export function mapApiLiveMapToData(
 
   const scope = resolveScope(filters);
   const applied = response.filters?.applied;
+
+  const stats = mapApiLiveMapStats(response, {
+    drivers_online: meta?.onlineInDatabase ?? driversOnlineInPayload,
+    drivers_on_trip: Math.max(driversOnTrip, trip_routes.length),
+    active_trips: activeOrders.length,
+    avg_wait_min: 0,
+  });
 
   return {
     zone_name:
@@ -289,12 +326,7 @@ export function mapApiLiveMapToData(
           : "Franchise",
     city: "Abidjan",
     scope,
-    stats: {
-      drivers_online: meta?.onlineInDatabase ?? drivers.length,
-      drivers_on_trip: Math.max(driversOnTrip, trip_routes.length),
-      active_trips: activeOrders.length,
-      avg_wait_min: 0,
-    },
+    stats,
     bounds: computeBounds(points),
     drivers,
     order_markers,

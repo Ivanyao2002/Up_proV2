@@ -5,6 +5,8 @@ import type {
   DispatchQueueItem,
   LiveMapData,
 } from "@/shared/types";
+import { resolveMapEngine } from "@/core/config/mapProvider";
+import { SimplePinMap } from "@/shared/components/map/SimplePinMap";
 
 function project(
   lat: number,
@@ -36,6 +38,67 @@ export function DispatchMapPreview({
     ? project(selected.from_coords.lat, selected.from_coords.lng, map.bounds)
     : null;
 
+  const mapEngine = resolveMapEngine();
+  const useRealMap = mapEngine === "osm" || mapEngine === "mapbox";
+
+  if (useRealMap && selected) {
+    const pins = [
+      {
+        lat: selected.from_coords.lat,
+        lng: selected.from_coords.lng,
+        color: "#f59e0b",
+        label: "Prise en charge",
+        pulse: true,
+      },
+      ...selected.candidates.map((driver) => ({
+        lat: driver.lat,
+        lng: driver.lng,
+        color:
+          highlightDriverId === driver.id
+            ? "#0ab39c"
+            : driver.availability === "online"
+              ? "#0ab39c"
+              : "#878a99",
+        title: `${driver.name} · ${driver.distance_km} km`,
+      })),
+    ];
+
+    return (
+      <SimplePinMap
+        bounds={map.bounds}
+        pins={pins}
+        overlayLabel={map.zone_name}
+        className="h-[min(320px,45vh)] w-full"
+        legacyFallback={
+          <LegacyDispatchMapPreview
+            map={map}
+            selected={selected}
+            highlightDriverId={highlightDriverId}
+            pickup={pickup}
+          />
+        }
+      />
+    );
+  }
+
+  return (
+    <LegacyDispatchMapPreview
+      map={map}
+      selected={selected}
+      highlightDriverId={highlightDriverId}
+      pickup={pickup}
+    />
+  );
+}
+
+function LegacyDispatchMapPreview({
+  map,
+  selected,
+  highlightDriverId,
+  pickup,
+}: DispatchMapPreviewProps & {
+  pickup: { left: string; top: string } | null;
+}) {
   return (
     <div className="relative h-[min(320px,45vh)] w-full overflow-hidden rounded-card border border-border bg-map shadow-card">
       <div

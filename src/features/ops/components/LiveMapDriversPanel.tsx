@@ -4,6 +4,8 @@ import Link from "next/link";
 import { adminPaths } from "@/core/routes/adminPaths";
 import type { LiveMapData, LiveMapDriver } from "@/shared/types";
 import { AvailabilityPill } from "@/shared/ui/DriverPills";
+import { formatLiveMapVehicleLine } from "../lib/liveMapDriverDisplay";
+import { LiveMapVehicleColorInfo } from "./LiveMapVehicleColorInfo";
 
 function DriverRow({
   driver,
@@ -22,7 +24,10 @@ function DriverRow({
     <>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">{driver.name}</p>
-        <p className="truncate text-xs text-muted">{driver.vehicle}</p>
+        {formatLiveMapVehicleLine(driver) ? (
+          <p className="truncate text-xs text-muted">{formatLiveMapVehicleLine(driver)}</p>
+        ) : null}
+        <LiveMapVehicleColorInfo driver={driver} />
         {trip && (
           <p className="mt-1 truncate text-[10px] font-medium text-navy">
             {trip.ref} · {trip.status_label}

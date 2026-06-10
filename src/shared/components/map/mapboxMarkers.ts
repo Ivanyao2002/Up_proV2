@@ -1,3 +1,8 @@
+import { LIVE_MAP_AVAILABILITY_COLORS } from "@/features/ops/lib/liveMapAvailabilityColors";
+import {
+  formatLiveMapVehicleLine,
+  getLiveMapVehicleColorLabel,
+} from "@/features/ops/lib/liveMapDriverDisplay";
 import type { LiveMapData, LiveMapDriver, LiveMapOrderMarker } from "@/shared/types";
 import {
   buildDriverPopupHtml,
@@ -15,35 +20,43 @@ export interface MapboxPointFeature {
   pulse?: boolean;
   heading?: number;
   speedKmh?: number;
+  vehicleIconUrl?: string;
   popupHtml: string;
 }
 
-const DRIVER_COLORS: Record<LiveMapDriver["availability"], string> = {
-  online: "#0ab39c",
-  on_trip: "#405189",
-  paused: "#f59e0b",
-  offline: "#878a99",
-};
+export function mapLiveMapDriverToFeature(driver: LiveMapDriver): MapboxPointFeature {
+  const tripLine = driver.active_trip
+    ? `${driver.active_trip.ref} · ${driver.active_trip.from_label} → ${driver.active_trip.to_label}`
+    : undefined;
+  const colorLabel = getLiveMapVehicleColorLabel(driver);
+  const vehicleInfo = [
+    formatLiveMapVehicleLine(driver),
+    colorLabel ? `Couleur : ${colorLabel}` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return {
+    id: `driver-${driver.id}`,
+    lng: driver.lng,
+    lat: driver.lat,
+    kind: "driver",
+    color: LIVE_MAP_AVAILABILITY_COLORS[driver.availability],
+    label: driver.name,
+    sublabel:
+      tripLine ?? [driver.partner_name, vehicleInfo].filter(Boolean).join(" · "),
+    pulse: driver.availability === "online" || driver.availability === "on_trip",
+    heading: driver.heading,
+    speedKmh: driver.speed_kmh,
+    vehicleIconUrl: driver.vehicle_icon_url,
+    popupHtml: buildDriverPopupHtml(driver),
+  };
+}
 
 export function liveMapDataToMapFeatures(data: LiveMapData): MapboxPointFeature[] {
-  const driverFeatures: MapboxPointFeature[] = data.drivers.map((d) => {
-    const tripLine = d.active_trip
-      ? `${d.active_trip.ref} · ${d.active_trip.from_label} → ${d.active_trip.to_label}`
-      : undefined;
-    return {
-      id: `driver-${d.id}`,
-      lng: d.lng,
-      lat: d.lat,
-      kind: "driver",
-      color: DRIVER_COLORS[d.availability],
-      label: d.name,
-      sublabel: tripLine ?? [d.partner_name, d.vehicle].filter(Boolean).join(" · "),
-      pulse: d.availability === "online" || d.availability === "on_trip",
-      heading: d.heading,
-      speedKmh: d.speed_kmh,
-      popupHtml: buildDriverPopupHtml(d),
-    };
-  });
+  const driverFeatures: MapboxPointFeature[] = data.drivers.map((d) =>
+    mapLiveMapDriverToFeature(d)
+  );
 
   const orderFeatures: MapboxPointFeature[] = (data.order_markers ?? []).map(
     (m: LiveMapOrderMarker) => ({
@@ -70,3 +83,15 @@ export function boundsToMapboxLngLatBounds(
     [bounds.lng_max, bounds.lat_max],
   ];
 }
+
+/** Bounds Leaflet : [[latMin, lngMin], [latMax, lngMax]] */
+export function boundsToLeafletLatLngBounds(
+  bounds: LiveMapData["bounds"]
+): [[number, number], [number, number]] {
+  return [
+    [bounds.lat_min, bounds.lng_min],
+    [bounds.lat_max, bounds.lng_max],
+  ];
+}
+
+export type LiveMapPointFeature = MapboxPointFeature;

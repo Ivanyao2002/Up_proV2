@@ -204,6 +204,14 @@ export const LINKS = {
       dispatcherById: (id: string) => `${ADMIN_V1_BASE}/dispatchers/${id}`,
       settingsGeneral: `${ADMIN_V1_BASE}/settings/general`,
       supportTickets: "/v1/support/tickets",
+      safety: {
+        sos: `${ADMIN_V1_BASE}/safety/sos`,
+        sosDashboard: `${ADMIN_V1_BASE}/safety/sos/dashboard`,
+        sosById: (id: string) => `${ADMIN_V1_BASE}/safety/sos/${id}`,
+        sosAcknowledge: (id: string) =>
+          `${ADMIN_V1_BASE}/safety/sos/${id}/acknowledge`,
+        sosResolve: (id: string) => `${ADMIN_V1_BASE}/safety/sos/${id}/resolve`,
+      },
     },
 
     /** Franchises — détail module 99 ; liste via `admin.v1.franchises` */
@@ -275,6 +283,13 @@ export const LINKS = {
       crisis: {
         get: "/admin/ops/crisis",
         update: "/admin/ops/crisis",
+      },
+      sos: {
+        dashboard: "/admin/ops/sos/dashboard",
+        list: "/admin/ops/sos/incidents",
+        getById: (id: string) => `/admin/ops/sos/incidents/${id}`,
+        acknowledge: (id: string) => `/admin/ops/sos/incidents/${id}/acknowledge`,
+        resolve: (id: string) => `/admin/ops/sos/incidents/${id}/resolve`,
       },
     },
 

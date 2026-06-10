@@ -4,6 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { env } from "@/core/config/env";
+import { resolveMapEngine } from "@/core/config/mapProvider";
+import L from "leaflet";
+import {
+  createMapPinElement,
+  initLeafletMap,
+  lngLatToLeaflet,
+  pathLngLatToLeaflet,
+} from "@/shared/components/map/leafletMapCore";
 import { formatDateTime } from "@/shared/lib/format";
 import { latLngToPercent } from "@/shared/lib/mapProjection";
 
@@ -303,9 +311,114 @@ function TripForensicMapbox({
   );
 }
 
+function TripForensicMapOsm({
+  trace,
+  fromCoords,
+  toCoords,
+}: TripForensicMapProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const anomalyIdx = useMemo(
+    () => trace.findIndex((p) => p.speed_kmh >= 80),
+    [trace]
+  );
+  const maxSpeed = useMemo(
+    () => Math.max(...trace.map((p) => p.speed_kmh), 0),
+    [trace]
+  );
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const center = trace[0]
+      ? lngLatToLeaflet(trace[0].lat, trace[0].lng)
+      : lngLatToLeaflet(fromCoords.lat, fromCoords.lng);
+
+    const map = initLeafletMap(containerRef.current, {
+      center,
+      zoom: 13,
+    });
+
+    L.marker(lngLatToLeaflet(fromCoords.lat, fromCoords.lng), {
+      icon: L.divIcon({
+        className: "leaflet-live-marker-icon",
+        html: createMapPinElement("#405189").outerHTML,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      }),
+    }).addTo(map);
+
+    L.marker(lngLatToLeaflet(toCoords.lat, toCoords.lng), {
+      icon: L.divIcon({
+        className: "leaflet-live-marker-icon",
+        html: createMapPinElement("#0ab39c").outerHTML,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      }),
+    }).addTo(map);
+
+    if (trace.length >= 2) {
+      L.polyline(
+        pathLngLatToLeaflet(trace.map((p) => [p.lng, p.lat] as [number, number])),
+        { color: "#405189", weight: 4, opacity: 0.85 }
+      ).addTo(map);
+    }
+
+    for (const [i, point] of trace.entries()) {
+      const isAnomaly = i === anomalyIdx;
+      L.circleMarker(lngLatToLeaflet(point.lat, point.lng), {
+        radius: isAnomaly ? 7 : 4,
+        color: "#ffffff",
+        weight: 1.5,
+        fillColor: isAnomaly ? "#ef4444" : "#0ab39c",
+        fillOpacity: 1,
+      }).addTo(map);
+    }
+
+    const bounds = L.latLngBounds([
+      lngLatToLeaflet(fromCoords.lat, fromCoords.lng),
+      lngLatToLeaflet(toCoords.lat, toCoords.lng),
+      ...trace.map((p) => lngLatToLeaflet(p.lat, p.lng)),
+    ]);
+    map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15 });
+
+    return () => {
+      map.remove();
+    };
+  }, [trace, fromCoords, toCoords, anomalyIdx]);
+
+  return (
+    <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border shadow-card">
+      <div ref={containerRef} className="leaflet-live-map h-full w-full" />
+      <p className="pointer-events-none absolute left-3 top-3 z-[500] rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
+        Trace GPS · {trace.length} points · max {maxSpeed} km/h
+      </p>
+      <div className="pointer-events-none absolute bottom-3 left-3 flex gap-2 text-[10px]">
+        <span className="rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">
+          Départ
+        </span>
+        <span className="rounded bg-surface/90 px-2 py-1 text-foreground shadow-sm">
+          Arrivée
+        </span>
+        {anomalyIdx >= 0 && (
+          <span className="rounded bg-red-100 px-2 py-1 text-red-700 shadow-sm">
+            Anomalie {formatDateTime(trace[anomalyIdx].at)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function TripForensicMap(props: TripForensicMapProps) {
-  if (env.mapboxToken) {
+  const engine = resolveMapEngine();
+
+  if (engine === "osm") {
+    return <TripForensicMapOsm {...props} />;
+  }
+
+  if (engine === "mapbox") {
     return <TripForensicMapbox {...props} />;
   }
+
   return <TripForensicMapFallback {...props} />;
 }

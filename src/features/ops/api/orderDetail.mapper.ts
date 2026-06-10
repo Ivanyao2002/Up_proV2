@@ -15,6 +15,11 @@ import {
   mapApiLocationToTripDriverLocation,
 } from "./adminOrderVehicle";
 import {
+  extractLiveMapDriverVehicleColor,
+  extractLiveMapDriverVehicleColorLabel,
+} from "./liveMapVehicleColor";
+import { resolveVehicleMapIconUrl } from "@/shared/lib/vehicleMapIcons";
+import {
   mapApiOrderStatus,
   mapApiPaymentMethod,
   mapApiServiceType,
@@ -220,6 +225,15 @@ export function mapApiOrderToTripDetail(
       formatApiVehicleLabel(undefined, assignedDriver?.vehicleLabel) ??
       assignedDriver?.vehicleLabel ??
       undefined,
+    vehicle_color: assignedDriver
+      ? extractLiveMapDriverVehicleColor(assignedDriver) ?? null
+      : null,
+    vehicle_color_label: assignedDriver
+      ? extractLiveMapDriverVehicleColorLabel(assignedDriver) ?? null
+      : null,
+    vehicle_icon_url: assignedDriver
+      ? resolveVehicleMapIconUrl(extractLiveMapDriverVehicleColor(assignedDriver))
+      : null,
     driver_location: mapApiLocationToTripDriverLocation(assignedDriver?.location),
   };
 }

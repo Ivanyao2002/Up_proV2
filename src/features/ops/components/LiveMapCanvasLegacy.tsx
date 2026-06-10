@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { adminPaths } from "@/core/routes/adminPaths";
+import { LIVE_MAP_DEFAULT_VEHICLE_ICON } from "@/shared/lib/vehicleMapIcons";
 import type { LiveMapData, LiveMapDriver, LiveMapHotZone } from "@/shared/types";
+import {
+  LIVE_MAP_AVAILABILITY_PULSE_CLASS,
+} from "../lib/liveMapAvailabilityColors";
+import {
+  formatLiveMapVehicleLine,
+  getLiveMapVehicleColorLabel,
+} from "../lib/liveMapDriverDisplay";
+import { LiveMapVehicleColorInfo } from "./LiveMapVehicleColorInfo";
 import {
   projectDriver,
   WORLD_HUB_LABELS,
@@ -12,13 +21,6 @@ const HOT_ZONE_STYLE: Record<number, string> = {
   1: "bg-amber-400/30 ring-amber-500/50",
   2: "bg-orange-500/35 ring-orange-600/55",
   3: "bg-red-500/40 ring-red-600/60",
-};
-
-const PIN_COLORS: Record<LiveMapDriver["availability"], string> = {
-  online: "bg-teal",
-  on_trip: "bg-navy",
-  paused: "bg-amber-400",
-  offline: "bg-muted/50",
 };
 
 const FRANCHISE_PIN_RING: Record<number, string> = {
@@ -107,6 +109,8 @@ export function LiveMapCanvasLegacy({
 
       {data.drivers.map((driver) => {
         const pos = projectDriver(driver, data.bounds);
+        const vehicleLine = formatLiveMapVehicleLine(driver);
+        const vehicleColorLabel = getLiveMapVehicleColorLabel(driver);
         const isPulsing =
           driver.availability === "online" || driver.availability === "on_trip";
         const franchiseKey =
@@ -124,7 +128,8 @@ export function LiveMapCanvasLegacy({
               driver.active_trip
                 ? `${driver.active_trip.ref} · ${driver.active_trip.from_label} → ${driver.active_trip.to_label}`
                 : null,
-              driver.vehicle,
+              vehicleLine,
+              vehicleColorLabel ? `Couleur : ${vehicleColorLabel}` : null,
               driver.partner_name,
               driver.franchise_name,
               driver.zone_name,
@@ -134,18 +139,27 @@ export function LiveMapCanvasLegacy({
             className="group absolute z-10 -translate-x-1/2 -translate-y-1/2"
             style={pos}
           >
-            <span className="relative flex h-4 w-4 items-center justify-center">
+            <span className="relative flex h-9 w-9 items-center justify-center">
               {isPulsing && (
                 <span
-                  className={`absolute inline-flex h-full w-full animate-pulse-ring rounded-full opacity-60 ${PIN_COLORS[driver.availability]}`}
+                  className={`absolute inline-flex h-full w-full animate-pulse-ring rounded-full opacity-90 ${LIVE_MAP_AVAILABILITY_PULSE_CLASS[driver.availability]}`}
                 />
               )}
-              <span
-                className={`relative h-3 w-3 rounded-full border-2 border-surface shadow-md ring-2 ${ring} ${PIN_COLORS[driver.availability]}`}
+              <img
+                src={driver.vehicle_icon_url ?? LIVE_MAP_DEFAULT_VEHICLE_ICON}
+                alt=""
+                width={32}
+                height={32}
+                className={`relative object-contain drop-shadow-md ${ring ? `ring-2 ${ring} rounded-full` : ""}`}
+                draggable={false}
               />
             </span>
-            <span className="pointer-events-auto absolute left-1/2 top-5 z-20 hidden min-w-[140px] -translate-x-1/2 rounded bg-elevated px-2 py-1.5 text-left text-[10px] text-foreground shadow-md group-hover:block">
+            <span className="pointer-events-auto absolute left-1/2 top-10 z-20 hidden min-w-[140px] -translate-x-1/2 rounded bg-elevated px-2 py-1.5 text-left text-[10px] text-foreground shadow-md group-hover:block">
               <span className="block font-medium">{driver.name}</span>
+              {vehicleLine ? (
+                <span className="block text-muted">{vehicleLine}</span>
+              ) : null}
+              <LiveMapVehicleColorInfo driver={driver} className="mt-0.5" />
               {driver.active_trip && (
                 <>
                   <span className="mt-0.5 block font-semibold text-navy">
@@ -192,13 +206,13 @@ export function LiveMapLegend({
   return (
     <div className="absolute bottom-4 left-4 flex flex-wrap gap-3 rounded-lg border border-border-subtle bg-elevated/95 px-3 py-2 text-[10px] text-muted shadow-md backdrop-blur">
       <span className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-full bg-teal" /> En ligne
+        <span className="h-2 w-2 rounded-full bg-blue-800" /> En ligne
       </span>
       <span className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-full bg-navy" /> En course
+        <span className="h-2 w-2 rounded-full bg-green-500" /> En course
       </span>
       <span className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-full bg-amber-400" /> Pause
+        <span className="h-2 w-2 rounded-full bg-orange-400" /> Pause
       </span>
       {showHotZones && (
         <span className="flex items-center gap-1.5 border-l border-border pl-3">

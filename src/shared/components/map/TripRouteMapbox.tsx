@@ -4,12 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { env } from "@/core/config/env";
+import { resolveMapEngine } from "@/core/config/mapProvider";
 import { fetchMapboxDrivingRoute, type LngLat } from "./mapboxDirections";
-import { LIVE_MAP_DRIVER_NAV_ICON } from "./mapboxMarkerElement";
+import {
+  createTripDriverMarkerElement,
+  updateTripDriverMarkerElement,
+} from "./mapboxMarkerElement";
+import { liveMapPulseBackground } from "@/features/ops/lib/liveMapAvailabilityColors";
 import {
   clearAllDriverMotions,
+  createMapboxDriverMotionMarker,
   removeDriverMotion,
   setDriverMotionTarget,
+  type DriverMotionMarker,
 } from "./mapboxDriverMotion";
 import type { TripDriverLocation } from "@/shared/types";
 
@@ -28,15 +35,6 @@ function createMarkerElement(color: string): HTMLDivElement {
   return el;
 }
 
-function createDriverVehicleElement(): HTMLDivElement {
-  const el = document.createElement("div");
-  el.className = "mapbox-live-marker mapbox-live-marker--driver";
-  el.innerHTML = `<span class="mapbox-live-marker__vehicle" aria-hidden="true">
-    <img class="mapbox-live-marker__nav-icon" src="${LIVE_MAP_DRIVER_NAV_ICON}" width="28" height="28" alt="" decoding="async" draggable="false" />
-  </span>`;
-  return el;
-}
-
 interface TripRouteMapboxProps {
   fromCoords: { lat: number; lng: number };
   toCoords: { lat: number; lng: number };
@@ -44,6 +42,7 @@ interface TripRouteMapboxProps {
   toLabel: string;
   driverLocation?: TripDriverLocation;
   driverLive?: boolean;
+  vehicleIconUrl?: string | null;
   className?: string;
   heightClass?: string;
 }
@@ -55,6 +54,7 @@ export function TripRouteMapbox({
   toLabel,
   driverLocation,
   driverLive = false,
+  vehicleIconUrl,
   className = "",
   heightClass = "h-48",
 }: TripRouteMapboxProps) {
@@ -62,6 +62,8 @@ export function TripRouteMapbox({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const endpointMarkersRef = useRef<mapboxgl.Marker[]>([]);
   const driverMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const driverMotionRef = useRef<DriverMotionMarker | null>(null);
+  const driverRootRef = useRef<HTMLElement | null>(null);
   const didFitBoundsRef = useRef(false);
   const [ready, setReady] = useState(false);
 
@@ -86,11 +88,15 @@ export function TripRouteMapbox({
     mapRef.current = map;
 
     return () => {
+      if (driverMotionRef.current) {
+        removeDriverMotion(driverMotionRef.current);
+        driverMotionRef.current = null;
+      }
       if (driverMarkerRef.current) {
-        removeDriverMotion(driverMarkerRef.current);
         driverMarkerRef.current.remove();
         driverMarkerRef.current = null;
       }
+      driverRootRef.current = null;
       clearAllDriverMotions();
       endpointMarkersRef.current.forEach((m) => m.remove());
       endpointMarkersRef.current = [];
@@ -171,24 +177,34 @@ export function TripRouteMapbox({
     if (!map || !ready) return;
 
     if (!driverLocation) {
+      if (driverMotionRef.current) {
+        removeDriverMotion(driverMotionRef.current);
+        driverMotionRef.current = null;
+      }
       if (driverMarkerRef.current) {
-        removeDriverMotion(driverMarkerRef.current);
         driverMarkerRef.current.remove();
         driverMarkerRef.current = null;
       }
+      driverRootRef.current = null;
       return;
     }
 
     const target: [number, number] = [driverLocation.lng, driverLocation.lat];
 
-    if (!driverMarkerRef.current) {
-      const el = createDriverVehicleElement();
+    if (!driverMarkerRef.current || !driverMotionRef.current || !driverRootRef.current) {
+      const el = createTripDriverMarkerElement({
+        vehicleIconUrl: vehicleIconUrl ?? undefined,
+        pulse: true,
+        pulseColor: liveMapPulseBackground("#166534"),
+      });
       const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
         .setLngLat(target)
         .addTo(map);
       driverMarkerRef.current = marker;
+      driverRootRef.current = el;
+      driverMotionRef.current = createMapboxDriverMotionMarker(marker);
       setDriverMotionTarget(
-        marker,
+        driverMotionRef.current,
         el,
         target,
         driverLocation.heading,
@@ -197,9 +213,13 @@ export function TripRouteMapbox({
       return;
     }
 
+    updateTripDriverMarkerElement(driverRootRef.current, {
+      vehicleIconUrl: vehicleIconUrl ?? undefined,
+      pulseColor: liveMapPulseBackground("#166534"),
+    });
     setDriverMotionTarget(
-      driverMarkerRef.current,
-      driverMarkerRef.current.getElement(),
+      driverMotionRef.current,
+      driverRootRef.current,
       target,
       driverLocation.heading,
       driverLocation.speed_kmh
@@ -210,16 +230,11 @@ export function TripRouteMapbox({
     driverLocation?.lng,
     driverLocation?.heading,
     driverLocation?.speed_kmh,
+    vehicleIconUrl,
   ]);
 
-  if (!env.mapboxToken) {
-    return (
-      <div
-        className={`flex items-center justify-center rounded-card border border-dashed border-border bg-map text-center text-xs text-muted ${heightClass} ${className}`}
-      >
-        Token Mapbox manquant
-      </div>
-    );
+  if (resolveMapEngine() !== "mapbox") {
+    return null;
   }
 
   return (

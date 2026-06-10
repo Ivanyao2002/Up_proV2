@@ -5,9 +5,13 @@ import { useRouter } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { env } from "@/core/config/env";
+import { resolveMapEngine } from "@/core/config/mapProvider";
 import type { LiveMapTripRoute, LiveMapHotZone } from "@/shared/types";
 import { resolveTripRoutesGeometry } from "./mapboxDirections";
-import { createLiveMapMarkerElement } from "./mapboxMarkerElement";
+import {
+  createLiveMapMarkerElement,
+  updateLiveMapMarkerElement,
+} from "./mapboxMarkerElement";
 import {
   HOT_ZONES_CORE,
   HOT_ZONES_GLOW,
@@ -16,9 +20,11 @@ import {
 } from "./mapboxHotZones";
 import {
   clearAllDriverMotions,
+  createMapboxDriverMotionMarker,
   removeDriverMotion,
   setDriverMotionTarget,
   snapDriverMarker,
+  type DriverMotionMarker,
 } from "./mapboxDriverMotion";
 import type { MapboxPointFeature } from "./mapboxMarkers";
 
@@ -85,7 +91,9 @@ export function MapboxMap({
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markersByIdRef = useRef<Map<string, mapboxgl.Marker>>(new Map());
+  const markersByIdRef = useRef<
+    Map<string, { marker: mapboxgl.Marker; motion: DriverMotionMarker; root: HTMLElement }>
+  >(new Map());
   const hotZonesRef = useRef(hotZones);
   const didFitBoundsRef = useRef(false);
   const [ready, setReady] = useState(false);
@@ -132,7 +140,7 @@ export function MapboxMap({
 
     return () => {
       clearAllDriverMotions();
-      markersByIdRef.current.forEach((m) => m.remove());
+      markersByIdRef.current.forEach(({ marker }) => marker.remove());
       markersByIdRef.current.clear();
       didFitBoundsRef.current = false;
       map.remove();
@@ -267,10 +275,10 @@ export function MapboxMap({
     const markersById = markersByIdRef.current;
     const nextIds = new Set(features.map((f) => f.id));
 
-    for (const [id, marker] of markersById) {
+    for (const [id, stored] of markersById) {
       if (!nextIds.has(id)) {
-        removeDriverMotion(marker);
-        marker.remove();
+        removeDriverMotion(stored.motion);
+        stored.marker.remove();
         markersById.delete(id);
       }
     }
@@ -284,18 +292,23 @@ export function MapboxMap({
         animateDriverMoves && feature.kind === "driver";
 
       if (existing) {
-        const root = existing.getElement();
+        updateLiveMapMarkerElement(existing.root, feature);
         if (smoothDriver) {
           setDriverMotionTarget(
-            existing,
-            root,
+            existing.motion,
+            existing.root,
             target,
             feature.heading,
             feature.speedKmh
           );
         } else {
-          removeDriverMotion(existing);
-          snapDriverMarker(existing, root, target, feature.heading);
+          removeDriverMotion(existing.motion);
+          snapDriverMarker(
+            existing.motion,
+            existing.root,
+            target,
+            feature.heading
+          );
         }
         continue;
       }
@@ -316,19 +329,21 @@ export function MapboxMap({
         .setPopup(popup)
         .addTo(map);
 
+      const motion = createMapboxDriverMotionMarker(marker);
+
       if (smoothDriver) {
         setDriverMotionTarget(
-          marker,
+          motion,
           el,
           target,
           feature.heading,
           feature.speedKmh
         );
       } else {
-        snapDriverMarker(marker, el, target, feature.heading);
+        snapDriverMarker(motion, el, target, feature.heading);
       }
 
-      markersById.set(feature.id, marker);
+      markersById.set(feature.id, { marker, motion, root: el });
     }
 
     if (!didFitBoundsRef.current && features.length > 0) {
@@ -341,15 +356,8 @@ export function MapboxMap({
     }
   }, [features, bounds, ready, animateDriverMoves]);
 
-  if (!env.mapboxToken) {
-    return (
-      <div
-        className={`flex h-full min-h-[320px] items-center justify-center rounded-card border border-dashed border-border bg-canvas p-6 text-center text-sm text-muted ${className}`}
-      >
-        Ajoutez <code className="text-xs">NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN</code> dans
-        .env.local pour afficher Mapbox.
-      </div>
-    );
+  if (resolveMapEngine() !== "mapbox") {
+    return null;
   }
 
   return (

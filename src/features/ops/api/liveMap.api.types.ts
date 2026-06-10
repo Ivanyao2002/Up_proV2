@@ -46,6 +46,31 @@ export interface ApiLiveMapDriver {
   franchiseName?: string;
   zoneName?: string;
   vehicleLabel?: string;
+  vehicleColor?: string | null;
+  vehicleColorCode?: string | null;
+  vehicle_color?: string | null;
+  vehicle_color_code?: string | null;
+  vehicle?: {
+    id?: string | null;
+    color?:
+      | string
+      | {
+          id?: string | null;
+          code?: string | null;
+          label?: string | null;
+          hex?: string | null;
+        }
+      | null;
+    colorCode?: string | null;
+    color_code?: string | null;
+    colorLabel?: string | null;
+    color_label?: string | null;
+    colorId?: string | null;
+    color_id?: string | null;
+    label?: string | null;
+    plateNumber?: string | null;
+    plate_number?: string | null;
+  } | null;
   ratingAvg?: number | null;
   location?: ApiLiveMapDriverLocation | null;
   isTracked?: boolean;
@@ -107,11 +132,25 @@ export interface ApiLiveMapOrderBase {
   };
 }
 
+/** Agrégats réseau renvoyés par GET /v1/admin/live-map */
+export interface ApiLiveMapStats {
+  online?: number;
+  onTrip?: number;
+  activeTrips?: number;
+  avgWaitMin?: number;
+  on_trip?: number;
+  active_trips?: number;
+  avg_wait_min?: number;
+  drivers_online?: number;
+  drivers_on_trip?: number;
+}
+
 export interface ApiAdminLiveMapResponse {
   status: string;
   generatedAt?: string;
   drivers?: ApiLiveMapDriver[];
   meta?: ApiLiveMapMeta;
+  stats?: ApiLiveMapStats;
   orders?: {
     rides?: ApiLiveMapOrderBase[];
     deliveries?: ApiLiveMapOrderBase[];

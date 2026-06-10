@@ -1,0 +1,69 @@
+{
+  "stats": {
+    "active": 1,
+    "acknowledged": 0,
+    "escalated": 1,
+    "critical": 1,
+    "highRisk": 1,
+    "gpsLost": 0
+  },
+  "incidents": [
+    {
+      "id": "sos-mock-001",
+      "status": "escalated",
+      "severity": "critical",
+      "actor_type": "CLIENT",
+      "incident_type": "emergency",
+      "trigger": "manual_button",
+      "risk_score": 88,
+      "risk_factors": ["critical_severity", "night_time"],
+      "escalation_level": 2,
+      "silent_mode": false,
+      "latitude": 5.3601,
+      "longitude": -4.0083,
+      "triggered_at": "2026-06-10T08:00:00.000Z",
+      "acknowledged_at": null,
+      "resolved_at": null,
+      "cancelled_at": null,
+      "client_id": "client-mock-01",
+      "driver_id": null,
+      "order_id": null,
+      "franchise_id": null,
+      "partner_id": null,
+      "ageMinutes": 12,
+      "metadata": {
+        "request": {
+          "message": "Alerte SOS démo — client en difficulté",
+          "device": {
+            "platform": "android",
+            "batteryLevel": 34,
+            "networkType": "4g"
+          }
+        }
+      }
+    },
+    {
+      "id": "sos-mock-002",
+      "status": "resolved",
+      "severity": "high",
+      "actor_type": "DRIVER",
+      "incident_type": "emergency",
+      "trigger": "manual_button",
+      "risk_score": 62,
+      "risk_factors": ["high_risk_score"],
+      "escalation_level": 1,
+      "silent_mode": true,
+      "latitude": 5.348,
+      "longitude": -4.027,
+      "triggered_at": "2026-06-09T14:30:00.000Z",
+      "resolved_at": "2026-06-09T14:45:00.000Z",
+      "driver_id": "driver-mock-01",
+      "metadata": {
+        "request": {
+          "message": "Incident résolu — fausse alerte",
+          "device": { "platform": "ios", "batteryLevel": 71 }
+        }
+      }
+    }
+  ]
+}

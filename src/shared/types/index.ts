@@ -103,6 +103,9 @@ export interface TripDetail extends Trip {
   vehicle_id?: string;
   vehicle_label?: string;
   vehicle_plate?: string;
+  vehicle_color?: string | null;
+  vehicle_color_label?: string | null;
+  vehicle_icon_url?: string | null;
   driver_location?: TripDriverLocation;
   commission_fcfa: number;
   driver_earning_fcfa: number;
@@ -420,6 +423,14 @@ export interface LiveMapDriver {
   speed_kmh?: number;
   availability: Driver["availability"];
   vehicle: string;
+  /** Code ou libellé couleur véhicule (catalogue) */
+  vehicle_color?: string | null;
+  /** Libellé affichable (ex. « Bleu ») */
+  vehicle_color_label?: string | null;
+  /** Hex catalogue (#1E5AA8) pour pastille couleur */
+  vehicle_color_hex?: string | null;
+  /** Icône carte selon couleur — fallback gps-navigation.png */
+  vehicle_icon_url?: string;
   franchise_id?: number | string;
   franchise_name?: string;
   partner_id?: number | string;

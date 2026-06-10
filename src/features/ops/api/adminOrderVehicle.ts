@@ -1,6 +1,14 @@
 import type { TripDetail } from "@/shared/types";
+import { resolveVehicleMapIconUrl } from "@/shared/lib/vehicleMapIcons";
 import type { ApiAdminOrderDetailPayload } from "./adminOrderDetail.api.types";
-import type { ApiLiveMapDriverLocation } from "./liveMap.api.types";
+import type {
+  ApiLiveMapDriver,
+  ApiLiveMapDriverLocation,
+} from "./liveMap.api.types";
+import {
+  extractLiveMapDriverVehicleColor,
+  extractLiveMapDriverVehicleColorLabel,
+} from "./liveMapVehicleColor";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -164,7 +172,16 @@ function readSummaryVehicle(block: UnknownRecord | undefined): UnknownRecord | u
 
 export function extractTripVehicleFields(
   payload: ApiAdminOrderDetailPayload
-): Pick<TripDetail, "vehicle_id" | "vehicle_label" | "vehicle_plate" | "driver_location"> {
+): Pick<
+  TripDetail,
+  | "vehicle_id"
+  | "vehicle_label"
+  | "vehicle_plate"
+  | "vehicle_color"
+  | "vehicle_color_label"
+  | "vehicle_icon_url"
+  | "driver_location"
+> {
   const block = readDriverBlock(payload);
   const vehicleRaw = block?.vehicle;
   const vehicle =
@@ -183,6 +200,13 @@ export function extractTripVehicleFields(
     summaryVehicle?.label ??
     summaryVehicle?.model;
 
+  const colorSource = {
+    vehicle: resolvedVehicle ?? null,
+  } as ApiLiveMapDriver;
+  const vehicle_color = extractLiveMapDriverVehicleColor(colorSource);
+  const vehicle_color_label =
+    extractLiveMapDriverVehicleColorLabel(colorSource);
+
   return {
     vehicle_id:
       readString(vehicle?.id) ??
@@ -193,6 +217,9 @@ export function extractTripVehicleFields(
     vehicle_label: formatApiVehicleLabel(resolvedVehicle, fallbackLabel),
     vehicle_plate:
       readVehiclePlate(resolvedVehicle) ?? readVehiclePlate(summaryVehicle),
+    vehicle_color: vehicle_color ?? null,
+    vehicle_color_label: vehicle_color_label ?? null,
+    vehicle_icon_url: resolveVehicleMapIconUrl(vehicle_color),
     driver_location: mapApiLocationToTripDriverLocation(readLocationRecord(payload)),
   };
 }

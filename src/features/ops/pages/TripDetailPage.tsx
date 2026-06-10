@@ -91,6 +91,7 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
             toCoords={trip.to_coords}
             driverLocation={showDriverOnMap ? driverLiveLocation : undefined}
             driverLive={isRealtime}
+            vehicleIconUrl={trip.vehicle_icon_url}
           />
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">

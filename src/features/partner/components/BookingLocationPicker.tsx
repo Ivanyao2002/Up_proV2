@@ -11,7 +11,10 @@ import {
   latLngToPercent,
   percentToLatLng,
   clampCoordsToBounds,
+  ABIDJAN_MAP_BOUNDS,
 } from "@/shared/lib/mapProjection";
+import { resolveMapEngine } from "@/core/config/mapProvider";
+import { SimplePinMap } from "@/shared/components/map/SimplePinMap";
 
 export type LocationSource = "geolocation" | "search" | "pin";
 
@@ -152,58 +155,109 @@ export function BookingLocationPicker({
     setShowSuggestions(false);
   };
 
+  const mapEngine = resolveMapEngine();
+  const useRealMap = mapEngine === "osm" || mapEngine === "mapbox";
+
+  const mapPins = [
+    ...(from
+      ? [
+          {
+            lat: from.lat,
+            lng: from.lng,
+            color: "#0ab39c",
+            label: "Départ",
+            pulse: true,
+          },
+        ]
+      : []),
+    ...(to
+      ? [
+          {
+            lat: to.lat,
+            lng: to.lng,
+            color: "#405189",
+            label: "Arrivée",
+          },
+        ]
+      : []),
+  ];
+
+  const legacyMap = (
+    <div
+      ref={mapRef}
+      role="presentation"
+      onClick={handleMapClick}
+      className="relative h-[min(380px,50vh)] w-full cursor-crosshair overflow-hidden rounded-card border border-border bg-map shadow-card"
+      aria-label="Carte — cliquez pour placer la destination"
+    >
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(64,81,137,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(64,81,137,0.08) 1px, transparent 1px)
+          `,
+          backgroundSize: "36px 36px",
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-teal/5 via-transparent to-navy/10" />
+      <div className="absolute left-[18%] top-[22%] h-20 w-28 rounded-2xl border border-teal/25 bg-teal/10" />
+      <div className="absolute right-[15%] bottom-[28%] h-16 w-24 rounded-2xl border border-navy/20 bg-navy/5" />
+
+      <p className="absolute left-3 top-3 rounded-lg bg-surface/95 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur">
+        Abidjan · Cliquez pour l&apos;arrivée
+      </p>
+
+      {from && (
+        <MapPin
+          position={latLngToPercent(from.lat, from.lng)}
+          colorClass="bg-teal"
+          label="Départ"
+          pulse
+        />
+      )}
+      {to && (
+        <MapPin
+          position={latLngToPercent(to.lat, to.lng)}
+          colorClass="bg-navy"
+          label="Arrivée"
+        />
+      )}
+
+      <div className="absolute bottom-3 left-3 flex flex-wrap gap-2 rounded-lg bg-surface/95 px-3 py-2 text-[10px] text-muted shadow-sm backdrop-blur">
+        <span className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-teal" /> Départ (GPS)
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-navy" /> Arrivée
+        </span>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-4">
-      <div
-        ref={mapRef}
-        role="presentation"
-        onClick={handleMapClick}
-        className="relative h-[min(380px,50vh)] w-full cursor-crosshair overflow-hidden rounded-card border border-border bg-map shadow-card"
-        aria-label="Carte — cliquez pour placer la destination"
-      >
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(64,81,137,0.08) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(64,81,137,0.08) 1px, transparent 1px)
-            `,
-            backgroundSize: "36px 36px",
+      {useRealMap ? (
+        <SimplePinMap
+          bounds={ABIDJAN_MAP_BOUNDS}
+          pins={mapPins}
+          overlayLabel="Abidjan · Cliquez pour l'arrivée"
+          className="h-[min(380px,50vh)] w-full"
+          onMapClick={(lat, lng) => {
+            onToChange({
+              label: labelFromCoords(lat, lng, "Point carte"),
+              lat,
+              lng,
+              source: "pin",
+            });
+            setSearch("");
+            setShowSuggestions(false);
           }}
+          legacyFallback={legacyMap}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-teal/5 via-transparent to-navy/10" />
-        <div className="absolute left-[18%] top-[22%] h-20 w-28 rounded-2xl border border-teal/25 bg-teal/10" />
-        <div className="absolute right-[15%] bottom-[28%] h-16 w-24 rounded-2xl border border-navy/20 bg-navy/5" />
-
-        <p className="absolute left-3 top-3 rounded-lg bg-surface/95 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur">
-          Abidjan · Cliquez pour l&apos;arrivée
-        </p>
-
-        {from && (
-          <MapPin
-            position={latLngToPercent(from.lat, from.lng)}
-            colorClass="bg-teal"
-            label="Départ"
-            pulse
-          />
-        )}
-        {to && (
-          <MapPin
-            position={latLngToPercent(to.lat, to.lng)}
-            colorClass="bg-navy"
-            label="Arrivée"
-          />
-        )}
-
-        <div className="absolute bottom-3 left-3 flex flex-wrap gap-2 rounded-lg bg-surface/95 px-3 py-2 text-[10px] text-muted shadow-sm backdrop-blur">
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-teal" /> Départ (GPS)
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-navy" /> Arrivée
-          </span>
-        </div>
-      </div>
+      ) : (
+        legacyMap
+      )}
 
       <div className="rounded-card border border-border bg-surface p-4 shadow-card">
         <div className="space-y-3">

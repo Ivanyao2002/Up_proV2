@@ -4,6 +4,7 @@ import { LINKS, createUrl } from "@/core/api/links";
 import { fetchAdminFilterOptions } from "@/features/admin/api/adminFilterOptions.service";
 import type { LiveMapData } from "@/shared/types";
 import type { ApiAdminLiveMapResponse } from "./liveMap.api.types";
+import { fetchVehicleColors } from "@/features/fleet/api/vehicleCatalog.service";
 import { mapApiLiveMapToData } from "./liveMap.mapper";
 import type { LiveMapScopeFiltersValue } from "./liveMap.types";
 
@@ -43,15 +44,23 @@ export const liveMapService = {
       );
     }
 
-    const [data, filterOptions] = await Promise.all([
+    const [data, filterOptions, vehicleColors] = await Promise.all([
       apiClient.get<ApiAdminLiveMapResponse>(buildV1Endpoint(filters)),
       fetchAdminFilterOptions().catch(() => ({
         franchises: [],
         partners: [],
       })),
+      fetchVehicleColors().catch(() => []),
     ]);
 
-    const mapped = mapApiLiveMapToData(data, filters);
+    const colorById = new Map(
+      vehicleColors.map((color) => [
+        color.id,
+        { code: color.code, label: color.label },
+      ])
+    );
+
+    const mapped = mapApiLiveMapToData(data, filters, { colorById });
     return {
       ...mapped,
       filter_options: filterOptions,

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { env } from "@/core/config/env";
+import { resolveMapEngine } from "@/core/config/mapProvider";
 import type { MapBounds } from "@/shared/lib/mapProjection";
 import type { ZoneMapItem } from "./AbidjanZonesMap";
 
@@ -524,16 +525,8 @@ export function ZonesMapboxMap({
     };
   }, [mode, ready]);
 
-  if (!env.mapboxToken) {
-    return (
-      <div
-        className={`flex items-center justify-center rounded-card border border-dashed border-border bg-canvas p-6 text-center text-sm text-muted ${className}`}
-      >
-        Ajoutez{" "}
-        <code className="mx-1 text-xs">NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN</code> dans
-        .env.local pour afficher la carte.
-      </div>
-    );
+  if (resolveMapEngine() !== "mapbox") {
+    return null;
   }
 
   return (

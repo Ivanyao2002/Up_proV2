@@ -1,7 +1,7 @@
 "use client";
 
-import { env } from "@/core/config/env";
-import { TripRouteMapbox } from "@/shared/components/map/TripRouteMapbox";
+import { resolveMapEngine } from "@/core/config/mapProvider";
+import { TripRouteMap } from "@/shared/components/map/TripRouteMap";
 import type { TripDriverLocation } from "@/shared/types";
 
 interface TripRoutePreviewProps {
@@ -11,6 +11,7 @@ interface TripRoutePreviewProps {
   toCoords?: { lat: number; lng: number };
   driverLocation?: TripDriverLocation;
   driverLive?: boolean;
+  vehicleIconUrl?: string | null;
 }
 function TripRoutePreviewFallback({
   fromLabel,
@@ -71,18 +72,20 @@ export function TripRoutePreview({
   toCoords,
   driverLocation,
   driverLive,
+  vehicleIconUrl,
 }: TripRoutePreviewProps) {
   const hasCoords = Boolean(fromCoords && toCoords);
 
-  if (env.mapboxToken && hasCoords && fromCoords && toCoords) {
+  if (resolveMapEngine() !== "legacy" && hasCoords && fromCoords && toCoords) {
     return (
-      <TripRouteMapbox
+      <TripRouteMap
         fromCoords={fromCoords}
         toCoords={toCoords}
         fromLabel={fromLabel}
         toLabel={toLabel}
         driverLocation={driverLocation}
         driverLive={driverLive}
+        vehicleIconUrl={vehicleIconUrl}
       />
     );
   }

@@ -1,7 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
 import type { FranchiseTerritoryZone } from "@/shared/types";
 import { ZoneTypePill } from "@/shared/ui/ZoneTypePill";
+import { resolveMapEngine } from "@/core/config/mapProvider";
+import {
+  computeZonesMapBounds,
+  type ZoneMapItem,
+} from "@/features/network/components/AbidjanZonesMap";
+import { ZonesMap } from "@/features/network/components/ZonesMap";
 
 const ZONE_COLORS = [
   "rgba(10,179,156,0.25)",
@@ -33,12 +40,43 @@ interface FranchiseTerritoryMapProps {
   franchiseName: string;
 }
 
+function toZoneMapItems(zones: FranchiseTerritoryZone[]): ZoneMapItem[] {
+  return zones.map((zone) => ({
+    id: zone.id,
+    name: zone.name,
+    type: zone.type,
+    polygon_geojson: zone.polygon_geojson,
+  }));
+}
+
 export function FranchiseTerritoryMap({
   zones,
   selectedId,
   onSelect,
   franchiseName,
 }: FranchiseTerritoryMapProps) {
+  const engine = resolveMapEngine();
+  const zoneItems = useMemo(() => toZoneMapItems(zones), [zones]);
+  const mapBounds = useMemo(() => computeZonesMapBounds(zoneItems), [zoneItems]);
+
+  if (engine === "osm" || engine === "mapbox") {
+    return (
+      <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border bg-map shadow-card">
+        <p className="pointer-events-none absolute left-3 top-3 z-[1000] rounded-lg bg-surface/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
+          {franchiseName}
+        </p>
+        <ZonesMap
+          zones={zoneItems}
+          cityLabel={franchiseName}
+          selectedZoneId={selectedId}
+          onSelectZone={(zone) => onSelect(Number(zone.id))}
+          className="h-full min-h-0"
+          mapBounds={mapBounds}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-[min(420px,55vh)] overflow-hidden rounded-card border border-border bg-map shadow-card">
       <div

@@ -1,6 +1,26 @@
 import type { LiveMapData } from "@/shared/types";
 import type { AdminLiveMapLocationDelta } from "./liveMap.realtime.types";
 
+/** Délai minimum entre deux GET live-map déclenchés par un id socket inconnu. */
+export const LIVE_MAP_UNKNOWN_DRIVER_REFETCH_COOLDOWN_MS = 10_000;
+
+/** Ids présents dans les deltas socket mais absents du snapshot HTTP. */
+export function collectUnknownLiveMapDriverIds(
+  knownDrivers: Array<{ id: string | number }>,
+  deltas: Map<string, AdminLiveMapLocationDelta>
+): string[] {
+  if (deltas.size === 0) return [];
+
+  const known = new Set(knownDrivers.map((d) => String(d.id)));
+  const unknown: string[] = [];
+
+  for (const id of deltas.keys()) {
+    if (!known.has(id)) unknown.push(id);
+  }
+
+  return unknown;
+}
+
 /** Fusionne les deltas GPS socket sur le snapshot HTTP. */
 export function mergeLiveMapPositionDeltas(
   data: LiveMapData,

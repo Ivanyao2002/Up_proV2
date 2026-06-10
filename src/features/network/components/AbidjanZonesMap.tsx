@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Zone } from "@/shared/types";
-import { env } from "@/core/config/env";
+import { resolveMapEngine } from "@/core/config/mapProvider";
 import {
   boundsFromGeoPoints,
   ringLngLatToSvgPoints,
@@ -11,7 +11,7 @@ import {
 } from "@/shared/lib/mapProjection";
 import { ZoneTypePill } from "@/shared/ui/ZoneTypePill";
 import { Button } from "@/shared/ui/Button";
-import { ZonesMapboxMap } from "./ZonesMapboxMap";
+import { ZonesMap } from "./ZonesMap";
 
 export interface ZoneMapItem {
   id: number | string;
@@ -121,10 +121,10 @@ export function AbidjanZonesMap({
       ? ringLngLatToSvgPoints([...draftRing, draftRing[0]], bounds)
       : draftPoints;
 
-  if (env.mapboxToken) {
+  if (resolveMapEngine() !== "legacy") {
     return (
       <div className="space-y-3">
-        <ZonesMapboxMap
+        <ZonesMap
           zones={zones}
           cityLabel={cityLabel}
           selectedZoneId={selectedZoneId}

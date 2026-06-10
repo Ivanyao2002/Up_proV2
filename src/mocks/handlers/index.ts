@@ -10,6 +10,7 @@ import { settingsHandlers } from "./settings.handlers";
 import { supportHandlers } from "./support.handlers";
 import { marketingHandlers } from "./marketing.handlers";
 import { dispatchHandlers } from "./dispatch.handlers";
+import { safetyHandlers } from "./safety.handlers";
 
 export const handlers = [
   ...authHandlers,
@@ -24,4 +25,5 @@ export const handlers = [
   ...supportHandlers,
   ...marketingHandlers,
   ...dispatchHandlers,
+  ...safetyHandlers,
 ];

@@ -43,6 +43,22 @@ textarea::placeholder {
 /* Toasts react-hot-toast — fonds adaptés en dark via notificationService */
 
 /* Carte live */
+.leaflet-live-map {
+  z-index: 0;
+  font-family: inherit;
+}
+
+.leaflet-live-marker-icon {
+  background: transparent !important;
+  border: none !important;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.leaflet-container .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+}
+
 /* Mapbox — carte live */
 .mapbox-live-marker {
   position: relative;
@@ -91,6 +107,20 @@ textarea::placeholder {
 
 .mapbox-live-marker__ring--pulse {
   animation: pulse-ring 2s ease-out infinite;
+}
+
+.mapbox-live-popup__color {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mapbox-live-popup__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
 }
 
 /* Popup — bouton fermer lisible, contenu non coupé */

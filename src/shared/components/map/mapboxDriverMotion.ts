@@ -1,14 +1,18 @@
-import type mapboxgl from "mapbox-gl";
-import { env } from "@/core/config/env";
+import L from "leaflet";
 import {
   closestDistanceAlongPath,
-  fetchMapboxDrivingRoute,
   haversineDistanceM,
   offsetLngLat,
   pathLengthM,
   positionAlongPath,
   type LngLat,
 } from "./mapboxDirections";
+import { fetchDrivingRouteForLiveMap } from "./liveMapRouteFetch";
+
+/** Abstraction Mapbox GL / Leaflet pour l’animation temps réel. */
+export interface DriverMotionMarker {
+  setLngLat(lng: number, lat: number): void;
+}
 
 /** L’icône GPS (gps-navigation.png) pointe vers le haut (nord) à 0°. */
 const HEADING_ICON_OFFSET = 0;
@@ -29,7 +33,7 @@ const MAX_EXTRAPOLATE_SEC = 5;
 type LngLatPoint = { lng: number; lat: number };
 
 interface DriverMotionState {
-  marker: mapboxgl.Marker;
+  marker: DriverMotionMarker;
   vehicleEl: HTMLElement;
   lng: number;
   lat: number;
@@ -46,11 +50,18 @@ interface DriverMotionState {
   routeSeq: number;
 }
 
-const motions = new Map<mapboxgl.Marker, DriverMotionState>();
+const motions = new Map<DriverMotionMarker, DriverMotionState>();
 let rafId: number | null = null;
 let lastFrameTime = 0;
 
-const HEADING_SMOOTH_MS = 280;
+const HEADING_SMOOTH_MS = 320;
+
+interface LeafletMotionBinding {
+  map: L.Map;
+  onMapMove: () => void;
+}
+
+const leafletBindings = new WeakMap<DriverMotionMarker, LeafletMotionBinding>();
 
 export function bearingFromPositions(
   from: LngLatPoint,
@@ -101,7 +112,7 @@ export function applyHeadingToVehicleElement(
 
 function applyStateToMarker(state: DriverMotionState): void {
   if (!Number.isFinite(state.lng) || !Number.isFinite(state.lat)) return;
-  state.marker.setLngLat([state.lng, state.lat]);
+  state.marker.setLngLat(state.lng, state.lat);
   applyHeadingToVehicleElement(state.vehicleEl, state.heading);
 }
 
@@ -304,12 +315,9 @@ function scheduleDrivingPath(
   seq: number,
   now: number
 ): void {
-  const token = env.mapboxToken;
-  if (!token) return;
-
   state.lastRouteFetchMs = now;
 
-  void fetchMapboxDrivingRoute(from, to, token).then((coordinates) => {
+  void fetchDrivingRouteForLiveMap(from, to).then((coordinates) => {
     const current = motions.get(state.marker);
     if (!current || current.routeSeq !== seq) return;
     if (!coordinates || coordinates.length < 2) return;
@@ -318,17 +326,19 @@ function scheduleDrivingPath(
     const { distanceM } = closestDistanceAlongPath(coordinates, displayPos);
 
     current.path = coordinates;
-    current.pathTotalM = pathLengthM(coordinates);
+    const nextTotal = pathLengthM(coordinates);
+    const prevDistance = current.pathDistanceM;
+    current.pathTotalM = nextTotal;
     current.pathDistanceM = Math.min(
-      Math.max(0, distanceM),
-      current.pathTotalM
+      nextTotal,
+      Math.max(0, distanceM * 0.65 + prevDistance * 0.35)
     );
     ensureMotionLoop();
   });
 }
 
 export function setDriverMotionTarget(
-  marker: mapboxgl.Marker,
+  marker: DriverMotionMarker,
   vehicleRoot: HTMLElement,
   target: [number, number],
   apiHeading?: number,
@@ -366,7 +376,7 @@ export function setDriverMotionTarget(
       routeSeq: 0,
     };
     motions.set(marker, state);
-    marker.setLngLat([targetLng, targetLat]);
+    marker.setLngLat(targetLng, targetLat);
     applyHeadingToVehicleElement(vehicleRoot, initialHeading);
     ensureMotionLoop();
     return;
@@ -404,7 +414,7 @@ export function setDriverMotionTarget(
 }
 
 export function snapDriverMarker(
-  marker: mapboxgl.Marker,
+  marker: DriverMotionMarker,
   vehicleRoot: HTMLElement,
   position: [number, number],
   apiHeading?: number
@@ -417,11 +427,22 @@ export function snapDriverMarker(
     apiHeading != null && !Number.isNaN(apiHeading)
       ? normalizeHeading(apiHeading)
       : 0;
-  marker.setLngLat([lng, lat]);
+  marker.setLngLat(lng, lat);
   applyHeadingToVehicleElement(vehicleRoot, heading);
 }
 
-export function removeDriverMotion(marker: mapboxgl.Marker): void {
+function detachLeafletMotionBinding(marker: DriverMotionMarker): void {
+  const binding = leafletBindings.get(marker);
+  if (!binding) return;
+  binding.map.off("move", binding.onMapMove);
+  binding.map.off("zoom", binding.onMapMove);
+  binding.map.off("zoomanim", binding.onMapMove);
+  binding.map.off("viewreset", binding.onMapMove);
+  leafletBindings.delete(marker);
+}
+
+export function removeDriverMotion(marker: DriverMotionMarker): void {
+  detachLeafletMotionBinding(marker);
   motions.delete(marker);
   if (motions.size === 0 && rafId != null) {
     cancelAnimationFrame(rafId);
@@ -437,4 +458,70 @@ export function clearAllDriverMotions(): void {
     rafId = null;
     lastFrameTime = 0;
   }
+}
+
+export function createMapboxDriverMotionMarker(
+  marker: { setLngLat: (pos: [number, number]) => unknown }
+): DriverMotionMarker {
+  return {
+    setLngLat(lng, lat) {
+      marker.setLngLat([lng, lat]);
+    },
+  };
+}
+
+function readLeafletIconAnchor(marker: L.Marker): L.Point {
+  const icon = marker.options.icon;
+  if (icon && "options" in icon) {
+    const anchor = (icon as L.DivIcon).options.iconAnchor;
+    if (anchor) return L.point(anchor);
+  }
+  return L.point(18, 18);
+}
+
+/**
+ * Leaflet : évite setLatLng à chaque frame (arrondi px → tremblement).
+ * On repositionne l’icône via latLngToLayerPoint + transform.
+ */
+export function createLeafletDriverMotionMarker(
+  marker: L.Marker,
+  map: L.Map
+): DriverMotionMarker {
+  let lat = 0;
+  let lng = 0;
+  let hasPosition = false;
+
+  const reposition = () => {
+    const iconEl = marker.getElement();
+    if (!iconEl || !hasPosition) return;
+
+    const point = map.latLngToLayerPoint(L.latLng(lat, lng));
+    const anchor = readLeafletIconAnchor(marker);
+    L.DomUtil.setPosition(iconEl, point.subtract(anchor));
+  };
+
+  const onMapMove = () => reposition();
+  map.on("move", onMapMove);
+  map.on("zoom", onMapMove);
+  map.on("zoomanim", onMapMove);
+  map.on("viewreset", onMapMove);
+
+  const adapter: DriverMotionMarker = {
+    setLngLat(newLng, newLat) {
+      lat = newLat;
+      lng = newLng;
+
+      if (!hasPosition) {
+        hasPosition = true;
+        marker.setLatLng([lat, lng]);
+      } else {
+        (marker as L.Marker & { _latlng?: L.LatLng })._latlng = L.latLng(lat, lng);
+      }
+
+      reposition();
+    },
+  };
+
+  leafletBindings.set(adapter, { map, onMapMove });
+  return adapter;
 }

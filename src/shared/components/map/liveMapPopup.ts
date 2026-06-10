@@ -1,4 +1,8 @@
 import { adminPaths } from "@/core/routes/adminPaths";
+import {
+  buildLiveMapVehicleColorHtml,
+  formatLiveMapVehicleLine,
+} from "@/features/ops/lib/liveMapDriverDisplay";
 import { formatFCFA } from "@/shared/lib/format";
 import type { LiveMapActiveTrip, LiveMapDriver, LiveMapOrderMarker } from "@/shared/types";
 
@@ -18,9 +22,9 @@ function actionLinks(tripId: string, driverId?: string | number): string {
 
 export function buildDriverPopupHtml(driver: LiveMapDriver): string {
   const name = escapeHtml(driver.name);
-  const meta = escapeHtml(
-    [driver.vehicle, driver.partner_name].filter(Boolean).join(" · ")
-  );
+  const vehicleLine = escapeHtml(formatLiveMapVehicleLine(driver));
+  const vehicleColorHtml = buildLiveMapVehicleColorHtml(driver);
+  const partner = driver.partner_name ? escapeHtml(driver.partner_name) : "";
 
   if (driver.active_trip) {
     const t = driver.active_trip;
@@ -34,7 +38,9 @@ export function buildDriverPopupHtml(driver: LiveMapDriver): string {
     return `<div class="mapbox-live-popup__body">
       <p class="mapbox-live-popup__badge">En course</p>
       <strong>${name}</strong>
-      ${meta ? `<p class="mapbox-live-popup__meta">${meta}</p>` : ""}
+      ${vehicleLine ? `<p class="mapbox-live-popup__meta">${vehicleLine}</p>` : ""}
+      ${vehicleColorHtml}
+      ${partner ? `<p class="mapbox-live-popup__meta">${partner}</p>` : ""}
       <p class="mapbox-live-popup__trip">${ref} · ${status}</p>
       <p class="mapbox-live-popup__route">${route}</p>
       ${amount}
@@ -44,7 +50,9 @@ export function buildDriverPopupHtml(driver: LiveMapDriver): string {
 
   return `<div class="mapbox-live-popup__body">
     <strong>${name}</strong>
-    ${meta ? `<p class="mapbox-live-popup__meta">${meta}</p>` : ""}
+    ${vehicleLine ? `<p class="mapbox-live-popup__meta">${vehicleLine}</p>` : ""}
+    ${vehicleColorHtml}
+    ${partner ? `<p class="mapbox-live-popup__meta">${partner}</p>` : ""}
     <div class="mapbox-live-popup__actions">
       <a class="mapbox-live-popup__link" href="${adminPaths.driver(driver.id)}">Voir le chauffeur</a>
     </div>

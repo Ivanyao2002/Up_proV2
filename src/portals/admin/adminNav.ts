@@ -24,6 +24,12 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "trips",
         permission: "ops.trips.view",
       },
+      {
+        label: "SOS Guardian",
+        path: "/admin/ops/sos",
+        icon: "crisis",
+        permission: "ops.trips.view",
+      },
       // {
       //   label: "Dispatch",
       //   path: "/admin/ops/dispatch",

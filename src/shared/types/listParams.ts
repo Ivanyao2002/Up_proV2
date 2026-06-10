@@ -4,6 +4,7 @@ export interface ListParams {
   per_page?: number;
   search?: string;
   status?: string;
+  severity?: string;
   zone?: string;
   zone_id?: number;
   availability?: string;

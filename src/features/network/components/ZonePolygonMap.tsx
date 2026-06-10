@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { env } from "@/core/config/env";
+import { resolveMapEngine } from "@/core/config/mapProvider";
 import {
   boundsFromGeoPoints,
   ringLngLatToSvgPoints,
   type MapBounds,
 } from "@/shared/lib/mapProjection";
-import { ZonesMapboxMap } from "./ZonesMapboxMap";
+import { ZonesMap } from "./ZonesMap";
 import type { ZoneMapItem } from "./AbidjanZonesMap";
 
 interface ZonePolygonMapProps {
@@ -87,10 +87,10 @@ export function ZonePolygonMap({
     return [];
   }, [hasPolygon, ring, polygon, zoneName, center_lng, center_lat]);
 
-  if (env.mapboxToken) {
+  if (resolveMapEngine() !== "legacy") {
     return (
       <div className="space-y-2">
-        <ZonesMapboxMap
+        <ZonesMap
           zones={mapboxZone}
           cityLabel={zoneName}
           className={className}

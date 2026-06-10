@@ -1,3 +1,4 @@
+import { resolveVehicleMapIconUrl } from "@/shared/lib/vehicleMapIcons";
 import franchisesList from "../data/franchises-list.json";
 import partnersList from "../data/partners-list.json";
 import type {
@@ -25,6 +26,7 @@ const LIVE_MAP_CATALOG: CatalogDriver[] = [
     lng: -3.987,
     availability: "on_trip",
     vehicle: "Toyota Corolla",
+    vehicle_color: "rouge",
     franchise_id: 1,
     franchise_name: "Côte d'Ivoire",
     partner_id: 12,
@@ -38,6 +40,7 @@ const LIVE_MAP_CATALOG: CatalogDriver[] = [
     lng: -4.021,
     availability: "online",
     vehicle: "Suzuki Dzire",
+    vehicle_color: "blanc",
     franchise_id: 1,
     franchise_name: "Côte d'Ivoire",
     partner_id: 12,
@@ -51,6 +54,7 @@ const LIVE_MAP_CATALOG: CatalogDriver[] = [
     lng: -3.965,
     availability: "online",
     vehicle: "Honda Civic",
+    vehicle_color: "bleu",
     franchise_id: 1,
     franchise_name: "Côte d'Ivoire",
     partner_id: 15,
@@ -64,6 +68,7 @@ const LIVE_MAP_CATALOG: CatalogDriver[] = [
     lng: -4.008,
     availability: "on_trip",
     vehicle: "Hyundai Accent",
+    vehicle_color: "noir",
     franchise_id: 1,
     franchise_name: "Côte d'Ivoire",
     partner_id: 15,
@@ -77,6 +82,7 @@ const LIVE_MAP_CATALOG: CatalogDriver[] = [
     lng: -5.031,
     availability: "online",
     vehicle: "Toyota Yaris",
+    vehicle_color: "gris",
     franchise_id: 1,
     franchise_name: "Côte d'Ivoire",
     partner_id: 12,
@@ -323,11 +329,23 @@ const MOCK_ACTIVE_TRIPS: Record<number, LiveMapActiveTrip> = {
   },
 };
 
+function withVehicleIcon(driver: LiveMapDriver): LiveMapDriver {
+  return {
+    ...driver,
+    vehicle_icon_url: resolveVehicleMapIconUrl(driver.vehicle_color),
+  };
+}
+
 function attachActiveTrips(drivers: CatalogDriver[]): LiveMapDriver[] {
   return drivers.map((d) => {
-    if (d.availability !== "on_trip") return d;
-    const active_trip = MOCK_ACTIVE_TRIPS[d.id as number];
-    return active_trip ? { ...d, active_trip } : d;
+    const base =
+      d.availability === "on_trip"
+        ? (() => {
+            const active_trip = MOCK_ACTIVE_TRIPS[d.id as number];
+            return active_trip ? { ...d, active_trip } : d;
+          })()
+        : d;
+    return withVehicleIcon(base);
   });
 }
 

@@ -71,6 +71,12 @@ export const opsHandlers = [
     return HttpResponse.json({
       status: "ok",
       generatedAt: new Date().toISOString(),
+      stats: {
+        online: legacy.stats.drivers_online,
+        onTrip: legacy.stats.drivers_on_trip,
+        activeTrips: legacy.stats.active_trips,
+        avgWaitMin: legacy.stats.avg_wait_min,
+      },
       meta: {
         onlineInDatabase: legacy.stats.drivers_online,
         withRecentLocation: legacy.drivers.length,

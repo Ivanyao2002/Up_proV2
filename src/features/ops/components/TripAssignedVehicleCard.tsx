@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { TripDetail } from "@/shared/types";
 import { formatDateTime } from "@/shared/lib/format";
+import { LiveMapVehicleColorInfo } from "./LiveMapVehicleColorInfo";
 import {
   isTripLiveOnMap,
   isTripWithAssignedDriver,
@@ -50,6 +51,14 @@ export function TripAssignedVehicleCard({
       {trip.vehicle_label && trip.vehicle_plate && trip.vehicle_label !== trip.vehicle_plate && (
         <p className="text-sm text-muted">Plaque {trip.vehicle_plate}</p>
       )}
+      <LiveMapVehicleColorInfo
+        driver={{
+          vehicle_color: trip.vehicle_color,
+          vehicle_color_label: trip.vehicle_color_label,
+          vehicle_color_hex: null,
+        }}
+        className="mt-2"
+      />
       {live && speed != null && Number.isFinite(speed) && (
         <p className="mt-1 text-sm text-teal-dark">
           En course · {Math.round(speed)} km/h
