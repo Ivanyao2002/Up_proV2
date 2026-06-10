@@ -1,0 +1,51 @@
+---
+description: Générer les rapports d'activité journaliers (captures Playwright + HTML + PDF)
+globs: docs/RAPPORT*.html,docs/DEMANDES*.md,scripts/capture-activity-screenshots.mjs,docs/generate-rapport-pdf.mjs
+alwaysApply: false
+---
+
+# Rapports d'activité UpJunoo Pro
+
+Contexte complet : `docs/RAPPORT-ACTIVITE-CONTEXT.md`
+
+## Quand déclencher
+
+À la demande utilisateur (« rapport du jour », « captures », « rapport d'activité ») ou en fin de session d'intégration significative.
+
+## Workflow obligatoire (dans l'ordre)
+
+1. **Contenu** — Créer/mettre à jour `docs/DEMANDES-YYYY-MM-DD.md` (tâches, endpoints, blocages API).
+2. **Dev server** — Vérifier que `npm run dev` tourne sur `:3000` avec `USE_MOCKS=false`.
+3. **Captures** — `node scripts/capture-activity-screenshots.mjs YYYY-MM-DD`
+   - Sortie : `docs/rapport-activite-YYYY-MM-DD/screenshots/*.png` + `manifest.json`
+   - Playwright si absent : `npm install --no-save playwright` puis `npx playwright install chromium`
+4. **HTML** — Dupliquer le dernier `docs/RAPPORT-DDMMYYYY.html`, adapter date/KPIs/tâches/captures.
+   - Images : `rapport-activite-YYYY-MM-DD/screenshots/XX-slug.png` (chemin relatif depuis `docs/`)
+   - Modèle : `docs/RAPPORT-08062026.html` ou `docs/RAPPORT-09062026.html`
+5. **PDF** — `node docs/generate-rapport-pdf.mjs RAPPORT-DDMMYYYY`
+
+## Conventions de nommage
+
+| Élément | Format | Exemple |
+|---------|--------|---------|
+| Dossier captures | `rapport-activite-YYYY-MM-DD` | `rapport-activite-2026-06-09` |
+| Rapport HTML/PDF | `RAPPORT-DDMMYYYY` | `RAPPORT-09062026` |
+| Slug capture | `NN-nom-kebab` | `01-dashboard`, `20-course-detail` |
+
+## Structure HTML (10 pages)
+
+1. Couverture teal/or · 2. Synthèse KPIs · 3. Tâches réalisées · 4. Endpoints intégrés
+5–9. Annexes visuelles (ops, réseau, flotte, finance, marketing)
+10. Reste à faire (depuis DEMANDES)
+
+## Règles agent
+
+- **Toujours exécuter** le script de captures (ne pas simuler ni inventer les PNG).
+- Lire `manifest.json` : signaler les captures en échec dans le rapport.
+- Ne pas committer sans demande explicite.
+- Ne pas inclure de mots de passe dans les fichiers livrés (le script utilise des env vars).
+- Pour une nouvelle page admin : ajouter l'entrée dans `STATIC_PAGES` ou `DYNAMIC_PAGES` du script **et** un bloc `.capture` dans le HTML.
+
+## Auth captures (défaut script)
+
+- `DEV_ADMIN_EMAIL` / `DEV_ADMIN_PASSWORD` ou identifiants dev admin documentés dans le contexte.
