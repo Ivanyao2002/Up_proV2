@@ -144,6 +144,14 @@ export const fleetHandlers = [
     });
   }),
 
+  http.delete("*/api/v2/admin/drivers/:id", () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.delete("*/api/v2/admin/fleet/vehicles/:id", () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   http.get("*/api/v2/admin/drivers/:id/trips", ({ params }) => {
     const id = String(params.id);
     const payload = driverTripsState[id] ?? {

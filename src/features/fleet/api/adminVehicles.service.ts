@@ -146,4 +146,12 @@ export const adminVehiclesService = {
       }
     );
   },
+
+  delete: async (vehicleId: string): Promise<void> => {
+    if (useLegacyAdminApi()) {
+      await apiClient.delete(`/admin/fleet/vehicles/${vehicleId}`);
+      return;
+    }
+    await apiClient.delete(LINKS.admin.v1.vehicleById(vehicleId));
+  },
 };

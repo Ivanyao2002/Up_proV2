@@ -344,4 +344,13 @@ export const driverDetailService = {
       driver: {} as DriverDetail,
     };
   },
+
+  delete: async (id: string | number): Promise<void> => {
+    const driverId = String(id);
+    if (useLegacyDriverDetail()) {
+      await apiClient.delete(`/admin/drivers/${driverId}`);
+      return;
+    }
+    await apiClient.delete(LINKS.admin.v1.driverById(driverId));
+  },
 };

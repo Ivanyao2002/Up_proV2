@@ -12,8 +12,9 @@ import type { ApiAdminDriversResponse } from "@/features/fleet/api/adminDrivers.
 import { useAuthStore } from "@/core/auth/authStore";
 import type { Driver, DriverDetail, Paginated } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
-import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
-import type { KycDocument } from "@/shared/types";
+import type { DriverDocumentFile, DriverKycDocumentType } from "@/shared/types/driverDocuments";
+import { attachPartnerDriverDocument } from "@/features/fleet/api/kycDocumentUpload.v1.service";
+import { mapDriverDocumentTypeToApiCode } from "@/features/fleet/api/documentTypeCodes.v1";
 
 export interface CreateDriverPayload {
   first_name: string;
@@ -77,17 +78,32 @@ export const partnerDriversService = {
     });
   },
 
-  uploadDocument: (
+  uploadDocument: async (
     driverId: number | string,
-    type: KycDocument["type"],
-    filename: string
-  ) =>
-    apiClient.post<DriverDetail>(
-      useLegacyPortalApi()
-        ? `/partner/drivers/${driverId}/documents`
-        : `/v1/drivers/${driverId}/documents`,
-      { type, filename }
-    ),
+    type: DriverKycDocumentType,
+    file: File
+  ) => {
+    if (useLegacyPortalApi()) {
+      return apiClient.post<DriverDetail>(
+        `/partner/drivers/${driverId}/documents`,
+        { type, filename: file.name }
+      );
+    }
+
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable pour l'envoi du document.");
+    }
+
+    await attachPartnerDriverDocument(
+      partnerId,
+      String(driverId),
+      file,
+      mapDriverDocumentTypeToApiCode(type)
+    );
+
+    return partnerDriversService.getById(String(driverId));
+  },
 
   createWithDocuments: async (
     data: CreateDriverPayload,

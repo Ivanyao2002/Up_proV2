@@ -337,7 +337,7 @@ export function AdminAssistantPanel({ open, onClose }: AdminAssistantPanelProps)
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
           <p className="text-sm text-muted">
-            Déposez les photos (CNI, permis, carte grise, selfie…). L&apos;assistant classe
+            Déposez les photos (CNI, permis, carte grise ou équivalent, assurance, selfie…). L&apos;assistant classe
             les documents, extrait les champs, puis ouvre le formulaire pré-rempli pour
             validation humaine.
           </p>

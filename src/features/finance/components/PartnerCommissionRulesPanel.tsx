@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/shared/ui/Button";
-import { validatePartnerRateInPool } from "@/shared/lib/commissionRateCoupling";
+import { validatePartnerRate } from "@/shared/lib/commissionRateCoupling";
 import { COMMISSION_SERVICE_TYPE_LABELS } from "../api/commissionRules.constants";
 import {
   buildPartnerCommissionDrafts,
@@ -78,7 +78,7 @@ export function PartnerCommissionRulesPanel({
     const draft = drafts.find((d) => d.scopeKey === scopeKey);
     if (!draft) return;
     const partnerRate = draftRates[scopeKey] ?? draft.partner_rate;
-    if (validatePartnerRateInPool(draft.pool, partnerRate)) return;
+    if (validatePartnerRate(partnerRate)) return;
 
     saveRule.mutate({
       id: draft.partnerRule?.id ?? null,
@@ -95,15 +95,16 @@ export function PartnerCommissionRulesPanel({
     <div className="space-y-6">
       <p className="text-sm text-muted">
         Ajustez la part <strong className="text-foreground">{partnerName}</strong>{" "}
-        dans le pool franchise + partenaire de{" "}
+        (max référence cahier) pour{" "}
         <strong className="text-foreground">{franchiseName}</strong>. Les taux
-        plateforme, chauffeur et fiscalité restent ceux de la règle franchise.
+        plateforme, chauffeur, fiscalité et franchise restent ceux de la règle
+        franchise.
       </p>
 
       {drafts.map((draft) => {
         const partnerRate = draftRates[draft.scopeKey] ?? draft.partner_rate;
         const hasOverride = Boolean(draft.partnerRule);
-        const poolError = validatePartnerRateInPool(draft.pool, partnerRate);
+        const poolError = validatePartnerRate(partnerRate);
         const serviceLabel =
           COMMISSION_SERVICE_TYPE_LABELS[draft.baseRule.service_type] ??
           draft.baseRule.service_type;
@@ -133,11 +134,13 @@ export function PartnerCommissionRulesPanel({
             </div>
 
             <CommissionRuleRatesForm
-              pool={draft.pool}
               platformRate={draft.baseRule.platform_rate}
               driverRate={draft.baseRule.driver_rate}
               fiscalityRate={draft.baseRule.fiscality_rate}
+              franchiseRate={draft.franchise_rate}
               partnerRate={partnerRate}
+              franchiseEditable={false}
+              partnerEditable
               onPartnerRateChange={(rate) =>
                 setDraftRates((prev) => ({ ...prev, [draft.scopeKey]: rate }))
               }

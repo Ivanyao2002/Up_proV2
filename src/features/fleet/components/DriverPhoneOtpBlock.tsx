@@ -74,7 +74,7 @@ export function DriverPhoneOtpBlock({
           const last = await fetchDevOtpLastCode(parts.international);
           if (last) setDevHint(`Code dev (sandbox) : ${last}`);
         } catch {
-          setDevHint("En dev, le code 000000 peut aussi être accepté.");
+          setDevHint("En dev, essayez le code 000000 (sandbox API).");
         }
       }
     } catch (error) {

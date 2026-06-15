@@ -1,6 +1,7 @@
 import type {
   DocumentExtractionResult,
   ExtractionDocumentType,
+  VehicleIdentitySubtype,
 } from "@/features/fleet/lib/documentExtraction.types";
 import {
   getOpenRouterModel,
@@ -74,7 +75,8 @@ function mapParsedToResult(
 async function structureWithOpenRouterText(
   apiKey: string,
   documentType: ExtractionDocumentType,
-  ocrText: string
+  ocrText: string,
+  _vehicleSubtype?: VehicleIdentitySubtype | null
 ): Promise<DocumentExtractionResult> {
   const content = await callOpenRouterChat({
     apiKey,
@@ -129,16 +131,17 @@ export async function extractWithOpenRouterVision(
 export async function extractWithPaddleOcr(
   apiKey: string | undefined,
   documentType: ExtractionDocumentType,
-  files: File[]
+  files: File[],
+  vehicleSubtype?: VehicleIdentitySubtype | null
 ): Promise<DocumentExtractionResult> {
   const ocrText = await runPaddleOcrOnFiles(files);
-  const rulesResult = extractWithRulesFromOcr(documentType, ocrText);
+  const rulesResult = extractWithRulesFromOcr(documentType, ocrText, vehicleSubtype);
 
   if (!apiKey?.trim()) {
     return rulesResult;
   }
 
-  const aiResult = await structureWithOpenRouterText(apiKey, documentType, ocrText);
+  const aiResult = await structureWithOpenRouterText(apiKey, documentType, ocrText, vehicleSubtype);
   if (aiResult.error && !aiResult.driver && !aiResult.vehicle) {
     return rulesResult;
   }
@@ -147,23 +150,25 @@ export async function extractWithPaddleOcr(
 
 export async function extractWithPaddleRules(
   documentType: ExtractionDocumentType,
-  files: File[]
+  files: File[],
+  vehicleSubtype?: VehicleIdentitySubtype | null
 ): Promise<DocumentExtractionResult> {
   const ocrText = await runPaddleOcrOnFiles(files);
-  return extractWithRulesFromOcr(documentType, ocrText);
+  return extractWithRulesFromOcr(documentType, ocrText, vehicleSubtype);
 }
 
 export async function runDocumentExtraction(
   provider: DocumentExtractProvider,
   apiKey: string | undefined,
   documentType: ExtractionDocumentType,
-  files: File[]
+  files: File[],
+  vehicleSubtype?: VehicleIdentitySubtype | null
 ): Promise<DocumentExtractionResult> {
   if (provider === "rules") {
-    return extractWithPaddleRules(documentType, files);
+    return extractWithPaddleRules(documentType, files, vehicleSubtype);
   }
   if (provider === "paddle") {
-    return extractWithPaddleOcr(apiKey, documentType, files);
+    return extractWithPaddleOcr(apiKey, documentType, files, vehicleSubtype);
   }
   if (!apiKey?.trim()) {
     return {

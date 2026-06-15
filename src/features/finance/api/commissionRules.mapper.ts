@@ -1,6 +1,5 @@
 import {
-  coupledFranchiseRate,
-  partnerFranchisePool,
+  COMMISSION_REFERENCE,
   roundCommissionRate,
 } from "@/shared/lib/commissionRateCoupling";
 import type { CommissionRuleScopeKind } from "./commissionRules.constants";
@@ -56,11 +55,11 @@ export function emptyCommissionRuleDraft(): CommissionRule {
     service_type: "RIDE",
     category_code: "ECO",
     rule_name: "",
-    platform_rate: 0.15,
-    franchise_rate: 0.1,
-    partner_rate: 0.05,
-    driver_rate: 0.75,
-    fiscality_rate: 0,
+    platform_rate: COMMISSION_REFERENCE.PLATFORM,
+    franchise_rate: COMMISSION_REFERENCE.FRANCHISE_MAX,
+    partner_rate: COMMISSION_REFERENCE.PARTNER_MAX,
+    driver_rate: 0,
+    fiscality_rate: COMMISSION_REFERENCE.FISCALITY,
     platform_fixed_xof: 0,
     franchise_fixed_xof: 0,
     partner_fixed_xof: 0,
@@ -187,7 +186,6 @@ export interface PartnerCommissionDraft {
   scopeKey: string;
   baseRule: CommissionRule;
   partnerRule: CommissionRule | null;
-  pool: number;
   partner_rate: number;
   franchise_rate: number;
 }
@@ -209,15 +207,13 @@ export function buildPartnerCommissionDrafts(
       partnerId,
       scopeKey
     );
-    const pool = partnerFranchisePool(baseRule.franchise_rate, baseRule.partner_rate);
     const partner_rate = partnerRule?.partner_rate ?? baseRule.partner_rate;
-    const franchise_rate = coupledFranchiseRate(pool, partner_rate);
+    const franchise_rate = baseRule.franchise_rate;
 
     return {
       scopeKey,
       baseRule,
       partnerRule: partnerRule ?? null,
-      pool,
       partner_rate,
       franchise_rate,
     };
@@ -230,8 +226,8 @@ export function buildPartnerRuleUpsertBody(
   partnerId: string,
   partnerRate: number
 ): import("./commissionRules.api.types").ApiCommissionRuleUpsertBody {
-  const { baseRule, partnerRule, pool } = draft;
-  const franchiseRate = coupledFranchiseRate(pool, partnerRate);
+  const { baseRule, partnerRule } = draft;
+  const franchiseRate = baseRule.franchise_rate;
 
   return {
     franchise_id: franchiseId,
@@ -256,7 +252,6 @@ export function buildPartnerRuleUpsertBody(
     metadata: {
       ...baseRule.metadata,
       partner_override: true,
-      pool_franchise_partner: pool,
       base_rule_id: baseRule.id,
     },
   };

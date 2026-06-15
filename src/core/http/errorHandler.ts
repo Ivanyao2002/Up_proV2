@@ -7,6 +7,8 @@ export interface ErrorResponse {
 
 const API_ERROR_MESSAGES_FR: Record<string, string> = {
   AUTH_LOGIN_FAILED: "Email ou mot de passe incorrect.",
+  PHONE_NOT_REGISTERED:
+    "Ce numéro n'est pas enregistré. Utilisez la vérification chauffeur (OTP SMS).",
 };
 
 const API_MESSAGE_ALIASES_FR: Record<string, string> = {

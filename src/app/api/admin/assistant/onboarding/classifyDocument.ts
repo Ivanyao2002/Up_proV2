@@ -1,3 +1,11 @@
+import type { VehicleIdentitySubtype } from "@/features/fleet/lib/documentExtraction.types";
+import {
+  isVehicleIdentitySubtypeText,
+  isAutorisationProvisoireDoc,
+  isRecepisseWwDoc,
+  vehicleIdentityLabel,
+} from "@/app/api/document-extract/vehicleDocumentParsers";
+
 export type DocumentSlotKey =
   | "cni.recto"
   | "cni.verso"
@@ -23,6 +31,7 @@ export interface ClassificationResult {
   slot: DocumentSlotKey | null;
   label: string;
   confidence: "high" | "medium" | "low";
+  vehicleSubtype?: VehicleIdentitySubtype | null;
 }
 
 function normalize(text: string): string {
@@ -190,9 +199,16 @@ function isLicenseVerso(text: string): boolean {
   return strong.filter(Boolean).length >= 1;
 }
 
-/** Recto carte grise ivoirienne. */
+/** Recto carte grise ivoirienne — pas les documents équivalents (autorisation, vignette…). */
 function isRegistrationRecto(text: string): boolean {
+  if (isAutorisationProvisoireDoc(text)) return false;
   const n = normalize(text);
+  if (
+    n.includes("VIGNETTE MOTO") ||
+    (n.includes("RECEPISSE") && (n.includes("WW-CI") || n.includes("SERIE WW")))
+  ) {
+    return false;
+  }
   return (
     n.includes("CARTE GRISE") ||
     (n.includes("IMMATRICULATION") &&
@@ -262,17 +278,40 @@ export function classificationDisplayLabel(
   return name;
 }
 
+function isAssuranceAttestation(text: string): boolean {
+  const n = normalize(text);
+  return (
+    n.includes("ATTESTATION D'ASSURANCE") ||
+    n.includes("ATTESTATION D ASSURANCE") ||
+    (n.includes("ASSURANCE") && n.includes("IMMATRICULATION"))
+  );
+}
+
+function isVisiteTechniqueCert(text: string): boolean {
+  const n = normalize(text);
+  return (
+    n.includes("CERTIFICAT DE CONTROLE TECHNIQUE") ||
+    n.includes("CONTROLE TECHNIQUE") ||
+    n.includes("VISITE TECHNIQUE")
+  );
+}
+
 function result(
   kind: DocumentKind,
   side: "recto" | "verso" | null,
-  confidence: ClassificationResult["confidence"]
+  confidence: ClassificationResult["confidence"],
+  vehicleSubtype?: VehicleIdentitySubtype | null
 ): ClassificationResult {
+  const label = vehicleSubtype
+    ? vehicleIdentityLabel(vehicleSubtype)
+    : classificationDisplayLabel(kind, side);
   return {
     kind,
     side,
     slot: null,
-    label: classificationDisplayLabel(kind, side),
+    label,
     confidence,
+    vehicleSubtype: vehicleSubtype ?? null,
   };
 }
 
@@ -288,8 +327,33 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
     };
   }
 
+  const altVehicle = isVehicleIdentitySubtypeText(text);
+  if (
+    altVehicle === "vignette" ||
+    altVehicle === "recepisse_ww" ||
+    altVehicle === "autorisation_provisoire"
+  ) {
+    return result("registration", "recto", "high", altVehicle);
+  }
+
+  if (isAutorisationProvisoireDoc(text)) {
+    return result("registration", "recto", "high", "autorisation_provisoire");
+  }
+
+  if (isRecepisseWwDoc(text)) {
+    return result("registration", "recto", "high", "recepisse_ww");
+  }
+
+  if (isAssuranceAttestation(text)) {
+    return result("insurance", null, "high", "assurance");
+  }
+
+  if (isVisiteTechniqueCert(text)) {
+    return result("technical", null, "high", "visite_technique");
+  }
+
   if (isRegistrationRecto(text)) {
-    return result("registration", "recto", "high");
+    return result("registration", "recto", "high", "carte_grise");
   }
 
   if (isLicenseRecto(text)) {
@@ -301,7 +365,7 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
   }
 
   if (isRegistrationVerso(text)) {
-    return result("registration", "verso", "high");
+    return result("registration", "verso", "high", "carte_grise");
   }
 
   if (isCniRecto(text)) {
@@ -353,16 +417,28 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
     insurance: scoreKeywords(text, [
       "ASSURANCE",
       "ATTESTATION D'ASSURANCE",
+      "ATTESTATION D ASSURANCE",
       "POLICE D'ASSURANCE",
     ]),
     technical: scoreKeywords(text, [
       "VISITE TECHNIQUE",
       "CONTROLE TECHNIQUE",
+      "CERTIFICAT DE CONTROLE TECHNIQUE",
     ]),
+    vignette: scoreKeywords(text, ["VIGNETTE MOTO", "VIGNETTE", "DGI"], 2),
+    recepisse: scoreKeywords(text, ["RECEPISSE", "WW-CI", "SERIE WW"], 2),
+    autorisation: scoreKeywords(text, ["AUTORISATION PROVISOIRE", "AUTORISATION", "PROVISOIRE", "CIRCULER"], 2),
   };
 
-  // « CNI » seul sur verso permis (réf. document lié) — pénaliser classification CNI
   const n = normalize(text);
+  if (isAutorisationProvisoireDoc(text)) {
+    scores.autorisation += 10;
+    scores.registration = Math.max(0, scores.registration - 6);
+  }
+  if (isRecepisseWwDoc(text)) {
+    scores.recepisse += 10;
+    scores.registration = Math.max(0, scores.registration - 6);
+  }
   if (
     n.includes("CNI") &&
     !n.includes("CARTE NATIONALE") &&
@@ -386,13 +462,22 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
     };
   }
 
-  const kind = topKind as DocumentKind;
+  const kind = topKind as DocumentKind | "vignette" | "recepisse" | "autorisation";
   let side: "recto" | "verso" | null =
-    kind === "selfie"
+    kind === "selfie" || kind === "insurance" || kind === "technical"
       ? null
       : isVersoHeuristic(text)
         ? "verso"
         : "recto";
+
+  if (kind === "vignette" || kind === "recepisse" || kind === "autorisation") {
+    const subtypeMap = {
+      vignette: "vignette",
+      recepisse: "recepisse_ww",
+      autorisation: "autorisation_provisoire",
+    } as const;
+    return result("registration", "recto", topScore >= 2 ? "high" : "medium", subtypeMap[kind]);
+  }
 
   if (kind === "registration" && isRegistrationVerso(text)) {
     side = "verso";
@@ -401,7 +486,16 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
     side = "verso";
   }
 
-  return result(kind, side, topScore >= 2 ? "high" : "medium");
+  const vehicleSubtype: VehicleIdentitySubtype | null =
+    kind === "registration"
+      ? "carte_grise"
+      : kind === "insurance"
+        ? "assurance"
+        : kind === "technical"
+          ? "visite_technique"
+          : null;
+
+  return result(kind as DocumentKind, side, topScore >= 2 ? "high" : "medium", vehicleSubtype);
 }
 
 export function assignSlots(
@@ -442,15 +536,10 @@ export function assignSlots(
     const slot = preferSlot(kind, side);
     if (!slot || used.has(slot)) continue;
     used.add(slot);
-    const assignedSide = slot.endsWith(".verso")
-      ? "verso"
-      : slot.endsWith(".recto")
-        ? "recto"
-        : side;
     out.push({
       index: item.index,
       slot,
-      label: classificationDisplayLabel(kind, assignedSide),
+      label: item.classification.label,
     });
   }
 

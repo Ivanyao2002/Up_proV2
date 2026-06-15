@@ -1,3 +1,4 @@
+import type { ExtractionDocumentType, VehicleIdentitySubtype } from "@/features/fleet/lib/documentExtraction.types";
 import type { DriverKycDocumentType } from "./driverDocuments";
 import type { VehicleDocumentType } from "./vehicleDocuments";
 import type { DriverDocumentFile } from "./driverDocuments";
@@ -102,14 +103,54 @@ export function wizardFilesForExtraction(uploads: {
   cni: RectoVersoFiles;
   license: RectoVersoFiles;
   registration: RectoVersoFiles;
-}): { type: "cni" | "license" | "registration"; files: File[] }[] {
-  const groups: { type: "cni" | "license" | "registration"; files: File[] }[] = [];
-  const push = (type: "cni" | "license" | "registration", rv: RectoVersoFiles) => {
-    const files = [rv.recto, rv.verso].filter((f): f is File => f != null);
-    if (files.length) groups.push({ type, files });
+  insurance?: File | null;
+  technicalInspection?: File | null;
+  registrationSubtype?: VehicleIdentitySubtype;
+}): WizardExtractionJob[] {
+  const groups: WizardExtractionJob[] = [];
+  const registrationSubtype = uploads.registrationSubtype ?? "carte_grise";
+  const push = (type: ExtractionDocumentType, rv: RectoVersoFiles) => {
+    let files: File[];
+    if (type === "registration") {
+      files = rv.recto ? [rv.recto] : rv.verso ? [rv.verso] : [];
+    } else {
+      files = [rv.recto, rv.verso].filter((f): f is File => f != null);
+    }
+    if (files.length) {
+      groups.push({
+        type,
+        files,
+        vehicleSubtype: type === "registration" ? registrationSubtype : undefined,
+      });
+    }
   };
   push("cni", uploads.cni);
   push("license", uploads.license);
   push("registration", uploads.registration);
+
+  if (uploads.insurance) {
+    groups.push({
+      type: "registration",
+      files: [uploads.insurance],
+      vehicleSubtype: "assurance",
+      label: "Assurance",
+    });
+  }
+  if (uploads.technicalInspection) {
+    groups.push({
+      type: "registration",
+      files: [uploads.technicalInspection],
+      vehicleSubtype: "visite_technique",
+      label: "Visite technique",
+    });
+  }
+
   return groups;
 }
+
+export type WizardExtractionJob = {
+  type: ExtractionDocumentType;
+  files: File[];
+  vehicleSubtype?: VehicleIdentitySubtype;
+  label?: string;
+};

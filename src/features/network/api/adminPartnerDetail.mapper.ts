@@ -147,6 +147,8 @@ export function mapV1PartnerDetailToPartnerDetail(
     legal_name: p.legal_name,
     trade_name: p.trade_name,
     name: p.name ?? p.trade_name ?? p.legal_name,
+    partner_type: p.partner_type,
+    commission_rate: p.commission_rate,
     city_id: p.city_id,
     contact_phone: p.contact_phone,
     contact_email: p.contact_email,

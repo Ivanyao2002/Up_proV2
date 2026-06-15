@@ -56,6 +56,19 @@ export interface ApiPartnerCreateBody {
   contactEmail: string;
   contactPhone?: string;
   partnerType?: string;
+  commissionRate?: number;
+  address?: string;
+  status?: string;
+}
+
+export interface ApiPartnerUpdateBody {
+  legalName: string;
+  tradeName: string;
+  cityId: string;
+  contactEmail: string;
+  contactPhone?: string;
+  partnerType?: string;
+  commissionRate?: number;
   address?: string;
   status?: string;
 }
@@ -65,15 +78,4 @@ export interface ApiPartnerCreateResponse {
   generatedAt?: string;
   partner?: ApiAdminPartnerItem;
   error?: { message?: string; code?: string };
-}
-
-/** PATCH /v1/partners/{id} */
-export interface ApiPartnerUpdateBody {
-  legalName: string;
-  tradeName: string;
-  cityId: string;
-  contactEmail: string;
-  contactPhone?: string;
-  address?: string;
-  status?: string;
 }

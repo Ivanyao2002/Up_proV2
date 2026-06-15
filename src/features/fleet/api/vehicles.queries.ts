@@ -86,3 +86,15 @@ export function useCreateAdminVehicle() {
     onError: () => notificationService.error("Impossible de créer le véhicule"),
   });
 }
+
+export function useDeleteAdminVehicle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vehicleId: string) => adminVehiclesService.delete(vehicleId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminVehiclesKeys.all });
+      notificationService.success("Véhicule supprimé");
+    },
+    onError: () => notificationService.error("Suppression impossible"),
+  });
+}

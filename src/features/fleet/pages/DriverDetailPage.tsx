@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Tabs } from "@/shared/ui/Tabs";
 import { Timeline } from "@/shared/ui/Timeline";
@@ -33,6 +34,7 @@ import {
   useSuspendDriver,
   useActivateDriver,
   useSetDriverAvailability,
+  useDeleteAdminDriver,
 } from "../api/driverDetail.queries";
 import { canSetDriverAvailability } from "../api/driverAdminActions.service";
 
@@ -41,11 +43,13 @@ interface DriverDetailPageProps {
 }
 
 export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
+  const router = useRouter();
   const [tab, setTab] = useState("kyc");
   const [showWallet, setShowWallet] = useState(false);
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [confirmReject, setConfirmReject] = useState(false);
   const [confirmSuspend, setConfirmSuspend] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [rejectDocTarget, setRejectDocTarget] = useState<string | null>(null);
 
   const { data: driver, isLoading, isError } = useDriverDetail(driverId);
@@ -61,6 +65,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const suspendDriver = useSuspendDriver(driverId);
   const activateDriver = useActivateDriver(driverId);
   const setAvailability = useSetDriverAvailability(driverId);
+  const deleteDriver = useDeleteAdminDriver();
 
   if (isLoading) {
     return (
@@ -86,7 +91,8 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const actionBusy =
     suspendDriver.isPending ||
     activateDriver.isPending ||
-    setAvailability.isPending;
+    setAvailability.isPending ||
+    deleteDriver.isPending;
   const timelineItems = driverTimelineToItems(driver.timeline);
   const vehicleDetailHref = driver.vehicle_id
     ? buildAdminVehicleDetailPath(driver.vehicle_id, driver.owner_id)
@@ -256,6 +262,14 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                   </Button>
                 </>
               )}
+              <Button
+                variant="secondary"
+                disabled={actionBusy}
+                onClick={() => setConfirmDelete(true)}
+                className="border-red-300 text-red-600 hover:bg-red-50"
+              >
+                Supprimer
+              </Button>
               <AccountStatusPill status={driver.account_status} />
               {canManageAvailability && (
                 <AvailabilityPill status={driver.availability} />
@@ -528,6 +542,21 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
           suspendDriver.mutate(undefined, { onSuccess: () => setConfirmSuspend(false) });
         }}
         onCancel={() => setConfirmSuspend(false)}
+      />
+
+      <ConfirmModal
+        open={confirmDelete}
+        title="Supprimer ce chauffeur ?"
+        message="Cette action est irréversible. Le compte et toutes les données associées seront supprimés."
+        confirmLabel="Supprimer définitivement"
+        variant="danger"
+        onConfirm={() => {
+          deleteDriver.mutate(driverId, {
+            onSuccess: () => router.push("/admin/fleet/drivers"),
+          });
+          setConfirmDelete(false);
+        }}
+        onCancel={() => setConfirmDelete(false)}
       />
     </div>
   );

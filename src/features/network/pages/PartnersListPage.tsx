@@ -16,6 +16,7 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { Partner } from "@/shared/types";
 import { usePartnersList } from "../api/partners.queries";
+import { formatPartnerTypeLabel } from "../lib/partnerType";
 
 const ENTITY_STATUS_LABELS = {
   active: "Actif",
@@ -66,6 +67,16 @@ export function PartnersListPage() {
         </div>
       ),
       exportValue: (p) => `${p.name} (${p.contact_email})`,
+    },
+    {
+      id: "type",
+      header: "Type",
+      cell: (p) => (
+        <span className="text-sm text-foreground">
+          {formatPartnerTypeLabel(p.partner_type)}
+        </span>
+      ),
+      exportValue: (p) => formatPartnerTypeLabel(p.partner_type),
     },
     {
       id: "franchise",

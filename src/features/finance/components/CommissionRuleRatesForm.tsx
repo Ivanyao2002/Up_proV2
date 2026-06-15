@@ -1,49 +1,54 @@
 "use client";
 
 import {
-  coupledFranchiseRate,
+  COMMISSION_REFERENCE,
+  commissionActorsTotal,
   formatRatePercent,
   parseRatePercentInput,
-  validatePoolSplit,
+  validateFranchisePartnerRates,
 } from "@/shared/lib/commissionRateCoupling";
 
-export type CommissionRatesCouplingMode = "partner-led" | "dual";
-
 interface CommissionRuleRatesFormProps {
-  pool: number;
   platformRate: number;
   driverRate: number;
   fiscalityRate: number;
   partnerRate: number;
-  /** Obligatoire en mode `dual` ; ignoré en `partner-led` (calculé). */
-  franchiseRate?: number;
-  couplingMode?: CommissionRatesCouplingMode;
+  franchiseRate: number;
+  franchiseEditable?: boolean;
+  partnerEditable?: boolean;
   onPartnerRateChange: (rate: number) => void;
   onFranchiseRateChange?: (rate: number) => void;
   disabled?: boolean;
 }
 
 export function CommissionRuleRatesForm({
-  pool,
   platformRate,
   driverRate,
   fiscalityRate,
   partnerRate,
-  franchiseRate: franchiseRateProp,
-  couplingMode = "partner-led",
+  franchiseRate,
+  franchiseEditable = true,
+  partnerEditable = true,
   onPartnerRateChange,
   onFranchiseRateChange,
   disabled = false,
 }: CommissionRuleRatesFormProps) {
-  const franchiseRate =
-    couplingMode === "dual" && franchiseRateProp != null
-      ? franchiseRateProp
-      : coupledFranchiseRate(pool, partnerRate);
-
-  const poolError = validatePoolSplit(pool, franchiseRate, partnerRate);
+  const ratesError = validateFranchisePartnerRates(
+    franchiseRate,
+    partnerRate,
+    platformRate,
+    fiscalityRate
+  );
+  const commissionTotal = commissionActorsTotal(
+    platformRate,
+    franchiseRate,
+    partnerRate,
+    fiscalityRate
+  );
+  const franchiseMaxPct = Math.round(COMMISSION_REFERENCE.FRANCHISE_MAX * 10_000);
+  const partnerMaxPct = Math.round(COMMISSION_REFERENCE.PARTNER_MAX * 10_000);
+  const franchisePct = Math.round(franchiseRate * 10_000);
   const partnerPct = Math.round(partnerRate * 10_000);
-  const poolPct = Math.round(pool * 10_000);
-  const isDual = couplingMode === "dual";
 
   return (
     <div className="space-y-4">
@@ -52,82 +57,86 @@ export function CommissionRuleRatesForm({
           Autres parts (lecture seule)
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
-          <RateDisplay label="Plateforme" value={platformRate} readonly />
+          <RateDisplay label="Plateforme (Centrale)" value={platformRate} readonly />
           <RateDisplay label="Chauffeur" value={driverRate} readonly />
           <RateDisplay label="Fiscalité" value={fiscalityRate} readonly />
         </div>
         <p className="mt-3 text-xs text-muted">
-          Ces taux ne sont pas modifiables ici. Seule la répartition franchise /
-          partenaire est ajustable dans le pool ci-dessous.
+          Chaque taux s&apos;applique sur la <strong>recette brute</strong>. La
+          commission totale UPJUNOO est de{" "}
+          {formatRatePercent(COMMISSION_REFERENCE.TOTAL)} : fiscalité + franchise
+          + partenaire + plateforme — pas la somme franchise + partenaire seule.
         </p>
       </div>
 
       <div className="rounded-lg border border-teal/20 bg-teal/5 p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-medium text-foreground">
-            Répartition franchise / partenaire
+            Parts franchise et partenaire
           </p>
           <span className="rounded-full bg-surface px-2.5 py-0.5 text-xs font-medium text-teal-dark">
-            Pool fixe : {formatRatePercent(pool)}
+            Commission totale : {formatRatePercent(commissionTotal)} /{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.TOTAL)}
           </span>
         </div>
 
         <div className="mb-4 grid gap-3 sm:grid-cols-2">
           <RateDisplay
-            label="Franchise"
+            label={`Franchise (max ${formatRatePercent(COMMISSION_REFERENCE.FRANCHISE_MAX)})`}
             value={franchiseRate}
-            readonly={!isDual}
-            emphasized={!isDual}
+            readonly={!franchiseEditable}
+            emphasized={franchiseEditable}
           />
           <RateDisplay
-            label="Partenaire"
+            label={`Partenaire (max ${formatRatePercent(COMMISSION_REFERENCE.PARTNER_MAX)})`}
             value={partnerRate}
-            readonly={false}
-            emphasized={isDual}
+            readonly={!partnerEditable}
+            emphasized={partnerEditable}
           />
         </div>
 
-        <label className="block text-xs font-medium text-muted">
-          Curseur partenaire — {formatRatePercent(partnerRate)}
-          {!isDual && (
-            <span className="font-normal text-muted">
-              {" "}
-              (franchise ajustée à {formatRatePercent(franchiseRate)})
-            </span>
-          )}
-        </label>
-        <input
-          type="range"
-          min={0}
-          max={poolPct}
-          step={1}
-          value={partnerPct}
-          disabled={disabled}
-          className="mt-2 w-full accent-teal"
-          onChange={(e) =>
-            onPartnerRateChange(Number(e.target.value) / 10_000)
-          }
-        />
+        {franchiseEditable && onFranchiseRateChange ? (
+          <>
+            <label className="block text-xs font-medium text-muted">
+              Curseur franchise — {formatRatePercent(franchiseRate)}
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={franchiseMaxPct}
+              step={1}
+              value={franchisePct}
+              disabled={disabled}
+              className="mt-2 w-full accent-teal"
+              onChange={(e) =>
+                onFranchiseRateChange(Number(e.target.value) / 10_000)
+              }
+            />
+          </>
+        ) : null}
+
+        {partnerEditable ? (
+          <>
+            <label className="mt-3 block text-xs font-medium text-muted">
+              Curseur partenaire — {formatRatePercent(partnerRate)}
+            </label>
+            <input
+              type="range"
+              min={0}
+              max={partnerMaxPct}
+              step={1}
+              value={partnerPct}
+              disabled={disabled}
+              className="mt-2 w-full accent-teal"
+              onChange={(e) =>
+                onPartnerRateChange(Number(e.target.value) / 10_000)
+              }
+            />
+          </>
+        ) : null}
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-              Partenaire (%)
-            </span>
-            <input
-              type="text"
-              inputMode="decimal"
-              disabled={disabled}
-              className="rounded-lg border border-border bg-canvas px-3 py-2 text-sm tabular-nums"
-              value={(partnerRate * 100).toFixed(2)}
-              onChange={(e) => {
-                const parsed = parseRatePercentInput(e.target.value);
-                if (parsed != null) onPartnerRateChange(parsed);
-              }}
-            />
-          </label>
-
-          {isDual && onFranchiseRateChange ? (
+          {franchiseEditable && onFranchiseRateChange ? (
             <label className="flex flex-col gap-1">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
                 Franchise (%)
@@ -145,37 +154,59 @@ export function CommissionRuleRatesForm({
               />
             </label>
           ) : (
-            <RateDisplay
-              label="Franchise (calculé)"
-              value={franchiseRate}
-              readonly
-              emphasized
-            />
+            <RateDisplay label="Franchise" value={franchiseRate} readonly emphasized />
+          )}
+
+          {partnerEditable ? (
+            <label className="flex flex-col gap-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+                Partenaire (%)
+              </span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={disabled}
+                className="rounded-lg border border-border bg-canvas px-3 py-2 text-sm tabular-nums"
+                value={(partnerRate * 100).toFixed(2)}
+                onChange={(e) => {
+                  const parsed = parseRatePercentInput(e.target.value);
+                  if (parsed != null) onPartnerRateChange(parsed);
+                }}
+              />
+            </label>
+          ) : (
+            <RateDisplay label="Partenaire" value={partnerRate} readonly emphasized />
           )}
         </div>
 
-        {poolError ? (
-          <p className="mt-2 text-xs text-red-600">{poolError}</p>
+        {ratesError ? (
+          <p className="mt-2 text-xs text-red-600">{ratesError}</p>
         ) : (
           <p className="mt-2 text-xs text-muted">
-            {isDual
-              ? `Diminuer l'un des deux taux augmente automatiquement l'autre — la somme reste ${formatRatePercent(pool)}.`
-              : `Augmenter le taux partenaire diminue le taux franchise — le pool reste à ${formatRatePercent(pool)}.`}
+            Référence cahier : franchise{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.FRANCHISE_MAX)}, partenaire{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.PARTNER_MAX)}, fiscalité{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.FISCALITY)}, plateforme{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.PLATFORM)} → total{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.TOTAL)}.
           </p>
         )}
       </div>
 
       <div className="rounded-lg border border-dashed border-border bg-canvas/30 px-4 py-3">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
-          Vue d&apos;ensemble des taux
+          Ventilation commission ({formatRatePercent(COMMISSION_REFERENCE.TOTAL)})
         </p>
-        <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-5">
-          <RateSummaryItem label="Plateforme" value={platformRate} muted />
+        <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-4">
+          <RateSummaryItem label="Fiscalité" value={fiscalityRate} />
           <RateSummaryItem label="Franchise" value={franchiseRate} />
           <RateSummaryItem label="Partenaire" value={partnerRate} />
-          <RateSummaryItem label="Chauffeur" value={driverRate} muted />
-          <RateSummaryItem label="Fiscalité" value={fiscalityRate} muted />
+          <RateSummaryItem label="Plateforme" value={platformRate} />
         </dl>
+        <p className="mt-2 text-xs text-muted">
+          Chauffeur ({formatRatePercent(driverRate)}) : hors commission UPJUNOO
+          (cash client).
+        </p>
       </div>
     </div>
   );
@@ -217,17 +248,9 @@ function RateDisplay({
   );
 }
 
-function RateSummaryItem({
-  label,
-  value,
-  muted = false,
-}: {
-  label: string;
-  value: number;
-  muted?: boolean;
-}) {
+function RateSummaryItem({ label, value }: { label: string; value: number }) {
   return (
-    <div className={muted ? "opacity-75" : undefined}>
+    <div>
       <dt className="text-[10px] text-muted">{label}</dt>
       <dd className="font-semibold tabular-nums text-foreground">
         {formatRatePercent(value)}

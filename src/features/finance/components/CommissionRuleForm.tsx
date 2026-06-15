@@ -4,12 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/shared/ui/Button";
 import {
-  coupledFranchiseRate,
-  coupledPartnerRate,
+  COMMISSION_REFERENCE,
   formatRatePercent,
   parseRatePercentInput,
-  partnerFranchisePool,
-  validatePoolSplit,
+  validateFranchisePartnerRates,
 } from "@/shared/lib/commissionRateCoupling";
 import { useVehicleCategoriesCatalog } from "@/features/fleet/api/vehicles.queries";
 import { useFranchisesList } from "@/features/network/api/franchises.queries";
@@ -118,21 +116,8 @@ export function CommissionRuleForm({
     scopeKind,
   ]);
 
-  const pool = useMemo(() => {
-    if ((isPartnerScoped || isPartnerCreate) && baseFranchiseRule) {
-      return partnerFranchisePool(
-        baseFranchiseRule.franchise_rate,
-        baseFranchiseRule.partner_rate
-      );
-    }
-    return partnerFranchisePool(franchiseRate, partnerRate);
-  }, [
-    baseFranchiseRule,
-    franchiseRate,
-    isPartnerCreate,
-    isPartnerScoped,
-    partnerRate,
-  ]);
+  const isPartnerRatesOnly =
+    isPartnerScoped || (isPartnerCreate && Boolean(baseFranchiseRule));
 
   useEffect(() => {
     if (isCreate || !ruleProp) return;
@@ -166,22 +151,8 @@ export function CommissionRuleForm({
     setDriverRate(baseFranchiseRule.driver_rate);
     setFiscalityRate(baseFranchiseRule.fiscality_rate);
     setPartnerRate(baseFranchiseRule.partner_rate);
-    setFranchiseRate(
-      coupledFranchiseRate(
-        partnerFranchisePool(
-          baseFranchiseRule.franchise_rate,
-          baseFranchiseRule.partner_rate
-        ),
-        baseFranchiseRule.partner_rate
-      )
-    );
+    setFranchiseRate(baseFranchiseRule.franchise_rate);
   }, [baseFranchiseRule, isCreate]);
-
-  useEffect(() => {
-    if (isPartnerScoped || isPartnerCreate) {
-      setFranchiseRate(coupledFranchiseRate(pool, partnerRate));
-    }
-  }, [isPartnerCreate, isPartnerScoped, pool, partnerRate]);
 
   useEffect(() => {
     if (scopeKind === "global") {
@@ -194,21 +165,20 @@ export function CommissionRuleForm({
 
   const handlePartnerRateChange = (rate: number) => {
     setPartnerRate(rate);
-    if (!isPartnerScoped && !isPartnerCreate) {
-      setFranchiseRate(coupledFranchiseRate(pool, rate));
-    }
   };
 
   const handleFranchiseRateChange = (rate: number) => {
     setFranchiseRate(rate);
-    setPartnerRate(coupledPartnerRate(pool, rate));
   };
 
-  const poolError = validatePoolSplit(pool, franchiseRate, partnerRate);
+  const ratesError = validateFranchisePartnerRates(
+    franchiseRate,
+    partnerRate,
+    platformRate,
+    fiscalityRate
+  );
   const partnerScopedWithoutBase =
     isPartnerCreate && Boolean(franchiseId.trim()) && !baseFranchiseRule;
-  const usePartnerLedCoupling =
-    isPartnerScoped || (isPartnerCreate && Boolean(baseFranchiseRule));
 
   const serviceLabel =
     COMMISSION_SERVICE_TYPE_LABELS[serviceType] ?? serviceType;
@@ -221,7 +191,7 @@ export function CommissionRuleForm({
       scopeKind: isCreate ? scopeKind : getCommissionRuleScopeKind(initialRule),
       franchiseId: franchiseId.trim() || null,
       partnerId: partnerId.trim() || null,
-      poolError,
+      poolError: ratesError,
       partnerScopedWithoutBase,
     });
     setFormErrors(errors);
@@ -262,7 +232,6 @@ export function CommissionRuleForm({
             ? scopeKind === "partner"
               ? {
                   partner_override: true,
-                  pool_franchise_partner: pool,
                   base_rule_id: baseFranchiseRule?.id,
                 }
               : {}
@@ -443,14 +412,18 @@ export function CommissionRuleForm({
             ) : null}
             <p className="sm:col-span-2">
               <span className="font-medium text-foreground">
-                Pool franchise + partenaire :
+                Commission totale (réf. cahier) :
               </span>{" "}
-              {formatRatePercent(pool)}
+              {formatRatePercent(COMMISSION_REFERENCE.TOTAL)} — fiscalité{" "}
+              {formatRatePercent(fiscalityRate)} + franchise{" "}
+              {formatRatePercent(franchiseRate)} + partenaire{" "}
+              {formatRatePercent(partnerRate)} + plateforme{" "}
+              {formatRatePercent(platformRate)}
               {baseFranchiseRule ? (
                 <span className="text-muted">
                   {" "}
-                  (règle franchise :{" "}
-                  {formatRatePercent(baseFranchiseRule.franchise_rate)} +{" "}
+                  (règle franchise : franchise{" "}
+                  {formatRatePercent(baseFranchiseRule.franchise_rate)}, partenaire{" "}
                   {formatRatePercent(baseFranchiseRule.partner_rate)})
                 </span>
               ) : null}
@@ -544,47 +517,37 @@ export function CommissionRuleForm({
 
       <section className="rounded-card border border-border bg-surface p-5 shadow-card space-y-4">
         <h2 className="text-sm font-semibold text-heading">
-          Répartition franchise / partenaire
+          Parts franchise et partenaire
         </h2>
 
-        {usePartnerLedCoupling ? (
-          <>
-            <p className="text-sm text-muted">
-              Règle partenaire — seul le taux partenaire est modifiable. Le taux
-              franchise s&apos;ajuste automatiquement dans le pool fixe.
-            </p>
-            <CommissionRuleRatesForm
-              pool={pool}
-              platformRate={platformRate}
-              driverRate={driverRate}
-              fiscalityRate={fiscalityRate}
-              partnerRate={partnerRate}
-              couplingMode="partner-led"
-              onPartnerRateChange={handlePartnerRateChange}
-              disabled={saveRule.isPending}
-            />
-          </>
+        {isPartnerRatesOnly ? (
+          <p className="text-sm text-muted">
+            Règle partenaire — seul le taux partenaire est modifiable (max{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.PARTNER_MAX)}). Le taux
+            franchise reste celui de la règle franchise (
+            {formatRatePercent(franchiseRate)}).
+          </p>
         ) : (
-          <>
-            <p className="text-sm text-muted">
-              Ajustez franchise ou partenaire : la part retirée à l&apos;un est
-              automatiquement ajoutée à l&apos;autre (pool{" "}
-              {formatRatePercent(pool)}).
-            </p>
-            <CommissionRuleRatesForm
-              pool={pool}
-              platformRate={platformRate}
-              driverRate={driverRate}
-              fiscalityRate={fiscalityRate}
-              franchiseRate={franchiseRate}
-              partnerRate={partnerRate}
-              couplingMode="dual"
-              onPartnerRateChange={handlePartnerRateChange}
-              onFranchiseRateChange={handleFranchiseRateChange}
-              disabled={saveRule.isPending}
-            />
-          </>
+          <p className="text-sm text-muted">
+            Franchise et partenaire sont des parts indépendantes sur la recette
+            brute. La commission totale de{" "}
+            {formatRatePercent(COMMISSION_REFERENCE.TOTAL)} inclut aussi
+            fiscalité et plateforme.
+          </p>
         )}
+
+        <CommissionRuleRatesForm
+          platformRate={platformRate}
+          driverRate={driverRate}
+          fiscalityRate={fiscalityRate}
+          franchiseRate={franchiseRate}
+          partnerRate={partnerRate}
+          franchiseEditable={!isPartnerRatesOnly}
+          partnerEditable
+          onPartnerRateChange={handlePartnerRateChange}
+          onFranchiseRateChange={handleFranchiseRateChange}
+          disabled={saveRule.isPending}
+        />
       </section>
 
       <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-6">
@@ -596,7 +559,7 @@ export function CommissionRuleForm({
         <Button
           type="button"
           disabled={
-            Boolean(poolError) ||
+            Boolean(ratesError) ||
             saveRule.isPending ||
             !ruleName.trim() ||
             partnerScopedWithoutBase

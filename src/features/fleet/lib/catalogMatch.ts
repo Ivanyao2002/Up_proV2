@@ -86,3 +86,62 @@ export function matchColorCatalogCode(
 
   return bySlug?.code ?? "";
 }
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp = Array.from({ length: m + 1 }, () => new Array<number>(n + 1).fill(0));
+  for (let i = 0; i <= m; i += 1) dp[i]![0] = i;
+  for (let j = 0; j <= n; j += 1) dp[0]![j] = j;
+  for (let i = 1; i <= m; i += 1) {
+    for (let j = 1; j <= n; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i]![j] = Math.min(dp[i - 1]![j]! + 1, dp[i]![j - 1]! + 1, dp[i - 1]![j - 1]! + cost);
+    }
+  }
+  return dp[m]![n]!;
+}
+
+const MODEL_OCR_ALIASES: Record<string, string> = {
+  dzre: "dzire",
+  dz1re: "dzire",
+  dziree: "dzire",
+};
+
+/** Résout un modèle extrait (DZRE, DZIRE…) vers un code catalogue. */
+export function matchModelCatalogCode(
+  items: { code: string; label: string }[],
+  extracted?: string | null
+): string {
+  const direct = matchCatalogCode(items, extracted);
+  if (direct) return direct;
+
+  if (!extracted?.trim() || !items.length) return "";
+
+  const target = normalizeToken(extracted);
+  const alias = MODEL_OCR_ALIASES[target];
+  if (alias) {
+    const fromAlias = matchCatalogCode(items, alias);
+    if (fromAlias) return fromAlias;
+  }
+
+  if (target.length < 3) return "";
+
+  let best: { code: string; distance: number } | null = null;
+  for (const item of items) {
+    const label = normalizeToken(item.label);
+    const code = normalizeToken(item.code);
+    for (const candidate of [label, code]) {
+      if (!candidate || Math.abs(candidate.length - target.length) > 2) continue;
+      const distance = levenshtein(target, candidate);
+      if (distance > 2) continue;
+      if (!best || distance < best.distance) {
+        best = { code: item.code, distance };
+      }
+    }
+  }
+
+  return best?.code ?? "";
+}

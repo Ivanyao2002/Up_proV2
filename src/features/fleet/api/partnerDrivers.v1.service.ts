@@ -3,6 +3,7 @@ import { LINKS } from "@/core/api/links";
 import type { CreateDriverPayload } from "@/features/partner/api/drivers.service";
 import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
 import type { DriverDetail } from "@/shared/types";
+import { uploadDriverDocumentsForPartner } from "./kycDocumentUpload.v1.service";
 
 const DEV_DRIVER_PASSWORD = "Upjunoo@Dev2026!";
 
@@ -192,6 +193,13 @@ export async function createDriverWithDocumentsViaV1(
   const driver = await createDriverViaV1(payload, context);
   if (documents.length === 0) return driver;
 
-  // Upload KYC chauffeur : routes v1 dédiées à brancher — le compte est créé.
+  const partnerId = context.partnerId?.trim();
+  if (!partnerId) {
+    throw new Error(
+      "Documents chauffeur : un partenaire (partnerId) est requis pour l'upload v1."
+    );
+  }
+
+  await uploadDriverDocumentsForPartner(partnerId, String(driver.id), documents);
   return driver;
 }

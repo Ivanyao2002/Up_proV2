@@ -59,7 +59,7 @@ export function useUploadPartnerDriverDocument(driverId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ type, file }: { type: KycDocument["type"]; file: File }) =>
-      partnerDriversService.uploadDocument(driverId, type, file.name),
+      partnerDriversService.uploadDocument(driverId, type, file),
     onSuccess: (data) => {
       qc.setQueryData(partnerDriversKeys.detail(driverId), data);
       void qc.invalidateQueries({ queryKey: partnerDriversKeys.list() });

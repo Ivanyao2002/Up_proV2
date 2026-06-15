@@ -94,6 +94,7 @@ export function VehicleCreatePage({ lockedPartnerId }: VehicleCreatePageProps = 
       </p>
 
       <FleetPairCreateWizard
+        key={assistantOnboardingId ?? "manual"}
         variant="admin"
         lockedPartnerId={effectiveLockedPartnerId}
         assistantOnboardingId={assistantOnboardingId}

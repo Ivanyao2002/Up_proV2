@@ -57,6 +57,8 @@ export function mapAdminPartnerItemToPartner(
     status: mapPartnerStatus(item.status),
     contact_email: item.contact_email ?? "—",
     contact_phone: item.contact_phone ?? "—",
+    partner_type: item.partner_type ?? null,
+    commission_rate: item.commission_rate ?? null,
   };
 }
 

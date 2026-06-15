@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Tabs } from "@/shared/ui/Tabs";
 import { VehicleApprovalPill } from "@/shared/ui/VehicleApprovalPill";
 import { KycDocumentCard } from "@/shared/ui/KycDocumentCard";
 import { KpiCard } from "@/shared/ui/KpiCard";
+import { Button } from "@/shared/ui/Button";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { formatDateTime } from "@/shared/lib/format";
 import {
@@ -14,6 +17,7 @@ import {
   getVehicleCategoryLabel,
 } from "@/shared/lib/vehicleLabels";
 import { useAdminVehicleDetail } from "../api/vehicleDetail.queries";
+import { useDeleteAdminVehicle } from "../api/vehicles.queries";
 
 interface AdminVehicleDetailPageProps {
   vehicleId: string;
@@ -24,11 +28,14 @@ export function AdminVehicleDetailPage({
   vehicleId,
   partnerId,
 }: AdminVehicleDetailPageProps) {
+  const router = useRouter();
   const [tab, setTab] = useState("documents");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { data: vehicle, isLoading, isError } = useAdminVehicleDetail(
     vehicleId,
     partnerId
   );
+  const deleteVehicle = useDeleteAdminVehicle();
 
   if (isLoading) {
     return (
@@ -58,7 +65,19 @@ export function AdminVehicleDetailPage({
         <PageHeader
           title={title}
           breadcrumb={["Admin", "Flotte", "Véhicules", title]}
-          actions={<VehicleApprovalPill status={vehicle.approval_status} />}
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <VehicleApprovalPill status={vehicle.approval_status} />
+              <Button
+                variant="secondary"
+                disabled={deleteVehicle.isPending}
+                onClick={() => setConfirmDelete(true)}
+                className="border-red-300 text-red-600 hover:bg-red-50"
+              >
+                Supprimer
+              </Button>
+            </div>
+          }
         />
         <p className="text-sm text-muted">
           {vehicle.plate || "Plaque à renseigner"} ·{" "}
@@ -198,6 +217,21 @@ export function AdminVehicleDetailPage({
           )}
         </aside>
       </div>
+
+      <ConfirmModal
+        open={confirmDelete}
+        title="Supprimer ce véhicule ?"
+        message="Cette action est irréversible. Le véhicule et ses documents associés seront supprimés. Le chauffeur assigné ne sera pas supprimé."
+        confirmLabel="Supprimer définitivement"
+        variant="danger"
+        onConfirm={() => {
+          deleteVehicle.mutate(vehicleId, {
+            onSuccess: () => router.push("/admin/fleet/vehicles"),
+          });
+          setConfirmDelete(false);
+        }}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 }

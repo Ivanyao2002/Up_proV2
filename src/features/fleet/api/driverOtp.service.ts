@@ -49,34 +49,40 @@ interface DevOtpLastResponse {
   hint?: string;
 }
 
-/** Envoie un OTP SMS pour valider le numéro (ne crée pas de fiche chauffeur). */
+function buildDriverOtpRequestBody(parts: DriverOtpPhoneParts) {
+  return {
+    countryCode: parts.countryCode,
+    phone: parts.localPhone,
+  };
+}
+
+/** Envoie un OTP SMS chauffeur (ne nécessite pas de compte client préalable). */
 export async function sendDriverPhoneOtp(
   parts: DriverOtpPhoneParts
 ): Promise<void> {
-  const response = await apiClient.post<OtpSendResponse>(LINKS.auth.v1.otpSend, {
-    phone: parts.international,
-    channel: "sms",
-  });
+  const response = await apiClient.post<OtpSendResponse>(
+    LINKS.auth.v1.driverResendOtp,
+    buildDriverOtpRequestBody(parts)
+  );
 
   if (response.sent === false) {
     throw new Error("Impossible d'envoyer le code OTP.");
   }
 }
 
-/** Vérifie le code OTP — preuve de possession du numéro. */
+/** Vérifie le code OTP chauffeur — preuve de possession du numéro. */
 export async function verifyDriverPhoneOtp(
   parts: DriverOtpPhoneParts,
   code: string
 ): Promise<void> {
-  const token = code.replace(/\D/g, "").trim();
-  if (token.length < 4) {
+  const otpCode = code.replace(/\D/g, "").trim();
+  if (otpCode.length < 4) {
     throw new Error("Code OTP invalide.");
   }
 
-  await apiClient.post<OtpVerifyResponse>(LINKS.auth.v1.otpVerify, {
-    phone: parts.international,
-    channel: "sms",
-    token,
+  await apiClient.post<OtpVerifyResponse>(LINKS.auth.v1.driverVerifyOtp, {
+    ...buildDriverOtpRequestBody(parts),
+    code: otpCode,
   });
 }
 
