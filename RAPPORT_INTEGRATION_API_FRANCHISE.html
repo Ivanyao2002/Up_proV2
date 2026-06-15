@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport d'Intégration API — Module Franchise</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #e2e8f0;
+  color: #0f172a;
+  line-height: 1.45;
+}
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 12px auto;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+}
+.page:last-child { page-break-after: auto; }
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; }
+}
+
+/* Couverture */
+.cover {
+  background: #016d71;
+  color: #fff;
+  min-height: 297mm;
+  padding: 48px 52px;
+  overflow: hidden;
+}
+.cover::before, .cover::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill {
+  display: inline-block;
+  margin-top: 28px;
+  background: #f8bb10;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+.cover h1 {
+  margin-top: 48px;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.15;
+  max-width: 90%;
+}
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 8px; }
+.cover .lead {
+  margin-top: 24px;
+  max-width: 520px;
+  font-size: 14px;
+  opacity: .92;
+}
+.cover .meta-line {
+  width: 48px;
+  height: 4px;
+  background: #f8bb10;
+  margin: 36px 0 20px;
+}
+.cover .meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  font-size: 12px;
+}
+.cover .meta-grid label {
+  display: block;
+  font-size: 10px;
+  opacity: .75;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+.cover-footer {
+  margin-top: auto;
+  padding-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 11px;
+  opacity: .9;
+}
+.cover-footer .dv {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; margin-right: 10px;
+}
+
+/* Pages intérieures */
+.inner { padding: 40px 48px 56px; }
+h2.section-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #016d71;
+  margin-bottom: 8px;
+}
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.kpi {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  border-top: 4px solid #016d71;
+}
+.kpi.gold-top { border-top-color: #f8bb10; }
+.kpi .val { font-size: 28px; font-weight: 800; color: #0f172a; }
+.kpi .lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #016d71;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-top: 6px;
+}
+.block-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.block-title::before {
+  content: '';
+  width: 4px;
+  height: 22px;
+  background: #016d71;
+  border-radius: 2px;
+}
+.block-note { font-size: 12px; color: #64748b; margin-bottom: 12px; font-style: italic; }
+.warn-banner {
+  background: #fef3c7;
+  border-left: 4px solid #f8bb10;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  border-radius: 0 8px 8px 0;
+}
+.error-banner {
+  background: #fecaca;
+  border-left: 4px solid #dc2626;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  border-radius: 0 8px 8px 0;
+}
+.success-banner {
+  background: #dcfce7;
+  border-left: 4px solid #16a34a;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  border-radius: 0 8px 8px 0;
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 12px;
+}
+table.data thead th {
+  background: #016d71;
+  color: #fff;
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+table.data tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-err { background: #fecaca; color: #b91c1c; border: 1px solid #f87171; font-weight: 800; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+.page-foot {
+  position: absolute;
+  bottom: 24px;
+  left: 48px;
+  right: 48px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+}
+.endpoint-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 100px;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 12px;
+}
+.endpoint-row.header {
+  background: #016d71;
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: .03em;
+  border-radius: 8px 8px 0 0;
+}
+.endpoint-url { font-family: 'SF Mono', monospace; font-size: 11px; color: #016d71; font-weight: 600; }
+.endpoint-desc { color: #475569; }
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 11px;
+}
+.mapping-table th {
+  background: #f1f5f9;
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+}
+.mapping-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.mapping-table .api-field { color: #016d71; font-family: monospace; }
+.mapping-table .frontend-field { color: #0f172a; font-weight: 500; }
+.code-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- Page de couverture -->
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="logo">UPJUNOO <span>PRO</span></div>
+    <div class="badge-pill">● INTEGRATION API V1</div>
+    <h1>Rapport d'Intégration API<span class="gold">Module Franchise</span></h1>
+    <p class="lead">Consommation des endpoints API pour le portail Franchise (Dashboard, Courses, Partenaires, Chauffeurs).</p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Date de génération</label>9 Juin 2026</div>
+      <div><label>Version API</label>v1 / v2</div>
+      <div><label>Environnement</label>api.upjunoo-dev.tech</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">DV</span>Équipe Développement Frontend</div>
+      <div>CONFIDENTIEL TECHNIQUE | Version 1.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- Page 1 : Vue d'ensemble -->
+<div class="page inner">
+  <h2 class="section-title">Vue d'ensemble <span class="gold">Intégrations</span></h2>
+  <p class="sub">Synthèse des endpoints API consommés par le module Franchise.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">6</div><div class="lbl">Endpoints V1 utilisés</div></div>
+    <div class="kpi"><div class="val">4</div><div class="lbl">Features intégrées</div></div>
+    <div class="kpi gold-top"><div class="val">1</div><div class="lbl">Erreur 500 (backend)</div></div>
+    <div class="kpi gold-top"><div class="val">1</div><div class="lbl">Filtre à corriger</div></div>
+  </div>
+
+  <div class="block-title">État des Intégrations</div>
+  
+  <div class="success-banner">
+    <strong>✓ Fonctionnels</strong> — Contexte franchise, Détail course, Liste partenaires
+  </div>
+  
+  <div class="error-banner">
+    <strong>✗ Erreur 500</strong> — Dashboard : endpoint /v1/franchise/dashboard retourne une erreur serveur. Backend en cours de correction.
+  </div>
+  
+  <div class="warn-banner">
+    <strong>⚠ À vérifier</strong> — Filtre par service sur les courses : paramètre potentiellement non supporté par le backend.
+  </div>
+
+  <div class="block-title">Endpoints Consommés</div>
+  <p class="block-note">Liste complète des endpoints API utilisés par le module Franchise.</p>
+
+  <div class="endpoint-row header">
+    <div>Feature</div>
+    <div>Endpoint</div>
+    <div>Méthode</div>
+  </div>
+  <div class="endpoint-row">
+    <div><strong>Dashboard</strong></div>
+    <div class="endpoint-url">/v1/franchise/dashboard</div>
+    <div><span class="badge badge-err">GET — Erreur 500</span></div>
+  </div>
+  <div class="endpoint-row">
+    <div><strong>Partenaires (dash)</strong></div>
+    <div class="endpoint-url">/v1/franchise/partners</div>
+    <div><span class="badge badge-ok">GET — OK</span></div>
+  </div>
+  <div class="endpoint-row">
+    <div><strong>Courses (liste)</strong></div>
+    <div class="endpoint-url">/v1/franchises/{id}/orders</div>
+    <div><span class="badge badge-ok">GET — OK</span></div>
+  </div>
+  <div class="endpoint-row">
+    <div><strong>Courses (détail)</strong></div>
+    <div class="endpoint-url">/v1/admin/orders/{id}</div>
+    <div><span class="badge badge-ok">GET — OK</span></div>
+  </div>
+  <div class="endpoint-row">
+    <div><strong>Contexte</strong></div>
+    <div class="endpoint-url">/v1/franchises/me</div>
+    <div><span class="badge badge-ok">GET — OK</span></div>
+  </div>
+  <div class="endpoint-row">
+    <div><strong>Chauffeurs</strong></div>
+    <div class="endpoint-url">/v1/franchise/drivers</div>
+    <div><span class="badge badge-neutral">GET — À tester</span></div>
+  </div>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Intégration API Franchise</span>
+    <span>Page 1 / 3</span>
+  </div>
+</div>
+
+<!-- Page 2 : Dashboard -->
+<div class="page inner">
+  <h2 class="section-title">Dashboard <span class="gold">Intégration</span></h2>
+  <p class="sub">Endpoint principal et mapping des données attendues.</p>
+
+  <div class="error-banner">
+    <strong>Erreur 500 sur GET /v1/franchise/dashboard</strong><br>
+    Le backend retourne une erreur serveur interne. L'équipe backend est informée et travaille sur la correction.
+  </div>
+
+  <div class="block-title">Endpoint</div>
+  <div class="code-block">
+GET /v1/franchise/dashboard<br>
+Authorization: Bearer {token}
+  </div>
+
+  <div class="block-title">Champs Attendus (BACKEND_REQUESTS.md)</div>
+  <table class="mapping-table">
+    <thead>
+      <tr>
+        <th>Champ API</th>
+        <th>Type</th>
+        <th>Frontend (Interface)</th>
+        <th>Utilisation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="api-field">territory_name</td>
+        <td>string</td>
+        <td class="frontend-field">territory_name</td>
+        <td>Titre breadcrumb</td>
+      </tr>
+      <tr>
+        <td class="api-field">drivers_online</td>
+        <td>number</td>
+        <td class="frontend-field">drivers_online</td>
+        <td>KPI Chauffeurs en ligne</td>
+      </tr>
+      <tr>
+        <td class="api-field">trips_completed_today</td>
+        <td>number</td>
+        <td class="frontend-field">trips_completed_today</td>
+        <td>KPI Courses terminées</td>
+      </tr>
+      <tr>
+        <td class="api-field">trips_today_trend_pct</td>
+        <td>number</td>
+        <td class="frontend-field">trips_today_trend_pct</td>
+        <td>Tendance courses vs hier</td>
+      </tr>
+      <tr>
+        <td class="api-field">revenue_today_xof</td>
+        <td>number</td>
+        <td class="frontend-field">revenue_today_fcfa</td>
+        <td>KPI Revenus du jour</td>
+      </tr>
+      <tr>
+        <td class="api-field">revenue_trend_pct</td>
+        <td>number</td>
+        <td class="frontend-field">revenue_trend_pct</td>
+        <td>Tendance revenus vs hier</td>
+      </tr>
+      <tr>
+        <td class="api-field">pending_kyc</td>
+        <td>number</td>
+        <td class="frontend-field">pending_kyc</td>
+        <td>Alerte KYC à modérer</td>
+      </tr>
+      <tr>
+        <td class="api-field">pending_withdrawals</td>
+        <td>object</td>
+        <td class="frontend-field">pending_withdrawals</td>
+        <td>KPI Retraits en attente</td>
+      </tr>
+      <tr>
+        <td class="api-field">weekly_flow</td>
+        <td>object</td>
+        <td class="frontend-field">chart_flux</td>
+        <td>Graphique 7 jours</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Fichiers Concernés</div>
+  <div class="code-block">
+src/features/franchise/api/<br>
+├── dashboard.service.ts      # Appels API<br>
+├── dashboard.queries.ts      # React Query hooks<br>
+└── franchiseDashboard.mapper.ts  # Mapping données<br><br>
+src/features/franchise/pages/<br>
+└── FranchiseDashboardPage.tsx      # UI Dashboard
+  </div>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Intégration API Franchise</span>
+    <span>Page 2 / 3</span>
+  </div>
+</div>
+
+<!-- Page 3 : Courses et Problèmes -->
+<div class="page inner">
+  <h2 class="section-title">Courses & Partenaires <span class="gold">Intégration</span></h2>
+  <p class="sub">Endpoints pour la liste des courses et les partenaires.</p>
+
+  <div class="block-title">Liste des Courses</div>
+  <div class="code-block">
+GET /v1/franchises/{franchiseId}/orders?page=1&limit=25<br>
+Authorization: Bearer {token}
+  </div>
+  <p class="block-note">Récupère la liste paginée des courses pour une franchise donnée. <strong>Fonctionnel ✓</strong></p>
+
+  <div class="warn-banner">
+    <strong>Problème identifié : Filtre par Service</strong><br>
+    Le frontend envoie le paramètre <code>service</code> (taxi, delivery, rental, freight) mais le backend semble ne pas le prendre en compte.<br>
+    <strong>Action requise :</strong> Vérifier avec le backend le nom exact du paramètre (service vs service_type ?)
+  </div>
+
+  <div class="block-title">Détail d'une Course</div>
+  <div class="code-block">
+GET /v1/admin/orders/{orderId}<br>
+Authorization: Bearer {token}
+  </div>
+  <p class="block-note">Récupère les détails complets d'une course. <strong>Fonctionnel ✓</strong></p>
+
+  <div class="block-title">Liste des Partenaires</div>
+  <div class="code-block">
+GET /v1/franchise/partners?page=1&per_page=5<br>
+Authorization: Bearer {token}
+  </div>
+  <p class="block-note">Utilisé pour afficher les partenaires récents sur le dashboard. <strong>Fonctionnel ✓</strong></p>
+
+  <div class="block-title">Contexte Franchise</div>
+  <div class="code-block">
+GET /v1/franchises/me<br>
+Authorization: Bearer {token}
+  </div>
+  <p class="block-note">Récupère l'ID de la franchise connectée pour les appels API. <strong>Fonctionnel ✓</strong></p>
+
+  <div class="block-title">Récapitulatif des Problèmes</div>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Problème</th>
+        <th>Statut</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Dashboard</td>
+        <td>Erreur 500 sur /v1/franchise/dashboard</td>
+        <td><span class="badge badge-err">Bloqué</span></td>
+        <td>Backend en cours de correction</td>
+      </tr>
+      <tr>
+        <td>Courses - Filtre</td>
+        <td>Paramètre "service" non supporté</td>
+        <td><span class="badge badge-warn">À vérifier</span></td>
+        <td>Confirmer nom paramètre avec backend</td>
+      </tr>
+      <tr>
+        <td>Chauffeurs KYC</td>
+        <td>Endpoints à tester</td>
+        <td><span class="badge badge-neutral">En attente</span></td>
+        <td>Test manuel à effectuer</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Intégration API Franchise</span>
+    <span>Page 3 / 3</span>
+  </div>
+</div>
+
+</body>
+</html>

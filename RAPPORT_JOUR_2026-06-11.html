@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport de Travail - Enrichissement Données Franchise — 2026-06-11</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #e2e8f0;
+  color: #0f172a;
+  line-height: 1.45;
+}
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 12px auto;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+  padding: 48px 52px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.page:last-child { page-break-after: auto; }
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; }
+}
+
+/* Header */
+.header {
+  background: #016d71;
+  color: #fff;
+  margin: -48px -52px 32px -52px;
+  padding: 32px 52px;
+}
+.header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.header .meta { font-size: 13px; opacity: 0.9; }
+
+/* Stats Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 18px 14px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+.stat-card.success { border-top: 4px solid #22c55e; }
+.stat-card.warning { border-top: 4px solid #f59e0b; }
+.stat-card.error   { border-top: 4px solid #ef4444; }
+.stat-card.info    { border-top: 4px solid #3b82f6; }
+.stat-card h3 { font-size: 30px; font-weight: 800; margin-bottom: 4px; }
+.stat-card.success h3 { color: #16a34a; }
+.stat-card.warning h3 { color: #d97706; }
+.stat-card.error h3   { color: #dc2626; }
+.stat-card.info h3    { color: #1d4ed8; }
+.stat-card p { font-size: 12px; color: #64748b; }
+
+/* Progress bar */
+.progress-bar-wrap {
+  background: #e2e8f0;
+  border-radius: 999px;
+  height: 14px;
+  margin: 6px 0 4px 0;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #016d71, #22c55e);
+}
+
+/* Section */
+.section { margin-bottom: 28px; }
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #016d71;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #016d71;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+th {
+  background: #f1f5f9;
+  font-weight: 600;
+  text-align: left;
+  padding: 9px 8px;
+  border-bottom: 2px solid #cbd5e1;
+}
+td {
+  padding: 9px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+tr:hover { background: #f8fafc; }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-success { background: #dcfce7; color: #166534; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-error   { background: #fee2e2; color: #991b1b; }
+.badge-info    { background: #dbeafe; color: #1e40af; }
+.badge-fixed   { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+
+/* Priority */
+.priority {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.priority-high   { background: #ef4444; color: white; }
+.priority-medium { background: #f59e0b; color: white; }
+.priority-low    { background: #22c55e; color: white; }
+.priority-done   { background: #64748b; color: white; }
+
+/* Summary box */
+.summary-box {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+}
+.summary-box h4 {
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.summary-box ul { margin-left: 18px; font-size: 12px; }
+.summary-box li { margin-bottom: 5px; }
+
+/* Alert box */
+.alert-box {
+  background: #fefce8;
+  border: 1px solid #fde047;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  font-size: 12px;
+}
+.alert-box strong { color: #713f12; }
+
+/* Code */
+code {
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+}
+
+/* Score pills */
+.score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+}
+.score-pill.green  { background: #dcfce7; color: #15803d; border-color: #86efac; }
+.score-pill.yellow { background: #fef9c3; color: #92400e; border-color: #fde68a; }
+.score-pill.red    { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+/* Timeline */
+.timeline { border-left: 3px solid #016d71; padding-left: 20px; margin: 0 0 20px 8px; }
+.timeline-item { position: relative; margin-bottom: 18px; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #016d71;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #016d71;
+}
+.timeline-item h5 { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
+.timeline-item p  { font-size: 11px; color: #64748b; }
+
+/* Footer */
+.footer {
+  margin-top: 36px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Finition band */
+.finition-band {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f0fdfa;
+  border: 1px solid #5eead4;
+  border-radius: 12px;
+  padding: 16px 22px;
+  margin-bottom: 22px;
+}
+.finition-number {
+  font-size: 44px;
+  font-weight: 800;
+  color: #016d71;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.finition-desc { font-size: 12px; color: #0f172a; }
+.finition-desc strong { display: block; font-size: 14px; margin-bottom: 4px; color: #016d71; }
+  </style>
+</head>
+<body>
+
+<!-- ===== PAGE 1 : RÉSUMÉ EXÉCUTIF ===== -->
+<div class="page">
+  <div class="header">
+    <h1>Rapport de Travail — Enrichissement Données &amp; Onglets Clients / Finance</h1>
+    <div class="meta">Date : 2026-06-11 &nbsp;|&nbsp; Objectif : Exploitation des réponses API réelles — Clients, Finance locale, Réconciliation</div>
+  </div>
+
+  <!-- Niveau de finition global -->
+  <div class="finition-band">
+    <div class="finition-number">78%</div>
+    <div class="finition-desc">
+      <strong>Niveau de finition du portail franchise</strong>
+      Avant cette journée : ~68 % (données clients non mappées, finance partiellement cassée, réconciliation sans mapper v1).
+      Après travaux : <strong>~78 % opérationnel</strong>. Onglets Clients, Finance et Réconciliation entièrement enrichis côté frontend.
+      Blocages restants : données backend manquantes (trips_count, wallet, recentOrders côté clients ; entrées de réconciliation vides).
+    </div>
+  </div>
+
+  <!-- Stats globales -->
+  <div class="stats-grid">
+    <div class="stat-card success">
+      <h3>3</h3>
+      <p>Sections enrichies</p>
+    </div>
+    <div class="stat-card info">
+      <h3>12</h3>
+      <p>Fichiers modifiés</p>
+    </div>
+    <div class="stat-card success">
+      <h3>2</h3>
+      <p>Bugs backend identifiés</p>
+    </div>
+    <div class="stat-card warning">
+      <h3>4</h3>
+      <p>Champs manquants backend</p>
+    </div>
+  </div>
+
+  <!-- Score par section -->
+  <div class="section">
+    <div class="section-title">Score par Section — État du jour</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th>Score aujourd'hui</th>
+          <th>Avant (J-1)</th>
+          <th>Évolution</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CLIENTS</strong></td>
+          <td>7/10</td>
+          <td>3/10 (non mappé)</td>
+          <td>+4 (types, mappers, UI)</td>
+          <td><span class="badge badge-warning">⚠️ Affichage OK / données vides côté stats</span></td>
+        </tr>
+        <tr>
+          <td><strong>FINANCE locale</strong></td>
+          <td>8/10</td>
+          <td>6/10 (champs mal mappés)</td>
+          <td>+2 (corrections mapper + retraits)</td>
+          <td><span class="badge badge-success">✅ Opérationnel</span></td>
+        </tr>
+        <tr>
+          <td><strong>RÉCONCILIATION</strong></td>
+          <td>5/10</td>
+          <td>3/10 (pas de mapper v1)</td>
+          <td>+2 (mapper v1 + wallet)</td>
+          <td><span class="badge badge-warning">⚠️ Mapper OK / items vides en base</span></td>
+        </tr>
+        <tr>
+          <td><strong>CHAUFFEURS (modération)</strong></td>
+          <td>8/10</td>
+          <td>8/10</td>
+          <td>= (stable)</td>
+          <td><span class="badge badge-success">✅ Opérationnel</span></td>
+        </tr>
+        <tr>
+          <td><strong>PARTENAIRES</strong></td>
+          <td>8/10</td>
+          <td>8/10</td>
+          <td>= (stable)</td>
+          <td><span class="badge badge-success">✅ Opérationnel</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Barres de progression -->
+    <div style="margin-top:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:4px;"><span>CLIENTS</span><span>7/10 — 70%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:70%"></div></div>
+
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:4px;"><span>FINANCE</span><span>8/10 — 80%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:80%"></div></div>
+
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:4px;"><span>RÉCONCILIATION</span><span>5/10 — 50%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:50%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:4px;"><span>CHAUFFEURS</span><span>8/10 — 80%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:80%"></div></div>
+
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:4px;"><span>PARTENAIRES</span><span>8/10 — 80%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:80%"></div></div>
+    </div>
+  </div>
+
+  <!-- Travaux réalisés -->
+  <div class="summary-box">
+    <h4>Travaux Réalisés le 2026-06-11</h4>
+    <ul>
+      <li>Enrichissement complet du modèle <code>ApiAdminUserItem</code> (first_name, last_name, user_type, camelCase + snake_case)</li>
+      <li>Extension de <code>FleetClient</code> et <code>FleetClientDetail</code> avec first_name, last_name, user_type</li>
+      <li>Mise à jour du mapper <code>mapAdminUserItemToFleetClient</code> — normalisation fullName + user_type</li>
+      <li>Création du mapper v1 dédié <code>mapV1ClientItem</code> + <code>mapV1ClientDetail</code> dans le service franchise</li>
+      <li>Fallback automatique sur legacy <code>/franchise/fleet/clients/{id}</code> quand v1 retourne 403 ADMIN_REQUIRED</li>
+      <li>Enrichissement <code>ClientsListPage</code> : first+last name, email, badge user_type coloré, colonne Inscription</li>
+      <li>Enrichissement <code>ClientDetailPage</code> : titre first+last name, badge user_type, date inscription, KPI "Annulées"</li>
+      <li>Correction mapper <code>mapV1Finance</code> : champs <code>commissions_xof</code> et <code>pending_withdrawals_xof</code> corrigés</li>
+      <li>Ajout type <code>FranchiseWithdrawal</code> + tableau retraits dans <code>FranchiseFinancePage</code></li>
+      <li>Mapper v1 complet pour <code>reconciliation.service.ts</code> : <code>items[]</code> ou <code>entries[]</code>, pagination <code>limit</code>, wallet</li>
+      <li>Bannière wallet (solde / disponible / retraits) dans <code>FranchiseReconciliationListPage</code></li>
+      <li>2 nouveaux bugs documentés dans <code>BACKEND_BUGS_FRANCHISE.md</code> (BUG-CLIENTS-001, MANQUE-023, MANQUE-024)</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Rapport généré le 2026-06-11 | UPJUNOO — Équipe Frontend
+  </div>
+</div>
+
+<!-- ===== PAGE 2 : FICHIERS MODIFIÉS ===== -->
+<div class="page">
+  <div class="header">
+    <h1>Fichiers Modifiés — Détail Technique</h1>
+    <div class="meta">12 fichiers touchés · Types, mappers, services, pages UI, documentation</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Types &amp; Interfaces</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Modification</th>
+          <th>Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/features/fleet/api/adminUsers.api.types.ts</code></td>
+          <td>
+            <code>ApiAdminUserItem</code> : +<code>first_name</code>, <code>last_name</code>, <code>display_name</code>, <code>user_type</code>,
+            <code>created_at</code>, <code>last_trip_at</code>, alias camelCase/snake_case pour trips_count et wallet_balance
+          </td>
+          <td><span class="badge badge-success">Types enrichis</span></td>
+        </tr>
+        <tr>
+          <td><code>src/features/fleet/api/clients.service.ts</code></td>
+          <td>
+            <code>FleetClient</code> : +<code>first_name</code>, <code>last_name</code>, <code>user_type</code><br/>
+            <code>FleetClientDetail</code> : héritage enrichi
+          </td>
+          <td><span class="badge badge-success">Types enrichis</span></td>
+        </tr>
+        <tr>
+          <td><code>src/features/franchise/api/finance.service.ts</code></td>
+          <td>
+            Nouveau type <code>FranchiseWithdrawal</code><br/>
+            <code>FranchiseFinance</code> : +<code>withdrawals[]</code>, +<code>payouts_pending_count</code>
+          </td>
+          <td><span class="badge badge-success">Types enrichis</span></td>
+        </tr>
+        <tr>
+          <td><code>src/features/franchise/api/reconciliation.service.ts</code></td>
+          <td>
+            Nouveau type <code>FranchiseReconciliationWallet</code><br/>
+            <code>FranchiseReconciliationListResponse</code> : +<code>wallet?</code>
+          </td>
+          <td><span class="badge badge-success">Types enrichis</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Mappers &amp; Services</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Modification</th>
+          <th>Raison</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/features/fleet/api/adminUsers.mapper.ts</code></td>
+          <td>
+            <code>mapAdminUserItemToFleetClient</code> : lecture first_name/last_name, construction fullName en cascade,
+            normalisation user_type, alias camelCase/snake_case pour tous les champs numériques et dates
+          </td>
+          <td>Réponse API v1 enrichie</td>
+        </tr>
+        <tr>
+          <td><code>src/features/franchise/api/clients.service.ts</code></td>
+          <td>
+            Nouveaux mappers <code>mapV1ClientItem()</code> et <code>mapV1ClientDetail()</code> dédiés franchise.
+            <code>.get()</code> : try/catch fallback automatique sur legacy si 403 ADMIN_REQUIRED.
+            <code>.list()</code> : mapper appliqué sur <code>items[]</code>
+          </td>
+          <td>BUG-CLIENTS-001 — route détail admin-only</td>
+        </tr>
+        <tr>
+          <td><code>src/features/franchise/api/finance.service.ts</code></td>
+          <td>
+            <code>mapV1Finance()</code> : corrections <code>commissions_xof</code> (≠ commissions_month_xof),
+            <code>pending_withdrawals_xof</code> (≠ pending_withdrawal_xof), lecture <code>raw.balance_fcfa</code> en priorité,
+            mapping <code>withdrawals[]</code> avec <code>metadata.partnerId</code> et <code>metadata.payoutMethod</code>
+          </td>
+          <td>MANQUE-022 — champs mal nommés en API</td>
+        </tr>
+        <tr>
+          <td><code>src/features/franchise/api/reconciliation.service.ts</code></td>
+          <td>
+            Refonte complète : <code>mapReconciliationRow()</code> lit <code>items[]</code> ou <code>entries[]</code>,
+            alias expected/received <code>_xof/_fcfa</code>, pagination avec <code>pg.limit</code>.
+            <code>mapV1ReconciliationResponse()</code> extrait le wallet.
+          </td>
+          <td>Pas de mapper v1 existant</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Pages UI</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Fichier</th>
+          <th>Modification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/features/fleet/pages/ClientsListPage.tsx</code></td>
+          <td>
+            Colonne "Client" : affiche first_name + last_name (fallback full_name) + email en sous-texte.<br/>
+            Colonne "Type" : badge coloré selon user_type (CLIENT teal, B2B amber, DRIVER navy).<br/>
+            Nouvelle colonne "Inscription" avec <code>registered_at</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><code>src/features/fleet/pages/ClientDetailPage.tsx</code></td>
+          <td>
+            Titre : first_name + last_name.<br/>
+            Badge user_type dans le header.<br/>
+            "Inscrit le {date}" dans la ligne de sous-info.<br/>
+            Nouveau KPI "Annulées" (<code>trips_cancelled</code>).
+          </td>
+        </tr>
+        <tr>
+          <td><code>src/features/franchise/pages/FranchiseFinancePage.tsx</code></td>
+          <td>
+            Nouvelle section "Retraits" : tableau <code>DataTable</code> avec Date, Montant, Méthode, Statut (badges), Payé le.<br/>
+            Alert dynamique dans le header si retraits en attente &gt; 0.<br/>
+            KPI "Retraits en attente" avec hint du nombre.<br/>
+            Empty state propre pour "Mouvements récents".
+          </td>
+        </tr>
+        <tr>
+          <td><code>src/features/franchise/pages/FranchiseReconciliationListPage.tsx</code></td>
+          <td>
+            Bannière wallet 3 cartes : Solde / Disponible / Retraits en attente (avec date de mise à jour).<br/>
+            Header : compteurs colorés rapprochés/écarts (silencieux si 0).
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Rapport généré le 2026-06-11 | UPJUNOO — Équipe Frontend
+  </div>
+</div>
+
+<!-- ===== PAGE 3 : BUGS BACKEND & DEMANDES ===== -->
+<div class="page">
+  <div class="header">
+    <h1>Bugs &amp; Manques Backend — Découverts le 2026-06-11</h1>
+    <div class="meta">2 bugs critiques identifiés · 6 champs manquants · Workarounds frontend appliqués</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">BUG-CLIENTS-001 — 403 ADMIN_REQUIRED sur GET /v1/franchise/clients/{id}</div>
+    <div class="alert-box">
+      <strong>Critique :</strong> La liste <code>GET /v1/franchise/clients</code> fonctionne avec le token franchise,
+      mais le détail <code>GET /v1/franchise/clients/{id}</code> retourne <code>{"error":{"code":"ADMIN_REQUIRED","message":"Admin role required"}}</code>.
+      Même constat probable pour les actions <code>suspend</code> et <code>activate</code>.
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Route</th>
+          <th>Méthode</th>
+          <th>Problème</th>
+          <th>Correction attendue</th>
+          <th>Workaround frontend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/v1/franchise/clients/{id}</code></td>
+          <td>GET</td>
+          <td>Guard <code>requireAdmin</code> au lieu de <code>requireFranchise</code></td>
+          <td>Autoriser rôle <code>franchise</code></td>
+          <td>try/catch → fallback <code>/franchise/fleet/clients/{id}</code></td>
+        </tr>
+        <tr>
+          <td><code>/v1/franchise/clients/{id}/suspend</code></td>
+          <td>POST</td>
+          <td>Probable même guard</td>
+          <td>Autoriser rôle <code>franchise</code></td>
+          <td>Route legacy en attente</td>
+        </tr>
+        <tr>
+          <td><code>/v1/franchise/clients/{id}/activate</code></td>
+          <td>POST</td>
+          <td>Probable même guard</td>
+          <td>Autoriser rôle <code>franchise</code></td>
+          <td>Route legacy en attente</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">MANQUE-023 — Champs manquants dans GET /v1/franchise/clients</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Champ attendu</th>
+          <th>Utilisé dans</th>
+          <th>Description</th>
+          <th>Priorité</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>trips_count</code></td>
+          <td>Colonne "Courses"</td>
+          <td>Nombre total de courses du client</td>
+          <td><span class="priority priority-high">HAUTE</span></td>
+        </tr>
+        <tr>
+          <td><code>wallet_balance_xof</code></td>
+          <td>Colonne "Wallet"</td>
+          <td>Solde wallet en XOF</td>
+          <td><span class="priority priority-high">HAUTE</span></td>
+        </tr>
+        <tr>
+          <td><code>last_trip_at</code></td>
+          <td>Colonne "Dernière course"</td>
+          <td>Date de la dernière course</td>
+          <td><span class="priority priority-medium">MOYENNE</span></td>
+        </tr>
+        <tr>
+          <td><code>recentOrders[]</code> (détail)</td>
+          <td>Tableau courses récentes</td>
+          <td>Liste des dernières courses avec référence, montant, trajet</td>
+          <td><span class="priority priority-high">HAUTE</span></td>
+        </tr>
+        <tr>
+          <td><code>profile.cancelled_trips_count</code></td>
+          <td>KPI "Annulées"</td>
+          <td>Nombre de courses annulées</td>
+          <td><span class="priority priority-medium">MOYENNE</span></td>
+        </tr>
+        <tr>
+          <td><code>profile.total_spent_xof</code></td>
+          <td>KPI "Dépenses totales"</td>
+          <td>Total dépensé lifetime</td>
+          <td><span class="priority priority-medium">MOYENNE</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="alert-box">
+      <strong>Observation :</strong> <code>user_type</code> renvoie <code>"DRIVER"</code> pour certaines entrées dans la liste clients.
+      L'API semble retourner tous les utilisateurs sans filtrage. <strong>Demande :</strong> filtrer <code>user_type = "CLIENT"</code> par défaut
+      ou accepter le paramètre <code>?user_type=CLIENT</code>.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">MANQUE-024 — GET /v1/franchise/finance/reconciliation retourne items vides</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Observation</th>
+          <th>Impact</th>
+          <th>Action attendue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>items: []</code> et <code>entries: []</code> dans la réponse</td>
+          <td>Tableau vide — impossible de valider le mapper</td>
+          <td>Insérer des entrées de réconciliation en base de test</td>
+        </tr>
+        <tr>
+          <td><code>wallet.balance_cached_xof: 0</code> et <code>available_xof: 0</code></td>
+          <td>KPIs wallet tous à 0</td>
+          <td>Alimenter le wallet franchise avec des données de test</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Chronologie des Travaux — 2026-06-11</div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <h5>Enrichissement types API — ApiAdminUserItem + FleetClient</h5>
+        <p>Ajout first_name, last_name, display_name, user_type et tous les alias camelCase/snake_case manquants.</p>
+      </div>
+      <div class="timeline-item">
+        <h5>Mapper adminUsers enrichi</h5>
+        <p>Construction fullName en cascade, user_type normalisé, trips/wallet/dates en double lecture.</p>
+      </div>
+      <div class="timeline-item">
+        <h5>Service franchise clients — mapper v1 dédié</h5>
+        <p><code>mapV1ClientItem()</code> + <code>mapV1ClientDetail()</code>. <code>.list()</code> et <code>.get()</code> adaptés.</p>
+      </div>
+      <div class="timeline-item">
+        <h5>Identification BUG-CLIENTS-001 — 403 ADMIN_REQUIRED sur détail client</h5>
+        <p>La page affichait "Client introuvable". Diagnostic : guard admin sur route franchise. Workaround try/catch + fallback legacy appliqué.</p>
+      </div>
+      <div class="timeline-item">
+        <h5>ClientsListPage + ClientDetailPage enrichis</h5>
+        <p>Badge user_type, colonnes first/last name + email + inscription, KPI Annulées, date inscription dans sous-titre.</p>
+      </div>
+      <div class="timeline-item">
+        <h5>Finance locale — corrections mapper + section retraits</h5>
+        <p>Correction des noms de champs API (<code>commissions_xof</code>, <code>pending_withdrawals_xof</code>). Tableau <code>FranchiseWithdrawal</code> avec badges statut.</p>
+      </div>
+      <div class="timeline-item">
+        <h5>Réconciliation — mapper v1 complet + bannière wallet</h5>
+        <p>Lecture <code>items[]</code> ou <code>entries[]</code>, pagination <code>limit</code>, extraction wallet. Bannière 3 KPIs sur la page.</p>
+      </div>
+      <div class="timeline-item">
+        <h5>Documentation BACKEND_BUGS_FRANCHISE.md</h5>
+        <p>Ajout BUG-CLIENTS-001, MANQUE-023, MANQUE-024 avec symptômes, causes, corrections attendues et workarounds.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Rapport généré le 2026-06-11 | UPJUNOO — Équipe Frontend
+  </div>
+</div>
+
+<!-- ===== PAGE 4 : NIVEAU DE FINITION GLOBAL ===== -->
+<div class="page">
+  <div class="header">
+    <h1>Niveau de Finition Global — Portail Franchise</h1>
+    <div class="meta">Vue d'ensemble cumulée J1 + J2 + J3</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Finition par Domaine Fonctionnel</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Domaine</th>
+          <th>API Backend</th>
+          <th>Intégration Frontend</th>
+          <th>UX / Données</th>
+          <th>Finition globale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Dashboard</strong></td>
+          <td><span class="badge badge-success">✅ 200</span></td>
+          <td><span class="badge badge-success">✅ Mappé</span></td>
+          <td><span class="badge badge-success">✅ Données présentes</span></td>
+          <td><span class="score-pill green">95%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Territoire / Carte</strong></td>
+          <td><span class="badge badge-success">✅ 9/10</span></td>
+          <td><span class="badge badge-success">✅ v1 natif</span></td>
+          <td><span class="badge badge-success">✅ Carte live OK</span></td>
+          <td><span class="score-pill green">90%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Partenaires</strong></td>
+          <td><span class="badge badge-success">✅ Liste + Détail</span></td>
+          <td><span class="badge badge-success">✅ v1 natif</span></td>
+          <td><span class="badge badge-success">✅ Données présentes</span></td>
+          <td><span class="score-pill green">85%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Chauffeurs</strong></td>
+          <td><span class="badge badge-success">✅ Liste + Modération</span></td>
+          <td><span class="badge badge-success">✅ KYC enrichi</span></td>
+          <td><span class="badge badge-success">✅ Données présentes</span></td>
+          <td><span class="score-pill green">82%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Finance locale</strong></td>
+          <td><span class="badge badge-success">✅ Wallet + Retraits</span></td>
+          <td><span class="badge badge-success">✅ Mapper corrigé</span></td>
+          <td><span class="badge badge-warning">⚠️ Mouvements vides test</span></td>
+          <td><span class="score-pill green">80%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Clients</strong></td>
+          <td><span class="badge badge-warning">⚠️ Liste OK / Détail 403</span></td>
+          <td><span class="badge badge-success">✅ Mapper v1 + fallback</span></td>
+          <td><span class="badge badge-warning">⚠️ trips/wallet absents</span></td>
+          <td><span class="score-pill yellow">70%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Réconciliation</strong></td>
+          <td><span class="badge badge-warning">⚠️ items[] vides</span></td>
+          <td><span class="badge badge-success">✅ Mapper v1 complet</span></td>
+          <td><span class="badge badge-warning">⚠️ No data en base test</span></td>
+          <td><span class="score-pill yellow">50%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Marketing</strong></td>
+          <td><span class="badge badge-success">✅ 3/7</span></td>
+          <td><span class="badge badge-success">✅ Mappers v1</span></td>
+          <td><span class="badge badge-warning">⚠️ Listes vides (no data)</span></td>
+          <td><span class="score-pill yellow">43%</span></td>
+        </tr>
+        <tr>
+          <td><strong>Support</strong></td>
+          <td><span class="badge badge-success">✅ 2/6</span></td>
+          <td><span class="badge badge-success">✅ Routes v1 activées</span></td>
+          <td><span class="badge badge-warning">⚠️ Listes vides (no data)</span></td>
+          <td><span class="score-pill yellow">33%</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Points Restants pour 100%</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Responsable</th>
+          <th>Priorité</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Corriger guard sur <code>GET /v1/franchise/clients/{id}</code> → autoriser rôle franchise</td>
+          <td>Backend</td>
+          <td><span class="priority priority-high">HAUTE</span></td>
+        </tr>
+        <tr>
+          <td>Ajouter <code>trips_count</code>, <code>wallet_balance_xof</code>, <code>last_trip_at</code> dans la liste clients</td>
+          <td>Backend</td>
+          <td><span class="priority priority-high">HAUTE</span></td>
+        </tr>
+        <tr>
+          <td>Ajouter <code>recentOrders[]</code> + <code>profile.total_spent_xof</code> dans le détail client</td>
+          <td>Backend</td>
+          <td><span class="priority priority-high">HAUTE</span></td>
+        </tr>
+        <tr>
+          <td>Filtrer <code>user_type = CLIENT</code> par défaut dans <code>/v1/franchise/clients</code></td>
+          <td>Backend</td>
+          <td><span class="priority priority-medium">MOYENNE</span></td>
+        </tr>
+        <tr>
+          <td>Insérer des entrées de réconciliation en base de test</td>
+          <td>Backend / QA</td>
+          <td><span class="priority priority-medium">MOYENNE</span></td>
+        </tr>
+        <tr>
+          <td>Insérer promos, tickets, commissions en base de test</td>
+          <td>Backend / QA</td>
+          <td><span class="priority priority-medium">MOYENNE</span></td>
+        </tr>
+        <tr>
+          <td>Valider <code>POST /v1/franchise/territory/extension-request</code> (MANQUE-005)</td>
+          <td>Backend</td>
+          <td><span class="priority priority-medium">MOYENNE</span></td>
+        </tr>
+        <tr>
+          <td>Tester section Dispatch complet (assign, status)</td>
+          <td>Frontend</td>
+          <td><span class="priority priority-low">BASSE</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Rapport généré le 2026-06-11 | UPJUNOO — Équipe Frontend
+  </div>
+</div>
+
+</body>
+</html>

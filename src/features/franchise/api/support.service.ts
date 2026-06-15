@@ -1,16 +1,55 @@
 import { apiClient } from "@/core/http/apiClient";
-import { AppError } from "@/core/http/errorHandler";
-import { LINKS } from "@/core/api/links";
+import { LINKS, appendQuery } from "@/core/api/links";
+import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
 import type { Paginated } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 
-function chatApiUnavailable(): never {
-  throw new AppError(
-    "Le chat support franchise n'est pas disponible via l'API v1.",
-    "FRANCHISE_SUPPORT_CHAT_UNAVAILABLE",
-    501
-  );
+function mapV1TicketsPage(raw: Record<string, any>, params?: ListParams): Paginated<FranchiseSupportTicket> {
+  const items: any[] = raw.items ?? raw.tickets ?? [];
+  const pg = raw.pagination ?? {};
+  return {
+    data: items.map((t) => ({
+      id: t.id,
+      subject: t.subject ?? t.title ?? "—",
+      category: t.category ?? "general",
+      priority: t.priority ?? "normal",
+      status: t.status ?? "open",
+      reporter_type: t.reporter_type ?? t.reporterType ?? "client",
+      reporter_name: t.reporter_name ?? t.reporterName ?? t.user_name ?? "—",
+      created_at: t.created_at ?? t.createdAt ?? new Date().toISOString(),
+      updated_at: t.updated_at ?? t.updatedAt ?? new Date().toISOString(),
+    })),
+    meta: {
+      total: pg.total ?? items.length,
+      per_page: pg.limit ?? params?.per_page ?? 20,
+      current_page: pg.page ?? params?.page ?? 1,
+      last_page: Math.max(1, Math.ceil((pg.total ?? items.length) / (pg.limit ?? 20))),
+    },
+  };
+}
+
+function mapV1ChatsPage(raw: Record<string, any>, params?: ListParams): Paginated<FranchiseSupportChat> {
+  const items: any[] = raw.items ?? raw.chats ?? raw.data ?? [];
+  const pg = raw.pagination ?? {};
+  return {
+    data: items.map((c) => ({
+      id: c.id,
+      participant_name: c.participant_name ?? c.participantName ?? c.user_name ?? "—",
+      participant_type: c.participant_type ?? c.participantType ?? "client",
+      subject: c.subject ?? undefined,
+      last_message_preview: c.last_message_preview ?? c.lastMessage ?? "",
+      unread_count: c.unread_count ?? c.unreadCount ?? 0,
+      status: c.status ?? "open",
+      updated_at: c.updated_at ?? c.updatedAt ?? new Date().toISOString(),
+    })),
+    meta: {
+      total: pg.total ?? items.length,
+      per_page: pg.limit ?? params?.per_page ?? 20,
+      current_page: pg.page ?? params?.page ?? 1,
+      last_page: Math.max(1, Math.ceil((pg.total ?? items.length) / (pg.limit ?? 20))),
+    },
+  };
 }
 
 export type SupportReporterType = "partner" | "driver" | "client";
@@ -54,55 +93,53 @@ export interface FranchiseSupportChatDetail extends FranchiseSupportChat {
   messages: FranchiseSupportMessage[];
 }
 
-function emptyChatsPage(params?: ListParams): Paginated<FranchiseSupportChat> {
-  const per_page = params?.per_page ?? 50;
-  const page = params?.page ?? 1;
-  return {
-    data: [],
-    meta: {
-      total: 0,
-      per_page,
-      current_page: page,
-      last_page: 1,
-    },
-  };
-}
 
 export const franchiseSupportService = {
-  listTickets: (params?: ListParams) =>
-    apiClient.get<Paginated<FranchiseSupportTicket>>(
-      `/franchise/support/tickets${buildListQuery(params)}`
-    ),
+  listTickets: async (params?: ListParams): Promise<Paginated<FranchiseSupportTicket>> => {
+    if (useLegacyPortalApi()) {
+      return apiClient.get<Paginated<FranchiseSupportTicket>>(
+        `/franchise/support/tickets${buildListQuery(params)}`
+      );
+    }
+    const raw = await apiClient.get<Record<string, any>>(
+      appendQuery(LINKS.franchise.v1.supportTickets, buildV1ListQuery(params))
+    );
+    return mapV1TicketsPage(raw, params);
+  },
 
-  getTicket: (id: string) =>
-    apiClient.get<FranchiseSupportTicketDetail>(`/franchise/support/tickets/${id}`),
+  getTicket: (id: string): Promise<FranchiseSupportTicketDetail> => {
+    if (useLegacyPortalApi()) {
+      return apiClient.get<FranchiseSupportTicketDetail>(`/franchise/support/tickets/${id}`);
+    }
+    return apiClient.get<FranchiseSupportTicketDetail>(LINKS.franchise.v1.supportTicketById(id));
+  },
 
   replyTicket: (id: string, body: string) =>
-    apiClient.post<FranchiseSupportMessage>(`/franchise/support/tickets/${id}/messages`, {
-      body,
-    }),
+    useLegacyPortalApi()
+      ? apiClient.post<FranchiseSupportMessage>(`/franchise/support/tickets/${id}/messages`, { body })
+      : apiClient.post<FranchiseSupportMessage>(LINKS.franchise.v1.supportTicketReply(id), { body }),
 
-  listChats: (params?: ListParams) => {
-    if (!useLegacyPortalApi()) {
-      return Promise.resolve(emptyChatsPage(params));
+  listChats: async (params?: ListParams): Promise<Paginated<FranchiseSupportChat>> => {
+    if (useLegacyPortalApi()) {
+      return apiClient.get<Paginated<FranchiseSupportChat>>(
+        `${LINKS.franchise.support.chat.list}${buildListQuery(params)}`
+      );
     }
-    return apiClient.get<Paginated<FranchiseSupportChat>>(
-      `${LINKS.franchise.support.chat.list}${buildListQuery(params)}`
+    const raw = await apiClient.get<Record<string, any>>(
+      appendQuery(LINKS.franchise.v1.supportChats, buildV1ListQuery(params))
     );
+    return mapV1ChatsPage(raw, params);
   },
 
-  getChat: (id: string) => {
-    if (!useLegacyPortalApi()) return Promise.reject(chatApiUnavailable());
-    return apiClient.get<FranchiseSupportChatDetail>(
-      LINKS.franchise.support.chat.getById(id)
-    );
+  getChat: (id: string): Promise<FranchiseSupportChatDetail> => {
+    if (useLegacyPortalApi()) {
+      return apiClient.get<FranchiseSupportChatDetail>(LINKS.franchise.support.chat.getById(id));
+    }
+    return apiClient.get<FranchiseSupportChatDetail>(LINKS.franchise.v1.supportChatById(id));
   },
 
-  replyChat: (id: string, body: string) => {
-    if (!useLegacyPortalApi()) return Promise.reject(chatApiUnavailable());
-    return apiClient.post<FranchiseSupportMessage>(
-      LINKS.franchise.support.chat.reply(id),
-      { body }
-    );
-  },
+  replyChat: (id: string, body: string) =>
+    useLegacyPortalApi()
+      ? apiClient.post<FranchiseSupportMessage>(LINKS.franchise.support.chat.reply(id), { body })
+      : apiClient.post<FranchiseSupportMessage>(LINKS.franchise.v1.supportChatReply(id), { body }),
 };

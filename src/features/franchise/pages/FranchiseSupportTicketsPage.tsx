@@ -155,12 +155,27 @@ export function FranchiseSupportTicketsPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les tickets.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger les tickets.{" "}
+        <Link href="/franchise/support" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Tickets" breadcrumb={["Franchise", "Support", "Tickets"]} />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader title="Tickets" breadcrumb={["Franchise", "Support", "Tickets"]} />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} ticket{meta.total > 1 ? "s" : ""} · {rows.filter((t) => t.status !== "resolved").length} ouvert{rows.filter((t) => t.status !== "resolved").length > 1 ? "s" : ""}
+          </p>
+        )}
+      </div>
 
       <TableFiltersBar
         search={table.search}

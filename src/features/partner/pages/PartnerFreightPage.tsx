@@ -1,28 +1,41 @@
 "use client";
 
+<<<<<<< HEAD
+=======
 import { useState } from "react";
+>>>>>>> main
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
+<<<<<<< HEAD
+=======
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+>>>>>>> main
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
   serverPaginationFromMeta,
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
+<<<<<<< HEAD
+import { usePartnerFreightOffers, useUpdateFreightOffer } from "../api/freight.queries";
+=======
 import {
   usePartnerFreightOffers,
   useUpdateFreightOffer,
   useCreateFreightOffer,
   useDeleteFreightOffer,
 } from "../api/freight.queries";
+>>>>>>> main
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import type { FreightOffer } from "../api/freight.service";
 
 export function PartnerFreightPage() {
   const table = useServerTableState([]);
+<<<<<<< HEAD
+=======
   const [showCreate, setShowCreate] = useState(false);
+>>>>>>> main
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
@@ -55,8 +68,13 @@ export function PartnerFreightPage() {
         <div className="text-sm">
           <div>{o.goods_type}</div>
           <div className="text-muted text-xs">
+<<<<<<< HEAD
+            {o.weight_kg && `${o.weight_kg} kg `}
+            {o.volume_m3 && `${o.volume_m3} m³`}
+=======
             {o.weight_kg ? `${o.weight_kg} kg ` : ""}
             {o.volume_m3 ? `${o.volume_m3} m³` : ""}
+>>>>>>> main
           </div>
         </div>
       ),
@@ -64,7 +82,11 @@ export function PartnerFreightPage() {
     {
       id: "client",
       header: "Client",
+<<<<<<< HEAD
+      cell: (o) => <div className="text-sm text-muted">{o.client_name}</div>,
+=======
       cell: (o) => <div className="text-sm text-muted">{o.client_name || "—"}</div>,
+>>>>>>> main
     },
     {
       id: "price",
@@ -97,9 +119,13 @@ export function PartnerFreightPage() {
       <PageHeader
         title="Offres de fret"
         breadcrumb={["Partenaire", "Opportunités"]}
+<<<<<<< HEAD
+        actions={<Button>Voir l'historique</Button>}
+=======
         actions={
           <Button onClick={() => setShowCreate(true)}>Nouvelle offre</Button>
         }
+>>>>>>> main
       />
 
       <TableFiltersBar
@@ -120,8 +146,11 @@ export function PartnerFreightPage() {
         pagination={false}
         serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
       />
+<<<<<<< HEAD
+=======
 
       {showCreate && <FreightCreateModal onClose={() => setShowCreate(false)} />}
+>>>>>>> main
     </div>
   );
 }
@@ -150,6 +179,30 @@ function StatusBadge({ status }: { status: string }) {
 
 function FreightActions({ offer }: { offer: FreightOffer }) {
   const update = useUpdateFreightOffer(offer.id);
+<<<<<<< HEAD
+
+  if (offer.status !== "pending") {
+    return null;
+  }
+
+  return (
+    <div className="flex gap-2">
+      <Button
+        className="px-3 py-1.5 text-xs"
+        onClick={() => update.mutate({ status: "accepted" })}
+        disabled={update.isPending}
+      >
+        Accepter
+      </Button>
+      <Button
+        className="px-3 py-1.5 text-xs"
+        variant="secondary"
+        onClick={() => update.mutate({ status: "rejected" })}
+        disabled={update.isPending}
+      >
+        Refuser
+      </Button>
+=======
   const del = useDeleteFreightOffer();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -325,6 +378,7 @@ function FreightCreateModal({ onClose }: { onClose: () => void }) {
           </div>
         </form>
       </div>
+>>>>>>> main
     </div>
   );
 }

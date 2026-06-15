@@ -1,4 +1,7 @@
 import { apiClient } from "@/core/http/apiClient";
+import { LINKS, appendQuery } from "@/core/api/links";
+import { buildV1ListQuery } from "@/core/api/v1Pagination";
+import { useLegacyPortalApi } from "@/core/api/portalApiMode";
 import type { LiveMapData, Paginated } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 
@@ -28,7 +31,11 @@ export interface FranchiseCommissionsListResponse extends Paginated<FranchisePar
 
 export const franchiseCommissionsService = {
   list: (params?: ListParams & { partner_id?: number | string }) =>
-    apiClient.get<FranchiseCommissionsListResponse>(
-      `/franchise/finance/commissions${buildListQuery(params)}`
-    ),
+    useLegacyPortalApi()
+      ? apiClient.get<FranchiseCommissionsListResponse>(
+          `/franchise/finance/commissions${buildListQuery(params)}`
+        )
+      : apiClient.get<FranchiseCommissionsListResponse>(
+          appendQuery(LINKS.franchise.v1.commissions, buildV1ListQuery(params))
+        ),
 };

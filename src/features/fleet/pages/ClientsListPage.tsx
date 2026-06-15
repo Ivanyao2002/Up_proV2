@@ -69,9 +69,12 @@ export function ClientsListPage({ portal = "admin" }: { portal?: FleetClientsPor
             href={paths.detail(c.id)}
             className="font-medium text-foreground hover:text-teal"
           >
-            {c.full_name}
+            {c.first_name || c.last_name
+              ? `${c.first_name} ${c.last_name}`.trim()
+              : c.full_name}
           </Link>
           <p className="text-xs text-muted">{c.phone}</p>
+          {c.email && <p className="text-xs text-muted">{c.email}</p>}
         </div>
       ),
       exportValue: (c) => c.full_name,
@@ -80,9 +83,17 @@ export function ClientsListPage({ portal = "admin" }: { portal?: FleetClientsPor
       id: "type",
       header: "Type",
       cell: (c) => (
-        <span className="text-xs font-medium uppercase text-muted">{c.type}</span>
+        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium uppercase ${
+          c.user_type === "DRIVER"
+            ? "bg-navy/10 text-navy"
+            : c.type === "b2b"
+            ? "bg-amber-100 text-amber-700"
+            : "bg-teal/10 text-teal-dark"
+        }`}>
+          {c.user_type === "DRIVER" ? "Chauffeur" : c.type.toUpperCase()}
+        </span>
       ),
-      exportValue: (c) => c.type,
+      exportValue: (c) => c.user_type,
     },
     {
       id: "trips",
@@ -99,8 +110,16 @@ export function ClientsListPage({ portal = "admin" }: { portal?: FleetClientsPor
       exportValue: (c) => c.wallet_balance_fcfa,
     },
     {
+      id: "registered",
+      header: "Inscription",
+      className: "text-muted whitespace-nowrap",
+      cell: (c) => formatDateTime(c.registered_at),
+      exportValue: (c) => c.registered_at,
+    },
+    {
       id: "last",
       header: "Dernière course",
+      className: "text-muted whitespace-nowrap",
       cell: (c) => (c.last_trip_at ? formatDateTime(c.last_trip_at) : "—"),
       exportValue: (c) => c.last_trip_at ?? "",
     },

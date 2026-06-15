@@ -5,13 +5,22 @@ import type { ApiV1Pagination } from "@/core/api/v1Pagination";
 export interface ApiAdminUserItem {
   id: string;
   fullName?: string | null;
+  display_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   phone?: string | null;
   email?: string | null;
   tripsCount?: number | null;
+  trips_count?: number | null;
   walletBalanceXof?: number | null;
+  wallet_balance_xof?: number | null;
   userType?: string | null;
+  user_type?: string | null;
   status?: string | null;
   createdAt?: string | null;
+  created_at?: string | null;
+  lastTripAt?: string | null;
+  last_trip_at?: string | null;
 }
 
 export interface ApiAdminUsersResponse {

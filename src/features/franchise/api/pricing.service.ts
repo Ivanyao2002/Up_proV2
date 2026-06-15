@@ -130,30 +130,21 @@ export const franchisePricingService = {
     return mapApiPricingRuleToUi(item, lookups);
   },
 
-  create: (payload: FranchiseCreatePricingPayload) => {
-    if (!useLegacyPortalApi()) {
-      return Promise.reject(
-        new Error(
-          "Création indisponible : POST /v1/franchises/{id}/pricing-rules absent du Swagger."
-        )
-      );
+  create: async (payload: FranchiseCreatePricingPayload) => {
+    if (useLegacyPortalApi()) {
+      return apiClient.post<PricingRule>(LINKS.franchise.pricing.create, payload);
     }
-    return apiClient.post<PricingRule>(
-      LINKS.franchise.pricing.create,
-      payload
-    );
+    const franchiseId = await resolveFranchiseId();
+    return apiClient.post<PricingRule>(LINKS.franchise.v1.pricingRules(franchiseId), payload);
   },
 
-  update: (id: string, payload: FranchiseUpdatePricingPayload) => {
-    if (!useLegacyPortalApi()) {
-      return Promise.reject(
-        new Error(
-          "Modification indisponible côté portail franchise en API v1 (PATCH non exposé)."
-        )
-      );
+  update: async (id: string, payload: FranchiseUpdatePricingPayload) => {
+    if (useLegacyPortalApi()) {
+      return apiClient.put<PricingRule>(LINKS.franchise.pricing.update(id), payload);
     }
-    return apiClient.put<PricingRule>(
-      LINKS.franchise.pricing.update(id),
+    const franchiseId = await resolveFranchiseId();
+    return apiClient.patch<PricingRule>(
+      `${LINKS.franchise.v1.pricingRules(franchiseId)}/${id}`,
       payload
     );
   },

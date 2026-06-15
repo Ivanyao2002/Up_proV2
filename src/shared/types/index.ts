@@ -373,15 +373,68 @@ export interface DriverDetail extends Driver {
   vehicle_id?: string | null;
   registered_at: string;
   approved_at: string | null;
+  /* enriched fields from franchise v1 detail endpoint */
+  rating_avg?: number | null;
+  rating_count?: number | null;
+  cancellation_rate?: number | null;
+  reliability_score?: number | null;
+  total_completed_orders?: number | null;
+  accepts_cash?: boolean;
+  accepts_wallet?: boolean;
+  last_online_at?: string | null;
+  ride_category_code?: string | null;
+  kyc_status?: string | null;
+  approval_status?: string | null;
+  onboarding_status?: string | null;
+  is_online?: boolean;
+  wallet_balance_xof?: number | null;
+  trips_count?: number | null;
+  franchise_id?: string | number;
+  partner_id?: string | null;
   stats: {
     trips_total: number;
     trips_completed: number;
     trips_cancelled: number;
-    acceptance_rate_pct: number;
+    acceptance_rate_pct: number | null;
     wallet_balance_fcfa: number;
   };
   timeline: DriverTimelineEvent[];
   kyc_documents: KycDocument[];
+}
+
+export interface KycQueueDriverDetail {
+  id: string;
+  partner_id: string | null;
+  driver_code: string | null;
+  approval_status: string;
+  kyc_status: string;
+  ride_category_code: string | null;
+  rating_avg: number | null;
+  total_completed_orders: number;
+  last_online_at: string | null;
+  current_vehicle_id: string | null;
+  is_online: boolean;
+  wallet_balance_xof: number;
+  trips_count: number;
+  complianceStatus: string | null;
+  documentsSummary: {
+    requiredCount: number;
+    uploadedCount: number;
+    approvedCount: number;
+    pendingCount: number;
+    rejectedCount: number;
+    missingCount: number;
+    missingTypes: string[];
+    isComplete: boolean;
+    hasAnyDocument: boolean;
+  } | null;
+  vehicleSummary: {
+    hasVehicle: boolean;
+    vehicleId: string | null;
+    vehicleDocumentsComplete: boolean;
+    missingVehicleDocTypes: string[];
+  } | null;
+  profile: { displayName: string; phone: string; email: string | null } | null;
 }
 
 export interface KycQueueItem {
@@ -393,8 +446,18 @@ export interface KycQueueItem {
   owner_name: string;
   documents_pending: number;
   documents_rejected: number;
-  submitted_at: string;
+  submitted_at: string | null;
   waiting_hours: number;
+  /* enriched from v1 moderation endpoint */
+  email?: string | null;
+  kyc_status?: string;
+  approval_status?: string;
+  ride_category_code?: string | null;
+  compliance_status?: string | null;
+  is_online?: boolean;
+  wallet_balance_xof?: number;
+  trips_count?: number;
+  driver?: KycQueueDriverDetail;
 }
 
 export interface Zone {

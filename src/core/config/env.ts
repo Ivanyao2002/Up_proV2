@@ -8,7 +8,15 @@ function parseLiveMapProvider(raw: string | undefined): LiveMapProvider {
   return "mapbox";
 }
 
+function normalizeBasePath(raw: string | undefined): string {
+  const trimmed = raw?.trim() ?? "";
+  if (!trimmed || trimmed === "/") return "";
+  return trimmed.replace(/\/$/, "");
+}
+
 export const env = {
+  /** Préfixe URL quand l'app est servie sous un sous-chemin (ex. /pro). */
+  basePath: normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH),
   /** Base API sans suffixe version (ex. https://api.upjunoo-dev.tech) */
   apiUrl:
     process.env.NEXT_PUBLIC_API_URL ?? "https://api.upjunoo-dev.tech",

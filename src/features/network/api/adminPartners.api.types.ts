@@ -2,6 +2,15 @@ import type { ApiV1Pagination } from "@/core/api/v1Pagination";
 
 /** GET /v1/admin/partners */
 
+export interface ApiAdminPartnerStats {
+  partner_type?: string | null;
+  revenue_xof?: number | null;
+  trips_count?: number | null;
+  wallet_balance_xof?: number | null;
+  vehicles_count?: number | null;
+  drivers_count?: number | null;
+}
+
 export interface ApiAdminPartnerItem {
   id: string;
   franchise_id?: string | null;
@@ -16,8 +25,17 @@ export interface ApiAdminPartnerItem {
   contact_phone?: string | null;
   contact_email?: string | null;
   commission_rate?: number | null;
+  address?: string | null;
+  wallet_id?: string | null;
+  owner_user_id?: string | null;
+  registration_number?: string | null;
+  tax_id?: string | null;
+  vehicles_count?: number | null;
+  vehiclesCount?: number | null;
   status?: string | null;
   metadata?: Record<string, unknown>;
+  settings?: Record<string, unknown>;
+  stats?: ApiAdminPartnerStats;
   created_at?: string;
   updated_at?: string;
 }

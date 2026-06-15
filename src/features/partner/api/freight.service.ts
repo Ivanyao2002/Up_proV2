@@ -70,6 +70,7 @@ export interface CreateFreightOfferPayload {
   notes?: string;
 }
 
+
 export interface UpdateFreightOfferPayload {
   status: "accepted" | "rejected";
   rejection_reason?: string;
@@ -85,6 +86,7 @@ export const partnerFreightService = {
 
   create: (partnerId: string | number, data: CreateFreightOfferPayload) =>
     apiClient.post<FreightOffer>(LINKS.partner.freight.create(partnerId), data),
+
 
   update: (partnerId: string | number, offerId: string, data: UpdateFreightOfferPayload) =>
     apiClient.patch<FreightOffer>(

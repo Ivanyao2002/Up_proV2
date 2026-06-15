@@ -2,7 +2,7 @@ import type { NavGroup } from "@/portals/shared/navTypes";
 
 export const FRANCHISE_NAV: NavGroup[] = [
   {
-    group: "TERRITOIRE",
+    group: "OPERATION",
     items: [
       {
         label: "Tableau de bord",
@@ -20,30 +20,18 @@ export const FRANCHISE_NAV: NavGroup[] = [
         label: "Courses",
         path: "/franchise/trips",
         icon: "trips",
-        permission: "ops.trips.view",
-      },
-      {
-        label: "Console dispatch",
-        path: "/franchise/dispatch",
-        icon: "dispatch",
-        permission: "ops.dispatch.view",
-      },
-      {
-        label: "Carte territoire",
-        path: "/franchise/territory",
-        icon: "territory",
         permission: "ops.dashboard.view",
       },
       {
-        label: "Extension territoire",
-        path: "/franchise/territory/extension",
-        icon: "territory",
+        label: "SOS Guardian",
+        path: "/franchise/sos",
+        icon: "support",
         permission: "ops.dashboard.view",
       },
       {
-        label: "Tarification",
-        path: "/franchise/pricing",
-        icon: "finance",
+        label: "Zones",
+        path: "/franchise/zones",
+        icon: "territory",
         permission: "ops.dashboard.view",
       },
     ],
@@ -64,8 +52,14 @@ export const FRANCHISE_NAV: NavGroup[] = [
         permission: "fleet.drivers.view",
       },
       {
-        label: "Modération KYC",
-        path: "/franchise/drivers/moderation",
+        label: "Véhicules",
+        path: "/franchise/fleet/vehicles",
+        icon: "fleet",
+        permission: "fleet.drivers.view",
+      },
+      {
+        label: "File KYC",
+        path: "/franchise/fleet/kyc",
         icon: "drivers-pending",
         permission: "fleet.kyc.approve",
       },
@@ -149,6 +143,29 @@ export const FRANCHISE_NAV: NavGroup[] = [
         path: "/franchise/support/chat",
         icon: "chat",
         permission: "network.partners.view",
+      },
+    ],
+  },
+  {
+    group: "PARAMÈTRES",
+    items: [
+      {
+        label: "Tarification",
+        path: "/franchise/pricing",
+        icon: "finance",
+        permission: "ops.dashboard.view",
+      },
+      {
+        label: "Météo",
+        path: "/franchise/settings/weather",
+        icon: "map",
+        permission: "settings.dispatchers.view",
+      },
+      {
+        label: "Général",
+        path: "/franchise/settings/general",
+        icon: "settings",
+        permission: "settings.dispatchers.view",
       },
     ],
   },

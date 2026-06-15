@@ -10,12 +10,14 @@ import {
   AbidjanZonesMap,
   ZonesMapLegend,
 } from "@/features/network/components/AbidjanZonesMap";
-import { useFranchiseTerritory } from "../api/territory.queries";
+import { useFranchiseTerritory, useRequestExtension } from "../api/territory.queries";
 import { notificationService } from "@/core/http/notificationService";
 
 export function FranchiseTerritoryExtensionPage() {
   const { data, isLoading, isError } = useFranchiseTerritory();
+  const extensionMutation = useRequestExtension();
   const [draftRing, setDraftRing] = useState<number[][]>([]);
+  const [selectedZoneIds, setSelectedZoneIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
 
   if (isLoading) {
@@ -27,15 +29,27 @@ export function FranchiseTerritoryExtensionPage() {
   }
 
   const submit = () => {
-    if (draftRing.length < 3) {
-      notificationService.warning("Tracez la zone demandée sur la carte (min. 3 points).");
+    if (draftRing.length < 3 && selectedZoneIds.length === 0) {
+      notificationService.warning("Tracez la zone demandée sur la carte (min. 3 points) ou sélectionnez des zones.");
       return;
     }
-    notificationService.success(
-      "Demande d'extension enregistrée — traitement sous 5 jours ouvrés (mock)."
+    const zone_ids = selectedZoneIds.length > 0
+      ? selectedZoneIds
+      : [`draft-${Date.now()}`];
+    extensionMutation.mutate(
+      { zone_ids, notes: notes || undefined },
+      {
+        onSuccess: () => {
+          notificationService.success("Demande d'extension enregistrée — traitement sous 5 jours ouvrés.");
+          setDraftRing([]);
+          setSelectedZoneIds([]);
+          setNotes("");
+        },
+        onError: () => {
+          notificationService.error("Erreur lors de l'envoi de la demande. Veuillez réessayer.");
+        },
+      }
     );
-    setDraftRing([]);
-    setNotes("");
   };
 
   return (
@@ -96,8 +110,11 @@ export function FranchiseTerritoryExtensionPage() {
           />
         </label>
         <div className="flex justify-end">
-          <Button onClick={submit} disabled={draftRing.length < 3}>
-            Soumettre la demande
+          <Button
+            onClick={submit}
+            disabled={extensionMutation.isPending || (draftRing.length < 3 && selectedZoneIds.length === 0)}
+          >
+            {extensionMutation.isPending ? "Envoi en cours…" : "Soumettre la demande"}
           </Button>
         </div>
       </div>

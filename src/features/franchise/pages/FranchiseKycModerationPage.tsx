@@ -143,22 +143,37 @@ export function FranchiseKycModerationPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger la file KYC.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger la file KYC.{" "}
+        <Link href="/franchise/drivers/moderation" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Modération KYC"
-        breadcrumb={["Franchise", "Territoire"]}
-        actions={
-          meta ? (
-            <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-800">
-              {meta.total} dossier{meta.total > 1 ? "s" : ""} en attente
-            </span>
-          ) : undefined
-        }
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Modération KYC"
+          breadcrumb={["Franchise", "Territoire"]}
+          actions={
+            meta ? (
+              <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-800">
+                {meta.total} dossier{meta.total > 1 ? "s" : ""} en attente
+              </span>
+            ) : undefined
+          }
+        />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} dossier{meta.total > 1 ? "s" : ""} KYC en attente de modération
+          </p>
+        )}
+      </div>
 
       <TableFiltersBar
         search={table.search}

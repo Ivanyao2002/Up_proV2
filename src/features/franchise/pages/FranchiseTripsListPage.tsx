@@ -166,12 +166,27 @@ export function FranchiseTripsListPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les courses.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger les courses.{" "}
+        <Link href="/franchise/trips" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Courses" breadcrumb={["Franchise", "Courses"]} />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader title="Courses" breadcrumb={["Franchise", "Courses"]} />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total.toLocaleString("fr-CI")} courses sur le territoire
+          </p>
+        )}
+      </div>
 
       {filterOptions && (
         <FranchiseLiveMapPartnerFilter

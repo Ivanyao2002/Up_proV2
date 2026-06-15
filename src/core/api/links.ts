@@ -42,6 +42,13 @@ export const createUrl = (
   return qs ? `${baseUrl}?${qs}` : baseUrl;
 };
 
+export const appendQuery = (baseUrl: string, query: string) => {
+  if (!query) return baseUrl;
+  const normalizedQuery = query.startsWith("?") ? query.slice(1) : query;
+  if (!normalizedQuery) return baseUrl;
+  return `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${normalizedQuery}`;
+};
+
 /** Auth Supabase — base `/v1` (voir SWAGGER.md § 02 - Auth) */
 export const AUTH_V1_BASE = "/v1/auth" as const;
 
@@ -56,9 +63,6 @@ export const LINKS = {
     drivers: {
       me: "/v1/drivers/me",
       getById: (id: string) => `${DRIVERS_V1_BASE}/${id}`,
-      wallet: (id: string) => `${DRIVERS_V1_BASE}/${id}/wallet`,
-      ledger: (id: string) => `${DRIVERS_V1_BASE}/${id}/ledger`,
-      onboardingStart: "/v1/drivers/onboarding/start",
     },
     files: {
       getById: (id: string) => `/v1/files/${id}`,
@@ -119,7 +123,8 @@ export const LINKS = {
       adminLogin: `${AUTH_V1_BASE}/admin/login`,
       clientLogin: `${AUTH_V1_BASE}/client/login`,
       driverLogin: `${AUTH_V1_BASE}/driver/login`,
-      driverRegister: `${AUTH_V1_BASE}/driver/register`,
+      franchiseLogin: `${AUTH_V1_BASE}/franchise/login`,
+      franchiseRegister: `${AUTH_V1_BASE}/franchise/register`,
       me: `${AUTH_V1_BASE}/me`,
       logout: `${AUTH_V1_BASE}/logout`,
       refresh: `${AUTH_V1_BASE}/refresh`,
@@ -129,8 +134,6 @@ export const LINKS = {
       driverResendOtp: `${AUTH_V1_BASE}/driver/resend-otp`,
       driverVerifyOtp: `${AUTH_V1_BASE}/driver/verify-otp`,
       devOtpLast: "/v1/dev/otp/last",
-      /** Inscription compte portail franchise (bootstrap membre — franchiseId requis) */
-      franchiseRegister: `${AUTH_V1_BASE}/franchise/register`,
     },
     /** MSW / back-office legacy (`/api/v2`) */
     legacy: {
@@ -167,32 +170,10 @@ export const LINKS = {
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
-      withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>
         `${ADMIN_V1_BASE}/withdrawals/${id}/approve`,
       withdrawalReject: (id: string) =>
         `${ADMIN_V1_BASE}/withdrawals/${id}/reject`,
-      partnerById: (id: string) => `${ADMIN_V1_BASE}/partners/${id}`,
-      partnerActivate: (id: string) =>
-        `${ADMIN_V1_BASE}/partners/${id}/activate`,
-      partnerSuspend: (id: string) =>
-        `${ADMIN_V1_BASE}/partners/${id}/suspend`,
-      partnerDocuments: (id: string) =>
-        `${ADMIN_V1_BASE}/partners/${id}/documents`,
-      compliance: {
-        summary: `${ADMIN_V1_BASE}/compliance/summary`,
-        drivers: `${ADMIN_V1_BASE}/compliance/drivers`,
-        vehicles: `${ADMIN_V1_BASE}/compliance/vehicles`,
-      },
-      marketing: {
-        promos: `${ADMIN_V1_BASE}/marketing/promos`,
-        campaigns: `${ADMIN_V1_BASE}/marketing/campaigns`,
-        banners: `${ADMIN_V1_BASE}/marketing/banners`,
-        promoById: (id: string) => `${ADMIN_V1_BASE}/marketing/promos/${id}`,
-        campaignById: (id: string) =>
-          `${ADMIN_V1_BASE}/marketing/campaigns/${id}`,
-        bannerById: (id: string) => `${ADMIN_V1_BASE}/marketing/banners/${id}`,
-      },
       users: `${ADMIN_V1_BASE}/users`,
       userById: (id: string) => `${ADMIN_V1_BASE}/users/${id}`,
       userSuspend: (id: string) => `${ADMIN_V1_BASE}/users/${id}/suspend`,
@@ -246,15 +227,13 @@ export const LINKS = {
       },
     },
 
-    /** Franchises — détail module 99 ; liste via `admin.v1.franchises` */
+    /** Franchises — /v1/admin/franchises (Swagger § 11 - Admin) */
     franchises: {
-      getById: (id: string) => `/v1/franchises/${id}`,
-      partners: (id: string) => `/v1/franchises/${id}/partners`,
-      drivers: (id: string) => `/v1/franchises/${id}/drivers`,
-      orders: (id: string) => `/v1/franchises/${id}/orders`,
-      revenue: (id: string) => `/v1/franchises/${id}/revenue`,
-      wallet: (id: string) => `/v1/franchises/${id}/wallet`,
-      ledger: (id: string) => `/v1/franchises/${id}/ledger`,
+      list: `${ADMIN_V1_BASE}/franchises`,
+      getById: (id: string) => `${ADMIN_V1_BASE}/franchises/${id}`,
+      reports: `${ADMIN_V1_BASE}/reports/franchises`,
+      // Note: Les sous-routes /partners, /drivers, /orders, /revenue n'existent pas dans Swagger
+      // Utiliser les endpoints admin généraux avec paramètre de requête franchiseId
     },
 
     partners: {
@@ -411,10 +390,65 @@ export const LINKS = {
 
   franchise: {
     v1: {
-      dashboard: "/v1/franchise/dashboard",
+      // Contextuels (token franchise suffit)
       me: "/v1/franchises/me",
-      pricingRules: (franchiseId: string) =>
-        `/v1/franchises/${franchiseId}/pricing-rules`,
+      dashboard: "/v1/franchise/dashboard",
+      drivers: "/v1/franchise/drivers",
+      driverByIdCtx: (driverId: string) => `/v1/franchise/drivers/${driverId}`,
+      kycModeration: "/v1/franchise/drivers/moderation",
+      partners: (id: string) => `/v1/franchises/${id}/partners`,
+      partnerById: (franchiseId: string, partnerId: string) => `/v1/franchises/${franchiseId}/partners/${partnerId}`,
+      partnerDrivers: (franchiseId: string, partnerId: string) => `/v1/franchises/${franchiseId}/partners/${partnerId}/drivers`,
+      partnerOrders: (franchiseId: string, partnerId: string) => `/v1/franchises/${franchiseId}/partners/${partnerId}/orders`,
+      partnerCommissions: (franchiseId: string, partnerId: string) => `/v1/franchises/${franchiseId}/partners/${partnerId}/commissions`,
+      createPartner: (franchiseId: string) => `/v1/franchises/${franchiseId}/partners`,
+      orders: (id: string) => `/v1/franchises/${id}/orders`,
+      orderById: (franchiseId: string, orderId: string) => `/v1/franchises/${franchiseId}/orders/${orderId}`,
+      liveMap: (id: string) => `/v1/franchises/${id}/livemap`,
+      liveMapCtx: "/v1/franchise/livemap",
+      territory: "/v1/franchise/territory",
+      extensionRequest: "/v1/franchise/territory/extension-request",
+      // Finance
+      finance: "/v1/franchise/finance",
+      driverTransfers: "/v1/franchise/finance/driver-transfers",
+      driverTransfersStats: "/v1/franchise/finance/driver-transfers/stats",
+      driverRecharge: "/v1/franchise/finance/driver-recharge",
+      partnerTransfers: "/v1/franchise/finance/partner-transfers",
+      partnerTransfersStats: "/v1/franchise/finance/partner-transfers/stats",
+      partnerRecharge: "/v1/franchise/finance/partner-recharge",
+      commissions: "/v1/franchise/finance/commissions",
+      reconciliation: "/v1/franchise/finance/reconciliation",
+      // Clients
+      clients: "/v1/franchise/clients",
+      // Support
+      supportTickets: "/v1/franchise/support/tickets",
+      supportTicketById: (id: string) => `/v1/franchise/support/tickets/${id}`,
+      supportTicketReply: (id: string) => `/v1/franchise/support/tickets/${id}/messages`,
+      supportChats: "/v1/franchise/support/chat",
+      supportChatById: (id: string) => `/v1/franchise/support/chat/${id}`,
+      supportChatReply: (id: string) => `/v1/franchise/support/chat/${id}/messages`,
+      // Marketing / Promos / Pricing
+      promos: "/v1/franchise/promos",
+      promoById: (id: string) => `/v1/franchise/promos/${id}`,
+      marketing: {
+        banners: "/v1/franchise/marketing/banners",
+        campaigns: "/v1/franchise/marketing/campaigns",
+      },
+      pricing: "/v1/franchise/pricing",
+      pricingRules: (franchiseId: string) => `/v1/franchises/${franchiseId}/pricing-rules`,
+      // Dispatch
+      dispatchOrders: "/v1/franchise/dispatch/orders",
+      dispatchAssign: (tripId: string) => `/v1/franchise/dispatch/orders/${tripId}/assign`,
+      // Drivers (par ID franchise)
+      driverById: (franchiseId: string, driverId: string) => `/v1/franchises/${franchiseId}/drivers/${driverId}`,
+      // Safety / SOS Guardian
+      sos: {
+        dashboard: "/v1/franchise/safety/sos/dashboard",
+        list: "/v1/franchise/safety/sos",
+        byId: (id: string) => `/v1/franchise/safety/sos/${id}`,
+        acknowledge: (id: string) => `/v1/franchise/safety/sos/${id}/acknowledge`,
+        resolve: (id: string) => `/v1/franchise/safety/sos/${id}/resolve`,
+      },
     },
 
     dashboard: "/franchise/dashboard",
@@ -451,6 +485,12 @@ export const LINKS = {
         suspend: (id: string | number) => `/franchise/fleet/clients/${id}/suspend`,
         activate: (id: string | number) => `/franchise/fleet/clients/${id}/activate`,
       },
+      vehicles: {
+        ...createCrudEndpoints("/v1/franchise/fleet/vehicles"),
+        byId: (id: string | number) => `/v1/franchise/fleet/vehicles/${id}`,
+        approve: (id: string | number) => `/v1/franchise/fleet/vehicles/${id}/approve`,
+        reject: (id: string | number) => `/v1/franchise/fleet/vehicles/${id}/reject`,
+      },
     },
 
     finance: {
@@ -481,6 +521,12 @@ export const LINKS = {
     promos: createCrudEndpoints("/franchise/promos"),
 
     pricing: createCrudEndpoints("/franchise/pricing"),
+
+    settings: {
+      weatherConfig: "/v1/franchise/settings/weather-config",
+      weatherRefresh: "/v1/franchise/settings/weather/refresh",
+      general: "/v1/franchise/settings/general",
+    },
 
     support: {
       tickets: {

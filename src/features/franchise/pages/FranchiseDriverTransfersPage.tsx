@@ -113,24 +113,32 @@ export function FranchiseDriverTransfersPage() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Recharges chauffeurs"
-        breadcrumb={["Franchise", "Finance", "Recharges"]}
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <Link href="/franchise/finance">
-              <Button variant="secondary">Finance locale</Button>
-            </Link>
-            <Button
-              variant="primary"
-              disabled={available <= 0}
-              onClick={() => setRechargeOpen(true)}
-            >
-              Nouvelle recharge
-            </Button>
-          </div>
-        }
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Recharges chauffeurs"
+          breadcrumb={["Franchise", "Finance", "Recharges"]}
+          actions={
+            <div className="flex flex-wrap gap-2">
+              <Link href="/franchise/finance">
+                <Button variant="secondary">Finance locale</Button>
+              </Link>
+              <Button
+                variant="primary"
+                disabled={available <= 0}
+                onClick={() => setRechargeOpen(true)}
+              >
+                Nouvelle recharge
+              </Button>
+            </div>
+          }
+        />
+        {stats && (
+          <p className="mt-1 text-sm text-muted">
+            {stats.transfers_count} transferts · {formatFCFA(stats.total_spent_fcfa)} dépensé · {formatFCFA(available)} disponible
+          </p>
+        )}
+      </div>
 
       <p className="mb-6 max-w-2xl text-sm text-muted">
         Transferts depuis le solde territoire vers les portefeuilles mobiles de
@@ -180,7 +188,10 @@ export function FranchiseDriverTransfersPage() {
 
       {isError ? (
         <p className="text-sm text-red-600">
-          Impossible de charger l&apos;historique.
+          Impossible de charger l&apos;historique.{" "}
+          <Link href="/franchise/finance/driver-transfers" className="text-teal underline">
+            Réessayer
+          </Link>
         </p>
       ) : (
         <DataTable

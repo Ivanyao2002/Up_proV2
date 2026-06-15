@@ -111,12 +111,30 @@ export function FranchiseSupportChatListPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les conversations.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger les conversations.{" "}
+        <Link href="/franchise/support/chat" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
+
+  const openCount = rows.filter((c) => c.status === "open").length;
+  const unreadTotal = rows.reduce((sum, c) => sum + (c.unread_count ?? 0), 0);
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Chat" breadcrumb={["Franchise", "Support", "Chat"]} />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader title="Chat" breadcrumb={["Franchise", "Support", "Chat"]} />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} conversation{meta.total > 1 ? "s" : ""} · {openCount} ouverte{openCount > 1 ? "s" : ""}{unreadTotal > 0 ? ` · ${unreadTotal} non lu${unreadTotal > 1 ? "s" : ""}` : ""}
+          </p>
+        )}
+      </div>
 
       <TableFiltersBar
         search={table.search}

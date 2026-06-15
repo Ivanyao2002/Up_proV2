@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "./Button";
+import { ModalPortal } from "./ModalPortal";
 
 interface RejectReasonModalProps {
   open: boolean;
@@ -37,6 +38,7 @@ export function RejectReasonModal({
   const trimmed = reason.trim();
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
@@ -72,5 +74,6 @@ export function RejectReasonModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

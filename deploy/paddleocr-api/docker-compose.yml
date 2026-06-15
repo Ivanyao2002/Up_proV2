@@ -8,7 +8,10 @@ services:
     environment:
       OCR_LANG: fr
       PORT: "8866"
+<<<<<<< HEAD
+=======
       ROOT_PATH: /ocr-api
+>>>>>>> main
     deploy:
       resources:
         limits:

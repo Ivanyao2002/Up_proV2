@@ -1,4 +1,7 @@
 import { apiClient } from "@/core/http/apiClient";
+import { LINKS, appendQuery } from "@/core/api/links";
+import { buildV1ListQuery } from "@/core/api/v1Pagination";
+import { useLegacyPortalApi } from "@/core/api/portalApiMode";
 import type { Paginated } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 
@@ -43,14 +46,20 @@ export type FranchisePromoPayload = Omit<
 };
 
 export const franchisePromosService = {
-  list: (params?: ListParams) =>
-    apiClient.get<Paginated<FranchisePromo>>(
-      `/franchise/promos${buildListQuery(params)}`
-    ),
+  list: (params?: ListParams): Promise<Paginated<FranchisePromo>> =>
+    useLegacyPortalApi()
+      ? apiClient.get<Paginated<FranchisePromo>>(`/franchise/promos${buildListQuery(params)}`)
+      : apiClient.get<Paginated<FranchisePromo>>(
+          appendQuery(LINKS.franchise.v1.promos, buildV1ListQuery(params))
+        ),
 
-  getById: (id: string) =>
-    apiClient.get<FranchisePromoDetail>(`/franchise/promos/${id}`),
+  getById: (id: string): Promise<FranchisePromoDetail> =>
+    useLegacyPortalApi()
+      ? apiClient.get<FranchisePromoDetail>(`/franchise/promos/${id}`)
+      : apiClient.get<FranchisePromoDetail>(LINKS.franchise.v1.promoById(id)),
 
   create: (payload: FranchisePromoPayload) =>
-    apiClient.post<FranchisePromo>("/franchise/promos", payload),
+    useLegacyPortalApi()
+      ? apiClient.post<FranchisePromo>("/franchise/promos", payload)
+      : apiClient.post<FranchisePromo>(LINKS.franchise.v1.promos, payload),
 };

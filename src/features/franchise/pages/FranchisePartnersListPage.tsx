@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+// useState kept for statusFilter
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { SelectFilter } from "@/shared/ui/SelectFilter";
 import { EntityStatusPill } from "@/shared/ui/EntityStatusPill";
+import { Button } from "@/shared/ui/Button";
 import { formatFCFA } from "@/shared/lib/format";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
@@ -91,15 +93,35 @@ export function FranchisePartnersListPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les partenaires.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger les partenaires.{" "}
+        <Link href="/franchise/partners" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Partenaires"
-        breadcrumb={["Franchise", "Réseau"]}
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Partenaires"
+          breadcrumb={["Franchise", "Réseau"]}
+          actions={
+            <Link href="/franchise/partners/new">
+              <Button type="button">+ Nouveau partenaire</Button>
+            </Link>
+          }
+        />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} partenaire{meta.total > 1 ? "s" : ""} sur le territoire
+          </p>
+        )}
+      </div>
 
       <TableFiltersBar
         search={table.search}
@@ -133,6 +155,7 @@ export function FranchisePartnersListPage() {
           table.setPageSize
         )}
       />
+
     </div>
   );
 }

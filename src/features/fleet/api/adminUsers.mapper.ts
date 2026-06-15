@@ -18,17 +18,29 @@ function mapUserStatus(status?: string | null): FleetClient["status"] {
 export function mapAdminUserItemToFleetClient(
   item: ApiAdminUserItem
 ): FleetClient {
+  const firstName = item.first_name ?? "";
+  const lastName = item.last_name ?? "";
+  const fullName =
+    item.fullName?.trim() ||
+    item.display_name?.trim() ||
+    [firstName, lastName].filter(Boolean).join(" ").trim() ||
+    item.email ||
+    `Client ${item.id.slice(0, 8)}`;
+  const rawType = String(item.userType ?? item.user_type ?? "CLIENT").toUpperCase();
   return {
     id: item.id,
-    full_name: item.fullName?.trim() || item.email || `Client ${item.id.slice(0, 8)}`,
+    full_name: fullName,
+    first_name: firstName,
+    last_name: lastName,
     phone: item.phone ?? "—",
     email: item.email ?? null,
-    type: "b2c",
+    type: rawType === "B2B" ? "b2b" : "b2c",
+    user_type: rawType,
     status: mapUserStatus(item.status),
-    trips_count: item.tripsCount ?? 0,
-    wallet_balance_fcfa: item.walletBalanceXof ?? 0,
-    registered_at: item.createdAt ?? new Date().toISOString(),
-    last_trip_at: null,
+    trips_count: item.tripsCount ?? item.trips_count ?? 0,
+    wallet_balance_fcfa: item.walletBalanceXof ?? item.wallet_balance_xof ?? 0,
+    registered_at: item.createdAt ?? item.created_at ?? new Date().toISOString(),
+    last_trip_at: item.lastTripAt ?? item.last_trip_at ?? null,
   };
 }
 

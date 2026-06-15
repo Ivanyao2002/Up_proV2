@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationService } from "@/core/http/notificationService";
+import { useAuthStore } from "@/core/auth/authStore";
 import { zonesKeys } from "./zones.keys";
 import { zonesService, type ZoneCreatePayload } from "./zones.service";
 import type { ListParams } from "@/shared/types/listParams";
@@ -25,6 +26,20 @@ export function useZonesByFranchise(franchiseId: string, enabled = true) {
     queryKey: [...zonesKeys.all, "franchise", franchiseId] as const,
     queryFn: () => zonesService.listByFranchise(franchiseId),
     enabled: Boolean(franchiseId) && enabled,
+  });
+}
+
+export function useZonesByFranchiseCtx() {
+  const franchiseId = String(useAuthStore((s) => s.user?.franchise_id ?? ""));
+  return useZonesByFranchise(franchiseId, Boolean(franchiseId));
+}
+
+export function useZonesMapOverviewByFranchise() {
+  const franchiseId = String(useAuthStore((s) => s.user?.franchise_id ?? ""));
+  return useQuery({
+    queryKey: [...zonesKeys.all, "map-overview-franchise", franchiseId] as const,
+    queryFn: () => zonesService.franchiseMapOverview(franchiseId),
+    enabled: Boolean(franchiseId),
   });
 }
 

@@ -141,16 +141,29 @@ export function FranchiseCommissionsListPage() {
 
   if (isError) {
     return (
-      <p className="text-sm text-red-600">Impossible de charger les commissions.</p>
+      <p className="text-sm text-red-600">
+        Impossible de charger les commissions.{" "}
+        <Link href="/franchise/finance/commissions" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
     );
   }
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Commissions"
-        breadcrumb={["Franchise", "Finance", "Commissions"]}
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Commissions"
+          breadcrumb={["Franchise", "Finance", "Commissions"]}
+        />
+        {summary && (
+          <p className="mt-1 text-sm text-muted">
+            {formatFCFA(summary.pending_fcfa)} en attente · {formatFCFA(summary.paid_month_fcfa)} versé · {meta?.total ?? 0} périodes
+          </p>
+        )}
+      </div>
 
       {data?.filter_options && (
         <FranchiseLiveMapPartnerFilter

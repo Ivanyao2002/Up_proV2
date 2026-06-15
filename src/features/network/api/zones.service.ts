@@ -147,6 +147,25 @@ export const zonesService = {
     };
   },
 
+  franchiseMapOverview: async (franchiseId: string): Promise<ZonesMapOverview> => {
+    const [response, lookups, hotZones] = await Promise.all([
+      fetchV1Zones({ franchise_id: franchiseId, per_page: 200 }),
+      resolveZoneLookups(),
+      fetchLiveMapHotZones().catch(() => [] as LiveMapHotZone[]),
+    ]);
+    const filtered = filterZonesByFranchise(response.zones ?? [], franchiseId);
+    const zones = enrichMapItemsWithHotZones(
+      filtered.map((item) => mapApiZoneToMapItem(item, lookups)),
+      hotZones.filter((hz) => !hz.franchise_id || String(hz.franchise_id) === franchiseId)
+    );
+    const cities = [...new Set(zones.map((z) => z.city).filter((c) => c && c !== "—"))];
+    return {
+      city: cities.length === 1 ? cities[0]! : "Territoire",
+      zones,
+      hotZones: hotZones.filter((hz) => !hz.franchise_id || String(hz.franchise_id) === franchiseId),
+    };
+  },
+
   create: (payload: ZoneCreatePayload) =>
     apiClient.post<Zone>("/admin/network/zones", payload),
 };

@@ -130,20 +130,37 @@ export function FranchiseCampaignsListPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les campagnes.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger les campagnes.{" "}
+        <Link href="/franchise/marketing/campaigns" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
+
+  const runningCount = rows.filter((c) => c.status === "running").length;
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Campagnes"
-        breadcrumb={["Franchise", "Marketing", "Campagnes"]}
-        actions={
-          <Link href="/franchise/marketing/campaigns/new">
-            <Button>Nouvelle campagne</Button>
-          </Link>
-        }
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Campagnes"
+          breadcrumb={["Franchise", "Marketing", "Campagnes"]}
+          actions={
+            <Link href="/franchise/marketing/campaigns/new">
+              <Button>Nouvelle campagne</Button>
+            </Link>
+          }
+        />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} campagne{meta.total > 1 ? "s" : ""} · {runningCount} en cours
+          </p>
+        )}
+      </div>
 
       <TableFiltersBar
         search={table.search}

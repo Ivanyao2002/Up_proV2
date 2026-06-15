@@ -114,16 +114,22 @@ export function ClientDetailPage({
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title={data.full_name}
+        title={
+          data.first_name || data.last_name
+            ? `${data.first_name} ${data.last_name}`.trim()
+            : data.full_name
+        }
         breadcrumb={[...paths.breadcrumbDetail(data.full_name)]}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-medium uppercase ${
-                data.type === "b2b" ? "bg-navy/10 text-foreground" : "bg-teal/15 text-teal-dark"
-              }`}
-            >
-              {data.type}
+            <span className={`rounded-full px-3 py-1 text-xs font-medium uppercase ${
+              data.user_type === "DRIVER"
+                ? "bg-navy/10 text-navy"
+                : data.type === "b2b"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-teal/15 text-teal-dark"
+            }`}>
+              {data.user_type === "DRIVER" ? "Chauffeur" : data.type.toUpperCase()}
             </span>
             {isSuspended ? (
               <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700">
@@ -159,10 +165,13 @@ export function ClientDetailPage({
         {" · "}
         {data.phone}
         {data.email ? ` · ${data.email}` : ""}
+        {" · Inscrit le "}
+        {formatDateTime(data.registered_at)}
       </p>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Courses totales" value={String(data.stats.trips_total)} />
+        <KpiCard label="Annulées" value={String(data.stats.trips_cancelled)} />
         <KpiCard label="Dépenses totales" value={formatFCFA(data.stats.total_spent_fcfa)} />
         <KpiCard label="Panier moyen" value={formatFCFA(data.stats.avg_fare_fcfa)} />
         <KpiCard label="Solde wallet" value={formatFCFA(data.stats.wallet_balance_fcfa)} />

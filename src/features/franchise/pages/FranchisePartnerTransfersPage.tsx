@@ -85,30 +85,43 @@ export function FranchisePartnerTransfersPage() {
 
   if (isError) {
     return (
-      <p className="text-sm text-red-600">Impossible de charger les recharges partenaires.</p>
+      <p className="text-sm text-red-600">
+        Impossible de charger les recharges partenaires.{" "}
+        <Link href="/franchise/finance/partner-transfers" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
     );
   }
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Recharges partenaires"
-        breadcrumb={["Franchise", "Finance", "Partenaires"]}
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <Link href="/franchise/finance">
-              <Button variant="secondary">Finance locale</Button>
-            </Link>
-            <Button
-              variant="primary"
-              disabled={available <= 0}
-              onClick={() => setRechargeOpen(true)}
-            >
-              Nouvelle recharge
-            </Button>
-          </div>
-        }
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Recharges partenaires"
+          breadcrumb={["Franchise", "Finance", "Partenaires"]}
+          actions={
+            <div className="flex flex-wrap gap-2">
+              <Link href="/franchise/finance">
+                <Button variant="secondary">Finance locale</Button>
+              </Link>
+              <Button
+                variant="primary"
+                disabled={available <= 0}
+                onClick={() => setRechargeOpen(true)}
+              >
+                Nouvelle recharge
+              </Button>
+            </div>
+          }
+        />
+        {stats && (
+          <p className="mt-1 text-sm text-muted">
+            {stats.transfers_count} recharges · {formatFCFA(stats.total_spent_fcfa)} crédité · {formatFCFA(available)} disponible
+          </p>
+        )}
+      </div>
 
       <div className="mb-4 grid gap-4 sm:grid-cols-3">
         <KpiCard

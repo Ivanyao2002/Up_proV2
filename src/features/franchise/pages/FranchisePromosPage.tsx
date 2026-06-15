@@ -120,20 +120,38 @@ export function FranchisePromosPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les promos.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger les promos.{" "}
+        <Link href="/franchise/promos" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
+
+  const activeCount = rows.filter((p) => p.status === "active").length;
+  const expiredCount = rows.filter((p) => p.status === "expired").length;
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Codes promo territoire"
-        breadcrumb={["Franchise", "Marketing", "Codes promo"]}
-        actions={
-          <Link href="/franchise/promos/new">
-            <Button>Nouveau code</Button>
-          </Link>
-        }
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Codes promo territoire"
+          breadcrumb={["Franchise", "Marketing", "Codes promo"]}
+          actions={
+            <Link href="/franchise/promos/new">
+              <Button>Nouveau code</Button>
+            </Link>
+          }
+        />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} codes · {activeCount} actif{activeCount > 1 ? "s" : ""} · {expiredCount} expiré{expiredCount > 1 ? "s" : ""}
+          </p>
+        )}
+      </div>
 
       <TableFiltersBar
         search={table.search}

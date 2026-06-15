@@ -16,9 +16,12 @@ import {
 export interface FleetClient {
   id: string | number;
   full_name: string;
+  first_name: string;
+  last_name: string;
   phone: string;
   email: string | null;
   type: "b2c" | "b2b";
+  user_type: string;
   status: "active" | "suspended";
   trips_count: number;
   wallet_balance_fcfa: number;

@@ -6,7 +6,7 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { FilterChips } from "@/shared/ui/FilterChips";
-import { formatFCFA } from "@/shared/lib/format";
+import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
@@ -61,6 +61,7 @@ export function FranchiseReconciliationListPage() {
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
+  const wallet = data?.wallet;
   const showPartnerColumn = scope.partnerId == null;
 
   const columns: Column<FranchiseReconciliationRow>[] = [
@@ -160,16 +161,56 @@ export function FranchiseReconciliationListPage() {
 
   if (isError) {
     return (
-      <p className="text-sm text-red-600">Impossible de charger la réconciliation.</p>
+      <p className="text-sm text-red-600">
+        Impossible de charger la réconciliation.{" "}
+        <Link href="/franchise/finance/reconciliation" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
     );
   }
 
+  // Calcul des stats
+  const matchedCount = rows.filter((r) => r.status === "matched").length;
+  const discrepancyCount = rows.filter((r) => r.status === "discrepancy").length;
+
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Réconciliation"
-        breadcrumb={["Franchise", "Finance", "Réconciliation"]}
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Réconciliation"
+          breadcrumb={["Franchise", "Finance", "Réconciliation"]}
+        />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} ligne{meta.total > 1 ? "s" : ""}
+            {matchedCount > 0 && <> · <span className="text-teal-dark">{matchedCount} rapproché{matchedCount > 1 ? "s" : ""}</span></>}
+            {discrepancyCount > 0 && <> · <span className="text-red-600 font-medium">{discrepancyCount} écart{discrepancyCount > 1 ? "s" : ""}</span></>}
+          </p>
+        )}
+      </div>
+
+      {/* Wallet summary */}
+      {wallet && (
+        <div className="mb-6 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-card border border-border bg-surface px-5 py-4 shadow-card">
+            <p className="text-xs text-muted">Solde wallet</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-foreground">{formatFCFA(wallet.balance_xof)}</p>
+          </div>
+          <div className="rounded-card border border-border bg-surface px-5 py-4 shadow-card">
+            <p className="text-xs text-muted">Disponible</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-teal-dark">{formatFCFA(wallet.available_xof)}</p>
+          </div>
+          <div className="rounded-card border border-border bg-surface px-5 py-4 shadow-card">
+            <p className="text-xs text-muted">Retraits en attente</p>
+            <p className={`mt-1 text-lg font-semibold tabular-nums ${wallet.pending_withdrawal_xof > 0 ? "text-amber-600" : "text-foreground"}`}>
+              {formatFCFA(wallet.pending_withdrawal_xof)}
+            </p>
+            <p className="mt-0.5 text-xs text-muted">Mis à jour {formatDateTime(wallet.updated_at)}</p>
+          </div>
+        </div>
+      )}
 
       {data?.filter_options && (
         <FranchiseLiveMapPartnerFilter
@@ -209,7 +250,7 @@ export function FranchiseReconciliationListPage() {
         rowKey={(r) => r.id}
         isLoading={isLoading}
         exportFileName="reconciliation-franchise"
-        emptyTitle="Aucune ligne de réconciliation"
+        emptyTitle="Aucune entrée de réconciliation"
         pagination={false}
         serverPagination={serverPaginationFromMeta(
           meta,

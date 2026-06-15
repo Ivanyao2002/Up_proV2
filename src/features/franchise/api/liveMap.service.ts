@@ -12,16 +12,12 @@ import {
 } from "./liveMap.types";
 
 function buildFranchiseLiveMapEndpoint(
-  franchiseId: string,
   filters?: FranchiseLiveMapFiltersValue
 ): string {
   const partnerId =
     filters?.partnerId != null ? String(filters.partnerId) : undefined;
-  return createUrl(LINKS.admin.v1.liveMap, {
-    franchiseId,
-    partnerId,
-    includeWithoutLocation: "true",
-  });
+  const baseUrl = LINKS.franchise.v1.liveMapCtx;
+  return partnerId ? `${baseUrl}?partnerId=${partnerId}` : baseUrl;
 }
 
 export const franchiseLiveMapService = {
@@ -42,15 +38,15 @@ export const franchiseLiveMapService = {
 
     const [data, partners] = await Promise.all([
       apiClient.get<ApiAdminLiveMapResponse>(
-        buildFranchiseLiveMapEndpoint(franchiseId, filters)
+        buildFranchiseLiveMapEndpoint(filters)
       ),
-      apiClient.get<{ items?: { id: string; trade_name?: string; legal_name?: string; city_id?: string }[] }>(
-        `${LINKS.admin.franchises.partners(franchiseId)}?limit=100`
+      apiClient.get<{ partners?: { id: string; trade_name?: string; legal_name?: string; city_id?: string }[] }>(
+        createUrl(LINKS.franchise.v1.partners(franchiseId), { page: 1, limit: 100 })
       ),
     ]);
 
     const mapped = mapApiLiveMapToData(data, scopeFilters);
-    const partnerOptions = (partners.items ?? []).map((p) => ({
+    const partnerOptions = (partners.partners ?? []).map((p) => ({
       id: p.id,
       name: p.trade_name?.trim() || p.legal_name?.trim() || `Partenaire ${p.id.slice(0, 8)}`,
       franchise_id: franchiseId,

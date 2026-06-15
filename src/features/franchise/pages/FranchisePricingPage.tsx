@@ -8,6 +8,7 @@ import { KpiCard } from "@/shared/ui/KpiCard";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { FilterChips } from "@/shared/ui/FilterChips";
+import { SelectFilter } from "@/shared/ui/SelectFilter";
 import { ServicePill } from "@/shared/ui/ServicePill";
 import { formatFCFA } from "@/shared/lib/format";
 import { getServiceLabel } from "@/shared/lib/tripLabels";
@@ -22,22 +23,31 @@ import { useFranchisePricing } from "../api/pricing.queries";
 
 const STATUS_FILTERS = [
   { value: "all" as const, label: "Toutes" },
-  { value: "active" as const, label: "Actives" },
+  { value: "active" as const, label: "En vigueur" },
   { value: "draft" as const, label: "Brouillons" },
+];
+
+const SERVICE_OPTIONS = [
+  { value: "all" as const, label: "Tous services" },
+  { value: "taxi" as const, label: "Taxi" },
+  { value: "delivery" as const, label: "Livraison" },
 ];
 
 export function FranchisePricingPage() {
   const legacy = useLegacyPortalApi();
   const [statusFilter, setStatusFilter] = useState<"all" | PricingRule["status"]>("all");
+  const [serviceFilter, setServiceFilter] = useState<(typeof SERVICE_OPTIONS)[number]["value"]>("all");
 
-  const table = useServerTableState([statusFilter], {
+  const table = useServerTableState([statusFilter, serviceFilter], {
     status: statusFilter !== "all" ? statusFilter : undefined,
+    service: serviceFilter !== "all" ? serviceFilter : undefined,
   });
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
     fields: [
       { value: statusFilter, defaultValue: "all", reset: () => setStatusFilter("all") },
+      { value: serviceFilter, defaultValue: "all", reset: () => setServiceFilter("all") },
     ],
   });
 
@@ -50,9 +60,19 @@ export function FranchisePricingPage() {
   const columns: Column<PricingRule>[] = [
     {
       id: "zone",
-      header: "Zone",
-      cell: (p) => <span className="font-medium text-foreground">{p.zone_name}</span>,
-      exportValue: (p) => p.zone_name,
+      header: "Zone / Règle",
+      cell: (p) => (
+        <div>
+          <span className="font-medium text-foreground">{p.zone_name}</span>
+          {p.rule_name && p.rule_name !== p.zone_name && (
+            <p className="text-xs text-muted">{p.rule_name}</p>
+          )}
+          {p.category_code && (
+            <p className="text-xs text-muted">{p.category_code}</p>
+          )}
+        </div>
+      ),
+      exportValue: (p) => p.rule_name ?? p.zone_name,
     },
     {
       id: "service",
@@ -91,7 +111,7 @@ export function FranchisePricingPage() {
         ) : (
           <span className="text-muted">—</span>
         ),
-      exportValue: (p) => p.surge_multiplier,
+      exportValue: (p) => (p.surge_multiplier > 1 ? `×${p.surge_multiplier}` : ""),
     },
     {
       id: "status",
@@ -125,42 +145,51 @@ export function FranchisePricingPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger la tarification.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger la tarification.{" "}
+        <Link href="/franchise/pricing" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Tarification"
-        breadcrumb={["Franchise", "Tarification"]}
-        actions={
-          legacy ? (
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Tarification"
+          breadcrumb={["Franchise", "Tarification"]}
+          actions={
             <Link href="/franchise/pricing/new">
-              <Button>Nouvelle grille</Button>
+              <Button variant="primary">Nouvelle grille</Button>
             </Link>
-          ) : undefined
-        }
-      />
-
-      <p className="mb-6 text-sm text-muted">
-        Grilles tarifaires de votre territoire ({summary?.franchise_name ?? "—"}).
-      </p>
-
-      {!legacy && (
-        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Lecture via <code className="text-xs">GET /v1/franchises/&#123;id&#125;/pricing-rules</code>.
-          Création et modification réservées au backoffice admin.
-        </p>
-      )}
+          }
+        />
+        {summary && (
+          <p className="mt-1 text-sm text-muted">
+            {summary.franchise_name} · {summary.active_count} en vigueur · {summary.draft_count} brouillon{summary.draft_count !== 1 ? "s" : ""}
+          </p>
+        )}
+      </div>
 
       {summary && (
-        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <KpiCard label="Grilles actives" value={String(summary.active_count)} />
-          <KpiCard label="Brouillons" value={String(summary.draft_count)} />
+        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
           <KpiCard
-            label="Territoire"
-            value={summary.franchise_name}
-            className="sm:col-span-2 lg:col-span-1"
+            label="Grilles en vigueur"
+            value={String(summary.active_count)}
+            variant="teal"
+          />
+          <KpiCard
+            label="Brouillons"
+            value={String(summary.draft_count)}
+            variant="navy"
+          />
+          <KpiCard
+            label="Total grilles"
+            value={String((meta?.total ?? 0))}
+            className="col-span-2 lg:col-span-1"
           />
         </div>
       )}
@@ -168,8 +197,8 @@ export function FranchisePricingPage() {
       <TableFiltersBar
         search={table.search}
         onSearchChange={table.setSearch}
-        searchPlaceholder="Zone, service…"
-        totalLabel={meta ? `${meta.total} grilles` : undefined}
+        searchPlaceholder="Zone, règle, catégorie…"
+        totalLabel={meta ? `${meta.total} grille${meta.total !== 1 ? "s" : ""}` : undefined}
         hasActiveFilters={hasActiveFilters}
         onReset={resetAll}
       >
@@ -177,6 +206,12 @@ export function FranchisePricingPage() {
           options={STATUS_FILTERS}
           value={statusFilter}
           onChange={setStatusFilter}
+        />
+        <SelectFilter
+          label="Service"
+          value={serviceFilter}
+          onChange={setServiceFilter}
+          options={SERVICE_OPTIONS}
         />
       </TableFiltersBar>
 
@@ -187,6 +222,7 @@ export function FranchisePricingPage() {
         isLoading={isLoading}
         exportFileName="tarification-franchise"
         emptyTitle="Aucune grille tarifaire"
+        emptyDescription="Aucune grille ne correspond aux filtres sélectionnés."
         pagination={false}
         serverPagination={serverPaginationFromMeta(
           meta,

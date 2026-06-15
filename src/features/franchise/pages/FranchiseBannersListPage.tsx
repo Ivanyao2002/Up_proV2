@@ -113,20 +113,37 @@ export function FranchiseBannersListPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les bannières.</p>;
+    return (
+      <p className="text-sm text-red-600">
+        Impossible de charger les bannières.{" "}
+        <Link href="/franchise/marketing/banners" className="text-teal underline">
+          Réessayer
+        </Link>
+      </p>
+    );
   }
+
+  const activeCount = rows.filter((b) => b.status === "active").length;
 
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Bannières"
-        breadcrumb={["Franchise", "Marketing", "Bannières"]}
-        actions={
-          <Link href="/franchise/marketing/banners/new">
-            <Button>Nouvelle bannière</Button>
-          </Link>
-        }
-      />
+      {/* Header sticky */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title="Bannières"
+          breadcrumb={["Franchise", "Marketing", "Bannières"]}
+          actions={
+            <Link href="/franchise/marketing/banners/new">
+              <Button>Nouvelle bannière</Button>
+            </Link>
+          }
+        />
+        {meta && (
+          <p className="mt-1 text-sm text-muted">
+            {meta.total} bannière{meta.total > 1 ? "s" : ""} · {activeCount} active{activeCount > 1 ? "s" : ""}
+          </p>
+        )}
+      </div>
 
       <TableFiltersBar
         search={table.search}

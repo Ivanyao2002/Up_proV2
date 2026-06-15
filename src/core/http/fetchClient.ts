@@ -10,11 +10,19 @@ import { AppError, AuthError, NetworkError } from "./errorHandler";
  * (`/upjunoo-api/*` → API distante) car le CORS live n'autorise que GET/HEAD/POST
  * (PATCH/PUT/DELETE bloqués en preflight — voir CORS-01).
  */
-export const BROWSER_API_PROXY_PREFIX = "/upjunoo-api";
+const API_PROXY_SUFFIX = "/upjunoo-api";
+
+/** Préfixe same-origin du proxy API (inclut basePath si défini, ex. /pro/upjunoo-api). */
+export function getBrowserApiProxyPrefix(): string {
+  return `${env.basePath}${API_PROXY_SUFFIX}`;
+}
+
+/** @deprecated Préférer getBrowserApiProxyPrefix() — conservé pour compat. */
+export const BROWSER_API_PROXY_PREFIX = API_PROXY_SUFFIX;
 
 function getRequestApiOrigin(): string {
   if (typeof window !== "undefined") {
-    return BROWSER_API_PROXY_PREFIX;
+    return getBrowserApiProxyPrefix();
   }
   return env.apiUrl.replace(/\/$/, "");
 }

@@ -9,8 +9,11 @@ from paddleocr import PaddleOCR
 
 OCR_LANG = os.getenv("OCR_LANG", "fr")
 OCR_PORT = int(os.getenv("PORT", "8866"))
+<<<<<<< HEAD
+=======
 # Préfixe public derrière nginx (ex. https://uat.upjunoo.com/ocr-api/)
 ROOT_PATH = os.getenv("ROOT_PATH", "").rstrip("/")
+>>>>>>> main
 
 ocr_engine: PaddleOCR | None = None
 
@@ -70,7 +73,10 @@ app = FastAPI(
     title="UpJunoo PaddleOCR API",
     version="1.0.0",
     lifespan=lifespan,
+<<<<<<< HEAD
+=======
     root_path=ROOT_PATH,
+>>>>>>> main
 )
 
 app.add_middleware(
@@ -86,17 +92,26 @@ def health() -> dict[str, str]:
     return {"status": "ok", "engine": "paddleocr", "lang": OCR_LANG}
 
 
+<<<<<<< HEAD
+=======
 def public_path(path: str) -> str:
     return f"{ROOT_PATH}{path}" if ROOT_PATH else path
 
 
+>>>>>>> main
 @app.get("/")
 def root() -> dict[str, str]:
     return {
         "service": "paddleocr-api",
+<<<<<<< HEAD
+        "docs": "/docs",
+        "health": "/health",
+        "ocr": "POST /ocr (multipart file)",
+=======
         "docs": public_path("/docs"),
         "health": public_path("/health"),
         "ocr": f"POST {public_path('/ocr')} (multipart file)",
+>>>>>>> main
     }
 
 

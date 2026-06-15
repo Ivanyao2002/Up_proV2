@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport de Travail - Module Franchise</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #e2e8f0;
+  color: #0f172a;
+  line-height: 1.45;
+}
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 12px auto;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+  padding: 48px 52px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.page:last-child { page-break-after: auto; }
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; }
+}
+
+/* Header */
+.header {
+  background: #016d71;
+  color: #fff;
+  margin: -48px -52px 32px -52px;
+  padding: 32px 52px;
+}
+.header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.header .meta { font-size: 14px; opacity: 0.9; }
+
+/* Stats Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+.stat-card.success { border-top: 4px solid #22c55e; }
+.stat-card.warning { border-top: 4px solid #f59e0b; }
+.stat-card.error { border-top: 4px solid #ef4444; }
+.stat-card h3 { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+.stat-card.success h3 { color: #16a34a; }
+.stat-card.warning h3 { color: #d97706; }
+.stat-card.error h3 { color: #dc2626; }
+.stat-card p { font-size: 13px; color: #64748b; }
+
+/* Sections */
+.section { margin-bottom: 28px; }
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #016d71;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #016d71;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+th {
+  background: #f1f5f9;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 2px solid #cbd5e1;
+}
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+tr:hover { background: #f8fafc; }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-success { background: #dcfce7; color: #166534; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-error { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+
+/* Code blocks */
+.code-block {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+/* Priority tags */
+.priority {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.priority-high { background: #ef4444; color: white; }
+.priority-medium { background: #f59e0b; color: white; }
+.priority-low { background: #22c55e; color: white; }
+
+/* Summary box */
+.summary-box {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.summary-box h4 {
+  color: #0f766e;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.summary-box ul {
+  margin-left: 20px;
+  font-size: 13px;
+}
+.summary-box li { margin-bottom: 6px; }
+
+/* Footer */
+.footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <h1>Rapport de Travail - Module Franchise</h1>
+      <div class="meta">Date: 2026-06-09 | Objectif: Fix Franchise Pages (Tour complet 21 pages)</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card success">
+        <h3>3</h3>
+        <p>Pages Fonctionnelles</p>
+      </div>
+      <div class="stat-card warning">
+        <h3>2</h3>
+        <p>Partiellement OK</p>
+      </div>
+      <div class="stat-card error">
+        <h3>16</h3>
+        <p>Non Fonctionnelles</p>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <h4>Travaux Réalisés Aujourd'hui</h4>
+      <ul>
+        <li>Tour complet des 21 pages du module franchise</li>
+        <li>5 corrections frontend appliquées (endpoints, fallback, gestion erreurs)</li>
+        <li>12 bugs backend documentés avec spécifications détaillées</li>
+        <li>Taux de succès actuel: ~14% (3/21 pages entièrement fonctionnelles)</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Pages Fonctionnelles</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Page</th>
+            <th>URL</th>
+            <th>Statut</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dashboard</strong></td>
+            <td>/franchise</td>
+            <td><span class="badge badge-success">✅ OK</span></td>
+            <td>Endpoint V1 fonctionnel</td>
+          </tr>
+          <tr>
+            <td><strong>Partners List</strong></td>
+            <td>/franchise/partners</td>
+            <td><span class="badge badge-success">✅ OK</span></td>
+            <td>Endpoint V1 fonctionnel</td>
+          </tr>
+          <tr>
+            <td><strong>Drivers List</strong></td>
+            <td>/franchise/drivers</td>
+            <td><span class="badge badge-success">✅ OK</span></td>
+            <td>Liste OK (sans filtres)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Pages Partiellement Fonctionnelles</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Page</th>
+            <th>URL</th>
+            <th>Problème</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Trips</strong></td>
+            <td>/franchise/trips</td>
+            <td>Filtre partenaire OK, mais recherche et filtre service KO</td>
+          </tr>
+          <tr>
+            <td><strong>Partner Detail</strong></td>
+            <td>/franchise/partners/[id]</td>
+            <td>Champs <code>address</code> et <code>vehicles_count</code> manquants</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="header">
+      <h1>Bugs Backend - Priorité Haute</h1>
+      <div class="meta">12 endpoints à créer ou corriger</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Endpoints à Créer (Manquants)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Endpoint</th>
+            <th>Méthode</th>
+            <th>Priorité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><code>/v1/franchises/{id}/drivers/{driverId}</code></td>
+            <td>GET</td>
+            <td><span class="priority priority-high">HAUTE</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><code>/v1/franchises/{id}/finance</code></td>
+            <td>GET</td>
+            <td><span class="priority priority-high">HAUTE</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><code>/v1/franchises/{id}/finance/*</code> (7 endpoints)</td>
+            <td>GET/POST</td>
+            <td><span class="priority priority-high">HAUTE</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><code>/v1/franchises/{id}/livemap</code></td>
+            <td>GET</td>
+            <td><span class="priority priority-high">HAUTE</span></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><code>/v1/franchises/{id}/territory</code></td>
+            <td>GET</td>
+            <td><span class="priority priority-medium">MOYENNE</span></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><code>/v1/franchises/{id}/pricing/*</code></td>
+            <td>GET/POST/PUT</td>
+            <td><span class="priority priority-medium">MOYENNE</span></td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><code>/v1/franchises/{id}/support/*</code></td>
+            <td>GET/POST</td>
+            <td><span class="priority priority-medium">MOYENNE</span></td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td><code>/v1/franchises/{id}/marketing/*</code></td>
+            <td>GET/POST</td>
+            <td><span class="priority priority-low">BASSE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Endpoints à Corriger (Existants mais cassés)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Endpoint</th>
+            <th>Problème</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><code>/v1/franchise/drivers</code></td>
+            <td>Filtres ignorés</td>
+            <td>Ajouter search, zone, account_status, availability</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><code>/v1/franchises/{id}/orders</code></td>
+            <td>404 au lieu de []</td>
+            <td>Retourner 200+[] quand pas de résultats</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><code>/v1/franchises/{id}/orders?search=XXX</code></td>
+            <td>Recherche non fonctionnelle</td>
+            <td>Corriger la recherche par référence/nom</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><code>/v1/franchises/{id}/partners/{partnerId}</code></td>
+            <td>Champs manquants</td>
+            <td>Ajouter address, vehicles_count</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Fichiers Modifiés (Frontend)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Fichier</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/features/franchise/api/trips.service.ts</code></td>
+            <td>Catch 404 → liste vide</td>
+          </tr>
+          <tr>
+            <td><code>src/features/franchise/api/partners.service.ts</code></td>
+            <td>Endpoint V1 partners</td>
+          </tr>
+          <tr>
+            <td><code>src/features/franchise/api/drivers.service.ts</code></td>
+            <td>Endpoint V1 + fallback multi-niveaux</td>
+          </tr>
+          <tr>
+            <td><code>src/features/franchise/api/liveMap.service.ts</code></td>
+            <td>Endpoint V1 livemap</td>
+          </tr>
+          <tr>
+            <td><code>src/core/api/links.ts</code></td>
+            <td>Ajout URLs franchise V1</td>
+          </tr>
+          <tr>
+            <td><code>BACKEND_REQUESTS_FRANCHISE.md</code></td>
+            <td>Documentation 12 bugs</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      Rapport généré le 2026-06-09 | Équipe Backend & Frontend
+    </div>
+  </div>
+</body>
+</html>

@@ -32,7 +32,14 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
   });
 
   if (isLoading) {
-    return <DetailPageSkeleton />;
+    return (
+      <DetailPageSkeleton
+        title="Course"
+        breadcrumb={["Franchise", "Courses"]}
+        showSidebar={false}
+        kpiCount={3}
+      />
+    );
   }
 
   if (isError || !trip) {
@@ -40,7 +47,7 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
       <p className="text-sm text-red-600">
         Course introuvable.{" "}
         <Link href="/franchise/trips" className="text-teal underline">
-          Retour
+          Retour à la liste
         </Link>
       </p>
     );
@@ -52,17 +59,23 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
   const showDriverOnMap = liveTracking && Boolean(driverLiveLocation);
 
   return (
-    <div className="animate-fade-up mx-auto w-full max-w-6xl">
-      <PageHeader
-        title={trip.ref}
-        breadcrumb={["Franchise", "Courses", trip.ref]}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {trip.service && <ServicePill service={trip.service} />}
-            <StatusPill status={trip.status} pulse={trip.status === "in_progress"} />
-          </div>
-        }
-      />
+    <div className="animate-fade-up">
+      {/* Header sticky résumé */}
+      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+        <PageHeader
+          title={trip.ref}
+          breadcrumb={["Franchise", "Courses", trip.ref]}
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              {trip.service && <ServicePill service={trip.service} />}
+              <StatusPill status={trip.status} pulse={trip.status === "in_progress"} />
+            </div>
+          }
+        />
+        <p className="mt-1 text-sm text-muted">
+          {trip.client_name} · {trip.from_label} → {trip.to_label}
+        </p>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         <div className="space-y-6">

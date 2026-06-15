@@ -9,8 +9,8 @@ export function FranchisePendingWithdrawalsKpi({
   pending,
 }: FranchisePendingWithdrawalsKpiProps) {
   return (
-    <div className="kpi-card kpi-card--compact kpi-card--slate kpi-card__grain relative rounded-card p-4 text-white sm:p-5">
-      <div className="kpi-card__pattern kpi-card__pattern--waves" aria-hidden />
+    <div className="kpi-card kpi-card--compact kpi-card--deep-teal kpi-card__grain relative rounded-card p-4 text-white sm:p-5">
+      <div className="kpi-card__pattern kpi-card__pattern--mesh" aria-hidden />
       <div className="relative z-[1]">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-white/65">
           Retraits en attente
