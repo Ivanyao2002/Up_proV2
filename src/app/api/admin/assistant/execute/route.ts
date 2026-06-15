@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LINKS } from "@/core/api/links";
 import type { AssistantExecuteType } from "@/features/assistant/types";
-import { assistantApiPatch, assistantApiPost } from "../assistantApiClient";
+import { assistantApiGet, assistantApiPatch, assistantApiPost, str } from "../assistantApiClient";
 
 interface ExecuteBody {
   type?: AssistantExecuteType;
@@ -90,6 +90,64 @@ export async function POST(req: NextRequest) {
       break;
     }
 
+    case "approve_all_kyc_documents": {
+      const driverId = body.driverId?.trim();
+      if (!driverId) {
+        return NextResponse.json({ message: "driverId requis." }, { status: 400 });
+      }
+      const docsJson = await assistantApiGet<{ items?: Array<{ id?: string; status?: string }> }>(
+        `${LINKS.admin.v1.kycDocuments}?subject_id=${encodeURIComponent(driverId)}&subject_type=DRIVER`,
+        authHeader
+      );
+      if (!docsJson) {
+        return NextResponse.json(
+          { message: "Impossible de charger les documents KYC." },
+          { status: 502 }
+        );
+      }
+      const pendingIds = (docsJson.items ?? [])
+        .filter((d) => {
+          const s = str(d.status).toLowerCase();
+          return s === "pending" || s === "submitted";
+        })
+        .map((d) => String(d.id))
+        .filter(Boolean);
+
+      if (!pendingIds.length) {
+        return NextResponse.json({
+          ok: true,
+          message: "Aucun document KYC en attente — dossier déjà à jour.",
+        });
+      }
+
+      let approved = 0;
+      const errors: string[] = [];
+      for (const documentId of pendingIds) {
+        const response = await assistantApiPost(
+          LINKS.admin.v1.kycApprove(documentId),
+          authHeader
+        );
+        if (response.ok) {
+          approved += 1;
+        } else {
+          errors.push(`${documentId}: ${response.error ?? response.status}`);
+        }
+      }
+
+      if (!approved) {
+        return NextResponse.json(
+          { message: errors[0] ?? "Aucun document n'a pu être approuvé." },
+          { status: 502 }
+        );
+      }
+
+      successMessage =
+        errors.length > 0
+          ? `${approved}/${pendingIds.length} document(s) KYC approuvé(s). ${errors.length} échec(s).`
+          : `${approved} document(s) KYC approuvé(s).`;
+      break;
+    }
+
     case "reject_kyc_document": {
       const documentId = body.documentId?.trim();
       if (!documentId) {
@@ -125,7 +183,54 @@ export async function POST(req: NextRequest) {
           { status: response.status }
         );
       }
-      successMessage = "KYC chauffeur approuvé.";
+      successMessage = "Compte chauffeur approuvé.";
+      break;
+    }
+
+    case "approve_driver_full": {
+      const driverId = body.driverId?.trim();
+      if (!driverId) {
+        return NextResponse.json({ message: "driverId requis." }, { status: 400 });
+      }
+
+      const docsJson = await assistantApiGet<{ items?: Array<{ id?: string; status?: string }> }>(
+        `${LINKS.admin.v1.kycDocuments}?subject_id=${encodeURIComponent(driverId)}&subject_type=DRIVER`,
+        authHeader
+      );
+      const pendingIds = (docsJson?.items ?? [])
+        .filter((d) => {
+          const s = str(d.status).toLowerCase();
+          return s === "pending" || s === "submitted";
+        })
+        .map((d) => String(d.id))
+        .filter(Boolean);
+
+      let approvedDocs = 0;
+      for (const documentId of pendingIds) {
+        const response = await assistantApiPost(
+          LINKS.admin.v1.kycApprove(documentId),
+          authHeader
+        );
+        if (response.ok) approvedDocs += 1;
+      }
+
+      const accountResponse = await assistantApiPost(
+        LINKS.admin.v1.driverApprove(driverId),
+        authHeader
+      );
+      if (!accountResponse.ok && approvedDocs === 0) {
+        return NextResponse.json(
+          { message: accountResponse.error ?? `Erreur API ${accountResponse.status}` },
+          { status: accountResponse.status }
+        );
+      }
+
+      const parts: string[] = [];
+      if (approvedDocs) parts.push(`${approvedDocs} document(s) KYC`);
+      if (accountResponse.ok) parts.push("compte chauffeur");
+      successMessage = parts.length
+        ? `Dossier approuvé : ${parts.join(" + ")}.`
+        : "Dossier déjà à jour.";
       break;
     }
 

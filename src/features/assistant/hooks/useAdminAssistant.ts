@@ -10,6 +10,10 @@ import {
 import { buildAssistantPageContext } from "../lib/assistantPageContext";
 import { buildContextualSuggestions } from "../lib/assistantSuggestionChips";
 import { executeAssistantAction, openEntityDetail } from "../lib/executeAssistantAction";
+import {
+  isAssistantCancelPhrase,
+  isAssistantConfirmPhrase,
+} from "../lib/assistantConfirmPhrases";
 import type { AdminEntityKey } from "../catalog/adminEntities";
 import type {
   AssistantApiResponse,
@@ -60,7 +64,7 @@ export function useAdminAssistant() {
       id: "welcome",
       role: "assistant",
       content:
-        "Bonjour ! Conformité (« peut-il rouler ? »), KYC, wallet, ops live, workflows dossier, actions confirmées (suspendre, valider KYC, recharger).\n\nOnglet Inscription : déposez vos pièces d'identité.",
+        "Bonjour ! Conformité, KYC + compte chauffeur, classements (top chauffeurs/clients/partenaires), wallet, ops live.\n\nEx. : « meilleur chauffeur franchise Côte d'Ivoire », « approuve tout le dossier de Kouassi ».",
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -81,6 +85,34 @@ export function useAdminAssistant() {
       /* ignore */
     }
   }, []);
+
+  const confirmPendingAction = useCallback(async () => {
+    const conf = pendingConfirmation;
+    if (!conf || isExecuting) return;
+
+    setIsExecuting(true);
+    setError(null);
+    try {
+      const result = await executeAssistantConfirmation(
+        conf.executeType,
+        conf.payload
+      );
+      setMessages((prev) => [
+        ...prev,
+        { id: uid(), role: "assistant", content: result.message },
+      ]);
+      setPendingConfirmation(null);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Action échouée.";
+      setError(msg);
+      setMessages((prev) => [
+        ...prev,
+        { id: uid(), role: "assistant", content: `Échec : ${msg}` },
+      ]);
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [pendingConfirmation, isExecuting]);
 
   const send = useCallback(
     async (text: string) => {
@@ -104,7 +136,28 @@ export function useAdminAssistant() {
         }
       }
 
+      if (pendingConfirmation) {
+        if (isAssistantConfirmPhrase(trimmed)) {
+          setMessages((prev) => [
+            ...prev,
+            { id: uid(), role: "user", content: trimmed },
+          ]);
+          await confirmPendingAction();
+          return;
+        }
+        if (isAssistantCancelPhrase(trimmed)) {
+          setPendingConfirmation(null);
+          setMessages((prev) => [
+            ...prev,
+            { id: uid(), role: "user", content: trimmed },
+            { id: uid(), role: "assistant", content: "Action annulée." },
+          ]);
+          return;
+        }
+      }
+
       setError(null);
+      const hadPending = Boolean(pendingConfirmation);
       setPendingConfirmation(null);
       const userMsg: AssistantUiMessage = {
         id: uid(),
@@ -138,10 +191,17 @@ export function useAdminAssistant() {
           });
         }
 
+        const prefix =
+          hadPending && result.confirmation
+            ? ""
+            : hadPending
+              ? "Action précédente annulée. "
+              : "";
+
         const assistantMsg: AssistantUiMessage = {
           id: uid(),
           role: "assistant",
-          content: result.message,
+          content: `${prefix}${result.message}`,
           candidates: result.candidates,
           pendingAction: Boolean(result.action) && !navigated,
           confirmation: result.confirmation,
@@ -159,32 +219,8 @@ export function useAdminAssistant() {
         setIsLoading(false);
       }
     },
-    [isLoading, messages, pageContext, router]
+    [confirmPendingAction, isLoading, messages, pageContext, pendingConfirmation, router]
   );
-
-  const confirmPendingAction = useCallback(async () => {
-    const conf = pendingConfirmation;
-    if (!conf || isExecuting) return;
-
-    setIsExecuting(true);
-    setError(null);
-    try {
-      const result = await executeAssistantConfirmation(
-        conf.executeType,
-        conf.payload
-      );
-      setMessages((prev) => [
-        ...prev,
-        { id: uid(), role: "assistant", content: result.message },
-      ]);
-      setPendingConfirmation(null);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Action échouée.";
-      setError(msg);
-    } finally {
-      setIsExecuting(false);
-    }
-  }, [pendingConfirmation, isExecuting]);
 
   const dismissConfirmation = useCallback(() => {
     setPendingConfirmation(null);

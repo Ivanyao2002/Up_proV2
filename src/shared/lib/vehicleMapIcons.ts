@@ -1,7 +1,9 @@
-/** Icône par défaut — même asset que la carte live actuelle. */
-export const LIVE_MAP_DEFAULT_VEHICLE_ICON = "/assets/icon/gps-navigation.png";
+import { withBasePath } from "@/shared/lib/basePath";
 
-const ICON_BASE = "/assets/icon";
+/** Icône par défaut — même asset que la carte live actuelle. */
+export const LIVE_MAP_DEFAULT_VEHICLE_ICON = withBasePath("/assets/icon/gps-navigation.png");
+
+const ICON_BASE = withBasePath("/assets/icon");
 
 /** Slugs correspondant aux fichiers dans `public/assets/icon/`. */
 const COLOR_SLUGS = new Set([
@@ -68,7 +70,7 @@ export function resolveVehicleMapIconUrl(color?: string | null): string {
   if (!color?.trim()) return LIVE_MAP_DEFAULT_VEHICLE_ICON;
 
   const raw = color.trim();
-  if (raw.startsWith("/assets/icon/")) return raw;
+  if (raw.startsWith(ICON_BASE)) return raw;
   if (raw.endsWith(".png")) return `${ICON_BASE}/${raw.replace(/^.*\//, "")}`;
 
   const token = normalizeColorToken(raw);

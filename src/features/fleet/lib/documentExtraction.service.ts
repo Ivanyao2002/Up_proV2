@@ -7,6 +7,7 @@ import {
   consolidateExtractionWarnings,
   localizeExtractionWarning,
 } from "./localizeExtractionWarning";
+import { withBasePath } from "@/shared/lib/basePath";
 
 function localizeWarnings(warnings: string[] | undefined): string[] {
   return (warnings ?? []).map(localizeExtractionWarning);
@@ -30,7 +31,7 @@ export async function extractDocumentGroup(
     form.append("files", file);
   }
 
-  const res = await fetch("/api/document-extract", {
+  const res = await fetch(withBasePath("/api/document-extract"), {
     method: "POST",
     body: form,
   });

@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.cursor
+*.md
+docs
+deploy
+.env*.local
+.env
+npm-debug.log*
+.DS_Store
+terminals
+scripts/_vps_*
+scripts/_nginx_*
+scripts/_deploy_*

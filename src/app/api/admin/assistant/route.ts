@@ -16,7 +16,8 @@ import {
   summarizeEntityById,
 } from "./pageContextFetcher";
 import { fetchFirstEntityId, resolveOpenFirstEntity } from "./openFirstEntity";
-import { resolveAnalyticsQuery } from "./analyticsQueries";
+import { resolveAnalyticsQuery, resolveRankingQuery } from "./analyticsQueries";
+import type { RankingQuery } from "./rankingIntent";
 import { resolveSummarizeByQuery } from "./summarizeByQuery";
 import { parseSpecialIntentToken } from "./specialIntent";
 import { resolveSpecialIntent } from "./resolveSpecialIntent";
@@ -98,6 +99,12 @@ export async function POST(req: NextRequest) {
       if (direct.message.startsWith("__ANALYTICS__:")) {
         const kind = direct.message.split(":")[1] ?? "";
         return NextResponse.json(await resolveAnalyticsQuery(kind, authHeader));
+      }
+
+      if (direct.message.startsWith("__RANKING__:")) {
+        const raw = direct.message.slice("__RANKING__:".length);
+        const query = JSON.parse(decodeURIComponent(raw)) as RankingQuery;
+        return NextResponse.json(await resolveRankingQuery(query, authHeader));
       }
 
       const special = parseSpecialIntentToken(direct.message);

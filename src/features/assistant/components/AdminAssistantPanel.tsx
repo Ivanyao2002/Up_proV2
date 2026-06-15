@@ -285,6 +285,9 @@ export function AdminAssistantPanel({ open, onClose }: AdminAssistantPanelProps)
                   Annuler
                 </Button>
               </div>
+              <p className="mt-2 text-[11px] text-muted">
+                Cliquez Confirmer ou tapez « oui » — un autre message annule l&apos;action.
+              </p>
             </div>
           ) : null}
 

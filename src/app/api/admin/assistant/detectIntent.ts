@@ -17,6 +17,7 @@ import {
   detectRelativeIntent,
   isSummaryRequest,
 } from "./contextIntent";
+import { matchRankingQuery } from "./rankingIntent";
 import {
   isGenericSummaryRequest,
   matchAnalyticsIntent,
@@ -53,6 +54,14 @@ export async function detectDirectIntent(
         confirmation: confirm.confirmation ?? null,
       };
     }
+  }
+
+  const ranking = matchRankingQuery(text);
+  if (ranking) {
+    return {
+      message: `__RANKING__:${encodeURIComponent(JSON.stringify(ranking))}`,
+      action: null,
+    };
   }
 
   const analytics = matchAnalyticsIntent(text);

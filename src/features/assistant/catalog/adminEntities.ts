@@ -423,6 +423,13 @@ export function matchEntityListIntent(text: string): AdminEntityKey | null {
 export function matchEntityFindIntent(
   text: string
 ): { entity: AdminEntityKey; query: string } | null {
+  if (
+    /(?:qui est|meilleur|meilleure|top|classement|plus (?:de|grand)|ranking)/i.test(text) &&
+    /(?:chauffeur|client|partenaire|franchise|course|wallet|annul)/i.test(text)
+  ) {
+    return null;
+  }
+
   for (const entity of ADMIN_ENTITIES) {
     if (!entity.searchable || !entity.findKeywords) continue;
     for (const re of entity.findKeywords) {

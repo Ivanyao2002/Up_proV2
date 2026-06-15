@@ -1,0 +1,23 @@
+services:
+  upjunoo-pro-backoffice:
+    build:
+      context: ../..
+      dockerfile: deploy/upjunoo-pro/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_USE_REAL_AUTH: ${NEXT_PUBLIC_USE_REAL_AUTH}
+        NEXT_PUBLIC_USE_MOCKS: ${NEXT_PUBLIC_USE_MOCKS}
+        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME}
+        NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+        NEXT_PUBLIC_LIVE_MAP_PROVIDER: ${NEXT_PUBLIC_LIVE_MAP_PROVIDER}
+        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
+    container_name: upjunoo-pro-backoffice
+    restart: unless-stopped
+    ports:
+      - "3006:3000"
+    env_file:
+      - .env.runtime
+    deploy:
+      resources:
+        limits:
+          memory: 2G
