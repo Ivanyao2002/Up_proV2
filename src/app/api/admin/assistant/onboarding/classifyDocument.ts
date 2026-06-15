@@ -89,6 +89,78 @@ function isLicenseRecto(text: string): boolean {
   );
 }
 
+/** VIN / châssis — verso carte grise CI (pas MRZ CNI ni n° CNI permis). */
+function hasVinOrChassis(text: string): boolean {
+  if (hasCniMrz(text)) return false;
+  const n = normalize(text);
+  if (
+    n.includes("NUMERO DU VIN") ||
+    n.includes("NUMERO DE CHASSIS") ||
+    n.includes("VIN/CHASSIS") ||
+    (n.includes("VIN") && n.includes("CHASSIS"))
+  ) {
+    return true;
+  }
+  if (n.includes("CHASSIS") && /[A-HJ-NPR-Z0-9]{11,17}/.test(n)) return true;
+  if (/WDB[A-HJ-NPR-Z0-9]{14}/.test(n)) return true;
+  return false;
+}
+
+/** Référence CNI sur verso permis (ex. CNI-C0112495086) — pas une carte d'identité. */
+function hasPermisLinkedCniRef(text: string): boolean {
+  const n = normalize(text);
+  if (n.includes("CARTE NATIONALE")) return false;
+  return /\bCNI[\s\-]*[A-Z0-9]{6,}/.test(n);
+}
+
+/** Grille validité / expiration (plusieurs PERMANENT + dates JJ-MM-AAAA). */
+function hasPermisValidityGrid(text: string): boolean {
+  const n = normalize(text);
+  const permanentCount = (n.match(/PERMANENT/g) || []).length;
+  const dateCount = (n.match(/\d{2}-\d{2}-\d{4}/g) || []).length;
+  if (permanentCount >= 2 && dateCount >= 2) return true;
+  if (permanentCount >= 1 && dateCount >= 4) return true;
+  return false;
+}
+
+/** Numéro de série verso permis CI (ex. 00001439375). */
+function hasPermisSerialNumber(text: string): boolean {
+  const n = normalize(text);
+  return /\b0{3,}\d{7,}\b/.test(n);
+}
+
+/** Tableau catégories A–E (verso permis CI). */
+function hasLicenseCategoryTable(text: string): boolean {
+  const n = normalize(text);
+  const hasCategories = n.includes("CATEGORIE") || n.includes("CATEGORIES");
+  const hasValidity =
+    n.includes("VALIDITE") ||
+    n.includes("EXPIRATION") ||
+    n.includes("PERMANENT");
+  const categoryRows = ["A", "B", "C", "D", "E"].filter(
+    (letter) =>
+      new RegExp(`\\b${letter}\\b`).test(n) &&
+      (n.includes("PERMANENT") || n.includes("VALIDITE") || n.includes("EXPIRATION"))
+  );
+  if (hasCategories && hasValidity) return true;
+  if (categoryRows.length >= 2) return true;
+  if (/\b7[\.\s]/.test(n) && (/\b8[\.\s]/.test(n) || /\b9[\.\s]/.test(n) || hasCategories)) {
+    return true;
+  }
+  if (/\b7[\.\s]/.test(n) && n.includes("PERMANENT")) return true;
+  if (
+    n.includes("MINISTERE DES TRANSPORTS") &&
+    categoryRows.length >= 1 &&
+    hasValidity
+  ) {
+    return true;
+  }
+  if (hasPermisValidityGrid(text) && (hasPermisLinkedCniRef(text) || hasPermisSerialNumber(text))) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Verso permis ivoirien — contient souvent « Document d'identité » + ref CNI,
  * ce qui ne doit pas être confondu avec une carte d'identité.
@@ -99,24 +171,56 @@ function isLicenseVerso(text: string): boolean {
     n.includes("GROUPE SANGUIN"),
     n.includes("STRICTEMENT PERSONNELLE"),
     n.includes("EMPREINTE"),
-    (n.includes("CATEGORIE") || n.includes("CATEGORIES")) &&
-      (n.includes("VALIDITE") || n.includes("EXPIRATION") || n.includes("PERMANENT")),
+    hasLicenseCategoryTable(text),
+    hasPermisLinkedCniRef(text) && n.includes("PERMANENT"),
+    hasPermisValidityGrid(text) && !hasVinOrChassis(text) && !n.includes("CARTE GRISE"),
+    hasPermisSerialNumber(text) &&
+      n.includes("PERMANENT") &&
+      !hasVinOrChassis(text) &&
+      !n.includes("CARTE GRISE"),
     n.includes("DOCUMENT D'IDENTITE") &&
       !n.includes("CARTE NATIONALE") &&
       (n.includes("VALIDITE") || n.includes("CATEGORIE") || n.includes("GROUPE SANGUIN")),
     n.includes("MINISTERE DES TRANSPORTS") &&
-      (n.includes("VALIDITE") || n.includes("CATEGORIE") || n.includes("GROUPE SANGUIN")),
+      (hasLicenseCategoryTable(text) ||
+        n.includes("VALIDITE") ||
+        n.includes("CATEGORIE") ||
+        n.includes("GROUPE SANGUIN")),
   ];
   return strong.filter(Boolean).length >= 1;
 }
 
-function isRegistration(text: string): boolean {
+/** Recto carte grise ivoirienne. */
+function isRegistrationRecto(text: string): boolean {
   const n = normalize(text);
   return (
     n.includes("CARTE GRISE") ||
-    (n.includes("IMMATRICULATION") && n.includes("MINISTERE DES TRANSPORTS")) ||
+    (n.includes("IMMATRICULATION") &&
+      n.includes("MINISTERE DES TRANSPORTS") &&
+      !hasVinOrChassis(text)) ||
     n.includes("CERTIFICAT D'IMMATRICULATION")
   );
+}
+
+/** Verso carte grise ivoirienne (VIN, crédit, type technique, code-barres). */
+function isRegistrationVerso(text: string): boolean {
+  if (isRegistrationRecto(text) || hasCniMrz(text) || hasLicenseCategoryTable(text)) {
+    return false;
+  }
+  const n = normalize(text);
+  const signals = [
+    hasVinOrChassis(text),
+    n.includes("SOCIETE DE CREDIT"),
+    n.includes("TYPE TECHNIQUE"),
+    n.includes("NUMERO DE MOTEUR"),
+    n.includes("IMMATRICULATION PRECEDENT") ||
+      n.includes("IMMATRICULATION PRECEDENTE"),
+    (n.includes("CODE BARRE") || n.includes("CODEBARRE")) &&
+      n.includes("MINISTERE DES TRANSPORTS"),
+    n.includes("MINISTERE DES TRANSPORTS") &&
+      hasVinOrChassis(text),
+  ];
+  return signals.filter(Boolean).length >= 1;
 }
 
 function isVersoHeuristic(text: string): boolean {
@@ -125,22 +229,26 @@ function isVersoHeuristic(text: string): boolean {
     hasCniMrz(text) ||
     n.includes("<<") ||
     n.includes("CODE BARRE") ||
+    n.includes("CODEBARRE") ||
     n.includes("DOMICILE") ||
     n.includes("ADRESSE") ||
     n.includes("RESIDENCE") ||
     n.includes("EMPREINTE") ||
     n.includes("GROUPE SANGUIN") ||
+    hasVinOrChassis(text) ||
+    n.includes("SOCIETE DE CREDIT") ||
+    n.includes("TYPE TECHNIQUE") ||
     n.includes("SIGNATURE DE L'AUTORITE") ||
-    n.includes("SIGNATURE DE L AUTORITE")
+    n.includes("SIGNATURE DE L AUTORITE") ||
+    n.includes("SIGNATURE ET CACHET")
   );
 }
 
-function result(
+export function classificationDisplayLabel(
   kind: DocumentKind,
-  side: "recto" | "verso" | null,
-  confidence: ClassificationResult["confidence"]
-): ClassificationResult {
-  const labels: Record<DocumentKind, string> = {
+  side: "recto" | "verso" | null
+): string {
+  const base: Record<DocumentKind, string> = {
     cni: "Carte d'identité",
     license: "Permis de conduire",
     registration: "Carte grise",
@@ -148,11 +256,22 @@ function result(
     insurance: "Assurance",
     technical: "Visite technique",
   };
+  const name = base[kind];
+  if (side === "recto") return `${name} recto`;
+  if (side === "verso") return `${name} verso`;
+  return name;
+}
+
+function result(
+  kind: DocumentKind,
+  side: "recto" | "verso" | null,
+  confidence: ClassificationResult["confidence"]
+): ClassificationResult {
   return {
     kind,
     side,
     slot: null,
-    label: labels[kind],
+    label: classificationDisplayLabel(kind, side),
     confidence,
   };
 }
@@ -169,7 +288,7 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
     };
   }
 
-  if (isRegistration(text)) {
+  if (isRegistrationRecto(text)) {
     return result("registration", "recto", "high");
   }
 
@@ -179,6 +298,10 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
 
   if (isLicenseVerso(text)) {
     return result("license", "verso", "high");
+  }
+
+  if (isRegistrationVerso(text)) {
+    return result("registration", "verso", "high");
   }
 
   if (isCniRecto(text)) {
@@ -197,12 +320,22 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
       "NUMERO DU PERMIS",
       "NUMERO DU PERMIS DE CONDUIRE",
     ]) +
-      scoreKeywords(text, ["CATEGORIE", "CATEGORIES", "GROUPE SANGUIN"], 2),
+      scoreKeywords(text, ["CATEGORIE", "CATEGORIES", "GROUPE SANGUIN"], 2) +
+      (hasPermisLinkedCniRef(text) ? 4 : 0) +
+      (hasPermisValidityGrid(text) ? 3 : 0) +
+      (hasPermisSerialNumber(text) && normalize(text).includes("PERMANENT") ? 2 : 0),
     registration: scoreKeywords(text, [
       "CARTE GRISE",
       "IMMATRICULATION",
       "CERTIFICAT D'IMMATRICULATION",
       "NUMERO DE CHASSIS",
+      "NUMERO DU VIN",
+      "VIN",
+      "CHASSIS",
+      "SOCIETE DE CREDIT",
+      "TYPE TECHNIQUE",
+      "NUMERO DE MOTEUR",
+      "CODE BARRE",
       "GENRE",
       "PTAC",
       "MARQUE",
@@ -254,12 +387,19 @@ export function classifyDocumentFromText(ocrText: string): ClassificationResult 
   }
 
   const kind = topKind as DocumentKind;
-  const side =
+  let side: "recto" | "verso" | null =
     kind === "selfie"
       ? null
       : isVersoHeuristic(text)
         ? "verso"
         : "recto";
+
+  if (kind === "registration" && isRegistrationVerso(text)) {
+    side = "verso";
+  }
+  if (kind === "license" && isLicenseVerso(text)) {
+    side = "verso";
+  }
 
   return result(kind, side, topScore >= 2 ? "high" : "medium");
 }
@@ -284,6 +424,8 @@ export function assignSlots(
 
     if (side === "verso" && !used.has(verso)) return verso;
     if (side === "recto" && !used.has(recto)) return recto;
+    // 2e image du même type : recto déjà pris → verso (ex. carte grise verso)
+    if (side === "recto" && used.has(recto) && !used.has(verso)) return verso;
     if (!used.has(recto)) return recto;
     if (!used.has(verso)) return verso;
     return null;
@@ -295,12 +437,21 @@ export function assignSlots(
   });
 
   for (const item of sorted) {
-    const { kind, side, label } = item.classification;
+    const { kind, side } = item.classification;
     if (kind === "unknown") continue;
     const slot = preferSlot(kind, side);
     if (!slot || used.has(slot)) continue;
     used.add(slot);
-    out.push({ index: item.index, slot, label });
+    const assignedSide = slot.endsWith(".verso")
+      ? "verso"
+      : slot.endsWith(".recto")
+        ? "recto"
+        : side;
+    out.push({
+      index: item.index,
+      slot,
+      label: classificationDisplayLabel(kind, assignedSide),
+    });
   }
 
   return out.sort((a, b) => a.index - b.index);

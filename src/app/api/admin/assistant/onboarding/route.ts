@@ -23,7 +23,8 @@ function detectMissingDocuments(documents: WizardDocumentsState): string[] {
   if (!documents.cni.verso) missing.push("CNI verso");
   if (!documents.license.recto) missing.push("Permis recto");
   if (!documents.license.verso) missing.push("Permis verso");
-  if (!documents.registration.recto) missing.push("Carte grise");
+  if (!documents.registration.recto) missing.push("Carte grise recto");
+  if (!documents.registration.verso) missing.push("Carte grise verso");
   return missing;
 }
 
