@@ -15,7 +15,7 @@ function localizeWarnings(warnings: string[] | undefined): string[] {
 
 function resolveClientOcrProvider(): string | null {
   const value = process.env.NEXT_PUBLIC_DOCUMENT_EXTRACT_PROVIDER?.trim().toLowerCase();
-  if (value === "openrouter" || value === "paddle") return value;
+  if (value === "openrouter" || value === "paddle" || value === "rules") return value;
   return null;
 }
 

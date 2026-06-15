@@ -62,6 +62,12 @@ function slugFromToken(token: string): string | null {
   return null;
 }
 
+export function resolveColorSlug(raw?: string | null): string | null {
+  if (!raw?.trim()) return null;
+  const token = normalizeColorToken(raw.trim());
+  return slugFromToken(token);
+}
+
 /**
  * Résout l’URL de l’icône véhicule pour la carte live.
  * Accepte code catalogue (BLANC), libellé (« Blanc ») ou slug fichier.
