@@ -24,11 +24,47 @@ export interface PartnerSupportChatDetail extends PartnerSupportChat {
   messages: PartnerSupportMessage[];
 }
 
+interface SupportChatApiResponse {
+  status: string;
+  items?: PartnerSupportChat[];
+  chats?: PartnerSupportChat[];
+  data?: PartnerSupportChat[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+
+function mapSupportListResponse(response: SupportChatApiResponse): Paginated<PartnerSupportChat> {
+  const items = response.items ?? response.chats ?? response.data ?? [];
+  const pagination = response.pagination;
+  return {
+    data: items,
+    meta: pagination
+      ? {
+          current_page: pagination.page,
+          per_page: pagination.limit,
+          total: pagination.total,
+          last_page: pagination.hasMore ? pagination.page + 1 : pagination.page,
+        }
+      : {
+          current_page: 1,
+          per_page: 20,
+          total: 0,
+          last_page: 1,
+        },
+  };
+}
+
 export const partnerSupportService = {
-  listChats: (partnerId: string | number, params?: ListParams) =>
-    apiClient.get<Paginated<PartnerSupportChat>>(
+  listChats: async (partnerId: string | number, params?: ListParams) => {
+    const response = await apiClient.get<SupportChatApiResponse>(
       `${LINKS.partner.support.chat.list(partnerId)}${buildListQuery(params)}`
-    ),
+    );
+    return mapSupportListResponse(response);
+  },
 
   getChat: (partnerId: string | number, chatId: string) =>
     apiClient.get<PartnerSupportChatDetail>(

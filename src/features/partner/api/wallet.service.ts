@@ -9,32 +9,61 @@ import type {
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import type { DriverRechargeBatchPayload } from "@/features/finance/api/driverRecharge.v1.service";
 
+interface LegacyWalletData {
+  id?: number;
+  partner_id?: number;
+  balance_fcfa?: number;
+  available_fcfa?: number;
+  pending_withdrawal_fcfa?: number;
+  currency?: string;
+  last_withdrawal?: {
+    id?: string;
+    amount_fcfa?: number;
+    status?: string;
+    processed_at?: string;
+  };
+  recent_movements?: {
+    id?: string;
+    label?: string;
+    amount_fcfa?: number;
+    direction?: "credit" | "debit";
+    created_at?: string;
+  }[];
+}
+
 interface WalletApiResponse {
-  success: boolean;
-  data?: {
-    id?: number;
-    partner_id?: number;
-    balance_fcfa?: number;
-    available_fcfa?: number;
-    pending_withdrawal_fcfa?: number;
+  success?: boolean;
+  status?: string;
+  data?: LegacyWalletData;
+  wallet?: {
+    id?: string;
+    owner_type?: string;
+    owner_id?: string;
     currency?: string;
-    last_withdrawal?: {
-      id?: string;
-      amount_fcfa?: number;
-      status?: string;
-      processed_at?: string;
-    };
-    recent_movements?: {
-      id?: string;
-      label?: string;
-      amount_fcfa?: number;
-      direction?: "credit" | "debit";
-      created_at?: string;
-    }[];
+    status?: string;
+    balance_cached_xof?: number;
+    last_calculated_at?: string;
+    metadata?: Record<string, unknown>;
+    created_at?: string;
+    updated_at?: string;
   };
 }
 
 function mapWalletResponse(response: WalletApiResponse | PartnerWallet): PartnerWallet {
+  // Nouveau format API v2 (wallet direct)
+  if ("wallet" in response && response.wallet) {
+    const w = response.wallet;
+    const balance = w.balance_cached_xof ?? 0;
+    return {
+      balance_fcfa: balance,
+      available_fcfa: balance,
+      pending_withdrawal_fcfa: 0,
+      last_withdrawal: undefined,
+      recent_movements: [],
+    };
+  }
+
+  // Legacy format (success + data)
   if ("success" in response && response.success && response.data) {
     const d = response.data;
     return {
@@ -77,6 +106,105 @@ export interface LedgerEntry {
   created_at: string;
 }
 
+interface LedgerApiItem {
+  id: string;
+  wallet_id: string;
+  entry_type: string;
+  direction: "credit" | "debit";
+  amount_xof: number;
+  currency: string;
+  service_type: string | null;
+  order_id: string | null;
+  related_wallet_id: string | null;
+  source_type: string | null;
+  source_id: string | null;
+  status: string;
+  description: string;
+  idempotency_key: string | null;
+  metadata?: Record<string, unknown>;
+  posted_at: string;
+  created_at: string;
+}
+
+interface LedgerApiResponse {
+  status: string;
+  items: LedgerApiItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+
+function mapLedgerItem(item: LedgerApiItem): LedgerEntry {
+  return {
+    id: item.id,
+    label: item.description || item.entry_type.replace(/_/g, " "),
+    amount_fcfa: item.amount_xof,
+    direction: item.direction,
+    balance_after_fcfa: undefined,
+    created_at: item.posted_at || item.created_at,
+  };
+}
+
+function mapLedgerResponse(response: LedgerApiResponse): Paginated<LedgerEntry> {
+  return {
+    data: response.items.map(mapLedgerItem),
+    meta: {
+      current_page: response.pagination.page,
+      per_page: response.pagination.limit,
+      total: response.pagination.total,
+      last_page: response.pagination.hasMore
+        ? response.pagination.page + 1
+        : response.pagination.page,
+    },
+  };
+}
+
+export interface SettlementEntry {
+  id: string;
+  ref: string;
+  amount_fcfa: number;
+  status: "pending" | "processed" | "failed" | "cancelled";
+  period_start?: string;
+  period_end?: string;
+  processed_at?: string;
+  created_at: string;
+}
+
+export interface RevenueEntry {
+  id: string;
+  wallet_id: string;
+  entry_type: string;
+  direction: "credit" | "debit";
+  amount_xof: number;
+  currency: string;
+  service_type: string | null;
+  order_id: string | null;
+  related_wallet_id: string | null;
+  source_type: string | null;
+  source_id: string | null;
+  status: string;
+  description: string;
+  idempotency_key: string | null;
+  metadata?: Record<string, unknown>;
+  posted_at: string;
+  created_at: string;
+}
+
+export interface PartnerRevenueResponse {
+  status: string;
+  totalXof: number;
+  entries: RevenueEntry[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+
 export const partnerWalletService = {
   get: async (partnerId: string | number) => {
     const response = await apiClient.get<WalletApiResponse>(
@@ -85,18 +213,20 @@ export const partnerWalletService = {
     return mapWalletResponse(response);
   },
 
-  ledger: (partnerId: string | number, params?: ListParams) =>
-    apiClient.get<Paginated<LedgerEntry>>(
+  ledger: async (partnerId: string | number, params?: ListParams) => {
+    const response = await apiClient.get<LedgerApiResponse>(
       `${LINKS.partner.wallet.ledger(partnerId)}${buildListQuery(params)}`
-    ),
+    );
+    return mapLedgerResponse(response);
+  },
 
   settlements: (partnerId: string | number, params?: ListParams) =>
-    apiClient.get<Paginated<unknown>>(
+    apiClient.get<Paginated<SettlementEntry>>(
       `${LINKS.partner.wallet.settlements(partnerId)}${buildListQuery(params)}`
     ),
 
   revenue: (partnerId: string | number) =>
-    apiClient.get<unknown>(LINKS.partner.wallet.revenue(partnerId)),
+    apiClient.get<PartnerRevenueResponse>(LINKS.partner.wallet.revenue(partnerId)),
 
   withdraw: (partnerId: string | number, amount_fcfa: number) =>
     apiClient.post<{
@@ -106,10 +236,26 @@ export const partnerWalletService = {
       wallet: PartnerWallet;
     }>(LINKS.partner.wallet.withdraw(partnerId), { amount_fcfa }),
 
-  getDriverRechargeStats: (partnerId: string | number) =>
-    apiClient.get<PartnerDriverRechargeStats>(
-      LINKS.partner.wallet.driverTransfers.stats(partnerId)
-    ),
+  getDriverRechargeStats: async (partnerId: string | number) => {
+    const response = await apiClient.get<{
+      status?: string;
+      stats?: {
+        totalTransfers?: number;
+        totalAmountXof?: number;
+        monthTransfers?: number;
+        monthAmountXof?: number;
+        recentTransfers?: unknown[];
+      };
+    }>(LINKS.partner.wallet.driverTransfers.stats(partnerId));
+
+    const s = response.stats;
+    return {
+      total_spent_fcfa: s?.totalAmountXof ?? 0,
+      transfers_count: s?.totalTransfers ?? 0,
+      month_spent_fcfa: s?.monthAmountXof ?? 0,
+      month_transfers_count: s?.monthTransfers ?? 0,
+    } as PartnerDriverRechargeStats;
+  },
 
   listDriverTransfers: (partnerId: string | number, params?: ListParams) =>
     apiClient.get<Paginated<PartnerDriverTransfer>>(

@@ -315,7 +315,7 @@ export interface Driver {
   zone: string;
   owner_name?: string;
   vehicle_label?: string;
-  ride_category_code?: string;
+  ride_category_code?: string | null;
   account_status: "pending" | "approved" | "suspended" | "banned";
   availability: "offline" | "online" | "on_trip" | "paused";
   franchise_id?: number | string;

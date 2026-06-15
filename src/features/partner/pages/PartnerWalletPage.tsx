@@ -84,14 +84,14 @@ export function PartnerWalletPage() {
               <KpiCard
                 index={2}
                 label="Recharges chauffeurs (total)"
-                value={formatFCFA(rechargeStats.total_spent_fcfa)}
-                hint={`${rechargeStats.transfers_count} transfert(s)`}
+                value={formatFCFA(rechargeStats.total_spent_fcfa ?? 0)}
+                hint={`${rechargeStats.transfers_count ?? 0} transfert(s)`}
               />
               <KpiCard
                 index={3}
                 label="Recharges ce mois"
-                value={formatFCFA(rechargeStats.month_spent_fcfa)}
-                hint={`${rechargeStats.month_transfers_count} ce mois`}
+                value={formatFCFA(rechargeStats.month_spent_fcfa ?? 0)}
+                hint={`${rechargeStats.month_transfers_count ?? 0} ce mois`}
               />
             </>
           ) : null}
