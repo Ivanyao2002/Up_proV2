@@ -66,8 +66,9 @@ export function parseSummaryTarget(text: string): SummaryTarget | null {
     {
       entity: "clients",
       patterns: [
-        /(?:r[eé]sum|synth[eè]se).*?(?:client|cliente)\s+(.+)/i,
+        /(?:r[eé]sum|synth[eè]se|voir|afficher).*?(?:client|cliente)\s+(.+)/i,
         /(?:client|cliente)\s+(.+?)\s*(?:\?|$)/i,
+        /(?:infos?|informations?|fiche|détails?)\s+(?:de|du|d['']|sur)\s+(.+)/i,
       ],
     },
     {

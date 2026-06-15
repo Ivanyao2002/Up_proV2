@@ -4,6 +4,7 @@ import type {
   AssistantResponse,
 } from "@/features/assistant/types";
 import type { AdminEntityKey } from "@/features/assistant/catalog/adminEntities";
+import { parseMalformedFindId, isValidEntityId } from "@/features/assistant/lib/entityId";
 import { defaultMessageForAction } from "./defaultMessage";
 
 const ENTITY_KEYS: AdminEntityKey[] = [
@@ -107,13 +108,22 @@ function normalizeAction(action: unknown): AssistantAction | null {
     }
     case "OPEN_ENTITY": {
       const entity = parseEntity(a.entity);
-      const id =
+      const rawId =
         typeof a.id === "string"
           ? a.id
           : typeof a.entityId === "string"
             ? a.entityId
             : null;
-      return entity && id ? { type: "OPEN_ENTITY", entity, id } : null;
+      if (!entity || !rawId) return null;
+
+      const malformed = parseMalformedFindId(rawId);
+      if (malformed) {
+        return { type: "FIND_ENTITY", entity, query: malformed.query };
+      }
+      if (!isValidEntityId(rawId)) {
+        return { type: "FIND_ENTITY", entity, query: rawId.trim() };
+      }
+      return { type: "OPEN_ENTITY", entity, id: rawId };
     }
     case "OPEN_DRIVER_DETAIL":
       return typeof a.driverId === "string"

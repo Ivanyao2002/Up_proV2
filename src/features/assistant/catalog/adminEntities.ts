@@ -1,5 +1,6 @@
 import { LINKS } from "@/core/api/links";
 import { isValidEntityFindQuery } from "@/features/assistant/lib/firstEntityIntent";
+import { isValidEntityId } from "@/features/assistant/lib/entityId";
 
 export type AdminEntityKey =
   | "dashboard"
@@ -355,6 +356,7 @@ export function entityListPath(key: AdminEntityKey): string {
 }
 
 export function entityDetailPath(key: AdminEntityKey, id: string): string | null {
+  if (!isValidEntityId(id)) return null;
   const def = getEntityDef(key);
   return def.detailPath?.(id) ?? null;
 }

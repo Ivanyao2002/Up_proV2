@@ -81,9 +81,6 @@ export function PartnerLedgerPage() {
         totalLabel={meta ? `${meta.total} transaction${meta.total > 1 ? "s" : ""}` : undefined}
         hasActiveFilters={hasActiveFilters}
         onReset={resetAll}
-<<<<<<< HEAD
-      />
-=======
       >
         <DateRangeFilter
           preset={dateRange.preset}
@@ -95,7 +92,6 @@ export function PartnerLedgerPage() {
           rangeLabel={dateRange.rangeLabel}
         />
       </TableFiltersBar>
->>>>>>> main
 
       <DataTable
         columns={columns}

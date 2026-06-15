@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/shared/ui/Button";
 import { AppLogo } from "@/shared/ui/AppLogo";
+import { PasswordInput } from "@/shared/ui/PasswordInput";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 import { useLoginMutation } from "../api/auth.mutations";
 
@@ -49,11 +50,9 @@ export function AdminLoginPage() {
           </label>
           <label className="block">
             <span className="text-sm font-medium text-foreground">Mot de passe</span>
-            <input
-              type="password"
+            <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
             />
           </label>

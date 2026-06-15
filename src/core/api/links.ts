@@ -170,6 +170,7 @@ export const LINKS = {
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
+      withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>
         `${ADMIN_V1_BASE}/withdrawals/${id}/approve`,
       withdrawalReject: (id: string) =>
@@ -204,6 +205,15 @@ export const LINKS = {
         reconciliation: `${ADMIN_V1_BASE}/finance/reconciliation`,
         driverTransfers: `${ADMIN_V1_BASE}/finance/driver-transfers`,
         driverTransferStats: `${ADMIN_V1_BASE}/finance/driver-transfers/stats`,
+      },
+      marketing: {
+        promos: `${ADMIN_V1_BASE}/marketing/promos`,
+        promoById: (id: string) => `${ADMIN_V1_BASE}/marketing/promos/${id}`,
+        campaigns: `${ADMIN_V1_BASE}/marketing/campaigns`,
+        campaignById: (id: string) =>
+          `${ADMIN_V1_BASE}/marketing/campaigns/${id}`,
+        banners: `${ADMIN_V1_BASE}/marketing/banners`,
+        bannerById: (id: string) => `${ADMIN_V1_BASE}/marketing/banners/${id}`,
       },
       /** @deprecated Préférer `marketing.promos` */
       promotions: `${ADMIN_V1_BASE}/promotions`,

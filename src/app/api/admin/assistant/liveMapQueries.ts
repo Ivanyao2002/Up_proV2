@@ -1,4 +1,5 @@
 import { LINKS } from "@/core/api/links";
+import { entityListPath } from "@/features/assistant/catalog/adminEntities";
 import type { AssistantApiResponse } from "@/features/assistant/types";
 import { assistantApiGet, record, str } from "./assistantApiClient";
 import { searchEntityMatches, getItemId, getItemLabel } from "./entityResolver";
@@ -36,7 +37,7 @@ export async function buildLiveOnlineReport(
     ]
       .filter(Boolean)
       .join("\n"),
-    action: { type: "NAVIGATE", path: "/admin/ops/live-map" },
+    action: { type: "NAVIGATE", path: entityListPath("map") },
   };
 }
 
@@ -88,6 +89,6 @@ export async function buildDriverLocationReport(
       "",
       "Ouvrir la carte live pour visualiser.",
     ].join("\n"),
-    action: { type: "NAVIGATE", path: "/admin/ops/live-map" },
+    action: { type: "NAVIGATE", path: entityListPath("map") },
   };
 }

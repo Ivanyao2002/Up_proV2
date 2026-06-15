@@ -11,6 +11,7 @@ import {
 } from "@/features/assistant/lib/entityListFilters";
 import { matchAdvancedFilterIntent } from "./advancedFilterIntent";
 import { matchRelationalIntent } from "./relationalIntent";
+import { matchPersonLookupIntent } from "./personLookupIntent";
 import { extractDriverNameQuery, isActionIntent } from "./driverQueryExtract";
 import {
   detectConfirmIntent,
@@ -141,6 +142,14 @@ export async function detectDirectIntent(
     return {
       message: `Recherche du véhicule ${plate}…`,
       action: { type: "FIND_ENTITY", entity: "vehicles", query: plate },
+    };
+  }
+
+  const person = matchPersonLookupIntent(text);
+  if (person) {
+    return {
+      message: `Recherche de ${person.query}…`,
+      action: { type: "FIND_ENTITY", entity: person.entity, query: person.query },
     };
   }
 
