@@ -7,6 +7,7 @@ import {
   consolidateExtractionWarnings,
   localizeExtractionWarning,
 } from "./localizeExtractionWarning";
+import { withBasePath } from "@/shared/lib/basePath";
 
 function localizeWarnings(warnings: string[] | undefined): string[] {
   return (warnings ?? []).map(localizeExtractionWarning);
@@ -14,7 +15,7 @@ function localizeWarnings(warnings: string[] | undefined): string[] {
 
 function resolveClientOcrProvider(): string | null {
   const value = process.env.NEXT_PUBLIC_DOCUMENT_EXTRACT_PROVIDER?.trim().toLowerCase();
-  if (value === "openrouter" || value === "paddle") return value;
+  if (value === "openrouter" || value === "paddle" || value === "rules") return value;
   return null;
 }
 
@@ -30,7 +31,7 @@ export async function extractDocumentGroup(
     form.append("files", file);
   }
 
-  const res = await fetch("/api/document-extract", {
+  const res = await fetch(withBasePath("/api/document-extract"), {
     method: "POST",
     body: form,
   });

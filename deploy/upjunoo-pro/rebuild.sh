@@ -7,3 +7,5 @@ source .env.runtime
 set +a
 docker compose build upjunoo-pro-backoffice
 docker compose up -d upjunoo-pro-backoffice
+docker builder prune -f
+docker image prune -f

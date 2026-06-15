@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message:
-          "Extraction IA non configurée (OPENROUTER_API_KEY manquant). Utilisez DOCUMENT_EXTRACT_PROVIDER=paddle ou ajoutez la clé OpenRouter.",
+          "OPENROUTER_API_KEY manquant. Utilisez DOCUMENT_EXTRACT_PROVIDER=rules (Paddle + règles, gratuit) ou paddle/openrouter.",
       },
       { status: 503 }
     );

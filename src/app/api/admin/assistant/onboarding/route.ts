@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
 
   if (provider === "openrouter" && !apiKey) {
     return NextResponse.json(
-      { message: "OPENROUTER_API_KEY manquant ou utilisez DOCUMENT_EXTRACT_PROVIDER=paddle." },
+      { message: "OPENROUTER_API_KEY manquant ou utilisez DOCUMENT_EXTRACT_PROVIDER=rules." },
       { status: 503 }
     );
   }

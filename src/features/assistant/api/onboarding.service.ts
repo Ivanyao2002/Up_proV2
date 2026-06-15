@@ -1,5 +1,6 @@
 import type { MergedExtraction } from "@/features/fleet/lib/documentExtraction.types";
 import { useAuthStore } from "@/core/auth/authStore";
+import { withBasePath } from "@/shared/lib/basePath";
 
 export interface OnboardingApiAssignment {
   fileIndex: number;
@@ -36,7 +37,7 @@ export async function processOnboardingFiles(
     form.append("partnerQuery", partnerQuery.trim());
   }
 
-  const response = await fetch("/api/admin/assistant/onboarding", {
+  const response = await fetch(withBasePath("/api/admin/assistant/onboarding"), {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
     body: form,
