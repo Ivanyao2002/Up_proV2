@@ -10,3 +10,6 @@ deploy
 npm-debug.log*
 .DS_Store
 terminals
+scripts/_vps_*
+scripts/_nginx_*
+scripts/_deploy_*

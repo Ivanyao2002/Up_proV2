@@ -132,6 +132,8 @@ export type AssistantExecuteType =
   | "set_driver_offline"
   | "set_driver_online"
   | "approve_kyc_document"
+  | "approve_all_kyc_documents"
+  | "approve_driver_full"
   | "reject_kyc_document"
   | "approve_driver_kyc"
   | "recharge_driver";

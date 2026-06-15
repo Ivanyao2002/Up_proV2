@@ -14,7 +14,7 @@ import type { CreateDriverPayload } from "@/features/partner/api/drivers.service
 import type { CatalogCountry } from "@/core/api/catalogLookup.service";
 import type { Partner, PartnerDetail, VehicleCategory } from "@/shared/types";
 import type { FieldProvenance, MergedExtraction } from "@/features/fleet/lib/documentExtraction.types";
-import { matchCatalogCode } from "@/features/fleet/lib/catalogMatch";
+import { matchBrandCatalogCode, matchCatalogCode, matchColorCatalogCode } from "@/features/fleet/lib/catalogMatch";
 import {
   driverUploadsFromWizard,
   flattenDriverDocuments,
@@ -146,6 +146,8 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   const [provenance, setProvenance] = useState<FieldProvenance>(emptyProvenance);
   const [errors, setErrors] = useState<string[]>([]);
   const [pendingModelLabel, setPendingModelLabel] = useState<string | null>(null);
+  const [pendingBrandLabel, setPendingBrandLabel] = useState<string | null>(null);
+  const [pendingColorLabel, setPendingColorLabel] = useState<string | null>(null);
 
   const [partnerId, setPartnerId] = useState("");
   const [categoryCode, setCategoryCode] = useState("");
@@ -185,6 +187,16 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   }, [brandCode, props.variant]);
 
   useEffect(() => {
+    if (props.variant !== "admin" || !pendingBrandLabel) return;
+    const match = matchBrandCatalogCode(props.brands, pendingBrandLabel);
+    if (match) {
+      setBrandCode((b) => b || match);
+      setProvenance((p) => ({ ...p, brand: "ai" }));
+      setPendingBrandLabel(null);
+    }
+  }, [pendingBrandLabel, props.brands, props.variant]);
+
+  useEffect(() => {
     if (props.variant !== "admin" || !pendingModelLabel) return;
     const match = matchCatalogCode(adminModels, pendingModelLabel);
     if (match) {
@@ -193,6 +205,16 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
       setPendingModelLabel(null);
     }
   }, [pendingModelLabel, adminModels, props.variant]);
+
+  useEffect(() => {
+    if (props.variant !== "admin" || !pendingColorLabel) return;
+    const match = matchColorCatalogCode(props.colors, pendingColorLabel);
+    if (match) {
+      setColorCode(match);
+      setProvenance((p) => ({ ...p, color: "ai" }));
+      setPendingColorLabel(null);
+    }
+  }, [pendingColorLabel, props.colors, props.variant]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !adminLocked) return;
@@ -289,17 +311,23 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
       if (props.variant === "admin") {
         if (merged.vehicle.brand) {
-          const brandMatch = matchCatalogCode(props.brands, merged.vehicle.brand);
+          const brandMatch = matchBrandCatalogCode(props.brands, merged.vehicle.brand);
           if (brandMatch) {
             setBrandCode((b) => b || brandMatch);
             setProvenance((p) => ({ ...p, brand: "ai" }));
+            setPendingBrandLabel(null);
+          } else {
+            setPendingBrandLabel(merged.vehicle.brand);
           }
         }
         if (merged.vehicle.color) {
-          const colorMatch = matchCatalogCode(props.colors, merged.vehicle.color);
+          const colorMatch = matchColorCatalogCode(props.colors, merged.vehicle.color);
           if (colorMatch) {
             setColorCode((c) => c || colorMatch);
             setProvenance((p) => ({ ...p, color: "ai" }));
+            setPendingColorLabel(null);
+          } else {
+            setPendingColorLabel(merged.vehicle.color);
           }
         }
         if (merged.vehicle.model) {
@@ -629,6 +657,12 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
                           </option>
                         ))}
                       </select>
+                      {pendingBrandLabel && !brandCode ? (
+                        <p className="mt-1 text-xs text-amber-700">
+                          Extrait IA : {pendingBrandLabel} — sélectionnez la marque correspondante
+                          dans la liste.
+                        </p>
+                      ) : null}
                     </label>
                     <label className="block">
                       <span className="text-sm font-medium">
@@ -654,6 +688,12 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
                           </option>
                         ))}
                       </select>
+                      {pendingModelLabel && !modelCode ? (
+                        <p className="mt-1 text-xs text-amber-700">
+                          Extrait IA : {pendingModelLabel} — choisissez le modèle le plus proche
+                          dans la liste.
+                        </p>
+                      ) : null}
                     </label>
                   </div>
 
@@ -679,6 +719,12 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
                         </option>
                       ))}
                     </select>
+                    {pendingColorLabel && !colorCode ? (
+                      <p className="mt-1 text-xs text-amber-700">
+                        Extrait IA : {pendingColorLabel} — sélectionnez la couleur correspondante
+                        dans la liste.
+                      </p>
+                    ) : null}
                   </label>
                 </>
               ) : (
