@@ -1,5 +1,6 @@
 import { apiClient, apiWithNotify } from "@/core/http/apiClient";
 import { LINKS } from "@/core/api/links";
+import { resolveFranchiseId } from "@/core/api/franchiseContext.service";
 import type { Paginated } from "@/shared/types";
 import { buildListQuery } from "@/shared/types/listParams";
 import type {
@@ -39,37 +40,42 @@ function buildSosListQuery(params?: SosListParams): string {
 
 export const franchiseSosService = {
   getDashboard: async (): Promise<SosDashboard> => {
+    const franchiseId = await resolveFranchiseId();
     const response = await apiClient.get<ApiSosDashboardResponse>(
-      LINKS.franchise.v1.sos.dashboard
+      LINKS.franchise.v1.sos.dashboard(franchiseId)
     );
     return mapSosDashboard(response);
   },
 
   listIncidents: async (params?: SosListParams): Promise<Paginated<SosIncident>> => {
+    const franchiseId = await resolveFranchiseId();
     const response = await apiClient.get<ApiSosListResponse>(
-      `${LINKS.franchise.v1.sos.list}${buildSosListQuery(params)}`
+      `${LINKS.franchise.v1.sos.list(franchiseId)}${buildSosListQuery(params)}`
     );
     return mapSosIncidentsList(response, params);
   },
 
   getIncidentById: async (id: string): Promise<SosIncidentDetail> => {
+    const franchiseId = await resolveFranchiseId();
     const response = await apiClient.get<ApiSosDetailResponse>(
-      LINKS.franchise.v1.sos.byId(id)
+      LINKS.franchise.v1.sos.byId(franchiseId, id)
     );
     return mapSosIncidentDetail(response);
   },
 
-  acknowledge: (id: string, payload?: AcknowledgeSosPayload) => {
+  acknowledge: async (id: string, payload?: AcknowledgeSosPayload) => {
+    const franchiseId = await resolveFranchiseId();
     return apiWithNotify.post(
-      LINKS.franchise.v1.sos.acknowledge(id),
+      LINKS.franchise.v1.sos.acknowledge(franchiseId, id),
       payload ?? {},
       "Incident pris en charge"
     );
   },
 
-  resolve: (id: string, payload: ResolveSosPayload) => {
+  resolve: async (id: string, payload: ResolveSosPayload) => {
+    const franchiseId = await resolveFranchiseId();
     return apiWithNotify.post(
-      LINKS.franchise.v1.sos.resolve(id),
+      LINKS.franchise.v1.sos.resolve(franchiseId, id),
       payload,
       "Incident SOS clôturé"
     );

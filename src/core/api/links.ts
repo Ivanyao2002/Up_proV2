@@ -472,13 +472,13 @@ export const LINKS = {
       dispatchAssign: (tripId: string) => `/v1/franchise/dispatch/orders/${tripId}/assign`,
       // Drivers (par ID franchise)
       driverById: (franchiseId: string, driverId: string) => `/v1/franchises/${franchiseId}/drivers/${driverId}`,
-      // Safety / SOS Guardian
+      // Safety / SOS Guardian — corrigé pour utiliser /v1/franchises/{id}/safety/sos
       sos: {
-        dashboard: "/v1/franchise/safety/sos/dashboard",
-        list: "/v1/franchise/safety/sos",
-        byId: (id: string) => `/v1/franchise/safety/sos/${id}`,
-        acknowledge: (id: string) => `/v1/franchise/safety/sos/${id}/acknowledge`,
-        resolve: (id: string) => `/v1/franchise/safety/sos/${id}/resolve`,
+        dashboard: (franchiseId: string) => `/v1/franchises/${franchiseId}/safety/sos/dashboard`,
+        list: (franchiseId: string) => `/v1/franchises/${franchiseId}/safety/sos`,
+        byId: (franchiseId: string, id: string) => `/v1/franchises/${franchiseId}/safety/sos/${id}`,
+        acknowledge: (franchiseId: string, id: string) => `/v1/franchises/${franchiseId}/safety/sos/${id}/acknowledge`,
+        resolve: (franchiseId: string, id: string) => `/v1/franchises/${franchiseId}/safety/sos/${id}/resolve`,
       },
     },
 
