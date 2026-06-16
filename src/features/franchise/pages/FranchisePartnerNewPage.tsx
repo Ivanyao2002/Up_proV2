@@ -13,6 +13,7 @@ const EMPTY_FORM: CreatePartnerPayload = {
   trade_name: "",
   legal_name: "",
   contact_email: "",
+  password: "",
   contact_phone: "",
   city: "",
   address: "",
@@ -103,6 +104,8 @@ export function FranchisePartnerNewPage() {
   const [idFront, setIdFront] = useState<FilePreview | null>(null);
   const [idBack, setIdBack] = useState<FilePreview | null>(null);
   const [rcc, setRcc] = useState<FilePreview | null>(null);
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
   const createPartner = useCreateFranchisePartner();
 
   const field = (key: keyof CreatePartnerPayload) => ({
@@ -113,6 +116,15 @@ export function FranchisePartnerNewPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.password.length < 6) {
+      setFormError("Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+    if (form.password !== passwordConfirm) {
+      setFormError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+    setFormError(null);
     createPartner.mutate(form, {
       onSuccess: (partner) => {
         router.push(`/franchise/partners/${partner.id}`);
@@ -138,6 +150,11 @@ export function FranchisePartnerNewPage() {
 
       <form onSubmit={handleSubmit} className="mx-auto max-w-2xl">
         <div className="rounded-card border border-border bg-surface p-6 shadow-card">
+          {formError && (
+            <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {formError}
+            </p>
+          )}
 
           {/* Infos générales */}
           <h2 className="mb-4 text-sm font-semibold text-foreground">Informations générales</h2>
@@ -160,13 +177,38 @@ export function FranchisePartnerNewPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted">Email *</label>
+              <label className="mb-1 block text-xs font-medium text-muted">Email de connexion *</label>
               <input
                 required
                 type="email"
+                autoComplete="username"
                 className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
                 placeholder="contact@partenaire.com"
                 {...field("contact_email")}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Mot de passe *</label>
+              <input
+                required
+                type="password"
+                autoComplete="new-password"
+                minLength={6}
+                className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
+                placeholder="Min. 6 caractères"
+                value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Confirmer le mot de passe *</label>
+              <input
+                required
+                type="password"
+                autoComplete="new-password"
+                className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
               />
             </div>
             <div>

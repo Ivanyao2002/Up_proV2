@@ -23,10 +23,15 @@ export function useCreatePartner() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: PartnerCreatePayload) => partnersService.create(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       void qc.invalidateQueries({ queryKey: partnersKeys.all });
       void qc.invalidateQueries({ queryKey: franchisesKeys.all });
-      notificationService.success("Partenaire créé");
+      const login = data.portal_login_email;
+      notificationService.success(
+        login
+          ? `Partenaire créé. Connexion portail : ${login}`
+          : "Partenaire créé"
+      );
     },
     onError: (error: Error) =>
       notificationService.error(error.message || "Création impossible"),

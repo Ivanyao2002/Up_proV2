@@ -15,7 +15,6 @@ export const EMPTY_DRIVER: CreateDriverPayload = {
   last_name: "",
   phone: "",
   zone: "",
-  email: "",
 };
 
 interface VehicleCreateDriverSectionProps {
@@ -170,16 +169,6 @@ export function VehicleCreateDriverSection({
               />
             </div>
           )}
-          <label className="block sm:col-span-2">
-            <span className="text-sm font-medium">E-mail (optionnel)</span>
-            <input
-              type="email"
-              value={activeDriver.email ?? ""}
-              onChange={(e) => update({ email: e.target.value || undefined })}
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
-              placeholder="chauffeur@email.ci"
-            />
-          </label>
         </div>
       )}
     </section>

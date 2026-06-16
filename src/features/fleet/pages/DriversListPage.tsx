@@ -31,6 +31,8 @@ import {
   useBulkSuspendDrivers,
   useDriversList,
 } from "../api/drivers.queries";
+import { useBulkTransferDriversToPartner } from "../api/driverTransfer.queries";
+import { BulkDriverTransferModal } from "../components/BulkDriverTransferModal";
 import { getDriverTableRowClassName } from "../lib/driverRowStyles";
 
 const ZONE_OPTIONS = [
@@ -68,6 +70,7 @@ export function DriversListPage() {
     (typeof DRIVER_COMPLIANCE_FILTER_OPTIONS)[number]["value"]
   >("all");
   const [selected, setSelected] = useState<Set<string | number>>(new Set());
+  const [showBulkTransfer, setShowBulkTransfer] = useState(false);
 
   useInitialUrlFilter(
     "account_status",
@@ -118,6 +121,7 @@ export function DriversListPage() {
   const bulkOffline = useBulkDriverAvailability();
   const bulkSuspend = useBulkSuspendDrivers();
   const bulkActivate = useBulkActivateDrivers();
+  const bulkTransfer = useBulkTransferDriversToPartner();
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
@@ -134,7 +138,8 @@ export function DriversListPage() {
     bulkOnline.isPending ||
     bulkOffline.isPending ||
     bulkSuspend.isPending ||
-    bulkActivate.isPending;
+    bulkActivate.isPending ||
+    bulkTransfer.isPending;
 
   const clearSelection = () => setSelected(new Set());
   const bulkPayload = { drivers: rows, ids: selectedIds };
@@ -311,6 +316,11 @@ export function DriversListPage() {
         count={selected.size}
         onClear={clearSelection}
         actions={[
+          {
+            label: "Transférer vers un partenaire",
+            disabled: bulkBusy,
+            onClick: () => setShowBulkTransfer(true),
+          },
           ...(hasApprovedSelected
             ? [
                 {
@@ -350,6 +360,26 @@ export function DriversListPage() {
               ]
             : []),
         ]}
+      />
+
+      <BulkDriverTransferModal
+        open={showBulkTransfer}
+        onClose={() => setShowBulkTransfer(false)}
+        drivers={rows}
+        selectedIds={selectedIds}
+        scope="admin"
+        isSubmitting={bulkTransfer.isPending}
+        onSubmit={(payload) => {
+          bulkTransfer.mutate(
+            { drivers: rows, ids: selectedIds, ...payload },
+            {
+              onSuccess: () => {
+                setShowBulkTransfer(false);
+                clearSelection();
+              },
+            }
+          );
+        }}
       />
     </div>
   );

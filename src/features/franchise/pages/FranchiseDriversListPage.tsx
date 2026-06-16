@@ -32,6 +32,9 @@ import {
   useBulkSuspendDrivers,
   useBulkActivateDrivers,
 } from "../api/drivers.queries";
+import { useBulkTransferDriversToPartner } from "@/features/fleet/api/driverTransfer.queries";
+import { BulkDriverTransferModal } from "@/features/fleet/components/BulkDriverTransferModal";
+import { useScope } from "@/core/auth/useScope";
 import { BulkActionBar } from "@/shared/ui/BulkActionBar";
 
 const ZONE_OPTIONS = [
@@ -361,6 +364,7 @@ export function FranchiseDriversListPage({ pendingOnly }: FranchiseDriversListPa
 }
 
 function DriversListView() {
+  const { franchiseId } = useScope();
   const [zoneFilter, setZoneFilter] = useState<(typeof ZONE_OPTIONS)[number]["value"]>("all");
   const [accountFilter, setAccountFilter] =
     useState<(typeof ACCOUNT_OPTIONS)[number]["value"]>("all");
@@ -370,6 +374,7 @@ function DriversListView() {
     (typeof DRIVER_COMPLIANCE_FILTER_OPTIONS)[number]["value"]
   >("all");
   const [selected, setSelected] = useState<Set<string | number>>(new Set());
+  const [showBulkTransfer, setShowBulkTransfer] = useState(false);
 
   const table = useServerTableState(
     [zoneFilter, accountFilter, availabilityFilter, complianceFilter],
@@ -399,6 +404,7 @@ function DriversListView() {
   const bulkOffline = useBulkDriverAvailability();
   const bulkSuspend = useBulkSuspendDrivers();
   const bulkActivate = useBulkActivateDrivers();
+  const bulkTransfer = useBulkTransferDriversToPartner();
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
@@ -407,7 +413,12 @@ function DriversListView() {
   const selectedRows = rows.filter((d) => selected.has(d.id));
   const hasSuspendedSelected = selectedRows.some((d) => d.account_status === "suspended");
   const hasApprovedSelected = selectedRows.some((d) => d.account_status === "approved");
-  const bulkBusy = bulkOnline.isPending || bulkOffline.isPending || bulkSuspend.isPending || bulkActivate.isPending;
+  const bulkBusy =
+    bulkOnline.isPending ||
+    bulkOffline.isPending ||
+    bulkSuspend.isPending ||
+    bulkActivate.isPending ||
+    bulkTransfer.isPending;
 
   const clearSelection = () => setSelected(new Set());
   const bulkPayload = { drivers: rows, ids: selectedIds };
@@ -574,6 +585,11 @@ function DriversListView() {
         count={selected.size}
         onClear={clearSelection}
         actions={[
+          {
+            label: "Transférer vers un partenaire",
+            disabled: bulkBusy,
+            onClick: () => setShowBulkTransfer(true),
+          },
           ...(hasApprovedSelected
             ? [
                 {
@@ -613,6 +629,27 @@ function DriversListView() {
               ]
             : []),
         ]}
+      />
+
+      <BulkDriverTransferModal
+        open={showBulkTransfer}
+        onClose={() => setShowBulkTransfer(false)}
+        drivers={rows}
+        selectedIds={selectedIds}
+        scope="franchise"
+        franchiseId={franchiseId}
+        isSubmitting={bulkTransfer.isPending}
+        onSubmit={(payload) => {
+          bulkTransfer.mutate(
+            { drivers: rows, ids: selectedIds, ...payload },
+            {
+              onSuccess: () => {
+                setShowBulkTransfer(false);
+                clearSelection();
+              },
+            }
+          );
+        }}
       />
     </div>
   );

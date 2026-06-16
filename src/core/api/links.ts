@@ -84,6 +84,8 @@ export const LINKS = {
       assignDriver: (partnerId: string, vehicleId: string) =>
         `/v1/partners/${partnerId}/vehicles/${vehicleId}/assign-driver`,
       drivers: (partnerId: string) => `/v1/partners/${partnerId}/drivers`,
+      transferDriver: (partnerId: string, driverId: string) =>
+        `/v1/partners/${partnerId}/drivers/${driverId}/transfer`,
       members: (partnerId: string) => `/v1/partners/${partnerId}/members`,
       wallet: (partnerId: string) => `/v1/partners/${partnerId}/wallet`,
       ledger: (partnerId: string) => `/v1/partners/${partnerId}/ledger`,
