@@ -14,7 +14,7 @@ import type { CreateDriverPayload } from "@/features/partner/api/drivers.service
 import type { CatalogCountry } from "@/core/api/catalogLookup.service";
 import type { Partner, PartnerDetail, VehicleCategory } from "@/shared/types";
 import type { FieldProvenance, MergedExtraction } from "@/features/fleet/lib/documentExtraction.types";
-import { matchCatalogCode } from "@/features/fleet/lib/catalogMatch";
+import { matchBrandCatalogCode, matchCatalogCode, matchColorCatalogCode, matchModelCatalogCode } from "@/features/fleet/lib/catalogMatch";
 import {
   driverUploadsFromWizard,
   flattenDriverDocuments,
@@ -146,6 +146,8 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   const [provenance, setProvenance] = useState<FieldProvenance>(emptyProvenance);
   const [errors, setErrors] = useState<string[]>([]);
   const [pendingModelLabel, setPendingModelLabel] = useState<string | null>(null);
+  const [pendingBrandLabel, setPendingBrandLabel] = useState<string | null>(null);
+  const [pendingColorLabel, setPendingColorLabel] = useState<string | null>(null);
 
   const [partnerId, setPartnerId] = useState("");
   const [categoryCode, setCategoryCode] = useState("");
@@ -185,6 +187,16 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   }, [brandCode, props.variant]);
 
   useEffect(() => {
+    if (props.variant !== "admin" || !pendingBrandLabel) return;
+    const match = matchBrandCatalogCode(props.brands, pendingBrandLabel);
+    if (match) {
+      setBrandCode((b) => b || match);
+      setProvenance((p) => ({ ...p, brand: "ai" }));
+      setPendingBrandLabel(null);
+    }
+  }, [pendingBrandLabel, props.brands, props.variant]);
+
+  useEffect(() => {
     if (props.variant !== "admin" || !pendingModelLabel) return;
     const match = matchCatalogCode(adminModels, pendingModelLabel);
     if (match) {
@@ -193,6 +205,16 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
       setPendingModelLabel(null);
     }
   }, [pendingModelLabel, adminModels, props.variant]);
+
+  useEffect(() => {
+    if (props.variant !== "admin" || !pendingColorLabel) return;
+    const match = matchColorCatalogCode(props.colors, pendingColorLabel);
+    if (match) {
+      setColorCode(match);
+      setProvenance((p) => ({ ...p, color: "ai" }));
+      setPendingColorLabel(null);
+    }
+  }, [pendingColorLabel, props.colors, props.variant]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !adminLocked) return;
@@ -252,18 +274,19 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   }, []);
 
   const applyExtraction = useCallback(
-    (merged: MergedExtraction) => {
+    (merged: MergedExtraction, options?: { replace?: boolean }) => {
+      const replace = options?.replace === true;
       setExtractionWarnings(merged.warnings);
       props.onExtractionWarnings?.(merged.warnings);
 
       setDriver((prev) => {
         const base = prev ?? { ...EMPTY_DRIVER };
         const first_name =
-          !base.first_name.trim() && merged.driver.first_name
+          merged.driver.first_name && (replace || !base.first_name.trim())
             ? merged.driver.first_name
             : base.first_name;
         const last_name =
-          !base.last_name.trim() && merged.driver.last_name
+          merged.driver.last_name && (replace || !base.last_name.trim())
             ? merged.driver.last_name
             : base.last_name;
         if (first_name !== base.first_name) {
@@ -276,9 +299,10 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
       });
 
       setPlate((p) => {
-        if (p.trim() || !merged.vehicle.plate) return p;
+        if (!merged.vehicle.plate) return replace ? "" : p;
+        if (!replace && p.trim()) return p;
         setProvenance((prov) => ({ ...prov, plate: "ai" }));
-        return merged.vehicle.plate!;
+        return merged.vehicle.plate;
       });
 
       setYear((y) => {
@@ -289,40 +313,65 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
       if (props.variant === "admin") {
         if (merged.vehicle.brand) {
-          const brandMatch = matchCatalogCode(props.brands, merged.vehicle.brand);
+          const brandMatch = matchBrandCatalogCode(props.brands, merged.vehicle.brand);
           if (brandMatch) {
-            setBrandCode((b) => b || brandMatch);
+            setBrandCode((b) => (replace ? brandMatch : b || brandMatch));
             setProvenance((p) => ({ ...p, brand: "ai" }));
+            setPendingBrandLabel(null);
+          } else {
+            setBrandCode((b) => (replace ? "" : b));
+            setPendingBrandLabel(merged.vehicle.brand);
           }
+        } else if (replace) {
+          setBrandCode("");
+          setPendingBrandLabel(null);
         }
         if (merged.vehicle.color) {
-          const colorMatch = matchCatalogCode(props.colors, merged.vehicle.color);
+          const colorMatch = matchColorCatalogCode(props.colors, merged.vehicle.color);
           if (colorMatch) {
-            setColorCode((c) => c || colorMatch);
+            setColorCode((c) => (replace ? colorMatch : c || colorMatch));
             setProvenance((p) => ({ ...p, color: "ai" }));
+            setPendingColorLabel(null);
+          } else {
+            setColorCode((c) => (replace ? "" : c));
+            setPendingColorLabel(merged.vehicle.color);
           }
+        } else if (replace) {
+          setColorCode("");
+          setPendingColorLabel(null);
         }
         if (merged.vehicle.model) {
-          const modelMatch = matchCatalogCode(adminModels, merged.vehicle.model);
+          const modelMatch = matchModelCatalogCode(adminModels, merged.vehicle.model);
           if (modelMatch) {
-            setModelCode((m) => m || modelMatch);
+            setModelCode((m) => (replace ? modelMatch : m || modelMatch));
             setProvenance((p) => ({ ...p, model: "ai" }));
+            setPendingModelLabel(null);
           } else {
+            setModelCode((m) => (replace ? "" : m));
             setPendingModelLabel(merged.vehicle.model);
           }
+        } else if (replace) {
+          setModelCode("");
+          setPendingModelLabel(null);
         }
       } else {
-        if (merged.vehicle.brand && !brand.trim()) {
+        if (merged.vehicle.brand && (replace || !brand.trim())) {
           setBrand(merged.vehicle.brand);
           setProvenance((p) => ({ ...p, brand: "ai" }));
+        } else if (replace && !merged.vehicle.brand) {
+          setBrand("");
         }
-        if (merged.vehicle.model && !model.trim()) {
+        if (merged.vehicle.model && (replace || !model.trim())) {
           setModel(merged.vehicle.model);
           setProvenance((p) => ({ ...p, model: "ai" }));
+        } else if (replace && !merged.vehicle.model) {
+          setModel("");
         }
-        if (merged.vehicle.color && !color.trim()) {
+        if (merged.vehicle.color && (replace || !color.trim())) {
           setColor(merged.vehicle.color);
           setProvenance((p) => ({ ...p, color: "ai" }));
+        } else if (replace && !merged.vehicle.color) {
+          setColor("");
         }
       }
     },
@@ -341,7 +390,7 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
       setCreationMode("ai");
       setDocuments(bundle.documents);
-      applyExtraction(bundle.merged);
+      applyExtraction(bundle.merged, { replace: true });
       if (bundle.partnerId && props.variant === "admin") {
         setPartnerId(bundle.partnerId);
       }
@@ -497,16 +546,9 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
         </ul>
       )}
 
-      {extractionWarnings.length > 0 && stepId === "review" && (
+      {stepId === "review" && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {extractionWarnings.length === 1 ? (
-            extractionWarnings[0]
-          ) : (
-            <>
-              <span className="font-medium">Vérifiez les champs extraits — </span>
-              {extractionWarnings.join(" · ")}
-            </>
-          )}
+          <span className="font-medium">n'hesitez pas à corriger les champs extraits</span>
         </p>
       )}
 
@@ -541,7 +583,7 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
           <ExtractionStep
             documents={documents}
             onComplete={(merged) => {
-              applyExtraction(merged);
+              applyExtraction(merged, { replace: true });
               goToReview();
             }}
             onSkip={goToReview}
@@ -629,6 +671,12 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
                           </option>
                         ))}
                       </select>
+                      {pendingBrandLabel && !brandCode ? (
+                        <p className="mt-1 text-xs text-amber-700">
+                          Extrait IA : {pendingBrandLabel} — sélectionnez la marque correspondante
+                          dans la liste.
+                        </p>
+                      ) : null}
                     </label>
                     <label className="block">
                       <span className="text-sm font-medium">
@@ -654,6 +702,12 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
                           </option>
                         ))}
                       </select>
+                      {pendingModelLabel && !modelCode ? (
+                        <p className="mt-1 text-xs text-amber-700">
+                          Extrait IA : {pendingModelLabel} — choisissez le modèle le plus proche
+                          dans la liste.
+                        </p>
+                      ) : null}
                     </label>
                   </div>
 
@@ -679,6 +733,12 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
                         </option>
                       ))}
                     </select>
+                    {pendingColorLabel && !colorCode ? (
+                      <p className="mt-1 text-xs text-amber-700">
+                        Extrait IA : {pendingColorLabel} — sélectionnez la couleur correspondante
+                        dans la liste.
+                      </p>
+                    ) : null}
                   </label>
                 </>
               ) : (
@@ -802,27 +862,29 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
               </label>
             </div>
 
-            <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-              <h2 className="mb-4 text-sm font-semibold text-foreground">
-                Documents téléversés
-              </h2>
-              <DocumentSummary documents={documents} />
+            <div className="space-y-6">
+              <div className="rounded-card border border-border bg-surface p-5 shadow-card">
+                <h2 className="mb-4 text-sm font-semibold text-foreground">
+                  Documents téléversés
+                </h2>
+                <DocumentSummary documents={documents} />
+              </div>
+
+              <VehicleCreateDriverSection
+                driver={driver}
+                onChange={(next) => {
+                  if (!next) return;
+                  setDriver(next);
+                  markManual("first_name");
+                }}
+                required
+                phoneCountry={driverPhoneCountry}
+                requirePhoneOtp={requirePhoneOtp}
+                phoneVerified={driverPhoneVerified}
+                onPhoneVerifiedChange={setDriverPhoneVerified}
+              />
             </div>
           </div>
-
-          <VehicleCreateDriverSection
-            driver={driver}
-            onChange={(next) => {
-              if (!next) return;
-              setDriver(next);
-              markManual("first_name");
-            }}
-            required
-            phoneCountry={driverPhoneCountry}
-            requirePhoneOtp={requirePhoneOtp}
-            phoneVerified={driverPhoneVerified}
-            onPhoneVerifiedChange={setDriverPhoneVerified}
-          />
 
           <WizardFooter
             backHref={props.backHref}
@@ -853,7 +915,7 @@ function DocumentSummary({ documents }: { documents: WizardDocumentsState }) {
     );
   }
   if (documents.registration.recto || documents.registration.verso) {
-    lines.push("Carte grise");
+    lines.push("Carte grise ou équivalent");
   }
   if (documents.insurance) lines.push("Assurance");
   if (documents.technicalInspection) lines.push("Visite technique");

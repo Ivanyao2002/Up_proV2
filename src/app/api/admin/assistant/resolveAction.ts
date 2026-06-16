@@ -15,6 +15,7 @@ import {
   resolveOpenEntity,
 } from "./entityResolver";
 import { parseAssistantLlmOutput, withResolvedAction } from "./parseResponse";
+import { isValidEntityId, parseMalformedFindId } from "@/features/assistant/lib/entityId";
 
 function legacyToFind(
   action: AssistantAction
@@ -86,6 +87,11 @@ export async function resolveAssistantAction(
       case "FIND_ENTITY":
         return resolveFindEntity(action.entity, action.query, authHeader);
       case "OPEN_ENTITY":
+        if (!isValidEntityId(action.id)) {
+          const malformed = parseMalformedFindId(action.id);
+          const query = malformed?.query ?? action.id.trim();
+          return resolveFindEntity(action.entity, query, authHeader);
+        }
         return resolveOpenEntity(action.entity, action.id);
       case "OPEN_RELATED":
         return resolveOpenRelated(
@@ -119,6 +125,9 @@ function toSafeNavigate(action: AssistantAction): AssistantAction | null {
     return { type: "NAVIGATE", path: entityListPath(action.entity) };
   }
   if (action.type === "OPEN_ENTITY") {
+    if (!isValidEntityId(action.id)) {
+      return { type: "LIST_ENTITY", entity: action.entity };
+    }
     const path =
       entityDetailPath(action.entity, action.id) ??
       entityListPath(action.entity);

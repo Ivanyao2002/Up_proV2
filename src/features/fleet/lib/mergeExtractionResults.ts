@@ -2,7 +2,32 @@ import type {
   DocumentExtractionResult,
   MergedExtraction,
 } from "./documentExtraction.types";
+import { vehicleIdentityPriority } from "@/app/api/document-extract/vehicleDocumentParsers";
 import { consolidateExtractionWarnings } from "./localizeExtractionWarning";
+
+function mergeVehicleFromResults(
+  results: DocumentExtractionResult[],
+  vehicle: MergedExtraction["vehicle"]
+): void {
+  const vehicleResults = results
+    .filter((r) => r.vehicle && !r.error)
+    .sort(
+      (a, b) =>
+        vehicleIdentityPriority(a.vehicleSubtype) - vehicleIdentityPriority(b.vehicleSubtype)
+    );
+
+  for (const result of vehicleResults) {
+    const v = result.vehicle!;
+    if (v.plate && !vehicle.plate) vehicle.plate = v.plate;
+    if (v.brand && !vehicle.brand) vehicle.brand = v.brand;
+    if (v.model && !vehicle.model) vehicle.model = v.model;
+    if (v.year && !vehicle.year) vehicle.year = v.year;
+    if (v.color && !vehicle.color) vehicle.color = v.color;
+    if (v.confidence != null && vehicle.confidence == null) {
+      vehicle.confidence = v.confidence;
+    }
+  }
+}
 
 export function mergeExtractionResults(
   results: DocumentExtractionResult[]
@@ -28,16 +53,9 @@ export function mergeExtractionResults(
     if (result.driver?.document_number && !driver.document_number) {
       driver.document_number = result.driver.document_number;
     }
-
-    if (result.vehicle?.plate && !vehicle.plate) vehicle.plate = result.vehicle.plate;
-    if (result.vehicle?.brand && !vehicle.brand) vehicle.brand = result.vehicle.brand;
-    if (result.vehicle?.model && !vehicle.model) vehicle.model = result.vehicle.model;
-    if (result.vehicle?.year && !vehicle.year) vehicle.year = result.vehicle.year;
-    if (result.vehicle?.color && !vehicle.color) vehicle.color = result.vehicle.color;
-    if (result.vehicle?.confidence != null && vehicle.confidence == null) {
-      vehicle.confidence = result.vehicle.confidence;
-    }
   }
+
+  mergeVehicleFromResults(results, vehicle);
 
   return {
     driver,

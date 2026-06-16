@@ -8,6 +8,7 @@ import type {
 } from "@/features/assistant/types";
 import type { AssistantPageContext } from "@/features/assistant/lib/assistantPageContext";
 import { useAuthStore } from "@/core/auth/authStore";
+import { withBasePath } from "@/shared/lib/basePath";
 
 export interface AssistantBriefing {
   greeting: string;
@@ -23,7 +24,7 @@ export async function sendAssistantMessage(
     throw new Error("Session expirée — reconnectez-vous.");
   }
 
-  const response = await fetch("/api/admin/assistant", {
+  const response = await fetch(withBasePath("/api/admin/assistant"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -49,7 +50,7 @@ export async function fetchAssistantBriefing(): Promise<AssistantBriefing> {
     throw new Error("Session expirée — reconnectez-vous.");
   }
 
-  const response = await fetch("/api/admin/assistant/briefing", {
+  const response = await fetch(withBasePath("/api/admin/assistant/briefing"), {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -70,7 +71,7 @@ export async function executeAssistantConfirmation(
     throw new Error("Session expirée — reconnectez-vous.");
   }
 
-  const response = await fetch("/api/admin/assistant/execute", {
+  const response = await fetch(withBasePath("/api/admin/assistant/execute"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

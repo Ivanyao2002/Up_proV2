@@ -124,3 +124,16 @@ export function useSetDriverAvailability(id: string) {
     },
   });
 }
+
+export function useDeleteAdminDriver() {
+  const qc = useQueryClient();
+  const scopeKey = useScopeQueryKey();
+  return useMutation({
+    mutationFn: (id: string) => driverDetailService.delete(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: driversKeys.all(scopeKey) });
+      notificationService.success("Chauffeur supprimé");
+    },
+    onError: () => notificationService.error("Suppression impossible"),
+  });
+}

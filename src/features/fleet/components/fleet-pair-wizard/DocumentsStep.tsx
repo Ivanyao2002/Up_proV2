@@ -84,13 +84,13 @@ export function DocumentsStep({
         <h2 className="text-sm font-semibold text-heading">Véhicule</h2>
         <p className="mt-1 text-sm text-muted">
           {isManual
-            ? "Carte grise, assurance et visite technique — fichiers envoyés avec le véhicule."
-            : "La carte grise alimente plaque, marque et modèle. Le verso est optionnel."}
+            ? "Carte grise ou équivalent, assurance et visite technique — fichiers envoyés avec le véhicule."
+            : "La carte grise ou un document équivalent alimente plaque, marque et modèle. Assurance et visite technique complètent l'extraction."}
         </p>
         <ul className="mt-4 space-y-4">
           <DocumentRectoVersoRow
-            label="Carte grise"
-            description="Certificat d'immatriculation"
+            label="Carte grise ou document équivalent"
+            description="Carte grise, vignette, récépissé WW-CI, autorisation provisoire…"
             requiredForApproval
             previewRecto={resolveVehicleDocumentPreview("registration")}
             value={value.registration}

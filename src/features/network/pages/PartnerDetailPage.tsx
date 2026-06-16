@@ -24,6 +24,7 @@ import {
   useSuspendPartner,
 } from "../api/partners.queries";
 import { PartnerCommissionRulesPanel } from "@/features/finance/components/PartnerCommissionRulesPanel";
+import { formatPartnerTypeLabel } from "../lib/partnerType";
 
 interface PartnerDetailPageProps {
   partnerId: string;
@@ -182,6 +183,8 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
             {data.franchise_name}
           </Link>
           {" · "}
+          {formatPartnerTypeLabel(data.partner_type)}
+          {" · "}
           {data.city} · {data.contact_email}
         </p>
       </div>
@@ -325,6 +328,24 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
                 Voir les retraits
               </Button>
             </Link>
+          </div>
+
+          <div className="rounded-card border border-border bg-surface p-5 text-sm shadow-card">
+            <h3 className="font-semibold">Infos commerciales</h3>
+            <dl className="mt-3 space-y-2 text-muted">
+              <div className="flex justify-between gap-2">
+                <dt>Type</dt>
+                <dd className="text-foreground">
+                  {formatPartnerTypeLabel(data.partner_type)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt>Commission</dt>
+                <dd className="text-foreground">
+                  {data.commission_rate != null ? `${data.commission_rate} %` : "—"}
+                </dd>
+              </div>
+            </dl>
           </div>
 
           <div className="rounded-card border border-border bg-surface p-5 text-sm shadow-card">

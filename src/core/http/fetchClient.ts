@@ -90,6 +90,8 @@ function isPublicAuthEndpoint(endpoint: string): boolean {
     endpoint.includes("/login") ||
     endpoint.includes("/forgot") ||
     endpoint.includes("/otp/") ||
+    endpoint.includes("/driver/resend-otp") ||
+    endpoint.includes("/driver/verify-otp") ||
     endpoint.includes("/refresh")
   );
 }

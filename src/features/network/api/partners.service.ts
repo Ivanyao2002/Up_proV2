@@ -21,6 +21,9 @@ import {
   mapAdminPartnersToPaginated,
 } from "./adminPartners.mapper";
 
+import type { PartnerType } from "@/features/network/lib/partnerType";
+import { DEFAULT_PARTNER_TYPE } from "@/features/network/lib/partnerType";
+
 export type PartnerCreatePayload = {
   name: string;
   franchise_id: number | string;
@@ -33,6 +36,8 @@ export type PartnerCreatePayload = {
   contact_phone: string;
   address?: string;
   status?: Partner["status"];
+  partner_type?: PartnerType;
+  commission_rate?: number;
 };
 
 export type PartnerUpdatePayload = {
@@ -43,6 +48,8 @@ export type PartnerUpdatePayload = {
   contact_phone: string;
   address?: string;
   status?: Partner["status"];
+  partner_type?: PartnerType;
+  commission_rate?: number;
 };
 
 export const partnersService = {
@@ -84,12 +91,15 @@ export const partnersService = {
       tradeName: payload.name.trim(),
       cityId,
       contactEmail: payload.contact_email.trim(),
-      partnerType: "FLEET",
+      partnerType: payload.partner_type ?? DEFAULT_PARTNER_TYPE,
       ...(payload.contact_phone.trim()
         ? { contactPhone: payload.contact_phone.trim() }
         : {}),
       ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
       ...(payload.status ? { status: payload.status } : {}),
+      ...(payload.commission_rate != null && !Number.isNaN(payload.commission_rate)
+        ? { commissionRate: payload.commission_rate }
+        : {}),
     };
 
     const response = await apiClient.post<ApiPartnerCreateResponse>(
@@ -130,11 +140,15 @@ export const partnersService = {
       tradeName: payload.name.trim(),
       cityId,
       contactEmail: payload.contact_email.trim(),
+      ...(payload.partner_type ? { partnerType: payload.partner_type } : {}),
       ...(payload.contact_phone.trim()
         ? { contactPhone: payload.contact_phone.trim() }
         : {}),
       ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
       ...(payload.status ? { status: payload.status } : {}),
+      ...(payload.commission_rate != null && !Number.isNaN(payload.commission_rate)
+        ? { commissionRate: payload.commission_rate }
+        : {}),
     };
 
     const response = await apiClient.patch<ApiV1PartnerDetailResponse>(
@@ -163,6 +177,8 @@ export const partnersService = {
       contact_email: response.partner.contact_email,
       status: response.partner.status,
       driversCount: response.partner.stats?.driversCount,
+      partner_type: response.partner.partner_type,
+      commission_rate: response.partner.commission_rate,
     };
     return mapAdminPartnerItemToPartner(item, lookups);
   },

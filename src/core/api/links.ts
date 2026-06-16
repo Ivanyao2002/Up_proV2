@@ -104,8 +104,17 @@ export const LINKS = {
       driverTransferStats: (franchiseId: string) =>
         `/v1/franchises/${franchiseId}/driver-transfers/stats`,
     },
+    uploads: {
+      signedUrl: "/v1/uploads/signed-url",
+      complete: "/v1/uploads/complete",
+      buckets: "/v1/uploads/buckets",
+    },
+    kyc: {
+      documents: "/v1/kyc/documents",
+    },
     catalog: {
       bootstrap: "/v1/catalog/bootstrap",
+      documentTypes: "/v1/catalog/document-types",
       countryCities: (countryCode: string) =>
         `/v1/catalog/countries/${countryCode}/cities`,
       vehicleCategories: "/v1/catalog/vehicle-categories",
@@ -170,6 +179,7 @@ export const LINKS = {
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
+      withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>
         `${ADMIN_V1_BASE}/withdrawals/${id}/approve`,
       withdrawalReject: (id: string) =>
@@ -183,6 +193,7 @@ export const LINKS = {
       driverApprove: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/approve`,
       driverReject: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/reject`,
       vehicles: `${ADMIN_V1_BASE}/vehicles`,
+      vehicleById: (id: string) => `${ADMIN_V1_BASE}/vehicles/${id}`,
       franchiseById: (id: string) => `${ADMIN_V1_BASE}/franchises/${id}`,
       paydunyaConfig: `${ADMIN_V1_BASE}/paydunya-config`,
       weatherConfig: `${ADMIN_V1_BASE}/weather-config`,
@@ -204,6 +215,15 @@ export const LINKS = {
         reconciliation: `${ADMIN_V1_BASE}/finance/reconciliation`,
         driverTransfers: `${ADMIN_V1_BASE}/finance/driver-transfers`,
         driverTransferStats: `${ADMIN_V1_BASE}/finance/driver-transfers/stats`,
+      },
+      marketing: {
+        promos: `${ADMIN_V1_BASE}/marketing/promos`,
+        promoById: (id: string) => `${ADMIN_V1_BASE}/marketing/promos/${id}`,
+        campaigns: `${ADMIN_V1_BASE}/marketing/campaigns`,
+        campaignById: (id: string) =>
+          `${ADMIN_V1_BASE}/marketing/campaigns/${id}`,
+        banners: `${ADMIN_V1_BASE}/marketing/banners`,
+        bannerById: (id: string) => `${ADMIN_V1_BASE}/marketing/banners/${id}`,
       },
       /** @deprecated Préférer `marketing.promos` */
       promotions: `${ADMIN_V1_BASE}/promotions`,
@@ -232,8 +252,8 @@ export const LINKS = {
       list: `${ADMIN_V1_BASE}/franchises`,
       getById: (id: string) => `${ADMIN_V1_BASE}/franchises/${id}`,
       reports: `${ADMIN_V1_BASE}/reports/franchises`,
-      // Note: Les sous-routes /partners, /drivers, /orders, /revenue n'existent pas dans Swagger
-      // Utiliser les endpoints admin généraux avec paramètre de requête franchiseId
+      /** Courses franchise (admin JWT) — même route que portail franchise */
+      orders: (id: string) => `/v1/franchises/${id}/orders`,
     },
 
     partners: {

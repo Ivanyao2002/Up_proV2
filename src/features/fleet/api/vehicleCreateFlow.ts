@@ -7,6 +7,7 @@ import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
 import type { VehicleDetail } from "@/shared/types";
 import type { CreateDriverV1Context } from "./partnerDrivers.v1.service";
 import type { VehicleDocumentType } from "@/shared/types/vehicleDocuments";
+import { uploadVehiclePiecesForPartner } from "./kycDocumentUpload.v1.service";
 
 export interface VehicleCreateFlowOptions {
   pieces?: VehiclePieceFile[];
@@ -43,16 +44,21 @@ export async function applyVehicleCreateFlow(
   const { pieces = [], driver, driverDocuments = [] } = options;
   let current = vehicle;
 
+  const partnerId = options.partnerId?.trim();
+
   for (const piece of pieces) {
-    try {
-      if (handlers.legacyDocumentsPath) {
-        current = await apiClient.post<VehicleDetail>(
-          handlers.legacyDocumentsPath(current.id),
-          { type: piece.type as VehicleDocumentType, filename: piece.file.name }
-        );
-      }
-    } catch {
-      // Upload pièce indisponible (API v1)
+    if (handlers.legacyDocumentsPath) {
+      current = await apiClient.post<VehicleDetail>(
+        handlers.legacyDocumentsPath(current.id),
+        { type: piece.type as VehicleDocumentType, filename: piece.file.name }
+      );
+      continue;
+    }
+
+    if (partnerId) {
+      await uploadVehiclePiecesForPartner(partnerId, String(current.id), [
+        piece,
+      ]);
     }
   }
 

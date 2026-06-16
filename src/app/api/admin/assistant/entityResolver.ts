@@ -274,15 +274,28 @@ function itemMatches(
         if (p.email) fields.push(String(p.email));
       }
       break;
-    case "clients":
-      if (item.phone) fields.push(String(item.phone));
-      if (item.email) fields.push(String(item.email));
+    case "clients": {
+      const qn = normName(query);
+      const profile = item.profile as Record<string, unknown> | undefined;
+      const display = normName(
+        String(profile?.displayName ?? item.full_name ?? item.name ?? "")
+      );
+      const email = norm(String(item.email ?? ""));
+      const phone = String(item.phone ?? "").replace(/\s/g, "");
+      const qPhone = query.replace(/\s/g, "");
+
+      if (display && (display === qn || display.includes(qn) || qn.includes(display))) {
+        return true;
+      }
+      if (item.phone && phone.includes(qPhone)) return true;
+      if (item.email && email.includes(norm(query))) return true;
       if (item.full_name) fields.push(String(item.full_name));
       if (item.profile) {
         const p = item.profile as Record<string, unknown>;
         if (p.displayName) fields.push(String(p.displayName));
       }
       break;
+    }
     case "franchises":
       if (item.name) fields.push(String(item.name));
       if (item.code) fields.push(String(item.code));

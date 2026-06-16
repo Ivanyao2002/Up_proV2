@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type {
   DocumentExtractionResult,
   ExtractionDocumentType,
+  VehicleIdentitySubtype,
 } from "@/features/fleet/lib/documentExtraction.types";
 import { resolveDocumentExtractProvider } from "./config";
 import { EXTRACTION_PROMPTS } from "./prompts";
@@ -16,6 +17,10 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   const form = await req.formData();
   const documentType = form.get("documentType") as ExtractionDocumentType | null;
+  const vehicleSubtypeRaw = form.get("vehicleSubtype") as string | null;
+  const vehicleSubtype = vehicleSubtypeRaw?.trim()
+    ? (vehicleSubtypeRaw.trim() as VehicleIdentitySubtype)
+    : null;
   const providerOverride = form.get("provider") as string | null;
   const resolvedProvider = resolveDocumentExtractProvider(providerOverride);
   const files = form.getAll("files").filter((f): f is File => f instanceof File);
@@ -31,7 +36,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message:
-          "Extraction IA non configurée (OPENROUTER_API_KEY manquant). Utilisez DOCUMENT_EXTRACT_PROVIDER=paddle ou ajoutez la clé OpenRouter.",
+          "OPENROUTER_API_KEY manquant. Utilisez DOCUMENT_EXTRACT_PROVIDER=rules (Paddle + règles, gratuit) ou paddle/openrouter.",
       },
       { status: 503 }
     );
@@ -42,7 +47,8 @@ export async function POST(req: NextRequest) {
       resolvedProvider,
       apiKey,
       documentType,
-      files
+      files,
+      vehicleSubtype
     );
 
     if (result.error && !result.driver && !result.vehicle) {

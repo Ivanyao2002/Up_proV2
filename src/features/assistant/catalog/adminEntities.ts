@@ -1,5 +1,6 @@
 import { LINKS } from "@/core/api/links";
 import { isValidEntityFindQuery } from "@/features/assistant/lib/firstEntityIntent";
+import { isValidEntityId } from "@/features/assistant/lib/entityId";
 
 export type AdminEntityKey =
   | "dashboard"
@@ -355,6 +356,7 @@ export function entityListPath(key: AdminEntityKey): string {
 }
 
 export function entityDetailPath(key: AdminEntityKey, id: string): string | null {
+  if (!isValidEntityId(id)) return null;
   const def = getEntityDef(key);
   return def.detailPath?.(id) ?? null;
 }
@@ -423,6 +425,13 @@ export function matchEntityListIntent(text: string): AdminEntityKey | null {
 export function matchEntityFindIntent(
   text: string
 ): { entity: AdminEntityKey; query: string } | null {
+  if (
+    /(?:qui est|meilleur|meilleure|top|classement|plus (?:de|grand)|ranking)/i.test(text) &&
+    /(?:chauffeur|client|partenaire|franchise|course|wallet|annul)/i.test(text)
+  ) {
+    return null;
+  }
+
   for (const entity of ADMIN_ENTITIES) {
     if (!entity.searchable || !entity.findKeywords) continue;
     for (const re of entity.findKeywords) {

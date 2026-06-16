@@ -23,7 +23,20 @@ function detectMissingDocuments(documents: WizardDocumentsState): string[] {
   if (!documents.cni.verso) missing.push("CNI verso");
   if (!documents.license.recto) missing.push("Permis recto");
   if (!documents.license.verso) missing.push("Permis verso");
-  if (!documents.registration.recto) missing.push("Carte grise");
+  const hasVehicleIdentity =
+    documents.registration.recto ||
+    documents.registration.verso ||
+    documents.insurance ||
+    documents.technicalInspection;
+  if (!hasVehicleIdentity) {
+    missing.push("Carte grise ou document équivalent (vignette, assurance, visite technique…)");
+  } else if (!documents.registration.recto && !documents.registration.verso) {
+    missing.push("Carte grise recto/verso (document alternatif détecté — vérifiez le dossier)");
+  } else if (!documents.registration.recto) {
+    missing.push("Carte grise recto");
+  } else if (!documents.registration.verso) {
+    missing.push("Carte grise verso");
+  }
   return missing;
 }
 
@@ -125,7 +138,7 @@ export async function POST(req: NextRequest) {
 
   if (provider === "openrouter" && !apiKey) {
     return NextResponse.json(
-      { message: "OPENROUTER_API_KEY manquant ou utilisez DOCUMENT_EXTRACT_PROVIDER=paddle." },
+      { message: "OPENROUTER_API_KEY manquant ou utilisez DOCUMENT_EXTRACT_PROVIDER=rules." },
       { status: 503 }
     );
   }
@@ -182,15 +195,31 @@ export async function POST(req: NextRequest) {
       summary.push(`${u.fileName} → non classé (${u.classification.label})`);
     }
 
+    const registrationRectoAssignment = assignments.find((a) => a.slot === "registration.recto");
+    const registrationSubtype =
+      (registrationRectoAssignment &&
+        classifications.find((c) => c.index === registrationRectoAssignment.index)?.classification
+          .vehicleSubtype) ??
+      "carte_grise";
+
     const extractionGroups = wizardFilesForExtraction({
       cni: documents.cni,
       license: documents.license,
       registration: documents.registration,
+      insurance: documents.insurance,
+      technicalInspection: documents.technicalInspection,
+      registrationSubtype,
     });
 
     const extractionResults = await Promise.all(
       extractionGroups.map((group) =>
-        runDocumentExtraction(provider, apiKey, group.type as ExtractionDocumentType, group.files)
+        runDocumentExtraction(
+          provider,
+          apiKey,
+          group.type as ExtractionDocumentType,
+          group.files,
+          group.vehicleSubtype
+        )
       )
     );
 

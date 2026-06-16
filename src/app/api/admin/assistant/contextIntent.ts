@@ -1,6 +1,7 @@
 import type { AssistantPageContext } from "@/features/assistant/lib/assistantPageContext";
 import type { AssistantConfirmation } from "@/features/assistant/types";
 import { LINKS } from "@/core/api/links";
+import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { assistantApiGet, record, str } from "./assistantApiClient";
 import { extractDriverNameQuery } from "./driverQueryExtract";
 import { resolveDriverByQuery } from "./entityResolver";
@@ -21,6 +22,48 @@ async function fetchDriverPartnerId(
     if (pid) return String(pid);
   }
   return null;
+}
+
+async function fetchAllPendingKycDocs(
+  driverId: string,
+  authHeader: string
+): Promise<Array<{ id: string; label: string }>> {
+  const data = await assistantApiGet<{ items?: Record<string, unknown>[] }>(
+    `${LINKS.admin.v1.kycDocuments}?subject_id=${encodeURIComponent(driverId)}&subject_type=DRIVER`,
+    authHeader
+  );
+  return (data?.items ?? [])
+    .filter((d) => {
+      const s = str(d.status).toLowerCase();
+      return s === "pending" || s === "submitted";
+    })
+    .map((d) => ({
+      id: String(d.id),
+      label: str(d.document_type_label ?? d.document_type_code),
+    }));
+}
+
+async function fetchDriverRecord(
+  driverId: string,
+  authHeader: string
+): Promise<Record<string, unknown> | null> {
+  const detail = await assistantApiGet<Record<string, unknown>>(
+    LINKS.admin.v1.driverById(driverId),
+    authHeader
+  );
+  if (detail) return record(detail.driver) ?? detail;
+
+  const list = await assistantApiGet<{ items?: Record<string, unknown>[] }>(
+    `${LINKS.admin.v1.drivers}${buildV1ListQuery({ per_page: 100, page: 1 })}`,
+    authHeader
+  );
+  return (list?.items ?? []).find((d) => String(d.id) === driverId) ?? null;
+}
+
+function isDriverAccountPending(driver: Record<string, unknown> | null): boolean {
+  if (!driver) return false;
+  const approval = str(driver.approval_status ?? driver.approvalStatus).toLowerCase();
+  return !["approved", "active"].includes(approval);
 }
 
 async function fetchPendingKycDoc(
@@ -165,6 +208,80 @@ export async function detectConfirmIntent(
     };
   }
 
+  if (/approuv(er|e)|valid(er|e)/i.test(text) && /(tout|dossier|complet|ensemble)/i.test(text)) {
+    if (!driver) {
+      const q = extractDriverNameQuery(text);
+      return {
+        message: q
+          ? `Chauffeur introuvable pour « ${q} ».`
+          : "Précisez le chauffeur (nom ou ouvrez sa fiche).",
+      };
+    }
+    const pendingDocs = await fetchAllPendingKycDocs(driver.driverId, authHeader);
+    const driverRecord = await fetchDriverRecord(driver.driverId, authHeader);
+    const accountPending = isDriverAccountPending(driverRecord);
+    if (!pendingDocs.length && !accountPending) {
+      return {
+        message: `Le dossier de ${driver.driverLabel} est déjà complet (KYC + compte approuvés).`,
+      };
+    }
+    const parts: string[] = [];
+    if (pendingDocs.length) parts.push(`${pendingDocs.length} document(s) KYC`);
+    if (accountPending) parts.push("compte chauffeur");
+    return {
+      message: `Confirmez l'approbation complète pour ${driver.driverLabel} : ${parts.join(" + ")}.`,
+      confirmation: {
+        title: "Approuver dossier chauffeur",
+        description: "Documents KYC en attente + validation du compte.",
+        severity: "warning",
+        executeType: "approve_driver_full",
+        payload: { driverId: driver.driverId },
+      },
+    };
+  }
+
+  if (
+    /approuv(er|e)|valid(er|e)|activ(er|e)/i.test(text) &&
+    /compte/i.test(text) &&
+    !/document|kyc/i.test(text)
+  ) {
+    if (!driver) {
+      const q = extractDriverNameQuery(text);
+      return {
+        message: q
+          ? `Chauffeur introuvable pour « ${q} ».`
+          : "Précisez le chauffeur (nom ou ouvrez sa fiche).",
+      };
+    }
+    const pendingDocs = await fetchAllPendingKycDocs(driver.driverId, authHeader);
+    if (pendingDocs.length) {
+      return {
+        message: `${pendingDocs.length} document(s) KYC encore en attente pour ${driver.driverLabel}. Confirmez d'abord les KYC ou demandez « approuve tout le dossier ».`,
+        confirmation: {
+          title: `Approuver ${pendingDocs.length} document(s) KYC`,
+          description: "Les documents en attente seront validés avant le compte.",
+          severity: "warning",
+          executeType: "approve_all_kyc_documents",
+          payload: { driverId: driver.driverId },
+        },
+      };
+    }
+    const driverRecord = await fetchDriverRecord(driver.driverId, authHeader);
+    if (!isDriverAccountPending(driverRecord)) {
+      return { message: `Le compte de ${driver.driverLabel} est déjà approuvé.` };
+    }
+    return {
+      message: `Confirmez l'approbation du compte chauffeur ${driver.driverLabel}.`,
+      confirmation: {
+        title: "Approuver compte chauffeur",
+        description: "Le compte sera validé et pourra être opérationnel.",
+        severity: "warning",
+        executeType: "approve_driver_kyc",
+        payload: { driverId: driver.driverId },
+      },
+    };
+  }
+
   if (/approuv(er|e)|valid(er|e)/i.test(text) && /kyc|document/i.test(text)) {
     if (!driver) {
       const q = extractDriverNameQuery(text);
@@ -204,43 +321,76 @@ export async function detectConfirmIntent(
       }
     }
 
-    const pending = await fetchPendingKycDoc(driver.driverId, authHeader);
-    if (pending) {
+    const pendingDocs = await fetchAllPendingKycDocs(driver.driverId, authHeader);
+    const wantsAll =
+      /tous(?:es)?|all|ensemble|l(?:es|')?\s*documents?/i.test(text) ||
+      pendingDocs.length > 1;
+
+    if (pendingDocs.length === 0) {
+      if (/recharg(er|e)/i.test(text) && extractRechargeAmount(text)) {
+        const amount = extractRechargeAmount(text)!;
+        const partnerId = await fetchDriverPartnerId(driver.driverId, authHeader);
+        if (partnerId) {
+          return {
+            message: `Tous les documents KYC sont déjà approuvés pour ${driver.driverLabel}. Confirmez la recharge de ${amount.toLocaleString("fr-FR")} FCFA.`,
+            confirmation: {
+              title: "Recharger le chauffeur",
+              description: `${amount.toLocaleString("fr-FR")} FCFA seront crédités via le wallet partenaire.`,
+              severity: "warning",
+              executeType: "recharge_driver",
+              payload: {
+                driverId: driver.driverId,
+                partnerId,
+                amountFcfa: amount,
+              },
+            },
+          };
+        }
+      }
+
+      const driverRecord = await fetchDriverRecord(driver.driverId, authHeader);
+      if (isDriverAccountPending(driverRecord)) {
+        return {
+          message: `Documents KYC OK pour ${driver.driverLabel}, mais le compte chauffeur n'est pas encore approuvé. Confirmez l'approbation du compte.`,
+          confirmation: {
+            title: "Approuver compte chauffeur",
+            description: "Validation du compte après KYC complet.",
+            severity: "warning",
+            executeType: "approve_driver_kyc",
+            payload: { driverId: driver.driverId },
+          },
+        };
+      }
+
       return {
-        message: `Confirmez la validation du document « ${pending.label} » pour ${driver.driverLabel}.${followUpHint(text, "kyc")}`,
+        message: `Tous les documents KYC sont déjà approuvés pour ${driver.driverLabel}. Aucune validation en attente.${followUpHint(text, "kyc")}`,
+      };
+    }
+
+    if (wantsAll) {
+      const labels = pendingDocs.map((d) => d.label).join(", ");
+      return {
+        message: `Confirmez la validation de ${pendingDocs.length} document(s) KYC pour ${driver.driverLabel} : ${labels}.${followUpHint(text, "kyc")}`,
         confirmation: {
-          title: "Approuver document KYC",
-          description: "Le premier document en attente sera validé.",
+          title: `Approuver ${pendingDocs.length} document(s) KYC`,
+          description: "Tous les documents en attente seront validés.",
           severity: "warning",
-          executeType: "approve_kyc_document",
-          payload: { driverId: driver.driverId, documentId: pending.id },
+          executeType: "approve_all_kyc_documents",
+          payload: { driverId: driver.driverId },
         },
       };
     }
 
-    if (/recharg(er|e)/i.test(text) && extractRechargeAmount(text)) {
-      const amount = extractRechargeAmount(text)!;
-      const partnerId = await fetchDriverPartnerId(driver.driverId, authHeader);
-      if (partnerId) {
-        return {
-          message: `Tous les documents KYC sont déjà approuvés pour ${driver.driverLabel}. Confirmez la recharge de ${amount.toLocaleString("fr-FR")} FCFA.`,
-          confirmation: {
-            title: "Recharger le chauffeur",
-            description: `${amount.toLocaleString("fr-FR")} FCFA seront crédités via le wallet partenaire.`,
-            severity: "warning",
-            executeType: "recharge_driver",
-            payload: {
-              driverId: driver.driverId,
-              partnerId,
-              amountFcfa: amount,
-            },
-          },
-        };
-      }
-    }
-
+    const pending = pendingDocs[0]!;
     return {
-      message: `Tous les documents KYC sont déjà approuvés pour ${driver.driverLabel}. Aucune validation en attente.${followUpHint(text, "kyc")}`,
+      message: `Confirmez la validation du document « ${pending.label} » pour ${driver.driverLabel}.${followUpHint(text, "kyc")}`,
+      confirmation: {
+        title: "Approuver document KYC",
+        description: "Le document sera marqué comme validé.",
+        severity: "warning",
+        executeType: "approve_kyc_document",
+        payload: { driverId: driver.driverId, documentId: pending.id },
+      },
     };
   }
 

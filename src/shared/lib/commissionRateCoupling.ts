@@ -1,24 +1,28 @@
+/** Taux de référence cahier finance §4.1 (% de la recette brute). */
+export const COMMISSION_REFERENCE = {
+  /** Commission globale UPJUNOO */
+  TOTAL: 0.15,
+  FISCALITY: 0.023,
+  FRANCHISE_MAX: 0.03,
+  PARTNER_MAX: 0.04,
+  /** Part Centrale UPJUNOO */
+  PLATFORM: 0.057,
+} as const;
+
 /** Arrondi taux décimal (4 décimales). */
 export function roundCommissionRate(value: number): number {
   return Math.round(value * 10_000) / 10_000;
 }
 
-/** Pool franchise + partenaire (inchangé quand on ajuste la répartition). */
-export function partnerFranchisePool(
+export function commissionActorsTotal(
+  platformRate: number,
   franchiseRate: number,
-  partnerRate: number
+  partnerRate: number,
+  fiscalityRate: number
 ): number {
-  return roundCommissionRate(franchiseRate + partnerRate);
-}
-
-/** Taux franchise dérivé quand le taux partenaire change (pool constant). */
-export function coupledFranchiseRate(pool: number, partnerRate: number): number {
-  return roundCommissionRate(Math.max(0, pool - partnerRate));
-}
-
-/** Taux partenaire dérivé quand le taux franchise change (pool constant). */
-export function coupledPartnerRate(pool: number, franchiseRate: number): number {
-  return roundCommissionRate(Math.max(0, pool - franchiseRate));
+  return roundCommissionRate(
+    platformRate + franchiseRate + partnerRate + fiscalityRate
+  );
 }
 
 export function formatRatePercent(rate: number): string {
@@ -33,38 +37,55 @@ export function parseRatePercentInput(raw: string): number | null {
   return roundCommissionRate(n / 100);
 }
 
-export function validatePartnerRateInPool(
-  pool: number,
-  partnerRate: number
-): string | null {
-  if (partnerRate < 0) return "Le taux partenaire ne peut pas être négatif.";
-  if (partnerRate > pool + 0.0001) {
-    return `Le taux partenaire ne peut pas dépasser ${formatRatePercent(pool)} (pool franchise + partenaire).`;
-  }
-  return null;
-}
-
-export function validateFranchiseRateInPool(
-  pool: number,
-  franchiseRate: number
-): string | null {
+export function validateFranchiseRate(franchiseRate: number): string | null {
   if (franchiseRate < 0) return "Le taux franchise ne peut pas être négatif.";
-  if (franchiseRate > pool + 0.0001) {
-    return `Le taux franchise ne peut pas dépasser ${formatRatePercent(pool)} (pool franchise + partenaire).`;
+  if (franchiseRate > COMMISSION_REFERENCE.FRANCHISE_MAX + 0.0001) {
+    return `Le taux franchise ne peut pas dépasser ${formatRatePercent(COMMISSION_REFERENCE.FRANCHISE_MAX)}.`;
   }
   return null;
 }
 
-export function validatePoolSplit(
-  pool: number,
+export function validatePartnerRate(partnerRate: number): string | null {
+  if (partnerRate < 0) return "Le taux partenaire ne peut pas être négatif.";
+  if (partnerRate > COMMISSION_REFERENCE.PARTNER_MAX + 0.0001) {
+    return `Le taux partenaire ne peut pas dépasser ${formatRatePercent(COMMISSION_REFERENCE.PARTNER_MAX)}.`;
+  }
+  return null;
+}
+
+export function validateCommissionActorsTotal(
+  platformRate: number,
   franchiseRate: number,
-  partnerRate: number
+  partnerRate: number,
+  fiscalityRate: number
+): string | null {
+  const total = commissionActorsTotal(
+    platformRate,
+    franchiseRate,
+    partnerRate,
+    fiscalityRate
+  );
+  if (Math.abs(total - COMMISSION_REFERENCE.TOTAL) > 0.0002) {
+    return `Plateforme + franchise + partenaire + fiscalité = ${formatRatePercent(COMMISSION_REFERENCE.TOTAL)} (actuellement ${formatRatePercent(total)}).`;
+  }
+  return null;
+}
+
+/** Valide franchise et partenaire (plafonds indépendants) + cohérence du total commission. */
+export function validateFranchisePartnerRates(
+  franchiseRate: number,
+  partnerRate: number,
+  platformRate: number,
+  fiscalityRate: number
 ): string | null {
   return (
-    validatePartnerRateInPool(pool, partnerRate) ??
-    validateFranchiseRateInPool(pool, franchiseRate) ??
-    (Math.abs(franchiseRate + partnerRate - pool) > 0.0002
-      ? "La somme franchise + partenaire doit rester égale au pool."
-      : null)
+    validateFranchiseRate(franchiseRate) ??
+    validatePartnerRate(partnerRate) ??
+    validateCommissionActorsTotal(
+      platformRate,
+      franchiseRate,
+      partnerRate,
+      fiscalityRate
+    )
   );
 }

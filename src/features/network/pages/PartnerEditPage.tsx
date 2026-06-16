@@ -22,6 +22,12 @@ import {
   useCountryCities,
 } from "../api/franchises.queries";
 import { useUpdatePartner } from "../api/partners.queries";
+import {
+  DEFAULT_PARTNER_TYPE,
+  PARTNER_TYPE_OPTIONS,
+  normalizePartnerType,
+  type PartnerType,
+} from "../lib/partnerType";
 
 interface PartnerEditPageProps {
   partnerId: string;
@@ -54,6 +60,8 @@ export function PartnerEditPage({ partnerId }: PartnerEditPageProps) {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [status, setStatus] = useState<Partner["status"]>("pending");
+  const [partnerType, setPartnerType] = useState<PartnerType>(DEFAULT_PARTNER_TYPE);
+  const [commissionRate, setCommissionRate] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
 
   const { data: cities = [], isLoading: citiesLoading } = useCountryCities(
@@ -71,6 +79,12 @@ export function PartnerEditPage({ partnerId }: PartnerEditPageProps) {
     setAddress(data.address !== "—" ? data.address : "");
     setStatus(data.status);
     if (data.city_id) setCityId(data.city_id);
+    setPartnerType(normalizePartnerType(data.partner_type) ?? DEFAULT_PARTNER_TYPE);
+    setCommissionRate(
+      data.commission_rate != null && !Number.isNaN(data.commission_rate)
+        ? String(data.commission_rate)
+        : ""
+    );
     setInitialized(true);
   }, [data, initialized]);
 
@@ -121,6 +135,12 @@ export function PartnerEditPage({ partnerId }: PartnerEditPageProps) {
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       next.push("Un email valide est requis.");
     }
+    if (commissionRate.trim()) {
+      const rate = Number(commissionRate.replace(",", "."));
+      if (Number.isNaN(rate) || rate < 0 || rate > 100) {
+        next.push("Le taux de commission doit être entre 0 et 100 %.");
+      }
+    }
     setErrors(next);
     if (next.length) return;
 
@@ -137,6 +157,10 @@ export function PartnerEditPage({ partnerId }: PartnerEditPageProps) {
             : "",
         address: address.trim() || undefined,
         status,
+        partner_type: partnerType,
+        commission_rate: commissionRate.trim()
+          ? Number(commissionRate.replace(",", "."))
+          : undefined,
       },
       {
         onSuccess: () => {
@@ -281,6 +305,36 @@ export function PartnerEditPage({ partnerId }: PartnerEditPageProps) {
               ))}
             </select>
           )}
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium">Type de partenaire</span>
+          <select
+            value={partnerType}
+            onChange={(e) => setPartnerType(e.target.value as PartnerType)}
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
+            required
+          >
+            {PARTNER_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium">Taux de commission (%)</span>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step={0.1}
+            value={commissionRate}
+            onChange={(e) => setCommissionRate(e.target.value)}
+            placeholder="Optionnel"
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
+          />
         </label>
 
         <label className="block">

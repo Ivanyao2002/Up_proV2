@@ -1,5 +1,13 @@
 export type ExtractionDocumentType = "cni" | "license" | "registration";
 
+export type VehicleIdentitySubtype =
+  | "carte_grise"
+  | "vignette"
+  | "recepisse_ww"
+  | "assurance"
+  | "visite_technique"
+  | "autorisation_provisoire";
+
 export type FieldSource = "ai" | "manual" | "empty";
 
 export interface ExtractedDriverFields {
@@ -22,6 +30,7 @@ export interface DocumentExtractionResult {
   documentType: ExtractionDocumentType;
   driver?: ExtractedDriverFields | null;
   vehicle?: ExtractedVehicleFields | null;
+  vehicleSubtype?: VehicleIdentitySubtype | null;
   warnings?: string[];
   error?: string | null;
 }

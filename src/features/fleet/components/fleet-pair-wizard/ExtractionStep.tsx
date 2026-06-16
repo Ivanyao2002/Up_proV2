@@ -9,7 +9,9 @@ import type { WizardDocumentsState } from "./DocumentsStep";
 const DOC_LABELS: Record<string, string> = {
   cni: "Carte d'identité",
   license: "Permis de conduire",
-  registration: "Carte grise",
+  registration: "Véhicule",
+  assurance: "Assurance",
+  visite_technique: "Visite technique",
 };
 
 interface ExtractionStepProps {
@@ -35,6 +37,8 @@ export function ExtractionStep({
       cni: documents.cni,
       license: documents.license,
       registration: documents.registration,
+      insurance: documents.insurance,
+      technicalInspection: documents.technicalInspection,
     });
 
     if (!groups.length) {
@@ -74,13 +78,15 @@ export function ExtractionStep({
           Extraction des informations via IA… Cela peut prendre quelques secondes.
         </p>
         <ul className="mt-6 space-y-2 text-left text-sm">
-          {groups.map((g) => (
+          {groups.map((g, i) => (
             <li
-              key={g.type}
+              key={`${g.type}-${g.vehicleSubtype ?? i}`}
               className="flex items-center gap-2 rounded-lg border border-border bg-canvas/50 px-3 py-2"
             >
               <span className="h-2 w-2 animate-pulse rounded-full bg-teal" />
-              <span className="text-foreground">{DOC_LABELS[g.type]}</span>
+              <span className="text-foreground">
+                {g.label ?? DOC_LABELS[g.vehicleSubtype ?? g.type] ?? g.type}
+              </span>
               <span className="ml-auto text-xs text-muted">
                 {g.files.length} fichier{g.files.length > 1 ? "s" : ""}
               </span>

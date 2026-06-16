@@ -11,12 +11,14 @@ import {
 } from "@/features/assistant/lib/entityListFilters";
 import { matchAdvancedFilterIntent } from "./advancedFilterIntent";
 import { matchRelationalIntent } from "./relationalIntent";
+import { matchPersonLookupIntent } from "./personLookupIntent";
 import { extractDriverNameQuery, isActionIntent } from "./driverQueryExtract";
 import {
   detectConfirmIntent,
   detectRelativeIntent,
   isSummaryRequest,
 } from "./contextIntent";
+import { matchRankingQuery } from "./rankingIntent";
 import {
   isGenericSummaryRequest,
   matchAnalyticsIntent,
@@ -53,6 +55,14 @@ export async function detectDirectIntent(
         confirmation: confirm.confirmation ?? null,
       };
     }
+  }
+
+  const ranking = matchRankingQuery(text);
+  if (ranking) {
+    return {
+      message: `__RANKING__:${encodeURIComponent(JSON.stringify(ranking))}`,
+      action: null,
+    };
   }
 
   const analytics = matchAnalyticsIntent(text);
@@ -141,6 +151,14 @@ export async function detectDirectIntent(
     return {
       message: `Recherche du véhicule ${plate}…`,
       action: { type: "FIND_ENTITY", entity: "vehicles", query: plate },
+    };
+  }
+
+  const person = matchPersonLookupIntent(text);
+  if (person) {
+    return {
+      message: `Recherche de ${person.query}…`,
+      action: { type: "FIND_ENTITY", entity: person.entity, query: person.query },
     };
   }
 

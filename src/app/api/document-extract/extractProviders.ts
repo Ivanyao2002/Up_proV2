@@ -1,6 +1,7 @@
 import type {
   DocumentExtractionResult,
   ExtractionDocumentType,
+  VehicleIdentitySubtype,
 } from "@/features/fleet/lib/documentExtraction.types";
 import {
   getOpenRouterModel,
@@ -11,6 +12,50 @@ import { buildTextStructuringPrompt, EXTRACTION_PROMPTS } from "./prompts";
 import { parseJsonFromContent } from "./parseJson";
 import { callOpenRouterChat, fileToDataUrl } from "./openrouterClient";
 import { runPaddleOcrOnFiles } from "./paddleOcrClient";
+import { extractWithRulesFromOcr } from "./rulesParser";
+
+function pickNonEmptyString(
+  primary?: string | null,
+  fallback?: string | null
+): string | null | undefined {
+  const p = primary?.trim();
+  if (p) return p;
+  const f = fallback?.trim();
+  return f || fallback;
+}
+
+function mergeWithRulesFallback(
+  primary: DocumentExtractionResult,
+  rules: DocumentExtractionResult
+): DocumentExtractionResult {
+  const merged: DocumentExtractionResult = {
+    ...primary,
+    warnings: [...(primary.warnings ?? []), ...(rules.warnings ?? [])],
+  };
+
+  if (rules.driver) {
+    merged.driver = {
+      first_name: pickNonEmptyString(primary.driver?.first_name, rules.driver.first_name) ?? null,
+      last_name: pickNonEmptyString(primary.driver?.last_name, rules.driver.last_name) ?? null,
+      document_number:
+        pickNonEmptyString(primary.driver?.document_number, rules.driver.document_number) ?? null,
+      confidence: primary.driver?.confidence ?? rules.driver.confidence,
+    };
+  }
+
+  if (rules.vehicle) {
+    merged.vehicle = {
+      plate: pickNonEmptyString(primary.vehicle?.plate, rules.vehicle.plate) ?? null,
+      brand: pickNonEmptyString(primary.vehicle?.brand, rules.vehicle.brand) ?? null,
+      model: pickNonEmptyString(primary.vehicle?.model, rules.vehicle.model) ?? null,
+      year: primary.vehicle?.year ?? rules.vehicle.year,
+      color: pickNonEmptyString(primary.vehicle?.color, rules.vehicle.color) ?? null,
+      confidence: primary.vehicle?.confidence ?? rules.vehicle.confidence,
+    };
+  }
+
+  return merged;
+}
 
 function mapParsedToResult(
   documentType: ExtractionDocumentType,
@@ -30,7 +75,8 @@ function mapParsedToResult(
 async function structureWithOpenRouterText(
   apiKey: string,
   documentType: ExtractionDocumentType,
-  ocrText: string
+  ocrText: string,
+  _vehicleSubtype?: VehicleIdentitySubtype | null
 ): Promise<DocumentExtractionResult> {
   const content = await callOpenRouterChat({
     apiKey,
@@ -85,31 +131,44 @@ export async function extractWithOpenRouterVision(
 export async function extractWithPaddleOcr(
   apiKey: string | undefined,
   documentType: ExtractionDocumentType,
-  files: File[]
+  files: File[],
+  vehicleSubtype?: VehicleIdentitySubtype | null
 ): Promise<DocumentExtractionResult> {
   const ocrText = await runPaddleOcrOnFiles(files);
+  const rulesResult = extractWithRulesFromOcr(documentType, ocrText, vehicleSubtype);
 
   if (!apiKey?.trim()) {
-    return {
-      documentType,
-      warnings: [
-        "OCR Paddle effectué — OPENROUTER_API_KEY requis pour structurer les champs (mode texte).",
-      ],
-      error: "Structuration IA non configurée",
-    };
+    return rulesResult;
   }
 
-  return structureWithOpenRouterText(apiKey, documentType, ocrText);
+  const aiResult = await structureWithOpenRouterText(apiKey, documentType, ocrText, vehicleSubtype);
+  if (aiResult.error && !aiResult.driver && !aiResult.vehicle) {
+    return rulesResult;
+  }
+  return mergeWithRulesFallback(aiResult, rulesResult);
+}
+
+export async function extractWithPaddleRules(
+  documentType: ExtractionDocumentType,
+  files: File[],
+  vehicleSubtype?: VehicleIdentitySubtype | null
+): Promise<DocumentExtractionResult> {
+  const ocrText = await runPaddleOcrOnFiles(files);
+  return extractWithRulesFromOcr(documentType, ocrText, vehicleSubtype);
 }
 
 export async function runDocumentExtraction(
   provider: DocumentExtractProvider,
   apiKey: string | undefined,
   documentType: ExtractionDocumentType,
-  files: File[]
+  files: File[],
+  vehicleSubtype?: VehicleIdentitySubtype | null
 ): Promise<DocumentExtractionResult> {
+  if (provider === "rules") {
+    return extractWithPaddleRules(documentType, files, vehicleSubtype);
+  }
   if (provider === "paddle") {
-    return extractWithPaddleOcr(apiKey, documentType, files);
+    return extractWithPaddleOcr(apiKey, documentType, files, vehicleSubtype);
   }
   if (!apiKey?.trim()) {
     return {

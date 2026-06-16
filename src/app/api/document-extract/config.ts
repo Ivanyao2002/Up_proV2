@@ -1,6 +1,6 @@
-export type DocumentExtractProvider = "openrouter" | "paddle";
+export type DocumentExtractProvider = "openrouter" | "paddle" | "rules";
 
-const PROVIDERS: DocumentExtractProvider[] = ["openrouter", "paddle"];
+const PROVIDERS: DocumentExtractProvider[] = ["openrouter", "paddle", "rules"];
 
 export function resolveDocumentExtractProvider(
   override?: string | null

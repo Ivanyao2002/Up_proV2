@@ -137,6 +137,9 @@ export interface Partner {
   status: "active" | "pending" | "suspended";
   contact_email: string;
   contact_phone: string;
+  /** FLEET | FREIGHT | RENTAL | MIXED — `GET /v1/partners/{id}` */
+  partner_type?: string | null;
+  commission_rate?: number | null;
 }
 
 export type TransactionType =

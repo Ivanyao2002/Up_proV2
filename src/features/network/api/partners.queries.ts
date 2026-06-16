@@ -84,6 +84,9 @@ export function useUpdatePartner(partnerId: string) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: partnersKeys.all });
       void qc.invalidateQueries({ queryKey: franchisesKeys.all });
+      void qc.invalidateQueries({
+        queryKey: [...partnersKeys.all, "detail", partnerId],
+      });
       notificationService.success("Partenaire mis à jour.");
     },
     onError: (error: Error) =>

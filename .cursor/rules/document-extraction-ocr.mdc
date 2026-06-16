@@ -1,0 +1,197 @@
+---
+description: Extraction OCR Paddle + regex pour préremplir le formulaire chauffeur/véhicule (inscription binôme)
+globs: src/app/api/document-extract/**,src/features/fleet/lib/documentExtraction*,src/features/fleet/lib/mergeExtraction*,src/features/fleet/lib/catalogMatch*,src/features/fleet/components/fleet-pair-wizard/**
+alwaysApply: false
+---
+
+# Contexte — OCR Paddle + regex → préremplissage formulaire
+
+## Objectif
+
+Lors de la création d’un **binôme chauffeur + véhicule** (wizard `FleetPairCreateWizard`), l’utilisateur téléverse :
+
+| Document | Type API | Champs extraits |
+|----------|----------|-----------------|
+| CNI recto/verso | `cni` | prénom, nom, NNI |
+| Permis recto/verso | `license` | prénom, nom, n° permis |
+| Carte grise | `registration` | plaque, marque, modèle, année, couleur |
+
+Les photos sont lues par **PaddleOCR** (texte brut), puis structurées par **regex / règles** (`rulesParser.ts`) sans LLM si `DOCUMENT_EXTRACT_PROVIDER=rules`.
+
+---
+
+## Architecture (flux complet)
+
+```
+DocumentsStep (upload)
+    ↓
+ExtractionStep → runFullExtraction()          [client]
+    ↓ POST /api/document-extract (×3 groupes)   [Next.js API]
+    ↓ runDocumentExtraction(provider, …)        [extractProviders.ts]
+    ↓ runPaddleOcrOnFiles(files)                [paddleOcrClient.ts → VPS]
+    ↓ extractWithRulesFromOcr(type, ocrText)    [rulesParser.ts]
+    ↓ JSON { driver?, vehicle?, warnings }
+    ↓ merge côté client (CNI + permis + carte grise)
+    ↓ applyExtraction(merged)                   [FleetPairCreateWizard.tsx]
+    ↓ match catalogue + setState formulaire
+```
+
+### Fichiers clés
+
+| Fichier | Rôle |
+|---------|------|
+| `src/features/fleet/components/fleet-pair-wizard/ExtractionStep.tsx` | Lance l’extraction après upload |
+| `src/features/fleet/lib/documentExtraction.service.ts` | Appels HTTP vers `/api/document-extract` |
+| `src/app/api/document-extract/route.ts` | Route API POST (FormData) |
+| `src/app/api/document-extract/config.ts` | Provider + URLs Paddle/OpenRouter |
+| `src/app/api/document-extract/paddleOcrClient.ts` | Envoi images → PaddleOCR, récupère `full_text` ou `lines[]` |
+| `src/app/api/document-extract/extractProviders.ts` | Routage `rules` / `paddle` / `openrouter` |
+| `src/app/api/document-extract/rulesParser.ts` | **Regex + heuristiques** sur texte OCR |
+| `src/features/fleet/lib/mergeExtractionResults.ts` | Fusion multi-documents |
+| `src/features/fleet/lib/catalogMatch.ts` | Libellé extrait → code catalogue API |
+| `src/features/fleet/components/fleet-pair-wizard/FleetPairCreateWizard.tsx` | Application au formulaire + badges « Extrait IA » |
+
+---
+
+## Configuration environnement
+
+```env
+# Mode recommandé UAT/prod (0 OpenRouter pour l’inscription)
+DOCUMENT_EXTRACT_PROVIDER=rules
+
+# Service PaddleOCR sur le VPS (nginx → conteneur)
+PADDLE_OCR_BASE_URL=https://uat.upjunoo.com/ocr-api
+
+# Optionnel côté client (force le provider dans le FormData)
+NEXT_PUBLIC_DOCUMENT_EXTRACT_PROVIDER=rules
+```
+
+### Modes provider (`extractProviders.ts`)
+
+| Valeur | Pipeline |
+|--------|----------|
+| **`rules`** | Paddle OCR → `rulesParser` uniquement (gratuit, déterministe) |
+| **`paddle`** | Paddle OCR → OpenRouter (structuration JSON) + **complément regex** si champ vide |
+| **`openrouter`** | Vision Gemini directement sur les images (sans Paddle) |
+
+`OPENROUTER_API_KEY` **non requis** en mode `rules`.
+
+---
+
+## Étape 1 — PaddleOCR (texte brut)
+
+`paddleOcrClient.ts` envoie chaque image en `multipart/form-data` vers :
+
+```
+POST {PADDLE_OCR_BASE_URL}/ocr
+```
+
+Réponse normalisée :
+
+- `full_text` (texte concaténé), ou
+- `lines[].text` (une ligne OCR par entrée, jointes avec `\n`)
+
+Le texte OCR est **bruité** : ordre des lignes variable, fautes (`Genre` → `Gente`), libellés/valeurs parfois sur la même ligne ou séparés.
+
+---
+
+## Étape 2 — Regex / règles (`rulesParser.ts`)
+
+Point d’entrée : `extractWithRulesFromOcr(documentType, ocrText)`.
+
+### Principes
+
+1. **Découper par lignes** (`\r?\n`) — ne jamais utiliser `\s` dans les groupes de capture (évite de fusionner plusieurs champs).
+2. **`valueAfterLabel` / `valueAfterLabelWithin`** — cherche un libellé seul sur une ligne, puis la valeur sur la ligne suivante (ou jusqu’à 4 lignes pour la marque).
+3. **Validateurs** — rejettent les libellés parasites (`isPlausibleBrand`, `isPlausibleVehicleValue`, `SKIP_BRAND_VALUES`).
+4. **`titleCase` / `formatModel`** — normalisation affichage (`SUZUKI` → `Suzuki`, `S-PRESSO` conservé).
+
+### Carte grise (`registration`)
+
+| Champ formulaire | Libellé carte grise CI | Logique regex |
+|------------------|------------------------|---------------|
+| **Plaque** | Numéro d'immatriculation | `AA-544-VQ-01` (`[A-Z]{2}-\d{3}-[A-Z]{2}-\d{2}`) + ancien format `CI-XXXX-XX-XX` |
+| **Marque** | Marque | Ligne après `^MARQUE$` ; ignore `Gente`/`Genre`/`Voiture` (erreurs OCR) |
+| **Modèle** | **Type commercial** (pas « Modèle ») | `^TYPE COMMERCIAL(E)?` + ligne suivante → ex. `S-PRESSO` |
+| **Couleur** | Couleur | Ligne après `COULEUR` + liste couleurs connues (`ROUGE`, `BLANC`…) |
+| **Année** | 1ère mise en circulation | Date `DD-MM-YYYY` → année (ex. `01-10-2025` → `2025`) |
+
+### CNI / Permis (`cni`, `license`)
+
+| Champ | Sources |
+|-------|---------|
+| Nom / Prénom | Lignes `Nom`, `Prénom(s)` **ou** zone MRZ `NOM<<PRENOM<WILFRIED` |
+| NNI / n° pièce | `NNI`, `CI002745404`, regex 10-11 chiffres |
+
+### Pièges OCR connus (Côte d'Ivoire)
+
+- **`Genre` lu comme `Gente`** → ne doit pas devenir la marque ; filtré par `SKIP_BRAND_VALUES` + lookahead multi-lignes.
+- **`Type commercial`** obligatoire pour le modèle (pas le mot « Modèle »).
+- Plaque récente **`AA-544-VQ-01`** ≠ format `CI-4012-AA-01`.
+
+---
+
+## Étape 3 — Fusion multi-documents
+
+`runFullExtraction` appelle l’API une fois par groupe (CNI, permis, carte grise), puis fusionne :
+
+- **Chauffeur** : premier prénom/nom trouvé (CNI prioritaire via ordre d’appel).
+- **Véhicule** : champs issus uniquement de `registration`.
+
+---
+
+## Étape 4 — Application au formulaire (`FleetPairCreateWizard`)
+
+`applyExtraction(merged)` remplit le state React :
+
+### Champs texte / nombre (direct)
+
+- Plaque, année → assignation directe + badge `provenance.* = "ai"`.
+
+### Champs catalogue (admin) — listes déroulantes
+
+Les API catalogue exposent `{ code, label }` (marques, modèles par marque, couleurs).
+
+| Champ extrait | Résolution catalogue | Fallback si catalogue pas encore chargé |
+|---------------|----------------------|----------------------------------------|
+| Marque `Suzuki` | `matchBrandCatalogCode` | `pendingBrandLabel` + `useEffect` |
+| Modèle `S-PRESSO` | `matchCatalogCode(adminModels, …)` | `pendingModelLabel` (après chargement modèles Suzuki) |
+| Couleur `Rouge` | `matchColorCatalogCode` (+ slugs `rouge`/`red`) | `pendingColorLabel` + `useEffect` |
+
+**Badge « Extrait IA »** = champ rempli automatiquement (pas une erreur).
+
+**Message ambre** sous un select = valeur OCR détectée mais pas encore mappée au catalogue (ex. modèle absent de la liste API).
+
+### Dépendance marque → modèle
+
+`useVehicleBrandModelsCatalog(brandCode)` : sans marque sélectionnée, la liste modèles reste vide (`— Choisir une marque —`).
+
+---
+
+## Mode `paddle` (hybride)
+
+Si `DOCUMENT_EXTRACT_PROVIDER=paddle` + `OPENROUTER_API_KEY` :
+
+1. Paddle OCR → texte
+2. OpenRouter structure en JSON
+3. `mergeWithRulesFallback` : tout champ vide côté IA est complété par le regex parser
+
+Utile si Gemini oublie un champ (couleur, plaque, modèle).
+
+---
+
+## Déboguer / étendre
+
+1. **Vérifier le texte OCR** — logs serveur ou appeler Paddle manuellement sur l’image.
+2. **Ajouter un libellé** — enrichir `valueAfterLabel` dans `rulesParser.ts` (labelOnly + inline).
+3. **Nouvelle plaque / format** — ajouter un pattern dans `PLATE_PATTERNS`.
+4. **Faux positif marque** — ajouter le mot dans `SKIP_BRAND_VALUES`.
+5. **Catalogue API** — si le libellé extrait est correct mais le select reste vide, vérifier `/v1/catalog/vehicle-brands` (ou colors/models) et `catalogMatch.ts`.
+
+---
+
+## Hors périmètre
+
+- L’**assistant chat** (`LLM_BASE_URL` / Qwen) est **indépendant** de ce pipeline d’inscription.
+- La classification automatique des pièces (assistant onboarding) utilise `classifyDocument.ts` — fichier séparé.
+- Les champs **partenaire, catégorie, téléphone, e-mail** ne sont pas extraits des documents (saisie manuelle).

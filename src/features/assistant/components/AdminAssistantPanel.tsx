@@ -285,6 +285,9 @@ export function AdminAssistantPanel({ open, onClose }: AdminAssistantPanelProps)
                   Annuler
                 </Button>
               </div>
+              <p className="mt-2 text-[11px] text-muted">
+                Cliquez Confirmer ou tapez « oui » — un autre message annule l&apos;action.
+              </p>
             </div>
           ) : null}
 
@@ -334,7 +337,7 @@ export function AdminAssistantPanel({ open, onClose }: AdminAssistantPanelProps)
       ) : (
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
           <p className="text-sm text-muted">
-            Déposez les photos (CNI, permis, carte grise, selfie…). L&apos;assistant classe
+            Déposez les photos (CNI, permis, carte grise ou équivalent, assurance, selfie…). L&apos;assistant classe
             les documents, extrait les champs, puis ouvre le formulaire pré-rempli pour
             validation humaine.
           </p>

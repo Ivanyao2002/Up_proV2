@@ -8,6 +8,12 @@ const PUBLIC_PATHS: Record<string, string[]> = {
   dispatch: ["/dispatch/login"],
 };
 
+const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "");
+
+function withBasePath(path: string): string {
+  return `${BASE_PATH}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 function guardPortal(
   request: NextRequest,
   prefix: "/admin" | "/partner" | "/franchise" | "/dispatch",
@@ -23,7 +29,7 @@ function guardPortal(
   }
   const hasAuth = request.cookies.get("upjunoo_auth")?.value === "1";
   if (!hasAuth) {
-    const login = new URL(loginPath, request.url);
+    const login = new URL(withBasePath(loginPath), request.url);
     login.searchParams.set("from", pathname);
     return NextResponse.redirect(login);
   }

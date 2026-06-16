@@ -78,30 +78,31 @@ export function AdminFinanceDashboardPage() {
           <div className="lg:col-span-2">
             <FinanceChartWeekly data={data.chart_weekly} />
           </div>
-          <div className="flex flex-col gap-5">
-            {data.alerts.length > 0 && (
-              <FinanceAlertsPanel alerts={data.alerts} />
-            )}
-            <KpiCard
-              index={0}
-              label="Commissions plateforme"
-              value={formatFCFA(data.commissions_month_fcfa)}
-              hint={`Take rate ${data.take_rate_pct}%`}
-            />
-            {showWithdrawalsKpi && (
-              <KpiCard
-                index={1}
-                label="Retraits en attente"
-                value={String(data.withdrawals_pending_count)}
-                hint={
-                  data.withdrawals_pending_fcfa > 0
-                    ? `${formatFCFA(data.withdrawals_pending_fcfa)} à valider`
-                    : "Demandes à traiter"
-                }
-                trend="Action requise"
-              />
-            )}
-          </div>
+          {data.alerts.length > 0 && (
+            <FinanceAlertsPanel alerts={data.alerts} />
+          )}
+        </div>
+
+        <div className="grid w-full gap-5 sm:grid-cols-2">
+          <KpiCard
+            index={0}
+            label="Commissions plateforme"
+            value={formatFCFA(data.commissions_month_fcfa)}
+            hint={`Take rate ${data.take_rate_pct}%`}
+            className="h-full"
+          />
+          <KpiCard
+            index={1}
+            label="Retraits en attente"
+            value={String(data.withdrawals_pending_count)}
+            hint={
+              data.withdrawals_pending_fcfa > 0
+                ? `${formatFCFA(data.withdrawals_pending_fcfa)} à valider`
+                : "Demandes à traiter"
+            }
+            trend={showWithdrawalsKpi ? "Action requise" : undefined}
+            className="h-full"
+          />
         </div>
 
         <FinanceTreasuryStrip
