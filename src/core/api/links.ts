@@ -645,6 +645,15 @@ export const LINKS = {
         `/v1/partners/${id}/freight-offers/${offerId}`,
     },
 
+    rental: {
+      list: (id: string | number) => `/v1/partners/${id}/rental-offers`,
+      create: (id: string | number) => `/v1/partners/${id}/rental-offers`,
+      update: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}`,
+      delete: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}`,
+    },
+
     safety: {
       sos: {
         list: (id: string | number) => `/v1/partners/${id}/safety/sos`,
