@@ -9,6 +9,13 @@ const API_ERROR_MESSAGES_FR: Record<string, string> = {
   AUTH_LOGIN_FAILED: "Email ou mot de passe incorrect.",
   PHONE_NOT_REGISTERED:
     "Ce numéro n'est pas enregistré. Utilisez la vérification chauffeur (OTP SMS).",
+  PARTNER_LEGAL_NAME_REQUIRED: "La raison sociale du partenaire est requise.",
+  PARTNER_CONTACT_EMAIL_REQUIRED:
+    "L'email de connexion portail partenaire est requis.",
+  PARTNER_PASSWORD_REQUIRED: "Le mot de passe portail partenaire est requis.",
+  PARTNER_PASSWORD_TOO_SHORT: "Le mot de passe doit contenir au moins 6 caractères.",
+  PARTNER_AUTH_CREATE_FAILED:
+    "Impossible de créer le compte partenaire (email déjà utilisé ?).",
 };
 
 const API_MESSAGE_ALIASES_FR: Record<string, string> = {

@@ -101,54 +101,66 @@ export function PartnerCommissionRulesPanel({
         franchise.
       </p>
 
-      {drafts.map((draft) => {
-        const partnerRate = draftRates[draft.scopeKey] ?? draft.partner_rate;
-        const hasOverride = Boolean(draft.partnerRule);
-        const poolError = validatePartnerRate(partnerRate);
-        const serviceLabel =
-          COMMISSION_SERVICE_TYPE_LABELS[draft.baseRule.service_type] ??
-          draft.baseRule.service_type;
+      <div className="space-y-3">
+        {drafts.map((draft, index) => {
+          const partnerRate = draftRates[draft.scopeKey] ?? draft.partner_rate;
+          const hasOverride = Boolean(draft.partnerRule);
+          const poolError = validatePartnerRate(partnerRate);
+          const serviceLabel =
+            COMMISSION_SERVICE_TYPE_LABELS[draft.baseRule.service_type] ??
+            draft.baseRule.service_type;
 
-        return (
-          <section
-            key={draft.scopeKey}
-            className="space-y-4 rounded-card border border-border bg-canvas/40 p-4"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h3 className="font-semibold text-heading">
-                  {draft.baseRule.rule_name}
-                </h3>
-                <p className="mt-1 text-xs text-muted">
-                  {serviceLabel} · {draft.baseRule.category_code}
-                  {hasOverride ? " · règle partenaire active" : " · défaut franchise"}
-                </p>
+          return (
+            <details
+              key={draft.scopeKey}
+              className="group rounded-card border border-border bg-surface p-4 shadow-card"
+              open={index === 0}
+            >
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate font-semibold text-heading">
+                    {draft.baseRule.rule_name}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted">
+                    {serviceLabel} · {draft.baseRule.category_code}
+                    {hasOverride ? " · règle partenaire active" : " · défaut franchise"}
+                  </p>
+                </div>
+                <span className="mt-0.5 shrink-0 text-xs font-medium text-teal">
+                  <span className="group-open:hidden">Voir</span>
+                  <span className="hidden group-open:inline">Masquer</span>
+                </span>
+              </summary>
+
+              <div className="mt-4 space-y-4">
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    disabled={Boolean(poolError) || saveRule.isPending}
+                    onClick={() => handleSave(draft.scopeKey)}
+                  >
+                    {saveRule.isPending ? "Enregistrement…" : "Enregistrer"}
+                  </Button>
+                </div>
+
+                <CommissionRuleRatesForm
+                  platformRate={draft.baseRule.platform_rate}
+                  driverRate={draft.baseRule.driver_rate}
+                  fiscalityRate={draft.baseRule.fiscality_rate}
+                  franchiseRate={draft.franchise_rate}
+                  partnerRate={partnerRate}
+                  franchiseEditable={false}
+                  partnerEditable
+                  onPartnerRateChange={(rate) =>
+                    setDraftRates((prev) => ({ ...prev, [draft.scopeKey]: rate }))
+                  }
+                  disabled={saveRule.isPending}
+                />
               </div>
-              <Button
-                type="button"
-                disabled={Boolean(poolError) || saveRule.isPending}
-                onClick={() => handleSave(draft.scopeKey)}
-              >
-                {saveRule.isPending ? "Enregistrement…" : "Enregistrer"}
-              </Button>
-            </div>
-
-            <CommissionRuleRatesForm
-              platformRate={draft.baseRule.platform_rate}
-              driverRate={draft.baseRule.driver_rate}
-              fiscalityRate={draft.baseRule.fiscality_rate}
-              franchiseRate={draft.franchise_rate}
-              partnerRate={partnerRate}
-              franchiseEditable={false}
-              partnerEditable
-              onPartnerRateChange={(rate) =>
-                setDraftRates((prev) => ({ ...prev, [draft.scopeKey]: rate }))
-              }
-              disabled={saveRule.isPending}
-            />
-          </section>
-        );
-      })}
+            </details>
+          );
+        })}
+      </div>
     </div>
   );
 }

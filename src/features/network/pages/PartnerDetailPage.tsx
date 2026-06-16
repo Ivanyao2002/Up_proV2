@@ -12,6 +12,7 @@ import { StatusPill } from "@/shared/ui/StatusPill";
 import { AvailabilityPill } from "@/shared/ui/DriverPills";
 import { Button } from "@/shared/ui/Button";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { WalletBalancesCard } from "@/shared/finance/WalletBalancesCard";
 import { getDriverAvailabilityLabel } from "@/shared/lib/driverLabels";
 import { getTripStatusLabel } from "@/shared/lib/tripLabels";
 import type { PartnerDetail } from "@/shared/types";
@@ -204,15 +205,77 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
 
           <div className="mt-6">
             {tab === "overview" && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <KpiCard
-                  label="Revenus / mois"
-                  value={formatFCFA(data.stats.revenue_month_fcfa)}
-                />
-                <KpiCard label="Courses / mois" value={String(data.stats.trips_month)} />
-                <KpiCard
-                  label="Chauffeurs"
-                  value={`${data.stats.drivers_online} en ligne / ${data.stats.drivers_count}`}
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <KpiCard
+                    label="Revenus / mois"
+                    value={formatFCFA(data.stats.revenue_month_fcfa)}
+                  />
+                  <KpiCard label="Courses / mois" value={String(data.stats.trips_month)} />
+                  <KpiCard
+                    label="Chauffeurs"
+                    value={`${data.stats.drivers_online} en ligne / ${data.stats.drivers_count}`}
+                  />
+                </div>
+
+                <WalletBalancesCard
+                  balances={{
+                    balance_fcfa: data.wallet?.balance_fcfa ?? data.stats.wallet_balance_fcfa,
+                    withdrawable_fcfa: data.wallet?.withdrawable_fcfa,
+                    non_withdrawable_fcfa: data.wallet?.non_withdrawable_fcfa,
+                    available_fcfa: data.wallet?.available_fcfa,
+                    pending_withdrawal_fcfa:
+                      data.wallet?.pending_withdrawal_fcfa ??
+                      data.stats.pending_withdrawal_fcfa,
+                  }}
+                  footer={
+                    <>
+                      {!data.wallet && !data.wallet_id ? (
+                        <p className="text-sm text-muted">
+                          Aucun portefeuille associé à ce partenaire.
+                        </p>
+                      ) : null}
+                      {data.wallet_id && !data.wallet ? (
+                        <p className="text-xs text-muted">
+                          ID {data.wallet_id.slice(0, 8)}…
+                        </p>
+                      ) : null}
+                      {data.wallet?.recent_movements?.length ? (
+                        <ul className="space-y-3">
+                          {data.wallet.recent_movements.slice(0, 5).map((m) => (
+                            <li
+                              key={m.id}
+                              className="flex items-start justify-between gap-3 text-sm"
+                            >
+                              <div className="min-w-0">
+                                <p className="truncate font-medium text-foreground">
+                                  {m.label}
+                                </p>
+                                <p className="text-xs text-muted">
+                                  {formatDateTime(m.created_at)}
+                                </p>
+                              </div>
+                              <span
+                                className={`shrink-0 tabular-nums font-medium ${
+                                  m.direction === "credit"
+                                    ? "text-teal-dark"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {m.direction === "debit" ? "−" : "+"}
+                                {m.amount_fcfa ? formatFCFA(m.amount_fcfa) : "—"}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <Link href="/admin/finance/withdrawals" className="mt-4 block">
+                        <Button variant="secondary" className="w-full !text-xs">
+                          Voir les retraits
+                        </Button>
+                      </Link>
+                    </>
+                  }
                 />
               </div>
             )}
@@ -275,61 +338,6 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Portefeuille
-            </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
-              {formatFCFA(data.wallet?.balance_fcfa ?? data.stats.wallet_balance_fcfa)}
-            </p>
-            {data.wallet ? (
-              <p className="mt-1 text-sm text-muted">
-                Disponible : {formatFCFA(data.wallet.available_fcfa)}
-              </p>
-            ) : data.wallet_id ? (
-              <p className="mt-1 text-xs text-muted">ID {data.wallet_id.slice(0, 8)}…</p>
-            ) : null}
-            {(data.wallet?.pending_withdrawal_fcfa ?? data.stats.pending_withdrawal_fcfa) > 0 && (
-              <p className="mt-2 text-sm text-amber-700">
-                {formatFCFA(
-                  data.wallet?.pending_withdrawal_fcfa ??
-                    data.stats.pending_withdrawal_fcfa
-                )}{" "}
-                en attente de retrait
-              </p>
-            )}
-            {!data.wallet && !data.wallet_id ? (
-              <p className="mt-3 text-sm text-muted">
-                Aucun portefeuille associé à ce partenaire.
-              </p>
-            ) : null}
-            {data.wallet?.recent_movements?.length ? (
-              <ul className="mt-4 space-y-3 border-t border-border pt-4">
-                {data.wallet.recent_movements.slice(0, 5).map((m) => (
-                  <li key={m.id} className="flex items-start justify-between gap-3 text-sm">
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-foreground">{m.label}</p>
-                      <p className="text-xs text-muted">{formatDateTime(m.created_at)}</p>
-                    </div>
-                    <span
-                      className={`shrink-0 tabular-nums font-medium ${
-                        m.direction === "credit" ? "text-teal-dark" : "text-red-600"
-                      }`}
-                    >
-                      {m.direction === "debit" ? "−" : "+"}
-                      {formatFCFA(m.amount_fcfa)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            <Link href="/admin/finance/withdrawals">
-              <Button variant="secondary" className="mt-4 w-full !text-xs">
-                Voir les retraits
-              </Button>
-            </Link>
-          </div>
-
           <div className="rounded-card border border-border bg-surface p-5 text-sm shadow-card">
             <h3 className="font-semibold">Infos commerciales</h3>
             <dl className="mt-3 space-y-2 text-muted">

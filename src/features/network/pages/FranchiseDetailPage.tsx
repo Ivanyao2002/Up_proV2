@@ -10,6 +10,7 @@ import { KpiCard } from "@/shared/ui/KpiCard";
 import { ZoneTypePill } from "@/shared/ui/ZoneTypePill";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { WalletBalancesCard } from "@/shared/finance/WalletBalancesCard";
 import type { Zone } from "@/shared/types";
 import { FranchiseDetailOrdersTab } from "../components/FranchiseDetailOrdersTab";
 
@@ -246,31 +247,53 @@ export function FranchiseDetailPage({ franchiseId }: FranchiseDetailPageProps) {
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Portefeuille
-            </p>
-            {data.wallet ? (
-              <>
-                <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
-                  {formatFCFA(data.wallet.balance_fcfa)}
+          {data.wallet ? (
+            <WalletBalancesCard
+              balances={{
+                balance_fcfa: data.wallet.balance_fcfa,
+                withdrawable_fcfa: data.wallet.withdrawable_fcfa,
+                non_withdrawable_fcfa: data.wallet.non_withdrawable_fcfa,
+                available_fcfa: data.wallet.available_fcfa,
+                pending_withdrawal_fcfa: data.wallet.pending_withdrawal_fcfa,
+              }}
+              footer={
+                data.wallet.recent_movements?.length ? (
+                  <ul className="space-y-3">
+                    {data.wallet.recent_movements.slice(0, 5).map((m) => (
+                      <li
+                        key={m.id}
+                        className="flex items-start justify-between gap-3 text-sm"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-foreground">{m.label}</p>
+                          <p className="text-xs text-muted">{formatDateTime(m.created_at)}</p>
+                        </div>
+                        <span
+                          className={`shrink-0 tabular-nums font-medium ${
+                            m.direction === "credit" ? "text-teal-dark" : "text-red-600"
+                          }`}
+                        >
+                          {m.direction === "debit" ? "−" : "+"}
+                          {formatFCFA(m.amount_fcfa)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : undefined
+              }
+            />
+          ) : (
+            <WalletBalancesCard
+              title="Portefeuille"
+              balances={{ balance_fcfa: data.stats.revenue_month_fcfa }}
+              footer={
+                <p className="text-sm text-muted">
+                  Portefeuille franchise non exposé par l&apos;API — revenus du mois affichés
+                  en attendant.
                 </p>
-                <p className="mt-1 text-sm text-muted">
-                  Disponible : {formatFCFA(data.wallet.available_fcfa)}
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
-                  {formatFCFA(data.stats.revenue_month_fcfa)}
-                </p>
-                <p className="mt-2 text-sm text-muted">
-                  Portefeuille franchise non exposé par l&apos;API (demande FR-WALLET-01).
-                  Revenus affichés en attendant.
-                </p>
-              </>
-            )}
-          </div>
+              }
+            />
+          )}
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card">
             <h3 className="text-sm font-semibold">Transactions récentes</h3>

@@ -317,13 +317,20 @@ export function mapFinanceTransactionsResponse(
 }
 
 export function mapFinanceWalletItem(item: ApiFinanceWalletItem): PlatformWallet {
+  const balance = item.balance_fcfa ?? item.balance_cached_xof ?? 0;
+  const withdrawable =
+    item.withdrawable_fcfa ?? item.withdrawable_balance_xof ?? undefined;
+  const nonWithdrawable =
+    item.non_withdrawable_fcfa ?? item.non_withdrawable_balance_xof ?? undefined;
   return {
     id: item.id,
     owner_type: mapWalletOwnerType(item.owner_type),
     owner_id: item.owner_id as unknown as number,
     owner_name: item.owner_name ?? "—",
     franchise_name: item.franchise_name?.trim() || "—",
-    balance_fcfa: item.balance_fcfa ?? item.balance_cached_xof ?? 0,
+    balance_fcfa: balance,
+    withdrawable_fcfa: withdrawable,
+    non_withdrawable_fcfa: nonWithdrawable,
     pending_fcfa: item.pending_fcfa ?? 0,
     status: String(item.status ?? "active").toLowerCase() === "frozen" ? "frozen" : "active",
   };

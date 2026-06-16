@@ -14,6 +14,11 @@ import { Button } from "@/shared/ui/Button";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { RejectReasonModal } from "@/shared/ui/RejectReasonModal";
 import { usePermission } from "@/core/auth/usePermission";
+import { canReviewKycDocument } from "@/shared/lib/kycReview";
+import { useScope } from "@/core/auth/useScope";
+import { DriverTransferModal } from "@/features/fleet/components/DriverTransferModal";
+import { useTransferDriverToPartner } from "@/features/fleet/api/driverTransfer.queries";
+import { resolveDriverSourcePartnerId } from "@/features/fleet/api/driverTransfer.service";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { ModalPortal } from "@/shared/ui/ModalPortal";
@@ -42,10 +47,12 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
   const [confirmSuspend, setConfirmSuspend] = useState(false);
   const [confirmUnsuspend, setConfirmUnsuspend] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [suspendReason, setSuspendReason] = useState("");
   const [rejectDocTarget, setRejectDocTarget] = useState<string | null>(null);
   const canModerate = usePermission("fleet.kyc.approve");
+  const { franchiseId } = useScope();
 
   const { data: driver, isLoading, isError } = useFranchiseDriverDetail(driverId);
   const approveKyc = useApproveFranchiseDriverKyc();
@@ -56,6 +63,7 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
   const unsuspendDriver = useUnsuspendFranchiseDriver();
   const updateDriver = useUpdateFranchiseDriver();
   const deleteDriver = useDeleteFranchiseDriver();
+  const transferDriver = useTransferDriverToPartner(driverId);
 
   if (isLoading) {
     return (
@@ -79,6 +87,8 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
   const isSuspended = driver.account_status === "suspended";
   const timelineItems = driverTimelineToItems(driver.timeline || []);
   const kycDisplayItems = organizeDriverKycDocuments(driver.kyc_documents || []);
+  const sourcePartnerId = resolveDriverSourcePartnerId(driver);
+  const canTransferDriver = Boolean(sourcePartnerId);
 
   const tabs = [
     { id: "kyc", label: "KYC & documents" },
@@ -101,6 +111,15 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                 </>
               )}
               <Button variant="secondary" onClick={() => setShowEditModal(true)}>Modifier</Button>
+              {canTransferDriver && (
+                <Button
+                  variant="secondary"
+                  disabled={transferDriver.isPending}
+                  onClick={() => setShowTransferModal(true)}
+                >
+                  Transférer vers un partenaire
+                </Button>
+              )}
               {isSuspended ? (
                 <Button variant="secondary" onClick={() => setConfirmUnsuspend(true)}
                   className="border-teal text-teal hover:bg-teal/10">
@@ -154,7 +173,7 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                           <KycDocumentGroupCard
                             label={item.label}
                             documents={item.documents}
-                            canReview={isPending && canModerate}
+                            canReview={canModerate}
                             onApprove={(documentId) => approveDoc.mutate(documentId)}
                             onReject={(documentId) => setRejectDocTarget(documentId)}
                           />
@@ -164,11 +183,7 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                           key={item.document.id}
                           document={item.document}
                           canReview={
-                            isPending &&
-                            canModerate &&
-                            item.document.status === "pending" &&
-                            Boolean(item.document.uploaded_at) &&
-                            !item.document.id.startsWith("slot-")
+                            canModerate && canReviewKycDocument(item.document)
                           }
                           onApprove={() => approveDoc.mutate(item.document.id)}
                           onReject={() => setRejectDocTarget(item.document.id)}
@@ -445,6 +460,26 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
         }}
         onCancel={() => setConfirmDelete(false)}
       />
+
+      {sourcePartnerId && (
+        <DriverTransferModal
+          open={showTransferModal}
+          onClose={() => setShowTransferModal(false)}
+          driverName={fullName}
+          sourcePartnerId={sourcePartnerId}
+          sourcePartnerName={driver.owner_name}
+          vehicleLabel={driver.vehicle_label}
+          scope="franchise"
+          franchiseId={franchiseId ?? driver.franchise_id}
+          isSubmitting={transferDriver.isPending}
+          onSubmit={(payload) => {
+            transferDriver.mutate(
+              { sourcePartnerId, ...payload },
+              { onSuccess: () => setShowTransferModal(false) }
+            );
+          }}
+        />
+      )}
 
       {/* Modal Modifier */}
       {showEditModal && (

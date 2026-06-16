@@ -16,8 +16,8 @@ import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { useTripDetail } from "../api/tripDetail.queries";
 import { useTripDriverLiveLocation } from "../hooks/useTripDriverLiveLocation";
 import { adminPaths } from "@/core/routes/adminPaths";
-import { formatFCFA, formatDateTime } from "@/shared/lib/format";
-import { getPaymentLabel } from "@/shared/lib/paymentLabels";
+import { formatDateTime } from "@/shared/lib/format";
+import { TripFinancePanel } from "@/shared/finance/TripFinancePanel";
 interface TripDetailPageProps {
   tripId: string;
 }
@@ -150,32 +150,7 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Montant course
-            </p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-heading">
-              {formatFCFA(trip.amount_fcfa)}
-            </p>
-            <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
-              <div className="flex justify-between text-muted">
-                <dt>Commission plateforme</dt>
-                <dd className="tabular-nums text-foreground">
-                  {formatFCFA(trip.commission_fcfa)}
-                </dd>
-              </div>
-              <div className="flex justify-between text-muted">
-                <dt>Gain chauffeur</dt>
-                <dd className="tabular-nums font-medium text-teal-dark">
-                  {formatFCFA(trip.driver_earning_fcfa)}
-                </dd>
-              </div>
-              <div className="flex justify-between text-muted">
-                <dt>Paiement</dt>
-                <dd className="text-foreground">{getPaymentLabel(trip.payment_method)}</dd>
-              </div>
-            </dl>
-          </div>
+          <TripFinancePanel trip={trip} />
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
             <h3 className="font-semibold text-foreground">Contexte</h3>

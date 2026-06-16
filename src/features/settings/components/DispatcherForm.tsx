@@ -217,6 +217,54 @@ export function DispatcherForm({
                 />
                 Voir la carte live
               </label>
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={values.permissions.cancel_trip}
+                  onChange={(e) =>
+                    set({
+                      permissions: {
+                        ...values.permissions,
+                        cancel_trip: e.target.checked,
+                      },
+                    })
+                  }
+                  className="h-4 w-4 rounded border-border text-teal"
+                />
+                Annuler une course
+              </label>
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={values.permissions.override_dispatch}
+                  onChange={(e) =>
+                    set({
+                      permissions: {
+                        ...values.permissions,
+                        override_dispatch: e.target.checked,
+                      },
+                    })
+                  }
+                  className="h-4 w-4 rounded border-border text-teal"
+                />
+                Forcer un dispatch hors règles
+              </label>
+              <label className="flex items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  checked={values.permissions.adjust_surge}
+                  onChange={(e) =>
+                    set({
+                      permissions: {
+                        ...values.permissions,
+                        adjust_surge: e.target.checked,
+                      },
+                    })
+                  }
+                  className="h-4 w-4 rounded border-border text-teal"
+                />
+                Ajuster le surge
+              </label>
             </div>
           </section>
         </div>
@@ -244,7 +292,13 @@ export function emptyDispatcherForm(): DispatcherFormValues {
     zone_ids: [],
     shift_label: "08h – 16h",
     status: "active",
-    permissions: { assign_trips: true, view_live_map: true },
+    permissions: {
+      assign_trips: true,
+      view_live_map: true,
+      cancel_trip: false,
+      override_dispatch: false,
+      adjust_surge: false,
+    },
   };
 }
 

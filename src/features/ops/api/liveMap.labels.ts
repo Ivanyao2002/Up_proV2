@@ -4,6 +4,7 @@ export const LIVE_MAP_ORDER_STATUS_LABELS: Record<string, string> = {
   requested: "Demandée",
   dispatching: "Recherche chauffeur",
   matching: "Recherche chauffeur",
+  no_driver: "Aucun chauffeur",
   assigned: "Assignée",
   accepted: "Acceptée",
   arrived: "Arrivé",

@@ -14,6 +14,8 @@ export interface PlatformWallet {
   owner_name: string;
   franchise_name: string;
   balance_fcfa: number;
+  withdrawable_fcfa?: number;
+  non_withdrawable_fcfa?: number;
   pending_fcfa: number;
   status: "active" | "frozen";
 }

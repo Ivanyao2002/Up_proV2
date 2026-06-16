@@ -130,6 +130,10 @@ export interface ApiFinanceWalletItem {
   franchise_name?: string | null;
   balance_fcfa?: number;
   balance_cached_xof?: number;
+  withdrawable_fcfa?: number;
+  withdrawable_balance_xof?: number;
+  non_withdrawable_fcfa?: number;
+  non_withdrawable_balance_xof?: number;
   pending_fcfa?: number;
   available_fcfa?: number;
   status?: string;

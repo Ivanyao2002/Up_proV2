@@ -87,6 +87,44 @@ export const financeHandlers = [
     return HttpResponse.json(paginatedList(filtered, query));
   }),
 
+  http.get("*/api/v2/admin/finance/ledger", ({ request }) => {
+    const query = parseListQuery(request);
+    const filtered = filterTransactions(TRANSACTIONS_CATALOG, query);
+    return HttpResponse.json({
+      ...paginatedList(filtered, query),
+      summary: {
+        volume_today_fcfa: 0,
+        credits_today_fcfa: 0,
+        debits_today_fcfa: 0,
+      },
+    });
+  }),
+
+  http.get("*/api/v2/admin/finance/bonus-rules", ({ request }) => {
+    const query = parseListQuery(request);
+    const seed = [
+      {
+        id: "BR-001",
+        name: "Palier 50 courses / semaine",
+        scope: "driver",
+        metric: "trips_completed_week",
+        threshold_value: 50,
+        reward_xof: 5_000,
+        status: "active",
+      },
+      {
+        id: "BR-002",
+        name: "Objectif CA partenaire",
+        scope: "partner",
+        metric: "revenue_month_xof",
+        threshold_value: 1_000_000,
+        reward_xof: 25_000,
+        status: "draft",
+      },
+    ];
+    return HttpResponse.json(paginatedList(seed, query));
+  }),
+
   http.get("*/api/v2/admin/finance/commissions", ({ request }) => {
     const query = parseListQuery(request);
     let filtered = (financeCommissions.data as CommissionRow[]).filter((c) =>

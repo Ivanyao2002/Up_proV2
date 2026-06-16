@@ -47,6 +47,8 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
   const [countryCode, setCountryCode] = useState("");
   const [cityId, setCityId] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [phoneLocal, setPhoneLocal] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -164,6 +166,12 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       next.push("Un email valide est requis.");
     }
+    if (password.length < 6) {
+      next.push("Le mot de passe doit contenir au moins 6 caractères.");
+    }
+    if (password !== passwordConfirm) {
+      next.push("Les mots de passe ne correspondent pas.");
+    }
     if (commissionRate.trim()) {
       const rate = Number(commissionRate.replace(",", "."));
       if (Number.isNaN(rate) || rate < 0 || rate > 100) {
@@ -181,6 +189,7 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
         city_id: legacy ? undefined : cityId.trim(),
         country_code: legacy ? undefined : selectedCountry?.code,
         contact_email: email.trim(),
+        password,
         contact_phone: legacy
           ? phone.trim()
           : phoneLocal.trim()
@@ -403,16 +412,50 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium">Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
-            required
-          />
-        </label>
+        <fieldset className="space-y-4 rounded-lg border border-border bg-canvas/40 p-4">
+          <legend className="px-1 text-sm font-semibold text-foreground">
+            Accès portail partenaire
+          </legend>
+          <p className="text-xs text-muted">
+            L&apos;email et le mot de passe permettent au partenaire de se connecter sur{" "}
+            <code className="text-[11px]">POST /v1/auth/partner/login</code>.
+          </p>
+          <label className="block">
+            <span className="text-sm font-medium">Email de connexion</span>
+            <input
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium">Mot de passe</span>
+            <input
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
+              required
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium">Confirmer le mot de passe</span>
+            <input
+              type="password"
+              autoComplete="new-password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
+              required
+            />
+          </label>
+        </fieldset>
+
         <label className="block">
           <span className="text-sm font-medium">Téléphone</span>
           {legacy ? (

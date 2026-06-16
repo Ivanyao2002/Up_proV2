@@ -57,9 +57,14 @@ export function useCreateFranchisePartner() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreatePartnerPayload) => franchisePartnersService.create(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       void qc.invalidateQueries({ queryKey: franchisePartnersKeys.all });
-      notificationService.success("Partenaire créé avec succès");
+      const login = data.portal_login_email;
+      notificationService.success(
+        login
+          ? `Partenaire créé. Connexion portail : ${login}`
+          : "Partenaire créé avec succès"
+      );
     },
   });
 }

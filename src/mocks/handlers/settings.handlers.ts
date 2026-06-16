@@ -108,6 +108,9 @@ function toDetail(row: DispatcherAccount): DispatcherAccountDetail {
     permissions: {
       assign_trips: row.status === "active",
       view_live_map: true,
+      cancel_trip: false,
+      override_dispatch: false,
+      adjust_surge: false,
     },
   };
 }
@@ -484,5 +487,23 @@ export const settingsHandlers = [
       updated_at: new Date().toISOString(),
     };
     return HttpResponse.json(generalState);
+  }),
+
+  http.get("*/api/v2/admin/settings/finance-caps", () => {
+    return HttpResponse.json({
+      driver_withdrawal_daily_cap_xof: 10_000,
+      partner_withdrawal_daily_cap_xof: 30_000,
+      driver_wallet_dispatch_min_xof: 500,
+      driver_wallet_low_balance_alert_xof: 1_000,
+      updated_at: new Date().toISOString(),
+    });
+  }),
+
+  http.put("*/api/v2/admin/settings/finance-caps", async ({ request }) => {
+    const body = (await request.json()) as Record<string, number>;
+    return HttpResponse.json({
+      ...body,
+      updated_at: new Date().toISOString(),
+    });
   }),
 ];

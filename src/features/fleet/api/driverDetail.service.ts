@@ -116,17 +116,29 @@ async function enrichDriverPartnerName(
   return detail;
 }
 
-function readWalletBalanceFcfa(
+function readWalletFields(
   wallet?: ApiDriverWalletResponse["wallet"] | null
-): number {
-  if (!wallet) return 0;
-  return (
-    wallet.availableXof ??
-    wallet.available_xof ??
+): {
+  balance_fcfa: number;
+  withdrawable_fcfa?: number;
+  non_withdrawable_fcfa?: number;
+} {
+  if (!wallet) return { balance_fcfa: 0 };
+  const balance =
     wallet.balanceCachedXof ??
     wallet.balance_fcfa ??
-    0
-  );
+    wallet.availableXof ??
+    wallet.available_xof ??
+    0;
+  const withdrawable =
+    wallet.withdrawableBalanceXof ?? wallet.withdrawable_balance_xof;
+  const nonWithdrawable =
+    wallet.nonWithdrawableBalanceXof ?? wallet.non_withdrawable_balance_xof;
+  return {
+    balance_fcfa: balance,
+    withdrawable_fcfa: withdrawable,
+    non_withdrawable_fcfa: nonWithdrawable,
+  };
 }
 
 async function attachDriverWallet(
@@ -139,12 +151,14 @@ async function attachDriverWallet(
     const response = await apiClient.get<ApiDriverWalletResponse>(
       LINKS.v1.drivers.wallet(driverId)
     );
-    const balance = readWalletBalanceFcfa(response.wallet);
+    const walletFields = readWalletFields(response.wallet);
     return {
       ...detail,
       stats: {
         ...detail.stats,
-        wallet_balance_fcfa: balance,
+        wallet_balance_fcfa: walletFields.balance_fcfa,
+        wallet_withdrawable_fcfa: walletFields.withdrawable_fcfa,
+        wallet_non_withdrawable_fcfa: walletFields.non_withdrawable_fcfa,
       },
     };
   } catch {
