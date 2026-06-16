@@ -36,6 +36,10 @@ export function mapApiPartnerWalletToUi(
 
   const balance = wallet.balance_cached_xof ?? 0;
   const pending = wallet.pending_withdrawal_xof ?? 0;
+  const withdrawable =
+    wallet.withdrawable_balance_xof ?? wallet.withdrawable_xof ?? undefined;
+  const nonWithdrawable =
+    wallet.non_withdrawable_balance_xof ?? wallet.non_withdrawable_xof ?? undefined;
   const available =
     wallet.available_xof != null
       ? wallet.available_xof
@@ -43,6 +47,8 @@ export function mapApiPartnerWalletToUi(
 
   return {
     balance_fcfa: balance,
+    withdrawable_fcfa: withdrawable,
+    non_withdrawable_fcfa: nonWithdrawable,
     pending_withdrawal_fcfa: pending,
     available_fcfa: available,
     recent_movements: (ledgerItems ?? []).map(mapApiLedgerItemToMovement),

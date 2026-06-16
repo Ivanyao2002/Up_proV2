@@ -8,6 +8,10 @@ export interface ApiDriverWalletResponse {
     balance_fcfa?: number;
     availableXof?: number;
     available_xof?: number;
+    withdrawableBalanceXof?: number;
+    withdrawable_balance_xof?: number;
+    nonWithdrawableBalanceXof?: number;
+    non_withdrawable_balance_xof?: number;
     pendingWithdrawalXof?: number;
     pending_withdrawal_xof?: number;
     currency?: string;

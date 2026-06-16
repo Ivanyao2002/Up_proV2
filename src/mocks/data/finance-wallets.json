@@ -7,6 +7,8 @@
       "owner_name": "Koné Ibrahim",
       "franchise_name": "Côte d'Ivoire",
       "balance_fcfa": 45200,
+      "withdrawable_balance_xof": 38000,
+      "non_withdrawable_balance_xof": 7200,
       "pending_fcfa": 0,
       "status": "active"
     },

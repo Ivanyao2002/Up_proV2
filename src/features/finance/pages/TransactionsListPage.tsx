@@ -45,8 +45,22 @@ const STATUS_FILTERS: { value: TransactionStatus | "all"; label: string }[] = [
   { value: "failed", label: "Échouées" },
 ];
 
-export function TransactionsListPage() {
-  const [typeFilter, setTypeFilter] = useState<TransactionType | "all">("all");
+interface TransactionsListPageProps {
+  title?: string;
+  subtitle?: string;
+  breadcrumb?: string[];
+  defaultTypeFilter?: TransactionType | "all";
+  hideSummary?: boolean;
+}
+
+export function TransactionsListPage({
+  title = "Transactions",
+  subtitle,
+  breadcrumb = ["Admin", "Finance"],
+  defaultTypeFilter = "all",
+  hideSummary = false,
+}: TransactionsListPageProps = {}) {
+  const [typeFilter, setTypeFilter] = useState<TransactionType | "all">(defaultTypeFilter);
   const [statusFilter, setStatusFilter] = useState<TransactionStatus | "all">("all");
   const [scope, setScope] = useState<TripsScopeFiltersValue>({
     franchiseId: null,
@@ -177,9 +191,10 @@ export function TransactionsListPage() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Transactions" breadcrumb={["Admin", "Finance"]} />
+      <PageHeader title={title} breadcrumb={breadcrumb} />
+      {subtitle ? <p className="mb-4 text-sm text-muted">{subtitle}</p> : null}
 
-      {data?.summary && (
+      {data?.summary && !hideSummary && (
         <div className="animate-stagger mb-6 space-y-4">
           <HeroKpi
             amount={data.summary.volume_today_fcfa}

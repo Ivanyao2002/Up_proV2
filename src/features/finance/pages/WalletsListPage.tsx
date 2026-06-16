@@ -7,6 +7,7 @@ import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { FilterChips } from "@/shared/ui/FilterChips";
 import { formatFCFA } from "@/shared/lib/format";
+import { resolveWalletBalances } from "@/shared/finance/walletBalances";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
   serverPaginationFromMeta,
@@ -89,10 +90,50 @@ export function WalletsListPage() {
     },
     {
       id: "balance",
-      header: "Solde",
+      header: "Solde total",
       className: "tabular-nums",
       cell: (w) => formatFCFA(w.balance_fcfa),
       exportValue: (w) => w.balance_fcfa,
+    },
+    {
+      id: "withdrawable",
+      header: "Retirable",
+      className: "tabular-nums",
+      cell: (w) => {
+        const b = resolveWalletBalances({
+          balance_fcfa: w.balance_fcfa,
+          withdrawable_fcfa: w.withdrawable_fcfa,
+          non_withdrawable_fcfa: w.non_withdrawable_fcfa,
+        });
+        return formatFCFA(b.withdrawable_fcfa);
+      },
+      exportValue: (w) =>
+        resolveWalletBalances({
+          balance_fcfa: w.balance_fcfa,
+          withdrawable_fcfa: w.withdrawable_fcfa,
+          non_withdrawable_fcfa: w.non_withdrawable_fcfa,
+        }).withdrawable_fcfa,
+    },
+    {
+      id: "non_withdrawable",
+      header: "Non retirable",
+      className: "tabular-nums",
+      cell: (w) => {
+        const b = resolveWalletBalances({
+          balance_fcfa: w.balance_fcfa,
+          withdrawable_fcfa: w.withdrawable_fcfa,
+          non_withdrawable_fcfa: w.non_withdrawable_fcfa,
+        });
+        return b.is_legacy_single_balance ? "—" : formatFCFA(b.non_withdrawable_fcfa);
+      },
+      exportValue: (w) => {
+        const b = resolveWalletBalances({
+          balance_fcfa: w.balance_fcfa,
+          withdrawable_fcfa: w.withdrawable_fcfa,
+          non_withdrawable_fcfa: w.non_withdrawable_fcfa,
+        });
+        return b.non_withdrawable_fcfa;
+      },
     },
     {
       id: "pending",

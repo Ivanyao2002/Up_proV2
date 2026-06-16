@@ -4,9 +4,11 @@ import Link from "next/link";
 
 const LINKS = [
   { href: "/admin/finance/transactions", label: "Transactions" },
+  { href: "/admin/finance/ledger", label: "Ledger" },
   { href: "/admin/finance/withdrawals", label: "Retraits" },
   { href: "/admin/finance/wallets", label: "Portefeuilles" },
   { href: "/admin/finance/commissions", label: "Commissions" },
+  { href: "/admin/finance/bonus-rules", label: "Règles bonus" },
   { href: "/admin/finance/reconciliation", label: "Réconciliation" },
   { href: "/admin/finance/driver-transfers", label: "Recharges chauffeurs" },
 ] as const;

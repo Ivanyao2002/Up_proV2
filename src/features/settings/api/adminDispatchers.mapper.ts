@@ -19,6 +19,9 @@ export interface ApiDispatcherItem {
   permissions?: {
     assign_trips?: boolean;
     view_live_map?: boolean;
+    cancel_trip?: boolean;
+    override_dispatch?: boolean;
+    adjust_surge?: boolean;
   };
 }
 
@@ -55,6 +58,9 @@ export function mapDispatcherDetail(item: ApiDispatcherItem): DispatcherAccountD
     permissions: {
       assign_trips: item.permissions?.assign_trips ?? true,
       view_live_map: item.permissions?.view_live_map ?? true,
+      cancel_trip: item.permissions?.cancel_trip ?? false,
+      override_dispatch: item.permissions?.override_dispatch ?? false,
+      adjust_surge: item.permissions?.adjust_surge ?? false,
     },
   };
 }

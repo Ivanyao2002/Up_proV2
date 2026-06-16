@@ -94,6 +94,20 @@ export interface TripDriverLocation {
   recorded_at?: string;
 }
 
+export interface TripFinanceSnapshot {
+  cash_received_fcfa?: number;
+  wallet_before_fcfa?: number | null;
+  wallet_after_fcfa?: number | null;
+  commission_status?: string;
+  commission_breakdown?: {
+    platform_fcfa?: number;
+    franchise_fcfa?: number;
+    partner_fcfa?: number;
+    fiscality_fcfa?: number;
+    driver_fcfa?: number;
+  };
+}
+
 export interface TripDetail extends Trip {
   from_coords?: { lat: number; lng: number };
   to_coords?: { lat: number; lng: number };
@@ -110,6 +124,7 @@ export interface TripDetail extends Trip {
   driver_location?: TripDriverLocation;
   commission_fcfa: number;
   driver_earning_fcfa: number;
+  finance?: TripFinanceSnapshot;
   zone_name?: string;
   franchise_name?: string;
   estimated_arrival_at?: string;
@@ -400,6 +415,8 @@ export interface DriverDetail extends Driver {
     trips_cancelled: number;
     acceptance_rate_pct: number | null;
     wallet_balance_fcfa: number;
+    wallet_withdrawable_fcfa?: number;
+    wallet_non_withdrawable_fcfa?: number;
   };
   timeline: DriverTimelineEvent[];
   kyc_documents: KycDocument[];
@@ -794,6 +811,8 @@ export interface PartnerProfile {
 
 export interface PartnerWallet {
   balance_fcfa: number;
+  withdrawable_fcfa?: number;
+  non_withdrawable_fcfa?: number;
   pending_withdrawal_fcfa: number;
   available_fcfa: number;
   last_withdrawal?: {
@@ -864,6 +883,9 @@ export type DispatcherStatus = "active" | "suspended";
 export interface DispatcherPermissions {
   assign_trips: boolean;
   view_live_map: boolean;
+  cancel_trip: boolean;
+  override_dispatch: boolean;
+  adjust_surge: boolean;
 }
 
 export interface DispatcherAccount {
@@ -886,13 +908,75 @@ export interface DispatcherAccountDetail extends DispatcherAccount {
 
 export type DispatchPriorityMode = "distance" | "rating" | "balanced";
 
+export type DispatchOfferMode = "sequential" | "broadcast" | "batch";
+
+export type DispatchEscalationAction =
+  | "expand_radius"
+  | "notify_dispatcher"
+  | "cancel"
+  | "surge";
+
+export type DispatchServiceType =
+  | "RIDE"
+  | "DELIVERY"
+  | "DELIVERY_CARGO"
+  | "FREIGHT"
+  | "RENTAL";
+
+export interface DispatchServiceOverrides {
+  wave_radii_km?: number[];
+  wave_interval_sec?: number;
+  offer_ttl_sec?: number;
+  max_waves?: number;
+  max_dispatch_duration_sec?: number;
+  offer_mode?: DispatchOfferMode;
+  priority_mode?: DispatchPriorityMode;
+  match_radius_km?: number;
+}
+
+export interface DispatchZoneOverride {
+  enabled?: boolean;
+  radius_km?: number;
+  surge_multiplier?: number;
+}
+
 export interface DispatchRules {
+  wave_radii_km: number[];
+  wave_interval_sec: number;
+  offer_ttl_sec: number;
+  max_waves: number;
+  max_dispatch_duration_sec: number;
+  max_offers_per_driver: number;
+  max_rejections_before_cooldown: number;
+  rejection_cooldown_sec: number;
+  offer_mode: DispatchOfferMode;
+  batch_size: number;
   match_radius_km: number;
   assign_timeout_sec: number;
+  min_driver_rating: number;
+  max_driver_active_trips: number;
+  require_vehicle_category_match: boolean;
+  require_payment_method_support: boolean;
+  exclude_offline_drivers: boolean;
+  exclude_busy_drivers: boolean;
+  distance_weight: number;
+  rating_weight: number;
+  max_candidates_returned: number;
   max_queue_size: number;
   priority_mode: DispatchPriorityMode;
   auto_reassign: boolean;
+  reassign_max_attempts: number;
+  reassign_delay_sec: number;
+  escalation_action: DispatchEscalationAction;
   active_zone_ids: Array<number | string>;
+  zone_overrides: Record<string, DispatchZoneOverride>;
+  cross_zone_assign_allowed: boolean;
+  enabled_service_types: DispatchServiceType[];
+  auto_start_dispatch_on_create: boolean;
+  manual_dispatch_allowed: boolean;
+  per_service_overrides: Partial<Record<DispatchServiceType, DispatchServiceOverrides>>;
+  console_poll_interval_sec: number;
+  shift_required: boolean;
   updated_at: string;
 }
 

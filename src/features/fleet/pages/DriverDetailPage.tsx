@@ -18,6 +18,7 @@ import { RejectReasonModal } from "@/shared/ui/RejectReasonModal";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { WalletBalancesCard } from "@/shared/finance/WalletBalancesCard";
 import { getTripStatusLabel } from "@/shared/lib/tripLabels";
 import type { TripMatchingOutcome } from "@/shared/types";
 import type { DriverTripRow, DriverWalletTransaction } from "../api/driverDetail.service";
@@ -45,7 +46,6 @@ interface DriverDetailPageProps {
 export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const router = useRouter();
   const [tab, setTab] = useState("kyc");
-  const [showWallet, setShowWallet] = useState(false);
   const [confirmApprove, setConfirmApprove] = useState(false);
   const [confirmReject, setConfirmReject] = useState(false);
   const [confirmSuspend, setConfirmSuspend] = useState(false);
@@ -55,8 +55,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const { data: driver, isLoading, isError } = useDriverDetail(driverId);
   const { data: tripsData, isLoading: tripsLoading } = useDriverTrips(driverId);
   const { data: walletData, isLoading: walletLoading } = useDriverWalletTransactions(
-    driverId,
-    showWallet
+    driverId
   );
   const approveKyc = useApproveDriverKyc(driverId);
   const rejectKyc = useRejectDriverKyc(driverId);
@@ -295,7 +294,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
 
           <div className="mt-6">
             {tab === "kyc" && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {driver.kyc_documents.length === 0 ? (
                   <div className="rounded-card border border-dashed border-border bg-surface p-8 text-center">
                     <p className="font-medium text-foreground">
@@ -342,6 +341,28 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                     )}
                   </div>
                 )}
+
+                <div className="rounded-card border border-border bg-surface p-5 shadow-card">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Transactions portefeuille
+                  </h3>
+                  <p className="mt-1 text-xs text-muted">
+                    Mouvements récents du portefeuille chauffeur.
+                  </p>
+                  <div className="mt-4">
+                    {walletLoading ? (
+                      <div className="h-24 animate-pulse rounded bg-navy/10" />
+                    ) : (
+                      <DataTable
+                        columns={walletColumns}
+                        data={walletData?.data ?? []}
+                        rowKey={(tx) => tx.id}
+                        exportFileName={`chauffeur-${driverId}-wallet`}
+                        emptyTitle="Aucune transaction"
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -403,36 +424,21 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
 
         {/* Panneau latéral */}
         <aside className="space-y-4">
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Portefeuille
-            </p>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
-              {formatFCFA(driver.stats.wallet_balance_fcfa)}
-            </p>
-            <Button
-              variant="secondary"
-              className="mt-4 w-full !text-xs"
-              onClick={() => setShowWallet((v) => !v)}
-            >
-              {showWallet ? "Masquer les transactions" : "Voir les transactions"}
-            </Button>
-            {showWallet && (
-              <div className="mt-4 border-t border-border pt-4">
-                {walletLoading ? (
-                  <div className="h-24 animate-pulse rounded bg-navy/10" />
-                ) : (
-                  <DataTable
-                    columns={walletColumns}
-                    data={walletData?.data ?? []}
-                    rowKey={(tx) => tx.id}
-                    exportFileName={`chauffeur-${driverId}-wallet`}
-                    emptyTitle="Aucune transaction"
-                  />
-                )}
-              </div>
-            )}
-          </div>
+          <WalletBalancesCard
+            balances={{
+              balance_fcfa: driver.stats.wallet_balance_fcfa,
+              withdrawable_balance_xof: driver.stats.wallet_withdrawable_fcfa,
+              non_withdrawable_balance_xof: driver.stats.wallet_non_withdrawable_fcfa,
+            }}
+            actions={
+              <Link
+                href="/admin/finance/driver-transfers"
+                className="inline-flex w-full items-center justify-center rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-navy/5"
+              >
+                Recharger un chauffeur
+              </Link>
+            }
+          />
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
             <h3 className="font-semibold text-foreground">Véhicule assigné</h3>

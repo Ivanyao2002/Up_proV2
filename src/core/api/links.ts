@@ -63,6 +63,9 @@ export const LINKS = {
     drivers: {
       me: "/v1/drivers/me",
       getById: (id: string) => `${DRIVERS_V1_BASE}/${id}`,
+      wallet: (id: string) => `${DRIVERS_V1_BASE}/${id}/wallet`,
+      ledger: (id: string) => `${DRIVERS_V1_BASE}/${id}/ledger`,
+      onboardingStart: `${DRIVERS_V1_BASE}/onboarding/start`,
     },
     files: {
       getById: (id: string) => `/v1/files/${id}`,
@@ -132,6 +135,7 @@ export const LINKS = {
       adminLogin: `${AUTH_V1_BASE}/admin/login`,
       clientLogin: `${AUTH_V1_BASE}/client/login`,
       driverLogin: `${AUTH_V1_BASE}/driver/login`,
+      driverRegister: `${AUTH_V1_BASE}/driver/register`,
       franchiseLogin: `${AUTH_V1_BASE}/franchise/login`,
       franchiseRegister: `${AUTH_V1_BASE}/franchise/register`,
       me: `${AUTH_V1_BASE}/me`,
@@ -178,6 +182,7 @@ export const LINKS = {
         `${ADMIN_V1_BASE}/kyc/documents/${id}/reject`,
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
+      partnerById: (id: string) => `${ADMIN_V1_BASE}/partners/${id}`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
       withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>
@@ -197,6 +202,7 @@ export const LINKS = {
       franchiseById: (id: string) => `${ADMIN_V1_BASE}/franchises/${id}`,
       paydunyaConfig: `${ADMIN_V1_BASE}/paydunya-config`,
       weatherConfig: `${ADMIN_V1_BASE}/weather-config`,
+      dispatchConfig: `${ADMIN_V1_BASE}/dispatch-config`,
       weatherRefresh: `${ADMIN_V1_BASE}/weather/refresh`,
       paymentReconcile: (id: string) => `${ADMIN_V1_BASE}/payments/${id}/reconcile`,
       paymentsReconcileBatch: `${ADMIN_V1_BASE}/payments/reconcile-batch`,
@@ -210,12 +216,16 @@ export const LINKS = {
         transactions: `${ADMIN_V1_BASE}/finance/transactions`,
         transactionById: (id: string) =>
           `${ADMIN_V1_BASE}/finance/transactions/${id}`,
+        ledger: `${ADMIN_V1_BASE}/ledger`,
         wallets: `${ADMIN_V1_BASE}/finance/wallets`,
         commissions: `${ADMIN_V1_BASE}/finance/commissions`,
         reconciliation: `${ADMIN_V1_BASE}/finance/reconciliation`,
         driverTransfers: `${ADMIN_V1_BASE}/finance/driver-transfers`,
         driverTransferStats: `${ADMIN_V1_BASE}/finance/driver-transfers/stats`,
       },
+      bonusRules: `${ADMIN_V1_BASE}/bonus-rules`,
+      bonusRuleById: (id: string) => `${ADMIN_V1_BASE}/bonus-rules/${id}`,
+      bonusAwards: `${ADMIN_V1_BASE}/bonus-awards`,
       marketing: {
         promos: `${ADMIN_V1_BASE}/marketing/promos`,
         promoById: (id: string) => `${ADMIN_V1_BASE}/marketing/promos/${id}`,
@@ -234,6 +244,7 @@ export const LINKS = {
       dispatchers: `${ADMIN_V1_BASE}/dispatchers`,
       dispatcherById: (id: string) => `${ADMIN_V1_BASE}/dispatchers/${id}`,
       settingsGeneral: `${ADMIN_V1_BASE}/settings/general`,
+      financeCaps: `${ADMIN_V1_BASE}/settings/finance-caps`,
       supportTickets: "/v1/support/tickets",
       chatConversations: "/v1/chat/conversations",
       chatMessages: (id: string) => `/v1/chat/conversations/${id}/messages`,

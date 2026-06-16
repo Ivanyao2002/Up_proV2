@@ -7,6 +7,10 @@ export interface ApiV1PartnerWalletItem {
   currency?: string | null;
   status?: string | null;
   balance_cached_xof?: number | null;
+  withdrawable_balance_xof?: number | null;
+  withdrawable_xof?: number | null;
+  non_withdrawable_balance_xof?: number | null;
+  non_withdrawable_xof?: number | null;
   pending_withdrawal_xof?: number | null;
   available_xof?: number | null;
   last_calculated_at?: string | null;

@@ -117,12 +117,18 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "withdrawals",
         permission: "finance.withdrawals.approve",
       },
-      // {
-      //   label: "Portefeuilles",
-      //   path: "/admin/finance/wallets",
-      //   icon: "wallet",
-      //   permission: "finance.transactions.view",
-      // },
+      {
+        label: "Portefeuilles",
+        path: "/admin/finance/wallets",
+        icon: "wallet",
+        permission: "finance.transactions.view",
+      },
+      {
+        label: "Ledger comptable",
+        path: "/admin/finance/ledger",
+        icon: "transactions",
+        permission: "finance.transactions.view",
+      },
       {
         label: "Recharges chauffeurs",
         path: "/admin/finance/driver-transfers",
@@ -139,6 +145,12 @@ export const ADMIN_NAV: NavGroup[] = [
         label: "Règles commission",
         path: "/admin/finance/commission-rules",
         icon: "commissions",
+        permission: "finance.transactions.view",
+      },
+      {
+        label: "Règles bonus",
+        path: "/admin/finance/bonus-rules",
+        icon: "finance",
         permission: "finance.transactions.view",
       },
       {
@@ -214,6 +226,12 @@ export const ADMIN_NAV: NavGroup[] = [
         label: "Tarification",
         path: "/admin/settings/pricing",
         icon: "finance",
+        permission: "settings.pricing.view",
+      },
+      {
+        label: "Plafonds finance",
+        path: "/admin/settings/finance-caps",
+        icon: "wallet",
         permission: "settings.pricing.view",
       },
       {

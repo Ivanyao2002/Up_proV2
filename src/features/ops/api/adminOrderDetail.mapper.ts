@@ -1,5 +1,6 @@
 import type {
   TripDetail,
+  TripFinanceSnapshot,
   TripMatchingDriver,
   TripMatchingOutcome,
   TripTimelineEvent,
@@ -24,12 +25,81 @@ import { extractTripVehicleFields } from "./adminOrderVehicle";
 const EVENT_LABELS: Record<string, string> = {
   "ride.created": "Commande créée",
   "ride.cancel": "Course annulée",
-  "dispatch.started": "Dispatch démarré",
+  "ride.arrived": "Chauffeur arrivé sur place",
+  "ride.start": "Course démarrée",
+  "ride.complete": "Course terminée",
+  "dispatch.started": "Recherche de chauffeur démarrée",
   "dispatch.abandoned": "Dispatch abandonné",
   "dispatch.offer_timeout": "Offres expirées",
   "dispatch.offer_accepted": "Offre acceptée",
   "dispatch.offer_declined": "Offre refusée",
+  "dispatch.offer_received": "Offre envoyée au chauffeur",
+  "dispatch.no_driver": "Aucun chauffeur disponible",
 };
+
+function eventTypeLabel(eventType: string): string {
+  if (EVENT_LABELS[eventType]) return EVENT_LABELS[eventType];
+  const normalized = eventType.replace(/\./g, " ").replace(/_/g, " ");
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
+function formatStatusTransition(
+  oldStatus?: string | null,
+  newStatus?: string | null
+): string | undefined {
+  if (!oldStatus && !newStatus) return undefined;
+  const oldKey = String(oldStatus ?? "").toLowerCase();
+  const newKey = String(newStatus ?? "").toLowerCase();
+  if (oldKey && newKey && oldKey === newKey) return undefined;
+  const oldLabel = liveMapOrderStatusLabel(oldStatus ?? undefined);
+  const newLabel = liveMapOrderStatusLabel(newStatus ?? undefined);
+  if (oldStatus && newStatus) return `${oldLabel} → ${newLabel}`;
+  return newStatus ? newLabel : oldLabel;
+}
+
+function resolveOrderDriverName(
+  payload: ApiAdminOrderDetailPayload,
+  ride: ApiLiveMapOrderBase
+): string | undefined {
+  const explicit = payload.driverName?.trim();
+  if (explicit) return explicit;
+
+  const driverBlock = payload.driver as Record<string, unknown> | null | undefined;
+  if (driverBlock && typeof driverBlock === "object") {
+    const summary = driverBlock.summary as Record<string, unknown> | undefined;
+    const profile = driverBlock.profile as Record<string, unknown> | undefined;
+    const fromSummary =
+      summary?.displayName ?? summary?.name ?? summary?.display_name;
+    if (typeof fromSummary === "string" && fromSummary.trim()) {
+      return fromSummary.trim();
+    }
+
+    const first = profile?.firstName ?? profile?.first_name;
+    const last = profile?.lastName ?? profile?.last_name;
+    const joined = [first, last].filter((v) => typeof v === "string" && v.trim()).join(" ");
+    if (joined) return joined;
+
+    const flat =
+      driverBlock.displayName ??
+      driverBlock.display_name ??
+      profile?.displayName ??
+      profile?.display_name;
+    if (typeof flat === "string" && flat.trim()) return flat.trim();
+  }
+
+  const summary = payload.driverSummary as Record<string, unknown> | null | undefined;
+  const fromSummary =
+    summary?.displayName ?? summary?.name ?? summary?.display_name;
+  if (typeof fromSummary === "string" && fromSummary.trim()) {
+    return fromSummary.trim();
+  }
+
+  return (
+    ride.driver?.displayName ??
+    ride.driver?.name ??
+    undefined
+  );
+}
 
 function readCoord(
   lat?: number | null,
@@ -53,20 +123,34 @@ function eventTypeToTripStatus(eventType: string): TripTimelineEvent["type"] {
   if (key.includes("cancel")) return "cancelled";
   if (key.includes("complete")) return "completed";
   if (key.includes("arrived")) return "arrived";
+  if (key.includes("start") || key.includes("in_progress")) return "in_progress";
   if (key.includes("accept") || key.includes("assigned")) return "assigned";
-  if (key.includes("dispatch") || key.includes("matching")) return "matching";
+  if (
+    key.includes("dispatch") ||
+    key.includes("matching") ||
+    key.includes("no_driver") ||
+    key.includes("offer")
+  ) {
+    return "matching";
+  }
   return "requested";
 }
 
 function mapDispatchOffers(
-  offers: ApiAdminOrderDispatchOffer[] | undefined
+  offers: ApiAdminOrderDispatchOffer[] | undefined,
+  driverName?: string,
+  assignedDriverId?: string
 ): TripMatchingDriver[] | undefined {
   if (!offers?.length) return undefined;
   return offers.map((offer) => ({
     driver_id: offer.driverId ?? offer.userId ?? "",
-    driver_name: offer.driverId
-      ? `Chauffeur ${offer.driverId.slice(0, 8)}`
-      : "Chauffeur",
+    driver_name:
+      driverName &&
+      (offers.length === 1 || offer.driverId === assignedDriverId)
+        ? driverName
+        : offer.driverId
+          ? `Chauffeur ${offer.driverId.slice(0, 8)}`
+          : "Chauffeur",
     outcome: mapOfferOutcome(offer.status),
     reason:
       offer.status === "timeout" || offer.status === "expired"
@@ -89,12 +173,9 @@ function mapEventsToTimeline(
     .map((ev) => ({
       id: ev.id,
       type: eventTypeToTripStatus(ev.event_type),
-      label: EVENT_LABELS[ev.event_type] ?? ev.event_type.replace(/\./g, " "),
+      label: eventTypeLabel(ev.event_type),
       at: ev.created_at,
-      description:
-        ev.new_status && ev.old_status
-          ? `${liveMapOrderStatusLabel(ev.old_status)} → ${liveMapOrderStatusLabel(ev.new_status)}`
-          : undefined,
+      description: formatStatusTransition(ev.old_status, ev.new_status),
     }));
 }
 
@@ -119,6 +200,98 @@ function resolveRide(payload: ApiAdminOrderDetailPayload): ApiLiveMapOrderBase {
     id: ride.id ?? payload.orderId ?? "",
     order_reference: ride.order_reference ?? payload.ref ?? undefined,
     service_type: ride.service_type ?? payload.serviceType,
+  };
+}
+
+function readNum(obj: Record<string, unknown> | null | undefined, ...keys: string[]): number | undefined {
+  if (!obj) return undefined;
+  for (const key of keys) {
+    const v = obj[key];
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+  }
+  return undefined;
+}
+
+function mapTripFinanceSnapshotFromWallet(
+  payload: ApiAdminOrderDetailPayload,
+  orderId: string,
+  amount: number
+): TripFinanceSnapshot | undefined {
+  const driverBlock = payload.driver as Record<string, unknown> | null | undefined;
+  const wallet = driverBlock?.wallet as Record<string, unknown> | undefined;
+  const movements = (wallet?.recentMovements ?? wallet?.recent_movements) as
+    | Array<Record<string, unknown>>
+    | undefined;
+  const movement = movements?.find(
+    (m) => m.order_id === orderId || m.orderId === orderId
+  );
+  if (!movement) return undefined;
+
+  const meta = movement.metadata as Record<string, unknown> | undefined;
+  if (!meta) return undefined;
+
+  const breakdown = {
+    platform_fcfa: readNum(meta, "platformAmountXof", "platform_amount_xof"),
+    franchise_fcfa: readNum(meta, "franchiseAmountXof", "franchise_amount_xof"),
+    partner_fcfa: readNum(meta, "partnerAmountXof", "partner_amount_xof"),
+    fiscality_fcfa: readNum(meta, "fiscalityAmountXof", "fiscality_amount_xof"),
+    driver_fcfa: readNum(meta, "driverAmountXof", "driver_amount_xof"),
+  };
+  const hasBreakdown = Object.values(breakdown).some((v) => v != null && v > 0);
+
+  return {
+    cash_received_fcfa: readNum(meta, "grossAmountXof", "gross_amount_xof") ?? amount,
+    commission_status: "debited",
+    commission_breakdown: hasBreakdown ? breakdown : undefined,
+  };
+}
+
+function mapTripFinanceSnapshot(
+  payload: ApiAdminOrderDetailPayload,
+  amount: number,
+  orderId: string
+): TripFinanceSnapshot | undefined {
+  const fromWallet = mapTripFinanceSnapshotFromWallet(payload, orderId, amount);
+  const receipt = payload.receipt as Record<string, unknown> | null | undefined;
+  const pricing = payload.pricing as Record<string, unknown> | null | undefined;
+  const breakdownRaw =
+    (receipt?.commissionBreakdown as Record<string, unknown> | undefined) ??
+    (receipt?.commission_breakdown as Record<string, unknown> | undefined) ??
+    (pricing?.commissionBreakdown as Record<string, unknown> | undefined);
+
+  const breakdown = breakdownRaw
+    ? {
+        platform_fcfa: readNum(breakdownRaw, "platformAmountXof", "platform_amount_xof", "platform_fcfa"),
+        franchise_fcfa: readNum(breakdownRaw, "franchiseAmountXof", "franchise_amount_xof", "franchise_fcfa"),
+        partner_fcfa: readNum(breakdownRaw, "partnerAmountXof", "partner_amount_xof", "partner_fcfa"),
+        fiscality_fcfa: readNum(breakdownRaw, "fiscalityAmountXof", "fiscality_amount_xof", "fiscality_fcfa"),
+        driver_fcfa: readNum(breakdownRaw, "driverAmountXof", "driver_amount_xof", "driver_fcfa"),
+      }
+    : undefined;
+
+  const hasBreakdown =
+    breakdown &&
+    Object.values(breakdown).some((v) => v != null && v > 0);
+
+  const walletBefore = readNum(receipt, "walletBeforeXof", "wallet_before_xof", "wallet_before_fcfa");
+  const walletAfter = readNum(receipt, "walletAfterXof", "wallet_after_xof", "wallet_after_fcfa");
+  const cashReceived = readNum(receipt, "cashReceivedXof", "cash_received_xof", "cash_received_fcfa");
+  const commissionStatus =
+    (receipt?.commissionStatus as string | undefined) ??
+    (receipt?.commission_status as string | undefined);
+
+  if (!hasBreakdown && walletBefore == null && walletAfter == null && !commissionStatus) {
+    return fromWallet ?? (cashReceived != null && cashReceived !== amount
+      ? { cash_received_fcfa: cashReceived }
+      : undefined);
+  }
+
+  return {
+    cash_received_fcfa: cashReceived ?? fromWallet?.cash_received_fcfa ?? amount,
+    wallet_before_fcfa: walletBefore ?? null,
+    wallet_after_fcfa: walletAfter ?? null,
+    commission_status: commissionStatus ?? fromWallet?.commission_status,
+    commission_breakdown: hasBreakdown ? breakdown : fromWallet?.commission_breakdown,
   };
 }
 
@@ -147,7 +320,17 @@ export function mapAdminOrderDetailToTripDetail(
   const offers =
     payload.dispatch?.dispatch?.offers ??
     payload.dispatch?.dispatch?.candidates;
-  const matchingDrivers = mapDispatchOffers(offers);
+  const resolvedDriverName = resolveOrderDriverName(payload, ride);
+  const assignedDriverId =
+    ride.driver_id ??
+    payload.driverSummary?.id?.toString() ??
+    (payload.driver as { driver?: { id?: string } } | null | undefined)?.driver
+      ?.id;
+  const matchingDrivers = mapDispatchOffers(
+    offers,
+    resolvedDriverName,
+    assignedDriverId ? String(assignedDriverId) : undefined
+  );
 
   const partnerId = ride.partner_id ?? ride.partner?.id;
   const franchiseId = ride.franchise_id ?? ride.franchise?.id;
@@ -198,11 +381,7 @@ export function mapAdminOrderDetailToTripDetail(
     client_id: resolveOrderClientId(ride),
     client_phone: payload.clientPhone ?? ride.client?.phone ?? undefined,
     driver_id: ride.driver_id ?? payload.driver?.id ?? undefined,
-    driver_name:
-      payload.driverName ??
-      payload.driver?.displayName ??
-      ride.driver?.displayName ??
-      undefined,
+    driver_name: resolvedDriverName,
     driver_phone:
       payload.driverPhone ??
       payload.driver?.phone ??
@@ -223,5 +402,6 @@ export function mapAdminOrderDetailToTripDetail(
     partner_name: partnerName,
     ...vehicleFields,
     timeline,
+    finance: mapTripFinanceSnapshot(payload, amount, ride.id),
   };
 }
