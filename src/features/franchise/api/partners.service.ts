@@ -1,10 +1,14 @@
 import { apiClient } from "@/core/http/apiClient";
-import { fetchNetworkLookups } from "@/core/api/catalogLookup.service";
+import {
+  fetchNetworkLookups,
+  resolveCityIdByLabel,
+} from "@/core/api/catalogLookup.service";
 import { resolveFranchiseId } from "@/core/api/franchiseContext.service";
 import { LINKS, appendQuery, createUrl } from "@/core/api/links";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
 import type { ApiV1FranchisePartnersResponse } from "@/features/network/api/adminFranchises.api.types";
+import type { ApiPartnerCreateResponse } from "@/features/network/api/adminPartners.api.types";
 import {
   mapAdminPartnerItemToPartner,
   mapAdminPartnersToPaginated,
@@ -38,9 +42,14 @@ export interface CreatePartnerPayload {
   trade_name?: string;
   legal_name?: string;
   contact_email: string;
+  password: string;
   contact_phone: string;
   city: string;
   address?: string;
+}
+
+export interface FranchisePartnerCreateResult extends FranchisePartnerDetail {
+  portal_login_email?: string;
 }
 
 export interface PartnerCommission {
@@ -163,17 +172,74 @@ export const franchisePartnersService = {
     await apiClient.delete(`${LINKS.franchise.v1.partnerById(franchiseId, id)}`);
   },
 
-  create: async (payload: CreatePartnerPayload): Promise<FranchisePartnerDetail> => {
+  create: async (payload: CreatePartnerPayload): Promise<FranchisePartnerCreateResult> => {
+    if (useLegacyPortalApi()) {
+      const franchiseId = await resolveFranchiseId();
+      const response = await apiClient.post<{
+        status: string;
+        partner: Parameters<typeof mapAdminPartnerItemToPartner>[0];
+      }>(LINKS.franchise.v1.createPartner(franchiseId), payload);
+      const p = response.partner;
+      const base = mapAdminPartnerItemToPartner(p);
+      return {
+        ...base,
+        legal_name: payload.legal_name?.trim() || payload.name,
+        address: payload.address?.trim() || null,
+        created_at: p.created_at ?? new Date().toISOString(),
+        vehicles_count: 0,
+        trips_count: 0,
+        wallet_balance_fcfa: 0,
+        commission_rate: null,
+        partner_type: null,
+        registration_number: null,
+        tax_id: null,
+      };
+    }
+
     const franchiseId = await resolveFranchiseId();
-    const response = await apiClient.post<{ status: string; partner: Parameters<typeof mapAdminPartnerItemToPartner>[0] }>(
-      LINKS.franchise.v1.createPartner(franchiseId),
-      payload
+    const cityId = await resolveCityIdByLabel(payload.city);
+    if (!cityId) {
+      throw new Error("Sélectionnez une ville du catalogue.");
+    }
+
+    const legalName = (payload.legal_name?.trim() || payload.name).trim();
+    const tradeName = (payload.trade_name?.trim() || payload.name).trim();
+    const email = payload.contact_email.trim();
+
+    const response = await apiClient.post<ApiPartnerCreateResponse>(
+      LINKS.v1.partners.create,
+      {
+        franchiseId,
+        legalName,
+        tradeName,
+        cityId,
+        email,
+        password: payload.password,
+        contactEmail: email,
+        ...(payload.contact_phone.trim()
+          ? {
+              contactPhone: payload.contact_phone.trim(),
+              phone: payload.contact_phone.trim(),
+            }
+          : {}),
+        ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
+      }
     );
+
+    if (!response.partner?.id) {
+      throw new Error(
+        response.error?.message ?? "Création partenaire sans identifiant en réponse."
+      );
+    }
+
     const p = response.partner;
     const base = mapAdminPartnerItemToPartner(p);
+    const portalLoginEmail =
+      response.account?.loginEmail ?? response.account?.login_email ?? email;
+
     return {
       ...base,
-      legal_name: payload.legal_name?.trim() || payload.name,
+      legal_name: legalName,
       address: payload.address?.trim() || null,
       created_at: p.created_at ?? new Date().toISOString(),
       vehicles_count: 0,
@@ -183,6 +249,7 @@ export const franchisePartnersService = {
       partner_type: null,
       registration_number: null,
       tax_id: null,
+      portal_login_email: portalLoginEmail,
     };
   },
 

@@ -51,10 +51,18 @@ export interface ApiAdminPartnersResponse {
 export interface ApiPartnerCreateBody {
   franchiseId: string;
   legalName: string;
-  tradeName: string;
+  tradeName?: string;
   cityId: string;
-  contactEmail: string;
+  /** Login portail partenaire (canonique). */
+  email: string;
+  /** Mot de passe portail (min. 6 caractères). */
+  password: string;
+  /** Alias tolérés côté API — envoyés en plus pour compatibilité. */
+  contactEmail?: string;
   contactPhone?: string;
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
   partnerType?: string;
   commissionRate?: number;
   address?: string;
@@ -77,5 +85,11 @@ export interface ApiPartnerCreateResponse {
   status?: string;
   generatedAt?: string;
   partner?: ApiAdminPartnerItem;
+  account?: {
+    userId?: string;
+    user_id?: string;
+    loginEmail?: string;
+    login_email?: string;
+  };
   error?: { message?: string; code?: string };
 }

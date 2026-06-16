@@ -38,6 +38,10 @@ import {
   useDeleteAdminDriver,
 } from "../api/driverDetail.queries";
 import { canSetDriverAvailability } from "../api/driverAdminActions.service";
+import { canReviewKycDocument } from "@/shared/lib/kycReview";
+import { DriverTransferModal } from "../components/DriverTransferModal";
+import { useTransferDriverToPartner } from "../api/driverTransfer.queries";
+import { resolveDriverSourcePartnerId } from "../api/driverTransfer.service";
 
 interface DriverDetailPageProps {
   driverId: string;
@@ -50,6 +54,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const [confirmReject, setConfirmReject] = useState(false);
   const [confirmSuspend, setConfirmSuspend] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [rejectDocTarget, setRejectDocTarget] = useState<string | null>(null);
 
   const { data: driver, isLoading, isError } = useDriverDetail(driverId);
@@ -65,6 +70,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const activateDriver = useActivateDriver(driverId);
   const setAvailability = useSetDriverAvailability(driverId);
   const deleteDriver = useDeleteAdminDriver();
+  const transferDriver = useTransferDriverToPartner(driverId);
 
   if (isLoading) {
     return (
@@ -91,12 +97,15 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
     suspendDriver.isPending ||
     activateDriver.isPending ||
     setAvailability.isPending ||
-    deleteDriver.isPending;
+    deleteDriver.isPending ||
+    transferDriver.isPending;
   const timelineItems = driverTimelineToItems(driver.timeline);
   const vehicleDetailHref = driver.vehicle_id
     ? buildAdminVehicleDetailPath(driver.vehicle_id, driver.owner_id)
     : null;
   const kycDisplayItems = organizeDriverKycDocuments(driver.kyc_documents);
+  const sourcePartnerId = resolveDriverSourcePartnerId(driver);
+  const canTransferDriver = Boolean(sourcePartnerId);
 
   const tabs = [
     { id: "kyc", label: "KYC & documents" },
@@ -261,6 +270,15 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                   </Button>
                 </>
               )}
+              {canTransferDriver && (
+                <Button
+                  variant="secondary"
+                  disabled={actionBusy}
+                  onClick={() => setShowTransferModal(true)}
+                >
+                  Transférer vers un partenaire
+                </Button>
+              )}
               <Button
                 variant="secondary"
                 disabled={actionBusy}
@@ -313,7 +331,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                           <KycDocumentGroupCard
                             label={item.label}
                             documents={item.documents}
-                            canReview={isPending}
+                            canReview
                             onApprove={(documentId) =>
                               approveDoc.mutate(documentId)
                             }
@@ -326,12 +344,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                         <KycDocumentCard
                           key={item.document.id}
                           document={item.document}
-                          canReview={
-                            isPending &&
-                            item.document.status === "pending" &&
-                            Boolean(item.document.uploaded_at) &&
-                            !item.document.id.startsWith("slot-")
-                          }
+                          canReview={canReviewKycDocument(item.document)}
                           onApprove={() => approveDoc.mutate(item.document.id)}
                           onReject={() =>
                             setRejectDocTarget(item.document.id)
@@ -564,6 +577,25 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
         }}
         onCancel={() => setConfirmDelete(false)}
       />
+
+      {sourcePartnerId && (
+        <DriverTransferModal
+          open={showTransferModal}
+          onClose={() => setShowTransferModal(false)}
+          driverName={fullName}
+          sourcePartnerId={sourcePartnerId}
+          sourcePartnerName={driver.owner_name}
+          vehicleLabel={driver.vehicle_label}
+          scope="admin"
+          isSubmitting={transferDriver.isPending}
+          onSubmit={(payload) => {
+            transferDriver.mutate(
+              { sourcePartnerId, ...payload },
+              { onSuccess: () => setShowTransferModal(false) }
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

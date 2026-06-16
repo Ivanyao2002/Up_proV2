@@ -33,11 +33,19 @@ export type PartnerCreatePayload = {
   /** Code pays ISO (ex. CI) — dérivé de la ville sélectionnée. */
   country_code?: string;
   contact_email: string;
+  /** Mot de passe du compte portail partenaire (min. 6 caractères API). */
+  password: string;
   contact_phone: string;
+  first_name?: string;
+  last_name?: string;
   address?: string;
   status?: Partner["status"];
   partner_type?: PartnerType;
   commission_rate?: number;
+};
+
+export type PartnerCreateResult = Partner & {
+  portal_login_email?: string;
 };
 
 export type PartnerUpdatePayload = {
@@ -74,9 +82,9 @@ export const partnersService = {
     );
   },
 
-  create: async (payload: PartnerCreatePayload): Promise<Partner> => {
+  create: async (payload: PartnerCreatePayload): Promise<PartnerCreateResult> => {
     if (useLegacyAdminApi()) {
-      return apiClient.post<Partner>("/admin/network/partners", payload);
+      return apiClient.post<PartnerCreateResult>("/admin/network/partners", payload);
     }
 
     const cityId =
@@ -85,16 +93,24 @@ export const partnersService = {
       throw new Error("Sélectionnez une ville du catalogue.");
     }
 
+    const email = payload.contact_email.trim();
     const body: ApiPartnerCreateBody = {
       franchiseId: String(payload.franchise_id),
       legalName: payload.name.trim(),
       tradeName: payload.name.trim(),
       cityId,
-      contactEmail: payload.contact_email.trim(),
+      email,
+      password: payload.password,
+      contactEmail: email,
       partnerType: payload.partner_type ?? DEFAULT_PARTNER_TYPE,
       ...(payload.contact_phone.trim()
-        ? { contactPhone: payload.contact_phone.trim() }
+        ? {
+            contactPhone: payload.contact_phone.trim(),
+            phone: payload.contact_phone.trim(),
+          }
         : {}),
+      ...(payload.first_name?.trim() ? { firstName: payload.first_name.trim() } : {}),
+      ...(payload.last_name?.trim() ? { lastName: payload.last_name.trim() } : {}),
       ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
       ...(payload.status ? { status: payload.status } : {}),
       ...(payload.commission_rate != null && !Number.isNaN(payload.commission_rate)
@@ -114,7 +130,13 @@ export const partnersService = {
     }
 
     const lookups = await fetchNetworkLookups();
-    return mapAdminPartnerItemToPartner(response.partner, lookups);
+    const partner = mapAdminPartnerItemToPartner(response.partner, lookups);
+    const portalLoginEmail =
+      response.account?.loginEmail ??
+      response.account?.login_email ??
+      email;
+
+    return { ...partner, portal_login_email: portalLoginEmail };
   },
 
   update: async (id: string, payload: PartnerUpdatePayload): Promise<Partner> => {
