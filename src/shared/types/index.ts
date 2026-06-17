@@ -819,6 +819,10 @@ export interface PartnerWallet {
   non_withdrawable_fcfa?: number;
   pending_withdrawal_fcfa: number;
   available_fcfa: number;
+  /** Plafond de retrait journalier (défaut 30 000 XOF) */
+  daily_cap_fcfa?: number;
+  /** Montant déjà retiré aujourd'hui */
+  today_withdrawn_fcfa?: number;
   last_withdrawal?: {
     id: string;
     amount_fcfa: number;

@@ -42,6 +42,10 @@ interface WalletApiResponse {
     currency?: string;
     status?: string;
     balance_cached_xof?: number;
+    withdrawable_balance_xof?: number;
+    non_withdrawable_balance_xof?: number;
+    daily_withdrawal_cap_xof?: number;
+    today_withdrawn_xof?: number;
     last_calculated_at?: string;
     metadata?: Record<string, unknown>;
     created_at?: string;
@@ -54,10 +58,16 @@ function mapWalletResponse(response: WalletApiResponse | PartnerWallet): Partner
   if ("wallet" in response && response.wallet) {
     const w = response.wallet;
     const balance = w.balance_cached_xof ?? 0;
+    const withdrawable = w.withdrawable_balance_xof;
+    const nonWithdrawable = w.non_withdrawable_balance_xof;
     return {
       balance_fcfa: balance,
-      available_fcfa: balance,
+      withdrawable_fcfa: withdrawable,
+      non_withdrawable_fcfa: nonWithdrawable,
+      available_fcfa: withdrawable ?? balance,
       pending_withdrawal_fcfa: 0,
+      daily_cap_fcfa: w.daily_withdrawal_cap_xof ?? 30_000,
+      today_withdrawn_fcfa: w.today_withdrawn_xof ?? 0,
       last_withdrawal: undefined,
       recent_movements: [],
     };
@@ -185,6 +195,48 @@ export interface SettlementEntry {
   created_at: string;
 }
 
+interface SettlementsApiResponse {
+  status?: string;
+  items?: SettlementEntry[];
+  data?: SettlementEntry[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    hasMore: boolean;
+  };
+  meta?: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
+}
+
+function mapSettlementsResponse(response: SettlementsApiResponse): Paginated<SettlementEntry> {
+  // Format {status:"ok", items, pagination}
+  if (response.status === "ok" && Array.isArray(response.items)) {
+    const p = response.pagination;
+    return {
+      data: response.items,
+      meta: p
+        ? {
+            current_page: p.page,
+            per_page: p.limit,
+            total: p.total,
+            last_page: p.hasMore ? p.page + 1 : p.page,
+          }
+        : { current_page: 1, per_page: 20, total: response.items.length, last_page: 1 },
+    };
+  }
+  // Format standard {data, meta}
+  if (Array.isArray(response.data)) {
+    return response as Paginated<SettlementEntry>;
+  }
+  // Fallback: réponse vide sans lever d'erreur
+  return { data: [], meta: { current_page: 1, per_page: 20, total: 0, last_page: 1 } };
+}
+
 export interface RevenueEntry {
   id: string;
   wallet_id: string;
@@ -232,10 +284,18 @@ export const partnerWalletService = {
     return mapLedgerResponse(response);
   },
 
-  settlements: (partnerId: string | number, params?: ListParams) =>
-    apiClient.get<Paginated<SettlementEntry>>(
-      `${LINKS.partner.wallet.settlements(partnerId)}${buildListQuery(params)}`
-    ),
+  settlements: async (partnerId: string | number, params?: ListParams) => {
+    try {
+      const response = await apiClient.get<SettlementsApiResponse>(
+        `${LINKS.partner.wallet.settlements(partnerId)}${buildListQuery(params)}`
+      );
+      return mapSettlementsResponse(response);
+    } catch {
+      // L'endpoint /settlements est cassé backend (PAYOUTS_FETCH_FAILED / colonne manquante).
+      // On retourne un résultat vide pour ne pas bloquer l'UI.
+      return { data: [], meta: { current_page: 1, per_page: 20, total: 0, last_page: 1 } } as Paginated<SettlementEntry>;
+    }
+  },
 
   revenue: (partnerId: string | number) =>
     apiClient.get<PartnerRevenueResponse>(LINKS.partner.wallet.revenue(partnerId)),

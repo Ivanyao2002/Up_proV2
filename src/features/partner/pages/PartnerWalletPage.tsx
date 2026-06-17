@@ -89,14 +89,14 @@ export function PartnerWalletPage() {
             </Link>
             <Button
               variant="primary"
-              disabled={data.available_fcfa <= 0}
+              disabled={(data.withdrawable_fcfa ?? data.available_fcfa) <= 0}
               onClick={() => setRechargeOpen(true)}
             >
               Recharger un chauffeur
             </Button>
             <Button
               variant="secondary"
-              disabled={data.available_fcfa <= 0}
+              disabled={(data.withdrawable_fcfa ?? data.available_fcfa) <= 0 || (data.daily_cap_fcfa != null && (data.today_withdrawn_fcfa ?? 0) >= data.daily_cap_fcfa)}
               onClick={() => setWithdrawOpen(true)}
             >
               Demander un retrait
@@ -111,14 +111,21 @@ export function PartnerWalletPage() {
           trendPct={0}
           label="Solde total"
         />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <KpiCard
             index={0}
-            label="Disponible"
-            value={formatFCFA(data.available_fcfa)}
+            label="Solde retirable"
+            value={formatFCFA(data.withdrawable_fcfa ?? data.available_fcfa)}
+            hint="Peut être retiré ou utilisé pour recharger"
           />
           <KpiCard
             index={1}
+            label="Solde de service"
+            value={formatFCFA(data.non_withdrawable_fcfa ?? 0)}
+            hint="Crédits plateforme — non retirables"
+          />
+          <KpiCard
+            index={2}
             label="En attente de retrait"
             value={formatFCFA(data.pending_withdrawal_fcfa)}
             hint={
@@ -127,16 +134,22 @@ export function PartnerWalletPage() {
                 : undefined
             }
           />
+          <KpiCard
+            index={3}
+            label="Plafond retrait / jour"
+            value={formatFCFA(data.daily_cap_fcfa ?? 30_000)}
+            hint={`Retiré aujourd'hui : ${formatFCFA(data.today_withdrawn_fcfa ?? 0)}`}
+          />
           {rechargeStats ? (
             <>
               <KpiCard
-                index={2}
+                index={4}
                 label="Recharges chauffeurs (total)"
                 value={formatFCFA(rechargeStats.total_spent_fcfa ?? 0)}
                 hint={`${rechargeStats.transfers_count ?? 0} transfert(s)`}
               />
               <KpiCard
-                index={3}
+                index={5}
                 label="Recharges ce mois"
                 value={formatFCFA(rechargeStats.month_spent_fcfa ?? 0)}
                 hint={`${rechargeStats.month_transfers_count ?? 0} ce mois`}
@@ -193,13 +206,15 @@ export function PartnerWalletPage() {
 
       <PartnerDriverRechargeModal
         open={rechargeOpen}
-        availableFcfa={data.available_fcfa}
+        availableFcfa={data.withdrawable_fcfa ?? data.available_fcfa}
         onClose={() => setRechargeOpen(false)}
       />
 
       <PartnerWalletWithdrawModal
         open={withdrawOpen}
-        availableFcfa={data.available_fcfa}
+        availableFcfa={data.withdrawable_fcfa ?? data.available_fcfa}
+        dailyCapFcfa={data.daily_cap_fcfa}
+        todayWithdrawnFcfa={data.today_withdrawn_fcfa}
         onClose={() => setWithdrawOpen(false)}
       />
     </div>

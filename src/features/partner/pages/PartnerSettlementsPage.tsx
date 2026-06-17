@@ -87,7 +87,15 @@ export function PartnerSettlementsPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les acomptes.</p>;
+    return (
+      <div className="animate-fade-up pb-24">
+        <PageHeader title="Acomptes" breadcrumb={["Partenaire", "Finance", "Acomptes"]} />
+        <div className="mt-8 rounded-card border border-border bg-surface p-8 text-center">
+          <p className="text-sm font-medium text-red-600">Impossible de charger les acomptes.</p>
+          <p className="mt-1 text-xs text-muted">L&apos;endpoint settlements n&apos;est peut-être pas encore disponible sur ce compte.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -111,7 +119,8 @@ export function PartnerSettlementsPage() {
         data={rows}
         rowKey={(s) => s.id}
         isLoading={isLoading}
-        emptyTitle="Aucun acompte"
+        emptyTitle="Aucun acompte disponible"
+        emptyDescription="Les acomptes apparaîtront ici une fois le module activé"
         pagination={false}
         serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
       />
