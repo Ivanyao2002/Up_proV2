@@ -84,7 +84,7 @@ export const COMPTA_NAV: NavGroup[] = [
         label: "Finance opérationnelle",
         path: "/admin/finance",
         icon: "finance",
-        permission: "finance.transactions.view",
+        permission: "ops.dashboard.view",
       },
     ],
   },

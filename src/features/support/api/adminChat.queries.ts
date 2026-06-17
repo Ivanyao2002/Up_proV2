@@ -4,24 +4,35 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminChatKeys } from "./adminChat.keys";
 import { adminChatService } from "./adminChat.service";
 import type { ListParams } from "@/shared/types/listParams";
+import { useChatSocketStore } from "../hooks/useSupportChatSocket";
 
-/** Pas de socket chat documenté — rafraîchissement type « live » par polling. */
+/** Polling actif si le socket chat est indisponible. */
 export const ADMIN_CHAT_POLL_MS = 5_000;
 
+/** Filet de sécurité quand le socket `chat:message` est connecté. */
+export const ADMIN_CHAT_SOCKET_FALLBACK_POLL_MS = 60_000;
+
+function useAdminChatRefetchInterval(): number | false {
+  const socketConnected = useChatSocketStore((s) => s.connected);
+  return socketConnected ? ADMIN_CHAT_SOCKET_FALLBACK_POLL_MS : ADMIN_CHAT_POLL_MS;
+}
+
 export function useAdminSupportChats(params?: ListParams) {
+  const refetchInterval = useAdminChatRefetchInterval();
   return useQuery({
     queryKey: adminChatKeys.list(params),
     queryFn: () => adminChatService.listChats(params),
-    refetchInterval: ADMIN_CHAT_POLL_MS,
+    refetchInterval,
     refetchIntervalInBackground: true,
   });
 }
 
 export function useAdminSupportChat(chatId: string) {
+  const refetchInterval = useAdminChatRefetchInterval();
   return useQuery({
     queryKey: adminChatKeys.detail(chatId),
     queryFn: () => adminChatService.getChat(chatId),
-    refetchInterval: ADMIN_CHAT_POLL_MS,
+    refetchInterval,
     refetchIntervalInBackground: true,
   });
 }

@@ -7,5 +7,5 @@ export default function ComptaLoginLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <GuestGuard portal="admin">{children}</GuestGuard>;
+  return <GuestGuard portal="compta">{children}</GuestGuard>;
 }

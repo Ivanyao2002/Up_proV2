@@ -6,6 +6,8 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { ServicePill } from "@/shared/ui/ServicePill";
+import { KpiCard } from "@/shared/ui/KpiCard";
+import { Button } from "@/shared/ui/Button";
 import { useInitialUrlFilter } from "@/shared/hooks/useInitialUrlFilter";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import {
@@ -21,7 +23,9 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { Trip, TripStatus } from "@/shared/types";
 import { useTripsList } from "../api/trips.queries";
+import { useAdminDashboard } from "../api/dashboard.queries";
 import { AdminTripsFiltersPanel } from "../components/AdminTripsFiltersPanel";
+import { AdminTripsListHero } from "../components/AdminTripsListHero";
 import type { TripsScopeFiltersValue } from "../components/TripsScopeFilters";
 
 const SERVICE_OPTIONS = [
@@ -83,6 +87,7 @@ export function TripsListPage() {
   });
 
   const { data, isLoading, isError } = useTripsList(statusFilter, table.listParams);
+  const { data: dashboard } = useAdminDashboard();
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
@@ -196,50 +201,135 @@ export function TripsListPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les courses.</p>;
+    return (
+      <div className="animate-fade-up">
+        <PageHeader title="Courses" breadcrumb={["Admin", "Opérations"]} />
+        <div className="rounded-card border border-border bg-surface px-6 py-12 text-center shadow-card">
+          <p className="text-sm text-red-600">Impossible de charger les courses.</p>
+          <Button variant="secondary" className="mt-4" onClick={() => window.location.reload()}>
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    );
   }
+
+  const filteredTotal = meta?.total ?? rows.length;
+  const tripsToday = dashboard?.trips_today ?? 0;
 
   return (
     <div className="animate-fade-up">
       <PageHeader title="Courses" breadcrumb={["Admin", "Opérations"]} />
+      <p className="-mt-2 mb-6 text-sm text-muted">
+        Consultez et filtrez l&apos;ensemble des courses du réseau — par statut, service et
+        périmètre.
+      </p>
 
-      <AdminTripsFiltersPanel
-        filterOptions={filterOptions}
-        scope={scope}
-        onScopeChange={setScope}
-        serviceFilter={serviceFilter}
-        onServiceFilterChange={(v) =>
-          setServiceFilter(v as (typeof SERVICE_OPTIONS)[number]["value"])
-        }
-        serviceOptions={SERVICE_OPTIONS}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        statusOptions={STATUS_FILTER_OPTIONS}
-        dateRange={dateRange}
-        search={table.search}
-        onSearchChange={table.setSearch}
-        totalLabel={
-          meta ? `${meta.total.toLocaleString("fr-CI")} courses` : undefined
-        }
-        hasActiveFilters={hasActiveFilters}
-        onResetAll={resetAll}
-      />
+      <div className="animate-stagger space-y-6">
+        <AdminTripsListHero
+          filteredTotal={filteredTotal}
+          rangeLabel={dateRange.rangeLabel ?? "Période sélectionnée"}
+          tripsToday={tripsToday}
+          trendPct={dashboard?.trips_today_trend_pct}
+        />
 
-      <DataTable
-        columns={columns}
-        data={rows}
-        rowKey={(t) => t.id}
-        isLoading={isLoading}
-        exportFileName="courses"
-        emptyTitle="Aucune course"
-        emptyDescription="Aucun résultat pour ces filtres."
-        pagination={false}
-        serverPagination={serverPaginationFromMeta(
-          meta,
-          table.setPage,
-          table.setPageSize
-        )}
-      />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KpiCard
+            index={0}
+            label="En cours aujourd'hui"
+            value={String(dashboard?.trips_in_progress_today ?? "—")}
+            hint={
+              dashboard
+                ? `${dashboard.trips_completed_today} terminées · ${dashboard.trips_cancelled_today} annulées`
+                : "Chargement des indicateurs…"
+            }
+            trend={
+              dashboard && dashboard.trips_in_progress_today > 0 ? "Live" : undefined
+            }
+          />
+          <KpiCard
+            index={1}
+            label="Terminées aujourd'hui"
+            value={String(dashboard?.trips_completed_today ?? "—")}
+            hint="Courses clôturées sur la journée"
+          />
+          <KpiCard
+            index={2}
+            label="Annulées aujourd'hui"
+            value={String(dashboard?.trips_cancelled_today ?? "—")}
+            hint="Courses annulées ou expirées"
+          />
+        </div>
+
+        <section className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
+          <div className="border-b border-border px-4 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-heading">Liste des courses</h2>
+            <p className="mt-0.5 text-xs text-muted">
+              Filtrez par périmètre, statut et période — export CSV disponible
+            </p>
+          </div>
+
+          <div className="border-b border-border px-4 py-4 sm:px-6">
+            <AdminTripsFiltersPanel
+              filterOptions={filterOptions}
+              scope={scope}
+              onScopeChange={setScope}
+              serviceFilter={serviceFilter}
+              onServiceFilterChange={(v) =>
+                setServiceFilter(v as (typeof SERVICE_OPTIONS)[number]["value"])
+              }
+              serviceOptions={SERVICE_OPTIONS}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              statusOptions={STATUS_FILTER_OPTIONS}
+              dateRange={dateRange}
+              search={table.search}
+              onSearchChange={table.setSearch}
+              totalLabel={
+                meta ? `${meta.total.toLocaleString("fr-CI")} courses` : undefined
+              }
+              hasActiveFilters={hasActiveFilters}
+              onResetAll={resetAll}
+            />
+          </div>
+
+          <div className="px-2 pb-2">
+            <DataTable
+              columns={columns}
+              data={rows}
+              rowKey={(t) => t.id}
+              isLoading={isLoading}
+              exportFileName="courses"
+              emptyTitle="Aucune course"
+              emptyDescription="Aucun résultat pour ces filtres. Élargissez la période ou réinitialisez les critères."
+              pagination={false}
+              serverPagination={serverPaginationFromMeta(
+                meta,
+                table.setPage,
+                table.setPageSize
+              )}
+            />
+          </div>
+        </section>
+
+        <nav
+          className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 border-t border-border pt-6 text-xs text-muted"
+          aria-label="Raccourcis opérations"
+        >
+          <span>Aller vers :</span>
+          <Link href="/admin/dashboard" className="font-medium text-teal hover:underline">
+            Tableau de bord
+          </Link>
+          <span aria-hidden>·</span>
+          <Link href="/admin/ops/map" className="font-medium text-teal hover:underline">
+            Carte live
+          </Link>
+          <span aria-hidden>·</span>
+          <Link href="/admin/ops/sos" className="font-medium text-teal hover:underline">
+            SOS Guardian
+          </Link>
+        </nav>
+      </div>
     </div>
   );
 }

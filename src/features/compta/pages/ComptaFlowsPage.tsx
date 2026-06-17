@@ -4,15 +4,23 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
-import { KpiCard } from "@/shared/ui/KpiCard";
+import { Button } from "@/shared/ui/Button";
 import { formatFCFA } from "@/shared/lib/format";
 import { useServerTableState } from "@/shared/hooks/useServerTableState";
+import { ComptaPageHero } from "../components/ComptaPageHero";
 import { ledgerEntryTypeLabel } from "../api/compta.mapper";
 import { useLedgerList } from "../api/ledger.queries";
+import { useComptaMe } from "../api/comptaPortal.queries";
 import type { LedgerFlowRow } from "../api/compta.types";
 
 export function ComptaFlowsPage() {
   const table = useServerTableState([], {});
+  const { data: me } = useComptaMe();
+
+  const countryLabel =
+    me?.accountant?.country?.name ??
+    me?.country?.name ??
+    (me?.admin ? "Tous pays" : undefined);
 
   const { data, isLoading, isError } = useLedgerList({
     ...table.listParams,
@@ -92,40 +100,77 @@ export function ComptaFlowsPage() {
   ];
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger les flux comptables.</p>;
+    return (
+      <div className="animate-fade-up">
+        <PageHeader title="Flux entrées / sorties" breadcrumb={["Comptabilité", "Flux"]} />
+        <div className="rounded-card border border-border bg-surface px-6 py-12 text-center shadow-card">
+          <p className="text-sm text-red-600">Impossible de charger les flux comptables.</p>
+          <Button variant="secondary" className="mt-4" onClick={() => window.location.reload()}>
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="animate-fade-up">
       <PageHeader title="Flux entrées / sorties" breadcrumb={["Comptabilité", "Flux"]} />
-      <p className="mb-6 text-sm text-muted">
-        Agrégation par nature d&apos;écriture sur la période courante (500 dernières lignes ledger).
+      <p className="-mt-2 mb-6 text-sm text-muted">
+        Agrégation par nature d&apos;écriture sur les 500 dernières lignes du journal.
       </p>
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <KpiCard index={0} label="Total entrées" value={formatFCFA(totals.credits)} />
-        <KpiCard index={1} label="Total sorties" value={formatFCFA(totals.debits)} />
-        <KpiCard index={2} label="Solde net" value={formatFCFA(totals.net)} />
+      <div className="animate-stagger space-y-6">
+        <ComptaPageHero
+          kicker="Synthèse des mouvements"
+          title="Flux par nature"
+          description="Visualisez les entrées, sorties et soldes nets regroupés par type d'écriture."
+          countryLabel={countryLabel}
+          variant="charcoal"
+          stats={[
+            { value: formatFCFA(totals.credits), label: "Entrées" },
+            { value: formatFCFA(totals.debits), label: "Sorties" },
+            { value: formatFCFA(totals.net), label: "Solde net" },
+          ]}
+        />
+
+        <section className="rounded-card border border-border bg-surface shadow-card overflow-hidden">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-sm font-semibold text-heading">Détail par nature</h2>
+            <p className="mt-0.5 text-xs text-muted">Export CSV disponible depuis le tableau</p>
+          </div>
+          <div className="px-2 pb-2">
+            <DataTable
+              columns={columns}
+              data={flowRows}
+              rowKey={(row) => row.entry_type}
+              isLoading={isLoading}
+              exportFileName="flux-comptables"
+              emptyTitle="Aucun flux"
+              emptyDescription="Aucun mouvement sur la période analysée."
+              pagination={false}
+            />
+          </div>
+        </section>
+
+        <nav
+          className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 border-t border-border pt-6 text-xs text-muted"
+          aria-label="Raccourcis flux"
+        >
+          <span>Approfondir :</span>
+          <Link href="/compta/ledger" className="font-medium text-teal hover:underline">
+            Journal comptable
+          </Link>
+          <span aria-hidden>·</span>
+          <Link href="/compta/exports" className="font-medium text-teal hover:underline">
+            Exports
+          </Link>
+          <span aria-hidden>·</span>
+          <Link href="/compta" className="font-medium text-teal hover:underline">
+            Tableau de bord
+          </Link>
+        </nav>
       </div>
-
-      <DataTable
-        columns={columns}
-        data={flowRows}
-        rowKey={(row) => row.entry_type}
-        isLoading={isLoading}
-        exportFileName="flux-comptables"
-        emptyTitle="Aucun flux"
-        emptyDescription="Aucun flux sur la période."
-        pagination={false}
-      />
-
-      <p className="mt-4 text-xs text-muted">
-        Pour le détail ligne à ligne, consultez le{" "}
-        <Link href="/compta/ledger" className="text-teal underline">
-          journal comptable
-        </Link>
-        .
-      </p>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { ADMIN_BACKOFFICE_PERMISSIONS } from "./auth.permissions";
 
 const PORTAL_BY_USER_TYPE: Record<string, PortalRole> = {
   ADMIN: "admin",
+  ACCOUNTANT: "compta",
   PARTNER: "partner",
   FRANCHISE: "franchise",
   DRIVER: "dispatch",
@@ -16,6 +17,7 @@ const PORTAL_BY_USER_TYPE: Record<string, PortalRole> = {
 
 const SCOPE_BY_PORTAL: Record<PortalRole, Scope> = {
   admin: "platform",
+  compta: "accountant",
   franchise: "franchise",
   partner: "owner",
   dispatch: "platform",
@@ -34,6 +36,19 @@ function defaultPermissions(portal: PortalRole): string[] {
   switch (portal) {
     case "admin":
       return ADMIN_BACKOFFICE_PERMISSIONS;
+    case "compta":
+      return [
+        "finance.transactions.view",
+        "finance.ledger.view",
+        "finance.wallets.view",
+        "finance.commissions.view",
+        "finance.reconciliation.view",
+        "accounting.export",
+        "accounting.reverse",
+        "accounting.periods.close",
+        "accounting.periods.lock",
+        "accounting.entries.classify",
+      ];
     case "partner":
       return [
         "ops.dashboard.view",
@@ -81,8 +96,8 @@ function extractRefreshToken(data: ApiAuthLoginResponse): string | null {
 
 type ApiAuthUserPayload = Pick<
   ApiAuthLoginResponse,
-  "profile" | "user" | "userType" | "role" | "franchiseMember" | "partner" | "franchise"
->;
+  "profile" | "user" | "userType" | "role" | "franchiseMember" | "partner" | "franchise" | "permissions"
+> & { scope?: string };
 
 function readScopedId(
   payload: Record<string, unknown> | undefined,
@@ -114,6 +129,18 @@ function extractOwnerId(data: ApiAuthUserPayload): string | undefined {
   );
 }
 
+function resolveScope(portal: PortalRole, apiScope?: string): Scope {
+  if (apiScope === "accountant") return "accountant";
+  return SCOPE_BY_PORTAL[portal];
+}
+
+function resolvePermissions(portal: PortalRole, apiPermissions: string[]): string[] {
+  const defaults = defaultPermissions(portal);
+  // Admin back-office : catalogue front complet (l'API peut renvoyer un sous-ensemble).
+  if (portal === "admin") return defaults;
+  return apiPermissions.length > 0 ? apiPermissions : defaults;
+}
+
 function buildUserFromApi(
   data: ApiAuthUserPayload,
   expectedPortal: PortalRole
@@ -143,16 +170,17 @@ function buildUserFromApi(
 
   const franchiseId = extractFranchiseId(data);
   const ownerId = extractOwnerId(data);
+  const apiPermissions = Array.isArray(data.permissions) ? data.permissions : [];
 
   return {
     id: profile?.id ?? "unknown",
     name,
     email,
     role: portal,
-    scope: SCOPE_BY_PORTAL[portal],
+    scope: resolveScope(portal, data.scope),
     franchise_id: franchiseId as unknown as number | undefined,
     owner_id: ownerId as unknown as number | undefined,
-    permissions: defaultPermissions(portal),
+    permissions: resolvePermissions(portal, apiPermissions),
   };
 }
 

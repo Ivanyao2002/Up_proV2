@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "./authStore";
 import { clearAuthCookie, hasAuthCookie, setAuthCookie } from "./authCookie";
@@ -12,6 +12,8 @@ import type { PortalRole } from "@/shared/types";
 
 interface AuthGuardProps {
   portal: PortalRole;
+  /** Rôles additionnels autorisés (ex. admin sur le portail compta). */
+  alsoAllow?: PortalRole[];
   children: ReactNode;
 }
 
@@ -23,13 +25,17 @@ function AuthLoading() {
   );
 }
 
-export function AuthGuard({ portal, children }: AuthGuardProps) {
+export function AuthGuard({ portal, alsoAllow = [], children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const hydrated = useAuthHydrated();
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
   const { isError: meFailed } = useAuthMeQuery();
+  const allowedRoles = useMemo(
+    () => new Set<PortalRole>([portal, ...alsoAllow]),
+    [portal, alsoAllow]
+  );
 
   useEffect(() => {
     if (!meFailed) return;
@@ -48,16 +54,16 @@ export function AuthGuard({ portal, children }: AuthGuardProps) {
       router.replace(buildLoginUrlWithReturn(LOGIN_BY_PORTAL[portal], pathname));
       return;
     }
-    if (user.role !== portal) {
+    if (!allowedRoles.has(user.role)) {
       router.replace(LOGIN_BY_PORTAL[user.role] ?? "/login");
     }
-  }, [hydrated, token, user, portal, router, pathname]);
+  }, [hydrated, token, user, portal, router, pathname, allowedRoles]);
 
   if (!hydrated || !token || !user) {
     return <AuthLoading />;
   }
 
-  if (user.role !== portal) {
+  if (!allowedRoles.has(user.role)) {
     return <AuthLoading />;
   }
 

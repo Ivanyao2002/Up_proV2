@@ -98,16 +98,14 @@ export function ComptaCashReconciliationPanel() {
 
   if (isError) {
     return (
-      <p className="text-sm text-red-600">
-        Impossible de charger les réconciliations cash (GET /v1/admin/cash-reconciliations).
-      </p>
+      <p className="text-sm text-red-600">Impossible de charger les réconciliations cash.</p>
     );
   }
 
   return (
     <div>
       <p className="mb-4 text-sm text-muted">
-        Source API : GET /v1/admin/cash-reconciliations (consultation seule).
+        Rapprochement du cash collecté par chauffeur — consultation seule.
       </p>
       <TableFiltersBar
         search={table.search}

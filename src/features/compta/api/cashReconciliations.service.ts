@@ -1,10 +1,11 @@
-import { LINKS } from "@/core/api/links";
 import { apiClient } from "@/core/http/apiClient";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { mapV1PaginationToMeta } from "@/core/api/v1Pagination";
 import type { Paginated } from "@/shared/types";
 import type { ListParams } from "@/shared/types/listParams";
 import { paginateClientList } from "@/shared/lib/clientList";
+import type { ComptaApiScope } from "./comptaApiScope";
+import { comptaFinanceLinks } from "./comptaApiScope";
 import type { CashReconciliationRow } from "./compta.types";
 
 type AnyRecord = Record<string, unknown>;
@@ -74,9 +75,13 @@ function extractCashRows(payload: unknown): CashReconciliationRow[] {
 }
 
 export const cashReconciliationsService = {
-  listAdmin: async (params?: ListParams): Promise<Paginated<CashReconciliationRow>> => {
+  list: async (
+    scope: ComptaApiScope,
+    params?: ListParams
+  ): Promise<Paginated<CashReconciliationRow>> => {
+    const links = comptaFinanceLinks(scope);
     const response = await apiClient.get<unknown>(
-      `${LINKS.admin.v1.accounting.cashReconciliations}${buildV1ListQuery(params)}`
+      `${links.cashReconciliations}${buildV1ListQuery(params)}`
     );
     const rows = extractCashRows(response);
     const root = asRecord(response);

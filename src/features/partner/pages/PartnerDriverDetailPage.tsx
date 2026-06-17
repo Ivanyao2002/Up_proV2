@@ -16,6 +16,7 @@ import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getTripStatusLabel } from "@/shared/lib/tripLabels";
 import { notificationService } from "@/core/http/notificationService";
 import type { KycDocument } from "@/shared/types";
+import type { DriverKycDocumentType } from "@/shared/types/driverDocuments";
 import {
   usePartnerDriverDetail,
   useUploadPartnerDriverDocument,
@@ -35,8 +36,17 @@ interface PartnerDriverDetailPageProps {
   driverId: string;
 }
 
+function isDriverKycDocumentType(
+  type: KycDocument["type"]
+): type is DriverKycDocumentType {
+  return type === "cni" || type === "license" || type === "selfie";
+}
+
 function canUploadDoc(doc: KycDocument): boolean {
-  return doc.status === "rejected" || !doc.uploaded_at;
+  return (
+    isDriverKycDocumentType(doc.type) &&
+    (doc.status === "rejected" || !doc.uploaded_at)
+  );
 }
 
 export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPageProps) {
@@ -259,6 +269,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
                       canUpload={canUploadDoc(item.document)}
                       uploadHint="PDF ou image · max 5 Mo"
                       onUpload={(file) => {
+                        if (!isDriverKycDocumentType(item.document.type)) return;
                         uploadDoc.mutate(
                           { type: item.document.type, file },
                           {

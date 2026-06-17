@@ -10,7 +10,7 @@ const portals = [
   },
   {
     title: "Comptable",
-    description: "Portail comptabilite (auth admin temporaire)",
+    description: "Comptabilité, clôtures et exports par pays",
     href: "/compta/login",
   },
   {

@@ -3,6 +3,8 @@ import { LINKS } from "@/core/api/links";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyAdminApi } from "@/core/api/v1AdminMode";
 import { fetchFranchiseNameMap } from "@/features/admin/api/adminFilterOptions.service";
+import type { ComptaApiScope } from "@/features/compta/api/comptaApiScope";
+import { comptaFinanceLinks } from "@/features/compta/api/comptaApiScope";
 import type { WithdrawalsResponse } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import type {
@@ -16,18 +18,22 @@ import {
 } from "./adminWithdrawals.mapper";
 
 export const withdrawalsService = {
-  listAdmin: async (params?: ListParams): Promise<WithdrawalsResponse> => {
+  list: async (
+    scope: ComptaApiScope = "admin",
+    params?: ListParams
+  ): Promise<WithdrawalsResponse> => {
     if (useLegacyAdminApi()) {
       return apiClient.get<WithdrawalsResponse>(
         `/admin/finance/withdrawals${buildListQuery(params)}`
       );
     }
 
+    const links = comptaFinanceLinks(scope);
     const [response, franchiseMap] = await Promise.all([
       apiClient.get<ApiAdminWithdrawalsResponse>(
-        `${LINKS.admin.v1.withdrawals}${buildV1ListQuery(params)}`
+        `${links.withdrawals}${buildV1ListQuery(params)}`
       ),
-      fetchFranchiseNameMap(),
+      fetchFranchiseNameMap(scope),
     ]);
 
     return mapAdminWithdrawalsToResponse(
@@ -38,18 +44,20 @@ export const withdrawalsService = {
     );
   },
 
-  getById: async (id: string): Promise<WithdrawalDetail> => {
+  /** @deprecated Préférer `list(scope, params)` */
+  listAdmin: async (params?: ListParams) => withdrawalsService.list("admin", params),
+
+  getById: async (scope: ComptaApiScope, id: string): Promise<WithdrawalDetail> => {
     if (useLegacyAdminApi()) {
       return apiClient.get<WithdrawalDetail>(
         `/admin/finance/withdrawals/${id}`
       );
     }
 
+    const links = comptaFinanceLinks(scope);
     const [response, franchiseMap] = await Promise.all([
-      apiClient.get<ApiAdminWithdrawalDetailResponse>(
-        LINKS.admin.v1.withdrawalById(id)
-      ),
-      fetchFranchiseNameMap(),
+      apiClient.get<ApiAdminWithdrawalDetailResponse>(links.withdrawalById(id)),
+      fetchFranchiseNameMap(scope),
     ]);
 
     if (!response.withdrawal?.id) {

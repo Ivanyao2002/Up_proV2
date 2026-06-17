@@ -1,14 +1,13 @@
 "use client";
 
-import { TransactionsListPage } from "@/features/finance/pages/TransactionsListPage";
+import { ComptaLedgerPage } from "./ComptaLedgerPage";
 
 export function ComptaTransactionsPage() {
   return (
-    <TransactionsListPage
+    <ComptaLedgerPage
       title="Transactions détaillées"
-      subtitle="Consultation lecture seule — même source que le journal opérationnel."
       breadcrumb={["Comptabilité", "Transactions"]}
-      transactionDetailBasePath="/admin/finance/transactions"
+      showReverse={false}
     />
   );
 }

@@ -1,0 +1,61 @@
+---
+description: Formulaires de provisioning Admin Réseau (franchise, partenaire, comptable) — pays, téléphone, mot de passe
+globs: src/features/network/pages/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# Formulaires provisioning — Admin / Réseau
+
+Référence : `PartnerCreatePage`, `FranchiseCreatePage`, `AccountantCreatePage`.
+
+## Sélecteur de pays
+
+- Options catalogue : `{country.label} ({country.dial_code})`.
+- Source : `useCatalogCountries` + `GET /v1/catalog/countries`.
+
+## Téléphone
+
+- **Toujours** `PhoneDialPrefix` (drapeau + indicatif) devant le champ local.
+- Numéro local uniquement ; conversion à l’envoi via `buildInternationalPhone(dialCode, phoneLocal)`.
+- Indicatif dérivé du pays sélectionné (`selectedCountry.dial_code`).
+- Aide sous le champ : « Indicatif déduit du pays sélectionné — saisissez le numéro local uniquement. »
+
+```tsx
+<div className="mt-1 flex overflow-hidden rounded-lg border border-border ring-teal/30 focus-within:ring-2">
+  <PhoneDialPrefix
+    dialCode={dialCode}
+    flagUrl={selectedCountry?.flag_url}
+    countryCode={selectedCountry?.code ?? countryCode}
+  />
+  <input
+    value={phoneLocal}
+    onChange={(e) => setPhoneLocal(e.target.value.replace(/[^\d\s]/g, ""))}
+    placeholder="07 12 34 56 78"
+    inputMode="tel"
+    className="w-full px-3 py-2.5 text-sm outline-none"
+  />
+</div>
+```
+
+## Mot de passe + confirmation (création de compte portail)
+
+- Regrouper dans un `<fieldset>` « Accès portail … » (franchise / partenaire / comptable).
+- Champs : `PasswordInput` avec `autoComplete="new-password"`.
+- **Obligatoire** : `PasswordMatchIndicator` sous « Confirmer le mot de passe ».
+
+```tsx
+<PasswordMatchIndicator
+  className="mt-1"
+  password={password}
+  confirm={passwordConfirm}
+  minLength={8}
+/>
+```
+
+- `minLength` aligné sur la validation backend (8 pour admin/comptable, 6 pour partenaire si applicable).
+
+## Ne pas faire
+
+- Input téléphone nu sans `PhoneDialPrefix` quand un pays catalogue est sélectionné.
+- Paires mot de passe / confirmation sans `PasswordMatchIndicator`.
+- Stocker le numéro local seul dans l’API si le backend attend l’international.

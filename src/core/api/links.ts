@@ -62,9 +62,17 @@ export const LINKS = {
   v1: {
     drivers: {
       me: "/v1/drivers/me",
+      preferences: "/v1/drivers/me/preferences",
+      home: "/v1/drivers/me/home",
+      zoneFilterActivate: "/v1/drivers/me/zone-filter/activate",
+      zoneFilterDeactivate: "/v1/drivers/me/zone-filter/deactivate",
+      headingHomeActivate: "/v1/drivers/me/heading-home/activate",
+      headingHomeDeactivate: "/v1/drivers/me/heading-home/deactivate",
       getById: (id: string) => `${DRIVERS_V1_BASE}/${id}`,
       wallet: (id: string) => `${DRIVERS_V1_BASE}/${id}/wallet`,
       ledger: (id: string) => `${DRIVERS_V1_BASE}/${id}/ledger`,
+      dispatchEligibility: (id: string) =>
+        `${DRIVERS_V1_BASE}/${id}/dispatch-eligibility`,
       onboardingStart: `${DRIVERS_V1_BASE}/onboarding/start`,
     },
     files: {
@@ -118,7 +126,7 @@ export const LINKS = {
       documents: "/v1/kyc/documents",
     },
     catalog: {
-      bootstrap: "/v1/catalog/bootstrap",
+      countries: "/v1/catalog/countries",
       documentTypes: "/v1/catalog/document-types",
       countryCities: (countryCode: string) =>
         `/v1/catalog/countries/${countryCode}/cities`,
@@ -127,6 +135,7 @@ export const LINKS = {
       vehicleBrandModels: (brandCode: string) =>
         `/v1/catalog/vehicle-brands/${brandCode}/models`,
       vehicleColors: "/v1/catalog/vehicle-colors",
+      zones: "/v1/catalog/zones",
     },
   },
 
@@ -156,6 +165,34 @@ export const LINKS = {
       logout: "/auth/logout",
       forgotPassword: "/auth/forgot-password",
       me: "/me",
+    },
+  },
+
+  /** Portail comptable — `/v1/compta/*` (voir docs/comptables.md) */
+  compta: {
+    v1: {
+      me: "/v1/compta/me",
+      dashboard: "/v1/compta/dashboard",
+      ledger: "/v1/compta/ledger",
+      ledgerExport: "/v1/compta/ledger/export",
+      ledgerById: (id: string) => `/v1/compta/ledger/${id}`,
+      ledgerReverse: (id: string) => `/v1/compta/ledger/${id}/reverse`,
+      periods: "/v1/compta/periods",
+      closePeriod: "/v1/compta/periods/close",
+      periodById: (id: string) => `/v1/compta/periods/${id}`,
+      periodLock: (id: string) => `/v1/compta/periods/${id}/lock`,
+      commissions: "/v1/compta/commissions",
+      wallets: "/v1/compta/wallets",
+      transactions: "/v1/compta/transactions",
+      transactionById: (id: string) => `/v1/compta/transactions/${id}`,
+      reconciliation: "/v1/compta/reconciliation",
+      cashReconciliations: "/v1/compta/cash-reconciliations",
+      withdrawals: "/v1/compta/withdrawals",
+      withdrawalById: (id: string) => `/v1/compta/withdrawals/${id}`,
+      driverTransfers: "/v1/compta/driver-transfers",
+      driverTransferStats: "/v1/compta/driver-transfers/stats",
+      filterOptions: "/v1/compta/filter-options",
+      reportsExport: "/v1/compta/reports/export",
     },
   },
 
@@ -236,6 +273,13 @@ export const LINKS = {
         cashReconciliations: `${ADMIN_V1_BASE}/cash-reconciliations`,
         cashReconciliationReview: (id: string) =>
           `${ADMIN_V1_BASE}/cash-reconciliations/${id}/review`,
+      },
+      accountants: {
+        list: `${ADMIN_V1_BASE}/accountants`,
+        create: `${ADMIN_V1_BASE}/accountants`,
+        getById: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}`,
+        suspend: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/suspend`,
+        activate: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/activate`,
       },
       reportsExport: `${ADMIN_V1_BASE}/reports/export`,
       bonusRules: `${ADMIN_V1_BASE}/bonus-rules`,

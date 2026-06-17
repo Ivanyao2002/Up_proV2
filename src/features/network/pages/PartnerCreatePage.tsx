@@ -5,22 +5,25 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { PasswordInput } from "@/shared/ui/PasswordInput";
+import { PasswordMatchIndicator } from "@/shared/ui/PasswordMatchIndicator";
 import { CountryFlag } from "@/shared/ui/CountryFlag";
 import { PhoneDialPrefix } from "@/shared/ui/PhoneDialPrefix";
 import {
   buildInternationalPhone,
-  fetchBootstrapFoundation,
+  resolveCountryCodeFromCityLabel,
 } from "@/core/api/catalogLookup.service";
 import { useLegacyAdminApi } from "@/core/api/v1AdminMode";
 import { useFranchiseDetail } from "../api/franchiseDetail.queries";
 import {
-  useBootstrapCountries,
+  useCatalogCountries,
   useCountryCities,
   useFranchisesList,
 } from "../api/franchises.queries";
 import { useCreatePartner } from "../api/partners.queries";
 import {
   DEFAULT_PARTNER_TYPE,
+  DEFAULT_PARTNER_COMMISSION_RATE_PERCENT,
   PARTNER_TYPE_OPTIONS,
   type PartnerType,
 } from "../lib/partnerType";
@@ -38,7 +41,7 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
     useFranchiseDetail(lockedFranchiseId ?? "");
   const { data: franchises } = useFranchisesList();
   const { data: countries = [], isLoading: countriesLoading } =
-    useBootstrapCountries(!legacy);
+    useCatalogCountries(!legacy);
   const create = useCreatePartner();
 
   const [name, setName] = useState("");
@@ -53,7 +56,9 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [partnerType, setPartnerType] = useState<PartnerType>(DEFAULT_PARTNER_TYPE);
-  const [commissionRate, setCommissionRate] = useState("");
+  const [commissionRate, setCommissionRate] = useState(
+    String(DEFAULT_PARTNER_COMMISSION_RATE_PERCENT)
+  );
   const [errors, setErrors] = useState<string[]>([]);
 
   const selectedFranchise = useMemo(() => {
@@ -110,19 +115,9 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
     if (legacy || locked || !franchiseCityHint || countryCode) return;
     let cancelled = false;
     void (async () => {
-      const foundation = await fetchBootstrapFoundation();
-      if (cancelled) return;
-      const normalized = franchiseCityHint.toLowerCase();
-      const catalogCity =
-        foundation.cities.find((item) => item.label.toLowerCase() === normalized) ??
-        foundation.cities.find((item) =>
-          item.label.toLowerCase().includes(normalized)
-        );
-      if (!catalogCity) return;
-      const country = foundation.countries.find(
-        (item) => item.id === catalogCity.country_id
-      );
-      if (country?.code) setCountryCode(country.code);
+      const code = await resolveCountryCodeFromCityLabel(franchiseCityHint);
+      if (cancelled || !code) return;
+      setCountryCode(code);
     })();
     return () => {
       cancelled = true;
@@ -177,6 +172,8 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
       if (Number.isNaN(rate) || rate < 0 || rate > 100) {
         next.push("Le taux de commission doit être entre 0 et 100 %.");
       }
+    } else {
+      next.push("Le taux de commission est requis.");
     }
     setErrors(next);
     if (next.length) return;
@@ -197,9 +194,7 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
             : "",
         address: address.trim() || undefined,
         partner_type: partnerType,
-        commission_rate: commissionRate.trim()
-          ? Number(commissionRate.replace(",", "."))
-          : undefined,
+        commission_rate: Number(commissionRate.replace(",", ".")),
       },
       {
         onSuccess: (data) => {
@@ -320,7 +315,7 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
                 </option>
                 {countries.map((country) => (
                   <option key={country.id} value={country.code}>
-                    {country.label}
+                    {country.label} ({country.dial_code})
                   </option>
                 ))}
               </select>
@@ -407,9 +402,12 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
             step={0.1}
             value={commissionRate}
             onChange={(e) => setCommissionRate(e.target.value)}
-            placeholder="Optionnel"
+            placeholder={`Défaut ${DEFAULT_PARTNER_COMMISSION_RATE_PERCENT} %`}
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
           />
+          <p className="mt-1 text-xs text-muted">
+            Valeur par défaut : {DEFAULT_PARTNER_COMMISSION_RATE_PERCENT} % (part partenaire sur la commission globale).
+          </p>
         </label>
 
         <fieldset className="space-y-4 rounded-lg border border-border bg-canvas/40 p-4">
@@ -433,25 +431,26 @@ export function PartnerCreatePage({ lockedFranchiseId }: PartnerCreatePageProps)
           </label>
           <label className="block">
             <span className="text-sm font-medium">Mot de passe</span>
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
             />
           </label>
           <label className="block">
             <span className="text-sm font-medium">Confirmer le mot de passe</span>
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="new-password"
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
+            />
+            <PasswordMatchIndicator
+              className="mt-1"
+              password={password}
+              confirm={passwordConfirm}
             />
           </label>
         </fieldset>

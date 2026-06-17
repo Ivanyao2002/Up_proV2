@@ -11,7 +11,8 @@
     "audit:backend": "node scripts/audit-backend-demandes.mjs",
     "vercel:login": "vercel login",
     "vercel:link": "vercel link",
-    "deploy:vercel": "vercel --prod --yes"
+    "deploy:vercel": "vercel --prod --yes",
+    "guide:report": "node scripts/generate-user-guide-report.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",

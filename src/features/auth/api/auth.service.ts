@@ -10,7 +10,7 @@ import type {
 } from "./auth.types";
 import { mapApiLoginToAuthSession, mapApiMeToUser } from "./auth.mapper";
 
-export type LoginPortal = "admin" | "partner" | "franchise" | "dispatch";
+export type LoginPortal = "admin" | "compta" | "partner" | "franchise" | "dispatch";
 
 export interface LoginPayload {
   portal: LoginPortal;
@@ -19,8 +19,9 @@ export interface LoginPayload {
 }
 
 const V1_LOGIN_BY_PORTAL: Record<LoginPortal, string> = {
-  /** Route admin unique — rôle déduit via `profiles.user_type` (pas /auth/partner|franchise/login) */
+  /** Rôle déduit via `profiles.user_type` (POST /v1/auth/login). */
   admin: LINKS.auth.v1.login,
+  compta: LINKS.auth.v1.login,
   partner: LINKS.auth.v1.login,
   franchise: LINKS.auth.v1.login,
   dispatch: LINKS.auth.v1.driverLogin,

@@ -9,16 +9,9 @@ import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 import { useLoginMutation } from "../api/auth.mutations";
 
 export function ComptaLoginPage() {
-  const [email, setEmail] = useState(
-    process.env.NEXT_PUBLIC_DEV_ADMIN_EMAIL ?? "dev.admin@upjunoo-dev.tech"
-  );
-  const [password, setPassword] = useState(
-    process.env.NEXT_PUBLIC_DEV_ADMIN_PASSWORD ?? "Upjunoo@Dev2026!"
-  );
-  const login = useLoginMutation("admin", {
-    fallbackPath: "/compta",
-    returnPortal: "admin",
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const login = useLoginMutation("compta");
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-canvas p-6">
@@ -30,7 +23,7 @@ export function ComptaLoginPage() {
             Connexion comptable
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Portail comptabilite · auth admin temporaire
+            Portail comptabilité · accès réservé aux comptables
           </p>
         </div>
 
@@ -68,7 +61,7 @@ export function ComptaLoginPage() {
           </Button>
           <p className="text-right">
             <Link href="/admin/forgot-password" className="text-xs text-teal hover:underline">
-              Mot de passe oublie ?
+              Mot de passe oublié ?
             </Link>
           </p>
         </form>

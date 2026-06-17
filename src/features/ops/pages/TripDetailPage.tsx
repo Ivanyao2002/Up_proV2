@@ -18,6 +18,7 @@ import { useTripDriverLiveLocation } from "../hooks/useTripDriverLiveLocation";
 import { adminPaths } from "@/core/routes/adminPaths";
 import { formatDateTime } from "@/shared/lib/format";
 import { TripFinancePanel } from "@/shared/finance/TripFinancePanel";
+
 interface TripDetailPageProps {
   tripId: string;
 }

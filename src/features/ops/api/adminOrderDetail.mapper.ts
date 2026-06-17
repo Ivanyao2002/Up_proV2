@@ -10,6 +10,7 @@ import {
   mapApiOrderStatus,
   mapApiPaymentMethod,
   mapApiServiceType,
+  normalizeApiServiceType,
   orderRef,
   resolveOrderClientId,
 } from "@/features/admin/api/adminOrder.shared";
@@ -96,7 +97,6 @@ function resolveOrderDriverName(
 
   return (
     ride.driver?.displayName ??
-    ride.driver?.name ??
     undefined
   );
 }
@@ -373,6 +373,9 @@ export function mapAdminOrderDetailToTripDetail(
     id: ride.id,
     ref: payload.ref ?? orderRef(ride),
     service: mapApiServiceType(ride.service_type ?? payload.serviceType),
+    api_service_type: normalizeApiServiceType(
+      ride.service_type ?? payload.serviceType
+    ),
     from_label: ride.pickup_address ?? "Prise en charge",
     to_label: ride.dropoff_address ?? "Destination",
     from_coords: readCoord(ride.pickup_latitude, ride.pickup_longitude),

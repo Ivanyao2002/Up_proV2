@@ -1,6 +1,6 @@
-export type Scope = "platform" | "franchise" | "owner";
+export type Scope = "platform" | "franchise" | "owner" | "accountant";
 
-export type PortalRole = "admin" | "partner" | "franchise" | "dispatch";
+export type PortalRole = "admin" | "compta" | "partner" | "franchise" | "dispatch";
 
 export interface User {
   id: string | number;
@@ -129,6 +129,8 @@ export interface TripDetail extends Trip {
   franchise_name?: string;
   estimated_arrival_at?: string;
   timeline: TripTimelineEvent[];
+  /** Type service API (`RIDE`, `DELIVERY_CARGO`, …) pour routes dispatch. */
+  api_service_type?: string;
 }
 
 export interface Franchise {
@@ -333,7 +335,7 @@ export interface Driver {
   zone: string;
   owner_name?: string;
   vehicle_label?: string;
-  ride_category_code?: string;
+  ride_category_code?: string | null;
   account_status: "pending" | "approved" | "suspended" | "banned";
   availability: "offline" | "online" | "on_trip" | "paused";
   franchise_id?: number | string;

@@ -29,7 +29,7 @@ import {
 export type FranchiseCreatePayload = {
   name: string;
   city: string;
-  /** UUID ville catalogue bootstrap — prioritaire sur `city` (libellé). */
+  /** UUID ville catalogue — prioritaire sur `city` (libellé). */
   city_id?: string;
   /** Code pays ISO (ex. CI) — dérivé de la ville sélectionnée. */
   country_code?: string;
@@ -75,7 +75,7 @@ export const franchisesService = {
         return mapV1FranchisesToPaginated(items, params, native.pagination);
       }
     } catch {
-      // Fallback dashboard + bootstrap villes
+      // Fallback dashboard + villes catalogue
     }
 
     const [dashboard, cityById] = await Promise.all([

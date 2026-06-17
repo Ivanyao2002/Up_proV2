@@ -8,7 +8,7 @@ export function ComptaWithdrawalsPage() {
       title="Retraits"
       breadcrumb={["Comptabilité", "Retraits"]}
       readOnly
-      detailBasePath="/admin/finance/withdrawals"
+      detailBasePath="/compta/withdrawals"
     />
   );
 }

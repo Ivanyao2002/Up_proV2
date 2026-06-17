@@ -33,6 +33,24 @@ export function mapApiServiceType(code?: string | null): Trip["service"] {
   return SERVICE_MAP[key] ?? "taxi";
 }
 
+const API_SERVICE_TYPE_MAP: Record<Trip["service"], string> = {
+  taxi: "RIDE",
+  delivery: "DELIVERY_CARGO",
+  rental: "RENTAL",
+  freight: "FREIGHT",
+};
+
+/** Code API dispatch / orders (`RIDE`, `DELIVERY_CARGO`, …). */
+export function toApiServiceType(service: Trip["service"]): string {
+  return API_SERVICE_TYPE_MAP[service] ?? "RIDE";
+}
+
+export function normalizeApiServiceType(code?: string | null): string {
+  const key = String(code ?? "RIDE").toUpperCase();
+  if (key in SERVICE_MAP) return key;
+  return toApiServiceType(mapApiServiceType(code));
+}
+
 const STATUS_MAP: Record<string, TripStatus> = {
   requested: "requested",
   dispatching: "matching",

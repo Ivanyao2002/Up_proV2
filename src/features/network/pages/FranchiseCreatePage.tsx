@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { PasswordInput } from "@/shared/ui/PasswordInput";
+import { PasswordMatchIndicator } from "@/shared/ui/PasswordMatchIndicator";
 import { PhoneDialPrefix } from "@/shared/ui/PhoneDialPrefix";
 import { buildInternationalPhone } from "@/core/api/catalogLookup.service";
 import { useLegacyAdminApi } from "@/core/api/v1AdminMode";
 import type { Franchise } from "@/shared/types";
 import {
-  useBootstrapCountries,
+  useCatalogCountries,
   useCountryCities,
   useCreateFranchise,
 } from "../api/franchises.queries";
@@ -20,7 +22,7 @@ export function FranchiseCreatePage() {
   const legacy = useLegacyAdminApi();
   const create = useCreateFranchise();
   const { data: countries = [], isLoading: countriesLoading } =
-    useBootstrapCountries(!legacy);
+    useCatalogCountries(!legacy);
 
   const [name, setName] = useState("");
   const [city, setCity] = useState("Abidjan");
@@ -278,25 +280,27 @@ export function FranchiseCreatePage() {
           </p>
           <label className="block">
             <span className="text-sm font-medium">Mot de passe admin</span>
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="new-password"
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
               minLength={8}
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
             />
           </label>
           <label className="block">
             <span className="text-sm font-medium">Confirmer le mot de passe</span>
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="new-password"
               value={adminPasswordConfirm}
               onChange={(e) => setAdminPasswordConfirm(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
+            />
+            <PasswordMatchIndicator
+              className="mt-1"
+              password={adminPassword}
+              confirm={adminPasswordConfirm}
+              minLength={8}
             />
           </label>
         </fieldset>

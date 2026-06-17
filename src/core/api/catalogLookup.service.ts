@@ -17,12 +17,15 @@ export interface CatalogCity {
   country_id: string;
 }
 
-export interface BootstrapFoundation {
+export interface CatalogFoundation {
   countries: CatalogCountry[];
   cities: CatalogCity[];
 }
 
-interface BootstrapCountry {
+/** @deprecated Alias — préférer `CatalogFoundation`. */
+export type BootstrapFoundation = CatalogFoundation;
+
+interface CatalogCountryRow {
   id: string;
   code?: string | null;
   dial_code?: string | null;
@@ -32,7 +35,7 @@ interface BootstrapCountry {
   active?: boolean;
 }
 
-interface BootstrapCity {
+interface CatalogCityRow {
   id: string;
   country_id?: string | null;
   label?: string | null;
@@ -40,20 +43,23 @@ interface BootstrapCity {
   active?: boolean;
 }
 
-interface CatalogBootstrapResponse {
-  catalogs?: {
-    foundation?: {
-      countries?: BootstrapCountry[];
-      cities?: BootstrapCity[];
-    };
-  };
+interface CatalogCountriesResponse {
+  status?: string;
+  items?: CatalogCountryRow[];
 }
 
-let foundationCache: BootstrapFoundation | null = null;
+interface CountryCitiesResponse {
+  status?: string;
+  country?: CatalogCountryRow;
+  items?: CatalogCityRow[];
+}
+
+let countriesCache: CatalogCountry[] | null = null;
+let foundationCache: CatalogFoundation | null = null;
 let cityByIdCache: Map<string, string> | null = null;
 let franchiseNameByIdCache: Map<string, string> | null = null;
 
-function mapBootstrapCountry(country: BootstrapCountry): CatalogCountry | null {
+function mapCatalogCountry(country: CatalogCountryRow): CatalogCountry | null {
   const label = country.label_fr?.trim() || country.label_en?.trim() || country.code?.trim();
   if (!country.id || !label || !country.dial_code?.trim()) return null;
   return {
@@ -65,58 +71,41 @@ function mapBootstrapCountry(country: BootstrapCountry): CatalogCountry | null {
   };
 }
 
-function mapBootstrapCity(city: BootstrapCity): CatalogCity | null {
+function mapCatalogCity(city: CatalogCityRow, countryIdFallback = ""): CatalogCity | null {
   const label = city.label?.trim() || city.slug?.trim();
-  if (!city.id || !label || !city.country_id) return null;
+  const countryId = city.country_id?.trim() || countryIdFallback;
+  if (!city.id || !label || !countryId) return null;
   return {
     id: city.id,
     label,
     slug: city.slug ?? null,
-    country_id: city.country_id,
+    country_id: countryId,
   };
 }
 
-/** Pays + villes depuis `GET /v1/catalog/bootstrap`. */
-export async function fetchBootstrapFoundation(): Promise<BootstrapFoundation> {
-  if (foundationCache) return foundationCache;
+function sortCities(cities: CatalogCity[]): CatalogCity[] {
+  return [...cities].sort((a, b) => a.label.localeCompare(b.label, "fr"));
+}
 
-  const boot = await apiClient.get<CatalogBootstrapResponse>(
-    LINKS.v1.catalog.bootstrap
+/** Liste des pays via `GET /v1/catalog/countries`. */
+export async function fetchCatalogCountries(): Promise<CatalogCountry[]> {
+  if (countriesCache) return countriesCache;
+
+  const response = await apiClient.get<CatalogCountriesResponse>(
+    LINKS.v1.catalog.countries
   );
-  const foundation = boot.catalogs?.foundation;
 
-  const countries = (foundation?.countries ?? [])
+  countriesCache = (response.items ?? [])
     .filter((item) => item.active !== false)
-    .map(mapBootstrapCountry)
+    .map(mapCatalogCountry)
     .filter((item): item is CatalogCountry => item !== null)
     .sort((a, b) => a.label.localeCompare(b.label, "fr"));
 
-  const cities = (foundation?.cities ?? [])
-    .filter((item) => item.active !== false)
-    .map(mapBootstrapCity)
-    .filter((item): item is CatalogCity => item !== null)
-    .sort((a, b) => a.label.localeCompare(b.label, "fr"));
-
-  foundationCache = { countries, cities };
-  cityByIdCache = new Map(cities.map((city) => [city.id, city.label]));
-  return foundationCache;
+  return countriesCache;
 }
 
-/** Liste des villes depuis le bootstrap (tri alphabétique). */
-export async function fetchBootstrapCities(): Promise<CatalogCity[]> {
-  return (await fetchBootstrapFoundation()).cities;
-}
-
-/** Liste des pays depuis le bootstrap (tri alphabétique). */
-export async function fetchBootstrapCountries(): Promise<CatalogCountry[]> {
-  return (await fetchBootstrapFoundation()).countries;
-}
-
-interface CountryCitiesResponse {
-  status?: string;
-  country?: BootstrapCountry;
-  items?: BootstrapCity[];
-}
+/** @deprecated Utiliser `fetchCatalogCountries`. */
+export const fetchBootstrapCountries = fetchCatalogCountries;
 
 /** Villes d'un pays via `GET /v1/catalog/countries/{code}/cities?q=`. */
 export async function fetchCitiesByCountryCode(
@@ -130,16 +119,65 @@ export async function fetchCitiesByCountryCode(
   );
 
   const countryId = response.country?.id ?? "";
-  return (response.items ?? [])
-    .filter((item) => item.active !== false)
-    .map((item) =>
-      mapBootstrapCity({
-        ...item,
-        country_id: item.country_id ?? countryId,
-      })
-    )
-    .filter((item): item is CatalogCity => item !== null)
-    .sort((a, b) => a.label.localeCompare(b.label, "fr"));
+  return sortCities(
+    (response.items ?? [])
+      .filter((item) => item.active !== false)
+      .map((item) => mapCatalogCity(item, countryId))
+      .filter((item): item is CatalogCity => item !== null)
+  );
+}
+
+async function fetchAllCatalogCities(
+  countries: CatalogCountry[]
+): Promise<CatalogCity[]> {
+  const batches = await Promise.all(
+    countries
+      .filter((country) => country.code.trim())
+      .map((country) => fetchCitiesByCountryCode(country.code))
+  );
+  return sortCities(batches.flat());
+}
+
+/** Pays + toutes les villes (routes catalogue dédiées, sans bootstrap). */
+export async function fetchCatalogFoundation(): Promise<CatalogFoundation> {
+  if (foundationCache) return foundationCache;
+
+  const countries = await fetchCatalogCountries();
+  const cities = await fetchAllCatalogCities(countries);
+
+  foundationCache = { countries, cities };
+  cityByIdCache = new Map(cities.map((city) => [city.id, city.label]));
+  return foundationCache;
+}
+
+/** @deprecated Utiliser `fetchCatalogFoundation`. */
+export const fetchBootstrapFoundation = fetchCatalogFoundation;
+
+/** Toutes les villes catalogue (agrégation par pays). */
+export async function fetchCatalogCities(): Promise<CatalogCity[]> {
+  return (await fetchCatalogFoundation()).cities;
+}
+
+/** @deprecated Utiliser `fetchCatalogCities`. */
+export const fetchBootstrapCities = fetchCatalogCities;
+
+/** Déduit le code pays ISO depuis un libellé de ville (ex. « Abidjan » → `CI`). */
+export async function resolveCountryCodeFromCityLabel(
+  cityLabel: string
+): Promise<string | undefined> {
+  const normalized = cityLabel.trim().toLowerCase();
+  if (!normalized || normalized === "—") return undefined;
+
+  const countries = await fetchCatalogCountries();
+  for (const country of countries) {
+    if (!country.code.trim()) continue;
+    const cities = await fetchCitiesByCountryCode(country.code);
+    const match =
+      cities.find((item) => item.label.toLowerCase() === normalized) ??
+      cities.find((item) => item.label.toLowerCase().includes(normalized));
+    if (match) return country.code;
+  }
+  return undefined;
 }
 
 export function buildInternationalPhone(
@@ -174,7 +212,7 @@ export function extractLocalPhonePart(
 
 /** Pays catalogue déduit du contexte partenaire (franchise, ville). */
 export function resolveCatalogCountryForPartner(
-  foundation: BootstrapFoundation,
+  foundation: CatalogFoundation,
   options: {
     franchiseCountryId?: string | null;
     cityId?: string | null;
@@ -219,7 +257,7 @@ export async function resolveCityIdByLabel(
   const normalized = cityLabel.trim().toLowerCase();
   if (!normalized) return undefined;
 
-  const cities = await fetchBootstrapCities();
+  const cities = await fetchCatalogCities();
   const exact = cities.find((city) => city.label.toLowerCase() === normalized);
   if (exact) return exact.id;
 
@@ -230,7 +268,7 @@ export async function resolveCityIdByLabel(
 
 export async function fetchCityLabelById(): Promise<Map<string, string>> {
   if (cityByIdCache) return cityByIdCache;
-  const cities = await fetchBootstrapCities();
+  const cities = await fetchCatalogCities();
   cityByIdCache = new Map(cities.map((city) => [city.id, city.label]));
   return cityByIdCache;
 }
@@ -266,7 +304,11 @@ export async function fetchNetworkLookups(): Promise<{
   return { cityById, franchiseNameById };
 }
 
-export function clearBootstrapFoundationCache(): void {
+export function clearCatalogFoundationCache(): void {
+  countriesCache = null;
   foundationCache = null;
   cityByIdCache = null;
 }
+
+/** @deprecated Utiliser `clearCatalogFoundationCache`. */
+export const clearBootstrapFoundationCache = clearCatalogFoundationCache;

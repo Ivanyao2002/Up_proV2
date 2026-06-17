@@ -2,6 +2,7 @@
 
 export type ApiUserType =
   | "ADMIN"
+  | "ACCOUNTANT"
   | "PARTNER"
   | "FRANCHISE"
   | "DRIVER"
@@ -42,6 +43,7 @@ export interface ApiAuthLoginResponse {
   role?: string;
   userType?: ApiUserType;
   permissions?: string[];
+  scope?: string;
   session?: ApiAuthSessionPayload;
   user?: Record<string, unknown>;
   accessToken?: string;

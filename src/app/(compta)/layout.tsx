@@ -9,7 +9,7 @@ export default function ComptaPortalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthGuard portal="admin">
+    <AuthGuard portal="compta" alsoAllow={["admin"]}>
       <ComptaShell>{children}</ComptaShell>
     </AuthGuard>
   );

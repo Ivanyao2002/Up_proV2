@@ -65,6 +65,12 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "partners",
         permission: "network.partners.view",
       },
+      {
+        label: "Comptables",
+        path: "/admin/network/accountants",
+        icon: "reports",
+        permission: "network.franchises.view",
+      },
     ],
   },
   {

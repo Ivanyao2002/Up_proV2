@@ -14,7 +14,7 @@ import {
   useResolveSos,
   useSosIncidentDetail,
 } from "../api/sos.queries";
-import { SosIncidentMap } from "../components/SosIncidentMap";
+import { SosIncidentMap, SosIncidentMapLegend } from "../components/SosIncidentMap";
 import { SosRiskMeter } from "../components/SosRiskMeter";
 import { SosSeverityBadge } from "../components/SosSeverityBadge";
 import { SosStatusPill } from "../components/SosStatusPill";
@@ -170,12 +170,29 @@ export function SosIncidentDetailPage({ incidentId }: SosIncidentDetailPageProps
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
-          <SosIncidentMap
-            latitude={lat}
-            longitude={lng}
-            locations={locations}
-            className="min-h-[320px]"
-          />
+          <section className="rounded-card border border-border bg-surface p-5 shadow-card">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-sm font-semibold text-heading">Position & historique GPS</h2>
+                <p className="mt-0.5 text-xs text-muted">
+                  Tracé et points horodatés directement sur la carte
+                </p>
+              </div>
+              {locations.length > 0 ? (
+                <span className="rounded-full bg-canvas px-2.5 py-1 text-xs font-medium text-muted">
+                  {locations.length} position{locations.length > 1 ? "s" : ""}
+                </span>
+              ) : null}
+            </div>
+
+            <SosIncidentMap
+              latitude={lat}
+              longitude={lng}
+              locations={locations}
+              className="min-h-[360px]"
+            />
+            <SosIncidentMapLegend locations={locations} />
+          </section>
 
           {incident.message ? (
             <section className="rounded-card border border-border bg-surface p-5 shadow-card">
@@ -197,21 +214,38 @@ export function SosIncidentDetailPage({ incidentId }: SosIncidentDetailPageProps
 
           {locations.length > 0 ? (
             <section className="rounded-card border border-border bg-surface p-5 shadow-card">
-              <h2 className="text-sm font-semibold text-heading">
-                Historique positions
-              </h2>
+              <h2 className="text-sm font-semibold text-heading">Historique positions</h2>
+              <p className="mt-1 text-xs text-muted">
+                Détail horodaté — les points sont visibles sur la carte ci-dessus
+              </p>
               <ul className="mt-3 divide-y divide-border">
-                {locations.map((point) => (
+                {[...locations]
+                  .sort(
+                    (a, b) =>
+                      new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
+                  )
+                  .map((point, index, sorted) => (
                   <li
                     key={point.id}
                     className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm first:pt-0"
                   >
-                    <span className="font-mono text-xs text-muted">
-                      {point.latitude.toFixed(5)}, {point.longitude.toFixed(5)}
+                    <span className="inline-flex items-center gap-2">
+                      <span
+                        className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold text-white ${
+                          index === 0
+                            ? "bg-teal"
+                            : index === sorted.length - 1
+                              ? "bg-red-600"
+                              : "bg-slate-500"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="font-mono text-xs text-muted">
+                        {point.latitude.toFixed(5)}, {point.longitude.toFixed(5)}
+                      </span>
                     </span>
-                    <span className="text-muted">
-                      {formatDateTime(point.recorded_at)}
-                    </span>
+                    <span className="text-muted">{formatDateTime(point.recorded_at)}</span>
                   </li>
                 ))}
               </ul>

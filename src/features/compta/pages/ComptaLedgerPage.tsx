@@ -6,7 +6,6 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { FilterChips } from "@/shared/ui/FilterChips";
-import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
@@ -19,12 +18,15 @@ import {
   type TripsScopeFiltersValue,
 } from "@/features/ops/components/TripsScopeFilters";
 import { ReverseLedgerModal } from "../components/ReverseLedgerModal";
+import { ComptaPageHero } from "../components/ComptaPageHero";
 import {
   ledgerEntryTypeLabel,
   ledgerSourceTypeLabel,
   ledgerStatusLabel,
 } from "../api/compta.mapper";
 import { useLedgerExport, useLedgerList, useReverseLedgerEntry } from "../api/ledger.queries";
+import { useComptaMe } from "../api/comptaPortal.queries";
+import { useComptaApiScope } from "../api/useComptaApiScope";
 import type { LedgerEntry } from "../api/compta.types";
 
 const DIRECTION_FILTERS = [
@@ -51,15 +53,23 @@ const ENTRY_TYPE_FILTERS = [
 
 export function ComptaLedgerPage({
   title = "Journal comptable",
-  breadcrumb = ["Comptabilité", "Ledger"],
-  transactionsHref = "/compta/transactions",
+  breadcrumb = ["Comptabilité", "Journal"],
+  transactionsHref,
   showReverse = true,
 }: {
   title?: string;
   breadcrumb?: string[];
+  /** Lien croisé journal ↔ transactions (admin : `/admin/finance/transactions`). */
   transactionsHref?: string;
   showReverse?: boolean;
 } = {}) {
+  const apiScope = useComptaApiScope();
+  const isPortal = apiScope === "portal";
+  const { data: me } = useComptaMe();
+  const countryLabel =
+    me?.accountant?.country?.name ??
+    me?.country?.name ??
+    (me?.admin ? "Tous pays" : undefined);
   const [directionFilter, setDirectionFilter] = useState<"all" | "credit" | "debit">("all");
   const [bucketFilter, setBucketFilter] = useState<"all" | "WITHDRAWABLE" | "NON_WITHDRAWABLE">(
     "all"
@@ -210,10 +220,28 @@ export function ComptaLedgerPage({
     },
   };
 
+  const crossLinkHref =
+    transactionsHref ??
+    (title === "Journal comptable" ? "/compta/transactions" : "/compta/ledger");
+  const crossLinkLabel =
+    title === "Journal comptable"
+      ? "Voir les transactions détaillées"
+      : "Voir le journal comptable";
+
   const columns = showReverse ? [...baseColumns, actionsColumn] : baseColumns;
 
   if (isError) {
-    return <p className="text-sm text-red-600">Impossible de charger le journal comptable.</p>;
+    return (
+      <div className="animate-fade-up">
+        <PageHeader title={title} breadcrumb={breadcrumb} />
+        <div className="rounded-card border border-border bg-surface px-6 py-12 text-center shadow-card">
+          <p className="text-sm text-red-600">Impossible de charger le journal comptable.</p>
+          <Button variant="secondary" className="mt-4" onClick={() => window.location.reload()}>
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -227,93 +255,104 @@ export function ComptaLedgerPage({
             disabled={exportLedger.isPending}
             onClick={() => exportLedger.mutate(table.listParams)}
           >
-            {exportLedger.isPending ? "Export…" : "Export API (CSV)"}
+            {exportLedger.isPending ? "Export en cours…" : "Exporter CSV"}
           </Button>
         }
       />
-      <p className="mb-6 text-sm text-muted">
-        Source de vérité — GET /v1/admin/ledger (écritures immuables).
+      <p className="-mt-2 mb-6 text-sm text-muted">
+        Source de vérité comptable — écritures immuables, extournes et filtres par périmètre.
       </p>
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <KpiCard
-          index={0}
-          label="Crédits (page)"
-          value={formatFCFA(data?.summary?.credits_xof ?? 0)}
+      <div className="animate-stagger space-y-6">
+        <ComptaPageHero
+          kicker="Journal ledger"
+          title="Écritures comptables"
+          description="Consultez, filtrez et exportez les mouvements enregistrés sur votre périmètre."
+          countryLabel={countryLabel}
+          stats={[
+            { value: formatFCFA(data?.summary?.credits_xof ?? 0), label: "Crédits" },
+            { value: formatFCFA(data?.summary?.debits_xof ?? 0), label: "Débits" },
+            { value: String(meta?.total ?? rows.length), label: "Lignes" },
+          ]}
         />
-        <KpiCard
-          index={1}
-          label="Débits (page)"
-          value={formatFCFA(data?.summary?.debits_xof ?? 0)}
-        />
-        <KpiCard
-          index={2}
-          label="Lignes"
-          value={String(meta?.total ?? rows.length)}
-          hint="Export CSV local ou API"
-        />
+
+        <section className="rounded-card border border-border bg-surface shadow-card overflow-hidden">
+          <div className="border-b border-border px-4 py-4 sm:px-6">
+            <TableFiltersBar
+              search={table.search}
+              onSearchChange={table.setSearch}
+              searchPlaceholder="Rechercher réf., propriétaire, description…"
+              hasActiveFilters={hasActiveFilters}
+              onReset={resetAll}
+            >
+              {!isPortal || (data?.filter_options?.franchises?.length ?? 0) > 0 ? (
+                <TripsScopeFilters
+                  options={
+                    data?.filter_options ?? {
+                      franchises: [],
+                      partners: [],
+                    }
+                  }
+                  value={scope}
+                  onChange={setScope}
+                />
+              ) : null}
+            </TableFiltersBar>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <FilterChips
+                options={DIRECTION_FILTERS}
+                value={directionFilter}
+                onChange={setDirectionFilter}
+              />
+              <FilterChips options={BUCKET_FILTERS} value={bucketFilter} onChange={setBucketFilter} />
+              <FilterChips
+                options={ENTRY_TYPE_FILTERS}
+                value={entryTypeFilter}
+                onChange={setEntryTypeFilter}
+              />
+            </div>
+          </div>
+
+          <div className="px-2 pb-2">
+            <DataTable
+              columns={columns}
+              data={rows}
+              rowKey={(row) => row.id}
+              isLoading={isLoading}
+              exportFileName="journal-comptable"
+              serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
+              emptyTitle="Aucune écriture"
+              emptyDescription="Aucune écriture sur cette période ou ces filtres."
+              pagination={false}
+            />
+          </div>
+        </section>
+
+        <nav
+          className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 border-t border-border pt-6 text-xs text-muted"
+          aria-label="Raccourcis journal"
+        >
+          {showReverse ? (
+            <>
+              <span>Actions :</span>
+              <span>extourne depuis une ligne du tableau</span>
+              <span aria-hidden>·</span>
+            </>
+          ) : null}
+          <Link href={crossLinkHref} className="font-medium text-teal hover:underline">
+            {crossLinkLabel}
+          </Link>
+          <span aria-hidden>·</span>
+          <Link href="/compta/flows" className="font-medium text-teal hover:underline">
+            Flux entrées / sorties
+          </Link>
+          <span aria-hidden>·</span>
+          <Link href="/compta/exports" className="font-medium text-teal hover:underline">
+            Exports
+          </Link>
+        </nav>
       </div>
-
-      <TableFiltersBar
-        search={table.search}
-        onSearchChange={table.setSearch}
-        searchPlaceholder="Rechercher réf., propriétaire, description…"
-        hasActiveFilters={hasActiveFilters}
-        onReset={resetAll}
-      >
-        <TripsScopeFilters
-          options={
-            data?.filter_options ?? {
-              franchises: [],
-              partners: [],
-            }
-          }
-          value={scope}
-          onChange={setScope}
-        />
-      </TableFiltersBar>
-
-      <div className="mb-4 flex flex-wrap gap-2">
-        <FilterChips
-          options={DIRECTION_FILTERS}
-          value={directionFilter}
-          onChange={setDirectionFilter}
-        />
-        <FilterChips options={BUCKET_FILTERS} value={bucketFilter} onChange={setBucketFilter} />
-        <FilterChips
-          options={ENTRY_TYPE_FILTERS}
-          value={entryTypeFilter}
-          onChange={setEntryTypeFilter}
-        />
-      </div>
-
-      <DataTable
-        columns={columns}
-        data={rows}
-        rowKey={(row) => row.id}
-        isLoading={isLoading}
-        exportFileName="journal-comptable"
-        serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
-        emptyTitle="Aucune écriture ledger"
-        emptyDescription="Aucune écriture sur cette période ou ces filtres."
-        pagination={false}
-      />
-
-      <p className="mt-4 text-xs text-muted">
-        {showReverse ? (
-          <>
-            Extournes via{" "}
-            <code className="rounded bg-canvas px-1">
-              POST /v1/admin/ledger/{"{id}"}/reverse
-            </code>
-            .{" "}
-          </>
-        ) : null}
-        <Link href={transactionsHref} className="text-teal underline">
-          Voir aussi les transactions détaillées
-        </Link>
-        .
-      </p>
 
       <ReverseLedgerModal
         entry={reverseEntry}

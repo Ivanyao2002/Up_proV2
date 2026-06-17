@@ -1,5 +1,7 @@
-import { LINKS } from "@/core/api/links";
 import { apiClient, apiWithNotify } from "@/core/http/apiClient";
+import { createUrl } from "@/core/api/links";
+import type { ComptaApiScope } from "./comptaApiScope";
+import { comptaPeriodLinks } from "./comptaApiScope";
 import type { AccountingPeriod, AccountingPeriodsResponse } from "./compta.types";
 
 type AnyRecord = Record<string, unknown>;
@@ -52,22 +54,58 @@ function extractPeriods(payload: unknown): AccountingPeriod[] {
   return [];
 }
 
+function portalCloseBody(payload?: {
+  period_type?: "daily" | "monthly";
+  period_end?: string;
+}) {
+  const periodEnd = payload?.period_end ?? new Date().toISOString().slice(0, 10);
+  const isDaily = payload?.period_type === "daily";
+  return {
+    period: isDaily ? periodEnd : periodEnd.slice(0, 7),
+    periodType: isDaily ? "DAY" : "MONTH",
+  };
+}
+
 export const accountingPeriodsService = {
-  async listAdmin(): Promise<AccountingPeriodsResponse> {
-    const response = await apiClient.get<unknown>(LINKS.admin.v1.accounting.periods);
+  list: async (
+    scope: ComptaApiScope,
+    periodType?: "DAY" | "MONTH"
+  ): Promise<AccountingPeriodsResponse> => {
+    const links = comptaPeriodLinks(scope);
+    const url =
+      scope === "portal" && periodType
+        ? createUrl(links.periods, { periodType })
+        : links.periods;
+    const response = await apiClient.get<unknown>(url);
     return { data: extractPeriods(response) };
   },
 
+  /** @deprecated Préférer `list("admin")` */
+  async listAdmin(): Promise<AccountingPeriodsResponse> {
+    return accountingPeriodsService.list("admin");
+  },
+
+  close: (
+    scope: ComptaApiScope,
+    payload?: {
+      period_type?: "daily" | "monthly";
+      period_end?: string;
+      force?: boolean;
+      note?: string;
+    }
+  ) => {
+    const links = comptaPeriodLinks(scope);
+    const body = scope === "portal" ? portalCloseBody(payload) : (payload ?? {});
+    return apiWithNotify.post(links.closePeriod, body, "Période clôturée");
+  },
+
+  /** @deprecated Préférer `close("admin", payload)` */
   async closeCurrent(payload?: {
     period_type?: "daily" | "monthly";
     period_end?: string;
     force?: boolean;
     note?: string;
   }) {
-    return apiWithNotify.post(
-      LINKS.admin.v1.accounting.closePeriod,
-      payload ?? {},
-      "Période clôturée"
-    );
+    return accountingPeriodsService.close("admin", payload);
   },
 };

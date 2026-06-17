@@ -3,6 +3,7 @@ import { LOGIN_BY_PORTAL } from "./authRoutes";
 
 const PORTAL_PREFIX: Record<PortalRole, string> = {
   admin: "/admin",
+  compta: "/compta",
   partner: "/partner",
   franchise: "/franchise",
   dispatch: "/dispatch",
@@ -20,7 +21,11 @@ export function resolveReturnUrl(
 
   const basePrefix = PORTAL_PREFIX[portal];
   const allowedPrefixes =
-    portal === "admin" ? [basePrefix, "/compta"] : [basePrefix];
+    portal === "admin"
+      ? [basePrefix, "/compta"]
+      : portal === "compta"
+        ? [basePrefix]
+        : [basePrefix];
   if (!allowedPrefixes.some((prefix) => from.startsWith(prefix))) {
     return fallback;
   }

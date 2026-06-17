@@ -4,4 +4,6 @@ export const driverDetailKeys = {
   trips: (id: string | number) => [...driverDetailKeys.detail(id), "trips"] as const,
   walletTransactions: (id: string | number) =>
     [...driverDetailKeys.detail(id), "wallet-transactions"] as const,
+  dispatchEligibility: (id: string | number) =>
+    [...driverDetailKeys.detail(id), "dispatch-eligibility"] as const,
 };

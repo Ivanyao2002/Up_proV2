@@ -1,15 +1,20 @@
-import { LINKS } from "@/core/api/links";
-import type { ListParams } from "@/shared/types/listParams";
-import { downloadComptaExport } from "./comptaDownload";
-
-export const comptaExportService = {
-  ledger: (params?: ListParams) =>
-    downloadComptaExport(
-      LINKS.admin.v1.finance.ledgerExport,
-      "journal-comptable.csv",
-      params
-    ),
-
-  reports: (params?: ListParams) =>
-    downloadComptaExport(LINKS.admin.v1.reportsExport, "rapport-comptable.csv", params),
-};
+import type { ListParams } from "@/shared/types/listParams";
+import type { ComptaApiScope } from "./comptaApiScope";
+import { comptaFinanceLinks, comptaLedgerLinks } from "./comptaApiScope";
+import { downloadComptaExport } from "./comptaDownload";
+
+export const comptaExportService = {
+  ledger: (scope: ComptaApiScope, params?: ListParams) =>
+    downloadComptaExport(
+      comptaLedgerLinks(scope).ledgerExport,
+      "journal-comptable.csv",
+      params
+    ),
+
+  reports: (scope: ComptaApiScope, params?: ListParams) =>
+    downloadComptaExport(
+      comptaFinanceLinks(scope).reportsExport,
+      "rapport-comptable.csv",
+      params
+    ),
+};
