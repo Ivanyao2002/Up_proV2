@@ -24,7 +24,17 @@ const STATUS_FILTERS = [
   { value: "pending" as const, label: "En cours" },
 ];
 
-export function ReconciliationListPage() {
+export function ReconciliationListPage({
+  title = "Réconciliation",
+  breadcrumb = ["Admin", "Finance"],
+  readOnly = false,
+  embedded = false,
+}: {
+  title?: string;
+  breadcrumb?: string[];
+  readOnly?: boolean;
+  embedded?: boolean;
+} = {}) {
   const legacy = isLegacyPlatformSettings();
   const reconcileBatch = useReconcilePaymentsBatch();
   const [statusFilter, setStatusFilter] = useState<ReconciliationRow["status"] | "all">(
@@ -129,26 +139,28 @@ export function ReconciliationListPage() {
   }
 
   return (
-    <div className="animate-fade-up">
-      <PageHeader
-        title="Réconciliation"
-        breadcrumb={["Admin", "Finance"]}
-        actions={
-          !legacy ? (
-            <Button
-              variant="secondary"
-              disabled={reconcileBatch.isPending}
-              onClick={() => reconcileBatch.mutate()}
-            >
-              {reconcileBatch.isPending
-                ? "Réconciliation…"
-                : "Réconcilier PayDunya (batch)"}
-            </Button>
-          ) : undefined
-        }
-      />
+    <div className={embedded ? "" : "animate-fade-up"}>
+      {!embedded ? (
+        <PageHeader
+          title={title}
+          breadcrumb={breadcrumb}
+          actions={
+            !legacy && !readOnly ? (
+              <Button
+                variant="secondary"
+                disabled={reconcileBatch.isPending}
+                onClick={() => reconcileBatch.mutate()}
+              >
+                {reconcileBatch.isPending
+                  ? "Réconciliation…"
+                  : "Réconcilier PayDunya (batch)"}
+              </Button>
+            ) : undefined
+          }
+        />
+      ) : null}
 
-      {!legacy && (
+      {!embedded && !legacy && (
         <p className="mb-4 text-sm text-muted">
           POST /v1/admin/payments/reconcile-batch — relance les paiements PayDunya bloqués.
           Le tableau ci-dessous reste alimenté par le mock v2 en attendant une liste admin payments.

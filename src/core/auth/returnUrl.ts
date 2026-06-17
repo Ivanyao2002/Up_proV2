@@ -18,11 +18,18 @@ export function resolveReturnUrl(
     return fallback;
   }
 
-  const prefix = PORTAL_PREFIX[portal];
-  if (!from.startsWith(prefix)) return fallback;
+  const basePrefix = PORTAL_PREFIX[portal];
+  const allowedPrefixes =
+    portal === "admin" ? [basePrefix, "/compta"] : [basePrefix];
+  if (!allowedPrefixes.some((prefix) => from.startsWith(prefix))) {
+    return fallback;
+  }
 
   const loginPath = LOGIN_BY_PORTAL[portal];
   if (from === loginPath || from.startsWith(`${loginPath}?`)) {
+    return fallback;
+  }
+  if (from === "/compta/login" || from.startsWith("/compta/login?")) {
     return fallback;
   }
 

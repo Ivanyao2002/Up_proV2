@@ -37,7 +37,17 @@ const STATUS_FILTERS: { value: WithdrawalStatus | "all"; label: string }[] = [
   { value: "rejected", label: "Rejetés" },
 ];
 
-export function WithdrawalsListPage() {
+export function WithdrawalsListPage({
+  title = "Retraits",
+  breadcrumb = ["Admin", "Finance"],
+  readOnly = false,
+  detailBasePath = "/admin/finance/withdrawals",
+}: {
+  title?: string;
+  breadcrumb?: string[];
+  readOnly?: boolean;
+  detailBasePath?: string;
+} = {}) {
   const [statusFilter, setStatusFilter] = useState<WithdrawalStatus | "all">(
     "pending"
   );
@@ -62,13 +72,13 @@ export function WithdrawalsListPage() {
   const rows = data?.data ?? [];
   const meta = data?.meta;
 
-  const columns: Column<Withdrawal>[] = [
+  const baseColumns: Column<Withdrawal>[] = [
     {
       id: "id",
       header: "Réf.",
       cell: (w) => (
         <Link
-          href={`/admin/finance/withdrawals/${w.id}`}
+          href={`${detailBasePath}/${w.id}`}
           className="font-medium text-foreground hover:text-teal"
         >
           {w.id.slice(0, 8)}
@@ -142,32 +152,34 @@ export function WithdrawalsListPage() {
       cell: (w) => formatDateTime(w.requested_at),
       exportValue: (w) => formatDateTime(w.requested_at),
     },
-    {
-      id: "actions",
-      header: "",
-      exportValue: () => "",
-      cell: (w) =>
-        w.status === "pending" ? (
-          <div className="flex gap-1">
-            <Button
-              className="!py-1 !px-2 !text-xs"
-              onClick={() => setConfirmId(w.id)}
-            >
-              Approuver
-            </Button>
-            <Button
-              variant="secondary"
-              className="!py-1 !px-2 !text-xs"
-              onClick={() => setRejectId(w.id)}
-            >
-              Rejeter
-            </Button>
-          </div>
-        ) : (
-          <span className="text-xs text-muted">—</span>
-        ),
-    },
   ];
+
+  const actionsColumn: Column<Withdrawal> = {
+    id: "actions",
+    header: "",
+    exportValue: () => "",
+    cell: (w) =>
+      readOnly || w.status !== "pending" ? (
+        <span className="text-xs text-muted">—</span>
+      ) : (
+        <div className="flex gap-1">
+          <Button className="!py-1 !px-2 !text-xs" onClick={() => setConfirmId(w.id)}>
+            Approuver
+          </Button>
+          <Button
+            variant="secondary"
+            className="!py-1 !px-2 !text-xs"
+            onClick={() => setRejectId(w.id)}
+          >
+            Rejeter
+          </Button>
+        </div>
+      ),
+  };
+
+  const columns: Column<Withdrawal>[] = readOnly
+    ? baseColumns
+    : [...baseColumns, actionsColumn];
 
   if (isError) {
     return (
@@ -179,7 +191,17 @@ export function WithdrawalsListPage() {
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Retraits" breadcrumb={["Admin", "Finance"]} />
+      <PageHeader title={title} breadcrumb={breadcrumb} />
+
+      {readOnly ? (
+        <p className="mb-4 text-sm text-muted">
+          Consultation seule — les approbations se font dans{" "}
+          <Link href="/admin/finance/withdrawals" className="text-teal underline">
+            Finance admin
+          </Link>
+          .
+        </p>
+      ) : null}
 
       {data?.summary && (
         <div className="mb-6 grid gap-4 sm:grid-cols-2">

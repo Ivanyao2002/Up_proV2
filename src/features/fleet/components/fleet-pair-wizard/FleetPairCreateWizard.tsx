@@ -137,6 +137,8 @@ function emptyProvenance(): FieldProvenance {
 
 export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   const requirePhoneOtp = !props.legacyPhone;
+  const adminBrands = props.variant === "admin" ? props.brands : null;
+  const adminColors = props.variant === "admin" ? props.colors : null;
   const [stepId, setStepId] = useState<WizardStepId>("mode");
   const [driverPhoneVerified, setDriverPhoneVerified] = useState(!requirePhoneOtp);
   const [creationMode, setCreationMode] = useState<CreationMode | null>(null);
@@ -188,13 +190,13 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
   useEffect(() => {
     if (props.variant !== "admin" || !pendingBrandLabel) return;
-    const match = matchBrandCatalogCode(props.brands, pendingBrandLabel);
+    const match = matchBrandCatalogCode(adminBrands ?? [], pendingBrandLabel);
     if (match) {
       setBrandCode((b) => b || match);
       setProvenance((p) => ({ ...p, brand: "ai" }));
       setPendingBrandLabel(null);
     }
-  }, [pendingBrandLabel, props.brands, props.variant]);
+  }, [pendingBrandLabel, adminBrands, props.variant]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !pendingModelLabel) return;
@@ -208,13 +210,13 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
   useEffect(() => {
     if (props.variant !== "admin" || !pendingColorLabel) return;
-    const match = matchColorCatalogCode(props.colors, pendingColorLabel);
+    const match = matchColorCatalogCode(adminColors ?? [], pendingColorLabel);
     if (match) {
       setColorCode(match);
       setProvenance((p) => ({ ...p, color: "ai" }));
       setPendingColorLabel(null);
     }
-  }, [pendingColorLabel, props.colors, props.variant]);
+  }, [pendingColorLabel, adminColors, props.variant]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !adminLocked) return;

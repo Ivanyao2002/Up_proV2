@@ -185,6 +185,8 @@ export const LINKS = {
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
       partnerById: (id: string) => `${ADMIN_V1_BASE}/partners/${id}`,
+      partnerActivate: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/activate`,
+      partnerSuspend: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/suspend`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
       withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>
@@ -219,12 +221,23 @@ export const LINKS = {
         transactionById: (id: string) =>
           `${ADMIN_V1_BASE}/finance/transactions/${id}`,
         ledger: `${ADMIN_V1_BASE}/ledger`,
+        ledgerExport: `${ADMIN_V1_BASE}/ledger/export`,
+        ledgerReverse: (id: string) => `${ADMIN_V1_BASE}/ledger/${id}/reverse`,
         wallets: `${ADMIN_V1_BASE}/finance/wallets`,
         commissions: `${ADMIN_V1_BASE}/finance/commissions`,
         reconciliation: `${ADMIN_V1_BASE}/finance/reconciliation`,
         driverTransfers: `${ADMIN_V1_BASE}/finance/driver-transfers`,
         driverTransferStats: `${ADMIN_V1_BASE}/finance/driver-transfers/stats`,
       },
+      accounting: {
+        periods: `${ADMIN_V1_BASE}/accounting/periods`,
+        closePeriod: `${ADMIN_V1_BASE}/accounting/periods/close`,
+        periodLock: (id: string) => `${ADMIN_V1_BASE}/accounting/periods/${id}/lock`,
+        cashReconciliations: `${ADMIN_V1_BASE}/cash-reconciliations`,
+        cashReconciliationReview: (id: string) =>
+          `${ADMIN_V1_BASE}/cash-reconciliations/${id}/review`,
+      },
+      reportsExport: `${ADMIN_V1_BASE}/reports/export`,
       bonusRules: `${ADMIN_V1_BASE}/bonus-rules`,
       bonusRuleById: (id: string) => `${ADMIN_V1_BASE}/bonus-rules/${id}`,
       bonusAwards: `${ADMIN_V1_BASE}/bonus-awards`,

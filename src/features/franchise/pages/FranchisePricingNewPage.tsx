@@ -21,7 +21,7 @@ import { useZonesMapOverviewByFranchise } from "@/features/network/api/zones.que
 export function FranchisePricingNewPage() {
   const router = useRouter();
   const franchiseId = useAuthStore((s) => s.user?.franchise_id);
-  const franchiseName = useAuthStore((s) => s.user?.franchise_name) ?? "Votre territoire";
+  const franchiseName = "Votre territoire";
   const { data: mapData, isLoading: mapLoading } = useZonesMapOverviewByFranchise();
   const createPricing = useCreateFranchisePricing();
 

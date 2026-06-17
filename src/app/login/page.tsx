@@ -9,6 +9,11 @@ const portals = [
     href: "/admin/login",
   },
   {
+    title: "Comptable",
+    description: "Portail comptabilite (auth admin temporaire)",
+    href: "/compta/login",
+  },
+  {
     title: "Partenaire",
     description: "Gestion de votre flotte",
     href: "/partner/login",
@@ -33,7 +38,7 @@ export default function LoginPortalPage() {
         <AppLogo size="lg" className="mb-4" />
         <p className="text-muted">Choisissez votre portail</p>
       </div>
-      <div className="grid w-full max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {portals.map((portal) => (
           <Link
             key={portal.href}

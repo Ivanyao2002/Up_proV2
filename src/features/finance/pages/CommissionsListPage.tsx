@@ -25,7 +25,13 @@ const STATUS_FILTERS = [
   { value: "pending" as const, label: "En attente" },
 ];
 
-export function CommissionsListPage() {
+export function CommissionsListPage({
+  title = "Commissions",
+  breadcrumb = ["Admin", "Finance"],
+}: {
+  title?: string;
+  breadcrumb?: string[];
+} = {}) {
   const [statusFilter, setStatusFilter] = useState<CommissionRow["status"] | "all">("all");
   const [scope, setScope] = useState<AdminFranchiseScopeValue>({ franchiseId: null });
 
@@ -131,15 +137,17 @@ export function CommissionsListPage() {
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title="Commissions"
-        breadcrumb={["Admin", "Finance"]}
+        title={title}
+        breadcrumb={breadcrumb}
         actions={
-          <Link
-            href="/admin/finance/commission-rules"
-            className="text-sm text-teal hover:underline"
-          >
-            Règles de commission →
-          </Link>
+          breadcrumb[0] === "Comptabilité" ? undefined : (
+            <Link
+              href="/admin/finance/commission-rules"
+              className="text-sm text-teal hover:underline"
+            >
+              Règles de commission →
+            </Link>
+          )
         }
       />
 

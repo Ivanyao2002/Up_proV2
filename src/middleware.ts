@@ -36,9 +36,27 @@ function guardPortal(
   return NextResponse.next();
 }
 
+function guardCompta(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  if (!pathname.startsWith("/compta")) {
+    return null;
+  }
+  if (pathname === "/compta/login") {
+    return NextResponse.next();
+  }
+  const hasAuth = request.cookies.get("upjunoo_auth")?.value === "1";
+  if (!hasAuth) {
+    const login = new URL(withBasePath("/compta/login"), request.url);
+    login.searchParams.set("from", pathname);
+    return NextResponse.redirect(login);
+  }
+  return NextResponse.next();
+}
+
 export function middleware(request: NextRequest) {
   return (
     guardPortal(request, "/admin", "/admin/login") ??
+    guardCompta(request) ??
     guardPortal(request, "/partner", "/partner/login") ??
     guardPortal(request, "/franchise", "/franchise/login") ??
     guardPortal(request, "/dispatch", "/dispatch/login") ??
@@ -49,6 +67,8 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/compta",
+    "/compta/:path*",
     "/partner/:path*",
     "/franchise/:path*",
     "/dispatch/:path*",

@@ -220,24 +220,19 @@ function resolveFranchiseName(item: ApiFinanceTransactionItem): string {
 function resolveTransactionDriverId(
   item: ApiFinanceTransactionItem
 ): string | undefined {
+  const driverFromPayload = (item as ApiFinanceTransactionItem & {
+    driver?: { id?: string | null } | null;
+  }).driver?.id;
+  if (typeof driverFromPayload === "string" && driverFromPayload.trim()) {
+    return driverFromPayload.trim();
+  }
+
   const ownerId = item.wallet?.owner?.id?.trim();
   if (!ownerId) return undefined;
-
   const ownerType = String(item.wallet?.ownerType ?? "").toLowerCase();
-  if (ownerType === "driver" || ownerType.includes("driver")) {
+  if (ownerType === "driver") {
     return ownerId;
   }
-
-  const entryType = String(item.entry_type ?? item.type ?? "").toLowerCase();
-  if (entryType.includes("driver")) {
-    return ownerId;
-  }
-
-  const entityType = String(item.entity_type ?? "").toLowerCase();
-  if (entityType === "driver" || entityType.includes("driver")) {
-    return ownerId;
-  }
-
   return undefined;
 }
 

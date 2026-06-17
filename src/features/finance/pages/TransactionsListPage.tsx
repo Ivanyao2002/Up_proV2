@@ -51,6 +51,7 @@ interface TransactionsListPageProps {
   breadcrumb?: string[];
   defaultTypeFilter?: TransactionType | "all";
   hideSummary?: boolean;
+  transactionDetailBasePath?: string;
 }
 
 export function TransactionsListPage({
@@ -59,6 +60,7 @@ export function TransactionsListPage({
   breadcrumb = ["Admin", "Finance"],
   defaultTypeFilter = "all",
   hideSummary = false,
+  transactionDetailBasePath = "/admin/finance/transactions",
 }: TransactionsListPageProps = {}) {
   const [typeFilter, setTypeFilter] = useState<TransactionType | "all">(defaultTypeFilter);
   const [statusFilter, setStatusFilter] = useState<TransactionStatus | "all">("all");
@@ -104,7 +106,7 @@ export function TransactionsListPage({
       header: "Réf.",
       cell: (t) => (
         <Link
-          href={`/admin/finance/transactions/${t.id}`}
+          href={`${transactionDetailBasePath}/${t.id}`}
           className="font-medium text-foreground hover:text-teal"
         >
           {t.id.slice(0, 8)}

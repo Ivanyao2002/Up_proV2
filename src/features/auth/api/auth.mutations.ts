@@ -9,6 +9,7 @@ import { notificationService } from "@/core/http/notificationService";
 import { DASHBOARD_BY_PORTAL } from "@/core/auth/authRoutes";
 import { readReturnUrlFromLocation } from "@/core/auth/returnUrl";
 import { authService, type LoginPayload } from "./auth.service";
+import type { PortalRole } from "@/shared/types";
 
 export function useLogoutMutation(loginPath: string) {
   const clearSession = useAuthStore((s) => s.clearSession);
@@ -23,7 +24,10 @@ export function useLogoutMutation(loginPath: string) {
   });
 }
 
-export function useLoginMutation(portal: LoginPayload["portal"]) {
+export function useLoginMutation(
+  portal: LoginPayload["portal"],
+  options?: { fallbackPath?: string; returnPortal?: PortalRole }
+) {
   const router = useRouter();
   const setSession = useAuthStore((s) => s.setSession);
 
@@ -40,9 +44,11 @@ export function useLoginMutation(portal: LoginPayload["portal"]) {
       setSession(data.token, data.user, data.refreshToken);
       setAuthCookie();
       notificationService.success("Connexion réussie");
+      const returnPortal = options?.returnPortal ?? portal;
+      const fallback = options?.fallbackPath ?? DASHBOARD_BY_PORTAL[portal];
       const destination = readReturnUrlFromLocation(
-        DASHBOARD_BY_PORTAL[portal],
-        portal
+        fallback,
+        returnPortal
       );
       router.push(destination);
     },
