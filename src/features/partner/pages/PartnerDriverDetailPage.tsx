@@ -72,7 +72,9 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
     );
   }
 
-  const fullName = `${driver.first_name} ${driver.last_name}`;
+  const fullName = driver.first_name || driver.last_name
+    ? `${driver.first_name ?? ""} ${driver.last_name ?? ""}`.trim()
+    : driver.driver_code ?? driver.phone ?? "Chauffeur";
   const showLiveMap = driver.account_status === "approved";
   const kycDisplayItems = organizeDriverKycDocuments(driver.kyc_documents);
 

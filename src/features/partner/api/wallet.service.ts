@@ -91,6 +91,18 @@ function mapWalletResponse(response: WalletApiResponse | PartnerWallet): Partner
   return response as PartnerWallet;
 }
 
+export interface CashReconciliation {
+  id: string;
+  driver_id: string;
+  driver_name?: string;
+  amount_fcfa: number;
+  status: "pending" | "submitted" | "validated" | "rejected";
+  collected_at: string;
+  submitted_at?: string;
+  validated_at?: string;
+  note?: string;
+}
+
 export interface DriverRechargePayload {
   driver_id: string | number;
   amount_fcfa: number;
@@ -273,6 +285,11 @@ export const partnerWalletService = {
       ...payload,
       driver_id: String(payload.driver_id),
     }),
+
+  cashReconciliations: (partnerId: string | number, params?: ListParams) =>
+    apiClient.get<Paginated<CashReconciliation>>(
+      `${LINKS.partner.wallet.cashReconciliations(partnerId)}${buildListQuery(params)}`
+    ),
 
   rechargeDrivers: async (
     partnerId: string | number,

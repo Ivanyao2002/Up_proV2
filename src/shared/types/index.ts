@@ -2,6 +2,8 @@ export type Scope = "platform" | "franchise" | "owner";
 
 export type PortalRole = "admin" | "partner" | "franchise" | "dispatch";
 
+export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
+
 export interface User {
   id: string | number;
   name: string;
@@ -10,6 +12,8 @@ export interface User {
   scope: Scope;
   franchise_id?: number | string;
   owner_id?: number | string;
+  /** Type de partenaire — détermine l'accès aux modules fret/location */
+  partner_type?: PartnerType;
   /** Comptes dispatch — zones autorisées */
   zone_ids?: number[];
   zone_names?: string[];

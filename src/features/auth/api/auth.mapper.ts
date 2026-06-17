@@ -1,4 +1,4 @@
-import type { AuthSession, PortalRole, Scope, User } from "@/shared/types";
+import type { AuthSession, PartnerType, PortalRole, Scope, User } from "@/shared/types";
 import type {
   ApiAuthLoginResponse,
   ApiAuthMeResponse,
@@ -114,6 +114,38 @@ function extractOwnerId(data: ApiAuthUserPayload): string | undefined {
   );
 }
 
+function extractPartnerType(data: ApiAuthUserPayload): PartnerType | undefined {
+  const partner = data.partner as Record<string, unknown> | undefined;
+  const raw = partner?.["partner_type"] ?? partner?.["type"] ?? partner?.["partnerType"];
+  if (!raw) return undefined;
+  const upper = String(raw).toUpperCase();
+  if (upper === "FLEET" || upper === "RENTAL" || upper === "FREIGHT" || upper === "MIXED") {
+    return upper as PartnerType;
+  }
+  return undefined;
+}
+
+function partnerPermissions(type: PartnerType | undefined): string[] {
+  const base = [
+    "ops.dashboard.view",
+    "ops.trips.view",
+    "ops.map.view",
+    "fleet.drivers.view",
+    "finance.wallets.view",
+  ];
+  switch (type) {
+    case "FREIGHT":
+      return [...base, "partner.freight.view"];
+    case "RENTAL":
+      return [...base, "partner.rental.view"];
+    case "MIXED":
+      return [...base, "partner.freight.view", "partner.rental.view"];
+    case "FLEET":
+    default:
+      return base;
+  }
+}
+
 function buildUserFromApi(
   data: ApiAuthUserPayload,
   expectedPortal: PortalRole
@@ -143,6 +175,7 @@ function buildUserFromApi(
 
   const franchiseId = extractFranchiseId(data);
   const ownerId = extractOwnerId(data);
+  const partnerType = portal === "partner" ? extractPartnerType(data) : undefined;
 
   return {
     id: profile?.id ?? "unknown",
@@ -152,7 +185,8 @@ function buildUserFromApi(
     scope: SCOPE_BY_PORTAL[portal],
     franchise_id: franchiseId as unknown as number | undefined,
     owner_id: ownerId as unknown as number | undefined,
-    permissions: defaultPermissions(portal),
+    partner_type: partnerType,
+    permissions: portal === "partner" ? partnerPermissions(partnerType) : defaultPermissions(portal),
   };
 }
 

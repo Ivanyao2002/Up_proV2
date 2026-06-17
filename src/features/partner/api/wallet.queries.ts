@@ -99,6 +99,21 @@ export function usePartnerRevenue() {
   });
 }
 
+export const partnerCashReconciliationsKeys = {
+  all: ["partner", "cash-reconciliations"] as const,
+  list: (filters?: ListParams) =>
+    [...partnerCashReconciliationsKeys.all, "list", filters] as const,
+};
+
+export function usePartnerCashReconciliations(params?: ListParams) {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: partnerCashReconciliationsKeys.list(params),
+    queryFn: () => partnerWalletService.cashReconciliations(ownerId!, params),
+    enabled: ownerId != null,
+  });
+}
+
 export function usePartnerRevenuePaginated(params?: ListParams) {
   const { ownerId } = useScope();
   return useQuery({
