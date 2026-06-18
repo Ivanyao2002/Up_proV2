@@ -90,18 +90,21 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
       header: "Marque",
       cell: (v) => v.brand ?? "—",
       exportValue: (v) => v.brand ?? "",
+      sortKey: (v) => v.brand ?? "",
     },
     {
       id: "model",
       header: "Modèle",
       cell: (v) => v.model ?? "—",
       exportValue: (v) => v.model ?? "",
+      sortKey: (v) => v.model ?? "",
     },
     {
       id: "driver",
       header: "Chauffeur affecté",
       cell: (v) => v.driver_name ?? "—",
       exportValue: (v) => v.driver_name ?? "",
+      sortKey: (v) => v.driver_name ?? "",
     },
     {
       id: "year",
@@ -109,6 +112,7 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
       className: "tabular-nums",
       cell: (v) => v.year,
       exportValue: (v) => String(v.year),
+      sortKey: (v) => v.year ?? 0,
     },
     {
       id: "color",

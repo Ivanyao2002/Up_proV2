@@ -15,7 +15,8 @@ RAPPORT-API-MANQUANTE-PARTENAIRE.md
 rapport-activite/
 Module finance/
 AUDIT-ENDPOINTS-PARTENAIRE.md
-
+scripts/audit-results/
+guide-pdf/
 
 # testing
 /coverage

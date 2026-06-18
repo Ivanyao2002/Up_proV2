@@ -40,11 +40,12 @@ export const partnerOrdersService = {
   },
 
   getById: async (partnerId: string | number, id: string) => {
-    const response = await apiClient.get<{ order?: ApiBookingItem }>(
-      LINKS.partner.trips.getById(partnerId, id)
-    );
-    if (response.order) {
-      return mapApiBookingItemToPartnerBooking(response.order);
+    const response = await apiClient.get<
+      { order?: ApiBookingItem; trip?: ApiBookingItem } & Partial<ApiBookingItem>
+    >(LINKS.partner.trips.getById(partnerId, id));
+    const raw = response.order ?? response.trip ?? (response.id ? (response as unknown as ApiBookingItem) : null);
+    if (raw) {
+      return mapApiBookingItemToPartnerBooking(raw);
     }
     throw new Error("Commande introuvable.");
   },

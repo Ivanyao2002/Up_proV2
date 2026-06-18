@@ -75,7 +75,9 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
   const fullName = driver.first_name || driver.last_name
     ? `${driver.first_name ?? ""} ${driver.last_name ?? ""}`.trim()
     : driver.driver_code ?? driver.phone ?? "Chauffeur";
-  const showLiveMap = driver.account_status === "approved";
+  const showLiveMap = !["suspended", "banned"].includes(
+    (driver.account_status as string) ?? ""
+  );
   const kycDisplayItems = organizeDriverKycDocuments(driver.kyc_documents);
 
   const tripColumns: Column<PartnerDriverTripRow>[] = [
@@ -203,7 +205,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
                   <KpiCard
                     index={1}
                     label="Taux d'acceptation"
-                    value={`${stats.acceptance_rate_pct} %`}
+                    value={stats.acceptance_rate_pct != null ? `${stats.acceptance_rate_pct} %` : "—"}
                   />
                   <KpiCard
                     index={2}
@@ -246,34 +248,41 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
 
             {tab === "kyc" && (
               <div className="grid gap-4 sm:grid-cols-2">
-                {kycDisplayItems.map((item) =>
-                  item.kind === "group" ? (
-                    <div key={item.groupId} className="sm:col-span-2">
-                      <KycDocumentGroupCard
-                        label={item.label}
-                        documents={item.documents}
+                {kycDisplayItems.length === 0 ? (
+                  <div className="sm:col-span-2 rounded-card border border-border bg-surface p-8 text-center">
+                    <p className="text-sm font-medium text-muted">Aucun document soumis</p>
+                    <p className="mt-1 text-xs text-muted">Ce chauffeur n&apos;a pas encore envoyé de pièces justificatives.</p>
+                  </div>
+                ) : (
+                  kycDisplayItems.map((item) =>
+                    item.kind === "group" ? (
+                      <div key={item.groupId} className="sm:col-span-2">
+                        <KycDocumentGroupCard
+                          label={item.label}
+                          documents={item.documents}
+                        />
+                      </div>
+                    ) : (
+                      <KycDocumentCard
+                        key={item.document.id}
+                        document={item.document}
+                        canUpload={canUploadDoc(item.document)}
+                        uploadHint="PDF ou image · max 5 Mo"
+                        onUpload={(file) => {
+                          uploadDoc.mutate(
+                            { type: item.document.type, file },
+                            {
+                              onSuccess: () =>
+                                notificationService.success(
+                                  "Document envoyé — validation en cours"
+                                ),
+                              onError: () =>
+                                notificationService.error("Échec de l'envoi"),
+                            }
+                          );
+                        }}
                       />
-                    </div>
-                  ) : (
-                    <KycDocumentCard
-                      key={item.document.id}
-                      document={item.document}
-                      canUpload={canUploadDoc(item.document)}
-                      uploadHint="PDF ou image · max 5 Mo"
-                      onUpload={(file) => {
-                        uploadDoc.mutate(
-                          { type: item.document.type, file },
-                          {
-                            onSuccess: () =>
-                              notificationService.success(
-                                "Document envoyé — validation en cours"
-                              ),
-                            onError: () =>
-                              notificationService.error("Échec de l'envoi"),
-                          }
-                        );
-                      }}
-                    />
+                    )
                   )
                 )}
               </div>
@@ -289,6 +298,12 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
               {formatFCFA(stats.wallet_balance_fcfa)}
             </p>
+            {(stats.wallet_withdrawable_fcfa != null || stats.wallet_non_withdrawable_fcfa != null) && (
+              <div className="mt-2 flex gap-3 text-xs text-muted">
+                <span>Retirable : <strong className="text-teal-dark">{formatFCFA(stats.wallet_withdrawable_fcfa ?? 0)}</strong></span>
+                <span>Service : <strong className="text-foreground">{formatFCFA(stats.wallet_non_withdrawable_fcfa ?? 0)}</strong></span>
+              </div>
+            )}
             <p className="mt-1 text-xs text-muted">
               Solde app chauffeur · rechargeable depuis votre portefeuille
             </p>

@@ -31,8 +31,12 @@ export function PartnerLiveMapPage() {
         breadcrumb={["Partenaire", "Carte live"]}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-navy/8 px-3 py-1 text-xs font-medium text-muted">
-              MAJ {updated} · refresh 30s
+            <span className="flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-xs font-semibold text-teal">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
+              </span>
+              LIVE · MAJ {updated}
             </span>
             <Link href="/partner/drivers">
               <Button variant="secondary">Liste chauffeurs</Button>

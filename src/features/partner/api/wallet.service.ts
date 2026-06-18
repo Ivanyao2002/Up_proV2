@@ -159,6 +159,62 @@ interface LedgerApiResponse {
   };
 }
 
+type RawTransferItem = LedgerApiItem & {
+  metadata?: {
+    driverId?: string;
+    driverName?: string;
+    driverPhone?: string;
+    partnerId?: string;
+    actorUserId?: string;
+    transferGroupId?: string;
+    source?: string;
+    [key: string]: unknown;
+  };
+};
+
+function extractDriverIdFromKey(key: string | null): string | null {
+  if (!key) return null;
+  const m = key.match(/driver[:/]([a-f0-9-]{36})/i);
+  return m ? m[1] : null;
+}
+
+function mapRawTransferItem(item: RawTransferItem): import("@/shared/types").PartnerDriverTransfer {
+  const meta = item.metadata ?? {};
+  const rawStatus = item.status;
+  const status: import("@/shared/types").PartnerDriverTransferStatus =
+    rawStatus === "posted" || rawStatus === "completed"
+      ? "completed"
+      : rawStatus === "pending"
+      ? "pending"
+      : "failed";
+
+  const driverId =
+    (meta.driverId as string) ??
+    extractDriverIdFromKey(item.idempotency_key) ??
+    item.wallet_id;
+
+  const driverName = (meta.driverName as string) ?? null;
+  const driverPhone = (meta.driverPhone as string) ?? null;
+
+  const displayName = driverName ?? `ID: ${driverId.slice(-8).toUpperCase()}`;
+  const displayPhone = driverPhone ?? "—";
+
+  return {
+    id: item.id,
+    ref: item.idempotency_key
+      ? item.idempotency_key.slice(-8).toUpperCase()
+      : item.id.slice(-8).toUpperCase(),
+    driver_id: driverId,
+    driver_name: displayName,
+    driver_phone: displayPhone,
+    amount_fcfa: item.amount_xof,
+    status,
+    mobile_wallet_credited: status === "completed",
+    note: item.description || undefined,
+    created_at: item.posted_at || item.created_at,
+  };
+}
+
 function mapLedgerItem(item: LedgerApiItem): LedgerEntry {
   return {
     id: item.id,
@@ -316,23 +372,46 @@ export const partnerWalletService = {
         totalAmountXof?: number;
         monthTransfers?: number;
         monthAmountXof?: number;
-        recentTransfers?: unknown[];
+        recentTransfers?: { posted_at?: string; created_at?: string }[];
       };
     }>(LINKS.partner.wallet.driverTransfers.stats(partnerId));
 
     const s = response.stats;
+    const recent = s?.recentTransfers ?? [];
+    const lastTransfer = recent[0];
     return {
       total_spent_fcfa: s?.totalAmountXof ?? 0,
       transfers_count: s?.totalTransfers ?? 0,
       month_spent_fcfa: s?.monthAmountXof ?? 0,
       month_transfers_count: s?.monthTransfers ?? 0,
+      last_transfer_at: lastTransfer?.posted_at ?? lastTransfer?.created_at,
     } as PartnerDriverRechargeStats;
   },
 
-  listDriverTransfers: (partnerId: string | number, params?: ListParams) =>
-    apiClient.get<Paginated<PartnerDriverTransfer>>(
-      `${LINKS.partner.wallet.driverTransfers.list(partnerId)}${buildListQuery(params)}`
-    ),
+  listDriverTransfers: async (partnerId: string | number, params?: ListParams) => {
+    const response = await apiClient.get<{
+      status?: string;
+      items?: RawTransferItem[];
+      transfers?: RawTransferItem[];
+      data?: RawTransferItem[];
+      pagination?: { page: number; limit: number; total: number; hasMore: boolean };
+      meta?: { current_page: number; per_page: number; total: number; last_page: number };
+    }>(`${LINKS.partner.wallet.driverTransfers.list(partnerId)}${buildListQuery(params)}`);
+
+    const all = response.items ?? response.transfers ?? response.data ?? [];
+    const DRIVER_RECHARGE_TYPES = ["partner_driver_recharge", "welcome_bonus"];
+    const raw = all.filter((item) => DRIVER_RECHARGE_TYPES.includes(item.entry_type));
+    const p = response.pagination;
+    const m = response.meta;
+    const meta = p
+      ? { current_page: p.page, per_page: p.limit, total: p.total, last_page: p.hasMore ? p.page + 1 : p.page }
+      : m ?? { current_page: 1, per_page: 25, total: raw.length, last_page: 1 };
+
+    return {
+      data: raw.map(mapRawTransferItem),
+      meta,
+    } as Paginated<PartnerDriverTransfer>;
+  },
 
   rechargeDriver: (partnerId: string | number, payload: DriverRechargePayload) =>
     apiClient.post<{

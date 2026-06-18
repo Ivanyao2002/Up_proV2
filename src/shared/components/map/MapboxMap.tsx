@@ -151,7 +151,7 @@ export function MapboxMap({
 
   useEffect(() => {
     if (!ready || !env.mapboxToken || tripRoutes.length === 0) {
-      setRouteCoords(new Map());
+      setRouteCoords((prev) => (prev.size === 0 ? prev : new Map()));
       return;
     }
 

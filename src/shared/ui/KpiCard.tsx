@@ -151,6 +151,8 @@ interface KpiCardProps {
   variant?: KpiVariant;
   index?: number;
   compact?: boolean;
+  /** Affiche un skeleton animé à la place de la valeur */
+  isLoading?: boolean;
 }
 
 export function KpiCard({
@@ -162,6 +164,7 @@ export function KpiCard({
   variant,
   index,
   compact = false,
+  isLoading = false,
 }: KpiCardProps) {
   const v = resolveVariant(label, variant, index);
   const styles = VARIANT_STYLES[v];
@@ -186,11 +189,17 @@ export function KpiCard({
         >
           {label}
         </p>
-        <p
-          className={`kpi-card__value font-semibold tabular-nums tracking-tight ${compact ? "mt-1.5" : "mt-2 text-3xl"} ${styles.value}`}
-        >
-          {value}
-        </p>
+        {isLoading ? (
+          <div
+            className={`${compact ? "mt-1.5 h-5 w-20" : "mt-2 h-8 w-28"} animate-pulse rounded-md bg-white/20`}
+          />
+        ) : (
+          <p
+            className={`kpi-card__value font-semibold tabular-nums tracking-tight ${compact ? "mt-1.5" : "mt-2 text-3xl"} ${styles.value}`}
+          >
+            {value}
+          </p>
+        )}
         {(hint || trend) && (
           <p
             className={`text-xs leading-snug sm:text-sm ${compact ? "mt-1" : "mt-2"} ${styles.hint}`}

@@ -16,6 +16,7 @@ import {
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
 import { DateRangeFilter } from "@/shared/ui/DateRangeFilter";
+import { KpiCard } from "@/shared/ui/KpiCard";
 import type { TripStatus } from "@/shared/types";
 import type { PartnerBooking } from "../api/bookings.service";
 import { usePartnerOrdersList } from "../api/orders.queries";
@@ -83,6 +84,7 @@ export function PartnerOrdersListPage() {
       header: "Chauffeur",
       cell: (b) => b.driver_name ?? "—",
       exportValue: (b) => b.driver_name ?? "",
+      sortKey: (b) => b.driver_name ?? "",
     },
     {
       id: "payment_status",
@@ -95,6 +97,7 @@ export function PartnerOrdersListPage() {
       header: "Montant",
       cell: (b) => (b.amount_fcfa != null ? formatFCFA(b.amount_fcfa) : "—"),
       exportValue: (b) => (b.amount_fcfa != null ? String(b.amount_fcfa) : ""),
+      sortKey: (b) => b.amount_fcfa ?? 0,
     },
     {
       id: "status",
@@ -111,8 +114,14 @@ export function PartnerOrdersListPage() {
         </span>
       ),
       exportValue: (b) => formatDateTime(b.created_at),
+      sortKey: (b) => b.created_at ?? "",
     },
   ];
+
+  const allRows = data?.data ?? [];
+  const kpiCompleted = allRows.filter(b => b.status === "completed").length;
+  const kpiInProgress = allRows.filter(b => b.status === "in_progress").length;
+  const kpiCancelled = allRows.filter(b => b.status === "cancelled").length;
 
   if (isError) {
     return <p className="text-sm text-red-600">Impossible de charger les courses.</p>;
@@ -124,6 +133,15 @@ export function PartnerOrdersListPage() {
         title="Courses"
         breadcrumb={["Partenaire", "Courses"]}
       />
+
+      {(meta || isLoading) && (
+        <div className="mb-5 grid gap-3 grid-cols-2 sm:grid-cols-4">
+          <KpiCard index={0} label="Total courses" value={String(meta?.total ?? 0)} isLoading={isLoading} />
+          <KpiCard index={1} label="En cours" value={String(kpiInProgress)} isLoading={isLoading} />
+          <KpiCard index={2} label="Complétées" value={String(kpiCompleted)} isLoading={isLoading} />
+          <KpiCard index={3} label="Annulées" value={String(kpiCancelled)} isLoading={isLoading} />
+        </div>
+      )}
 
       <TableFiltersBar
         search={table.search}
