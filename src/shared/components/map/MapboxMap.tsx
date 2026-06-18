@@ -27,6 +27,7 @@ import {
   type DriverMotionMarker,
 } from "./mapboxDriverMotion";
 import type { MapboxPointFeature } from "./mapboxMarkers";
+import { shouldSmoothDriverMotion } from "./mapboxMarkers";
 
 mapboxgl.accessToken = env.mapboxToken;
 
@@ -289,7 +290,9 @@ export function MapboxMap({
       const target: [number, number] = [feature.lng, feature.lat];
       const existing = markersById.get(feature.id);
       const smoothDriver =
-        animateDriverMoves && feature.kind === "driver";
+        animateDriverMoves &&
+        feature.kind === "driver" &&
+        shouldSmoothDriverMotion(feature);
 
       if (existing) {
         updateLiveMapMarkerElement(existing.root, feature);

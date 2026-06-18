@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 /**
  * Génère le guide HTML avec captures d'écran (Puppeteer).
+ * Couvre toutes les pages découvertes dans src/app (admin, compta, franchise, partner, dispatch).
+ *
  * Usage: node scripts/generate-user-guide-report.mjs
- * Env: GUIDE_APP_URL=http://localhost:3000
+ * Env:
+ *   GUIDE_APP_URL=http://localhost:3000
+ *   GUIDE_SKIP_PUBLIC=1          — ignorer /login et pages publiques
+ *   GUIDE_SKIP_DYNAMIC=1         — ignorer les routes [id]
+ *   GUIDE_PORTALS=admin,compta   — limiter aux portails listés
  */
 
 import fs from "node:fs";
@@ -12,8 +18,10 @@ import puppeteer from "puppeteer-core";
 import {
   DEMO_ACCOUNTS,
   GUIDE_MODULES,
+  PORTAL_META,
   REPORT_META,
 } from "./guide-modules.data.mjs";
+import { getPortalGroupOrder, sortGuideModules } from "./guide-nav-order.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -23,6 +31,15 @@ const OUTPUT_HTML = path.join(
   "docs",
   "GUIDE-UTILISATION-MODULES-UPJUNOO.html"
 );
+
+const PORTAL_ORDER = ["admin", "compta", "franchise", "partner", "dispatch", "public"];
+const SKIP_PUBLIC =
+  process.env.GUIDE_SKIP_PUBLIC === "1" || process.env.GUIDE_SKIP_PUBLIC !== "0";
+const SKIP_DYNAMIC = process.env.GUIDE_SKIP_DYNAMIC === "1";
+const HTML_ONLY = process.env.GUIDE_HTML_ONLY === "1";
+const PORTAL_FILTER = process.env.GUIDE_PORTALS
+  ? new Set(process.env.GUIDE_PORTALS.split(",").map((p) => p.trim()))
+  : new Set(["admin", "compta"]);
 
 const CHROME_PATHS = [
   process.env.CHROME_PATH,
@@ -55,6 +72,15 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
+function filterModules(modules) {
+  return modules.filter((m) => {
+    if (PORTAL_FILTER && !PORTAL_FILTER.has(m.portal)) return false;
+    if (SKIP_PUBLIC && m.portal === "public") return false;
+    if (SKIP_DYNAMIC && m.dynamic) return false;
+    return true;
+  });
+}
+
 async function fillLoginForm(page, email, password) {
   await page.waitForSelector('input[type="email"]', { timeout: 20_000 });
   await page.evaluate(
@@ -80,15 +106,44 @@ async function fillLoginForm(page, email, password) {
 }
 
 async function clearSession(page) {
-  const cookies = await page.cookies();
-  if (cookies.length) await page.deleteCookie(...cookies);
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
+  const base = REPORT_META.appUrl.replace(/\/$/, "");
+  const origin = new URL(base).origin;
+
+  try {
+    const cookies = await page.cookies();
+    if (cookies.length) await page.deleteCookie(...cookies);
+  } catch {
+    // ignore
+  }
+
+  try {
+    const client = await page.createCDPSession();
+    await client.send("Storage.clearDataForOrigin", {
+      origin,
+      storageTypes: "all",
+    });
+    await client.detach();
+  } catch {
+    try {
+      await page.goto(`${base}/`, {
+        waitUntil: "domcontentloaded",
+        timeout: 30_000,
+      });
+      await page.evaluate(() => {
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+        } catch {
+          // SecurityError sur about:blank ou origine opaque
+        }
+      });
+    } catch {
+      // ignore — login forcera une navigation vers l'app
+    }
+  }
 }
 
-async function login(page, portal, account) {
+async function login(page, portalKey, account) {
   const base = REPORT_META.appUrl.replace(/\/$/, "");
   await page.goto(`${base}${account.loginUrl}`, {
     waitUntil: "networkidle2",
@@ -109,10 +164,41 @@ async function login(page, portal, account) {
   await new Promise((r) => setTimeout(r, 2500));
   const url = page.url();
   if (url.includes("/login")) {
-    console.warn(`⚠ Connexion ${portal} peut avoir échoué — URL: ${url}`);
+    console.warn(`⚠ Connexion ${portalKey} peut avoir échoué — URL: ${url}`);
   } else {
-    console.log(`✓ Connecté ${portal} → ${url}`);
+    console.log(`✓ Connecté ${portalKey} → ${url}`);
   }
+}
+
+async function resolveDynamicPath(page, mod) {
+  const strategy = mod.resolve;
+  if (!strategy) return mod.path;
+
+  const base = REPORT_META.appUrl.replace(/\/$/, "");
+  await page.goto(`${base}${strategy.listPath}`, {
+    waitUntil: "networkidle2",
+    timeout: 60_000,
+  });
+  await new Promise((r) => setTimeout(r, 1500));
+
+  const href = await page.evaluate(
+    (selector, listPath) => {
+      const links = Array.from(document.querySelectorAll(selector));
+      for (const link of links) {
+        const h = link.getAttribute("href");
+        if (h && h !== listPath && !h.endsWith(`${listPath}/`)) return h;
+      }
+      return links[0]?.getAttribute("href") ?? null;
+    },
+    strategy.linkSelector,
+    strategy.listPath
+  );
+
+  if (!href) {
+    throw new Error(`Aucun lien trouvé sur ${strategy.listPath}`);
+  }
+
+  return strategy.buildPath(href.startsWith("http") ? new URL(href).pathname : href);
 }
 
 async function captureModule(page, mod, results) {
@@ -122,43 +208,71 @@ async function captureModule(page, mod, results) {
   const relPath = `guide-screenshots/${fileName}`;
 
   try {
-    await page.goto(`${base}${mod.path}`, {
+    let targetPath = mod.capturePath ?? mod.path;
+    if (mod.dynamic) {
+      targetPath = await resolveDynamicPath(page, mod);
+    }
+
+    await page.goto(`${base}${targetPath}`, {
       waitUntil: "networkidle2",
       timeout: 60_000,
     });
     await new Promise((r) => setTimeout(r, 1500));
     await page.screenshot({ path: filePath, fullPage: false });
-    results.push({ ...mod, screenshot: relPath, captureOk: true });
-    console.log(`  📸 ${mod.label}`);
+    results.push({
+      ...mod,
+      resolvedPath: targetPath,
+      screenshot: relPath,
+      captureOk: true,
+    });
+    console.log(`  📸 ${mod.label} → ${targetPath}`);
   } catch (err) {
     console.warn(`  ✗ ${mod.label}: ${err.message}`);
-    results.push({ ...mod, screenshot: null, captureOk: false, error: err.message });
+    results.push({
+      ...mod,
+      resolvedPath: null,
+      screenshot: null,
+      captureOk: false,
+      error: err.message,
+    });
   }
 }
 
 function buildHtml(results) {
-  const adminModules = results.filter((m) => m.portal === "admin");
-  const comptaModules = results.filter((m) => m.portal === "compta");
+  const sorted = sortGuideModules(results);
+  const byPortal = Object.fromEntries(
+    PORTAL_ORDER.map((key) => [key, sorted.filter((m) => m.portal === key)])
+  );
 
-  function renderModuleSection(modules, portalTitle) {
-    const groups = [...new Set(modules.map((m) => m.group))];
+  function renderModuleSection(modules, portalKey) {
+    if (!modules.length) return "";
+    const orderedGroups = getPortalGroupOrder(portalKey);
+    const present = new Set(modules.map((m) => m.group));
+    const groups = [
+      ...orderedGroups.filter((g) => present.has(g)),
+      ...[...present].filter((g) => !orderedGroups.includes(g)),
+    ];
     return groups
       .map((group) => {
         const items = modules.filter((m) => m.group === group);
         const cards = items
           .map((m) => {
+            const displayPath = m.resolvedPath ?? m.path;
             const img = m.screenshot
-              ? `<figure class="shot"><img src="${escapeHtml(m.screenshot)}" alt="${escapeHtml(m.label)}" loading="lazy" /><figcaption>Capture — ${escapeHtml(m.path)}</figcaption></figure>`
+              ? `<figure class="shot"><img src="${escapeHtml(m.screenshot)}" alt="${escapeHtml(m.label)}" loading="lazy" /><figcaption>Capture — ${escapeHtml(displayPath)}</figcaption></figure>`
               : `<div class="shot shot-missing">Capture non disponible${m.error ? ` (${escapeHtml(m.error)})` : ""}</div>`;
             const steps = m.usage
               .map((s) => `<li>${escapeHtml(s)}</li>`)
               .join("");
+            const dynamicBadge = m.dynamic
+              ? ' <span class="badge-dynamic">route dynamique</span>'
+              : "";
             return `
         <article class="module-card" id="${escapeHtml(m.slug)}">
           <header>
             <span class="module-group">${escapeHtml(group)}</span>
-            <h3>${escapeHtml(m.label)}</h3>
-            <p class="path"><code>${escapeHtml(m.path)}</code></p>
+            <h3>${escapeHtml(m.label)}${dynamicBadge}</h3>
+            <p class="path"><code>${escapeHtml(displayPath)}</code></p>
           </header>
           <p class="objectif"><strong>Objectif :</strong> ${escapeHtml(m.objectif)}</p>
           ${img}
@@ -178,20 +292,38 @@ function buildHtml(results) {
       .join("\n");
   }
 
-  const tocAdmin = adminModules
-    .map(
-      (m) =>
-        `<li><a href="#${escapeHtml(m.slug)}">${escapeHtml(m.group)} — ${escapeHtml(m.label)}</a></li>`
-    )
-    .join("");
-  const tocCompta = comptaModules
-    .map(
-      (m) =>
-        `<li><a href="#${escapeHtml(m.slug)}">${escapeHtml(m.group)} — ${escapeHtml(m.label)}</a></li>`
-    )
-    .join("");
+  const tocSections = PORTAL_ORDER.map((portalKey) => {
+    const modules = byPortal[portalKey] ?? [];
+    if (!modules.length) return "";
+    const title = PORTAL_META[portalKey]?.title ?? portalKey;
+    const items = modules
+      .map(
+        (m) =>
+          `<li><a href="#${escapeHtml(m.slug)}">${escapeHtml(m.group)} — ${escapeHtml(m.label)}</a></li>`
+      )
+      .join("");
+    return `<h2 style="margin-top:1.5rem">${escapeHtml(title)} (${modules.length})</h2><ul>${items}</ul>`;
+  }).join("");
 
-  const accountsTable = DEMO_ACCOUNTS.map(
+  const portalSections = PORTAL_ORDER.map((portalKey) => {
+    const modules = byPortal[portalKey] ?? [];
+    if (!modules.length) return "";
+    const title = PORTAL_META[portalKey]?.title ?? portalKey;
+    return `
+    <h2 class="portal-title" id="portail-${escapeHtml(portalKey)}">${escapeHtml(title)} <span class="count">(${modules.length} pages)</span></h2>
+    ${renderModuleSection(modules, portalKey)}`;
+  }).join("\n");
+
+  const includedAccountPortals = new Set(
+    PORTAL_ORDER.filter((k) => (byPortal[k] ?? []).length)
+      .map((k) => PORTAL_META[k]?.accountPortal)
+      .filter(Boolean)
+  );
+
+  const accountsTable = DEMO_ACCOUNTS.filter((a) =>
+    includedAccountPortals.has(a.portal)
+  )
+    .map(
     (a) => `
     <tr>
       <td>${escapeHtml(a.portal)}</td>
@@ -202,7 +334,10 @@ function buildHtml(results) {
     </tr>`
   ).join("");
 
-  const captured = results.filter((r) => r.captureOk).length;
+  const captured = sorted.filter((r) => r.captureOk).length;
+  const portalCounts = PORTAL_ORDER.filter((k) => (byPortal[k] ?? []).length)
+    .map((k) => `${PORTAL_META[k]?.title ?? k}: ${(byPortal[k] ?? []).length}`)
+    .join(" · ");
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -254,6 +389,7 @@ function buildHtml(results) {
       margin: 3rem 0 1.5rem;
       page-break-before: always;
     }
+    h2.portal-title .count { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
     h2.portal-title:first-of-type { page-break-before: auto; margin-top: 0; }
     .group-title {
       font-size: 1.2rem;
@@ -282,6 +418,16 @@ function buildHtml(results) {
       background: #ccfbf1;
       padding: 0.2rem 0.5rem;
       border-radius: 4px;
+    }
+    .badge-dynamic {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #b45309;
+      background: #fef3c7;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      vertical-align: middle;
     }
     .path { margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--muted); }
     .objectif { margin: 1rem 0; }
@@ -317,8 +463,8 @@ function buildHtml(results) {
       margin-bottom: 2rem;
     }
     .toc h2 { margin-top: 0; font-size: 1.25rem; }
-    .toc ul { columns: 2; gap: 2rem; padding-left: 1.25rem; }
-    .toc a { color: var(--teal-dark); text-decoration: none; }
+    .toc ul { columns: 2; gap: 2rem; padding-left: 1.25rem; margin: 0.5rem 0 0; }
+    .toc a { color: var(--teal-dark); text-decoration: none; font-size: 0.85rem; }
     .toc a:hover { text-decoration: underline; }
     table.accounts {
       width: 100%;
@@ -356,15 +502,16 @@ function buildHtml(results) {
     <p class="meta">
       Version ${escapeHtml(REPORT_META.version)} · ${escapeHtml(REPORT_META.date)}<br />
       API : ${escapeHtml(REPORT_META.environment)} · App : ${escapeHtml(REPORT_META.appUrl)}<br />
-      ${captured} / ${results.length} captures générées
+      ${captured} / ${sorted.length} captures générées<br />
+      ${escapeHtml(portalCounts)}
     </p>
   </header>
 
   <main>
     <div class="summary-box">
-      <strong>Résumé :</strong> ce document décrit l'utilisation de chaque module du back-office
-      <em>Administrateur</em> et du portail <em>Comptabilité</em>, avec captures d'écran prises sur
-      l'environnement de développement. Les identifiants de démonstration sont listés ci-dessous.
+      <strong>Résumé :</strong> ce document recense <strong>${sorted.length} écrans</strong>
+      des portails <em>Administrateur</em> et <em>Comptabilité</em>, avec captures d'écran
+      prises sur l'environnement de développement.
     </div>
 
     <section id="comptes">
@@ -384,17 +531,11 @@ function buildHtml(results) {
     </section>
 
     <nav class="toc" id="sommaire">
-      <h2>Sommaire — Portail Administrateur</h2>
-      <ul>${tocAdmin}</ul>
-      <h2 style="margin-top:2rem">Sommaire — Portail Comptable</h2>
-      <ul>${tocCompta}</ul>
+      <h2>Sommaire complet (${sorted.length} pages)</h2>
+      ${tocSections}
     </nav>
 
-    <h2 class="portal-title" id="portail-admin">Portail Administrateur</h2>
-    ${renderModuleSection(adminModules, "Administrateur")}
-
-    <h2 class="portal-title" id="portail-compta">Portail Comptabilité</h2>
-    ${renderModuleSection(comptaModules, "Comptable")}
+    ${portalSections}
 
     <footer style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);color:var(--muted);font-size:0.85rem;text-align:center;">
       Document généré automatiquement — UpJunoo Pro · ${escapeHtml(REPORT_META.date)}
@@ -406,6 +547,30 @@ function buildHtml(results) {
 
 async function main() {
   fs.mkdirSync(SCREENSHOTS_DIR, { recursive: true });
+
+  const modules = filterModules(GUIDE_MODULES);
+  console.log(`Pages à capturer : ${modules.length} / ${GUIDE_MODULES.length} dans le guide`);
+
+  if (HTML_ONLY) {
+    const results = modules.map((mod) => {
+      const fileName = `${mod.slug}.png`;
+      const filePath = path.join(SCREENSHOTS_DIR, fileName);
+      const exists = fs.existsSync(filePath);
+      return {
+        ...mod,
+        resolvedPath: mod.capturePath ?? mod.path,
+        screenshot: exists ? `guide-screenshots/${fileName}` : null,
+        captureOk: exists,
+      };
+    });
+    const html = buildHtml(results);
+    fs.writeFileSync(OUTPUT_HTML, html, "utf8");
+    console.log(`\n✅ Rapport HTML (sans capture) : ${OUTPUT_HTML}`);
+    console.log(
+      `   Captures existantes : ${results.filter((r) => r.captureOk).length}/${results.length}`
+    );
+    return;
+  }
 
   const chrome = findChrome();
   if (!chrome) {
@@ -429,23 +594,53 @@ async function main() {
   const page = await browser.newPage();
   const results = [];
 
-  const adminAccount = DEMO_ACCOUNTS.find((a) => a.portal === "Administrateur");
-  const comptaAccount = DEMO_ACCOUNTS.find((a) => a.portal === "Comptable");
+  for (const portalKey of PORTAL_ORDER) {
+    const portalModules = modules.filter((m) => m.portal === portalKey);
+    if (!portalModules.length) continue;
 
-  const adminModules = GUIDE_MODULES.filter((m) => m.portal === "admin");
-  const comptaModules = GUIDE_MODULES.filter((m) => m.portal === "compta");
+    const meta = PORTAL_META[portalKey];
+    console.log(`\n——— ${meta?.title ?? portalKey.toUpperCase()} (${portalModules.length}) ———`);
 
-  console.log("\n——— ADMIN ———");
-  await login(page, "admin", adminAccount);
-  for (const mod of adminModules) {
-    await captureModule(page, mod, results);
-  }
+    if (portalKey === "public") {
+      for (const mod of portalModules) {
+        await captureModule(page, mod, results);
+      }
+      continue;
+    }
 
-  console.log("\n——— COMPTA ———");
-  await clearSession(page);
-  await login(page, "compta", comptaAccount);
-  for (const mod of comptaModules) {
-    await captureModule(page, mod, results);
+    const account = DEMO_ACCOUNTS.find((a) => a.portal === meta?.accountPortal);
+    if (!account) {
+      console.warn(`⚠ Pas de compte démo pour ${portalKey} — pages ignorées`);
+      continue;
+    }
+
+    await clearSession(page);
+    await login(page, portalKey, account);
+
+    for (const mod of portalModules) {
+      if (mod.path === account.loginUrl) {
+        await clearSession(page);
+        await page.goto(`${REPORT_META.appUrl.replace(/\/$/, "")}${mod.path}`, {
+          waitUntil: "networkidle2",
+          timeout: 60_000,
+        });
+        await new Promise((r) => setTimeout(r, 1000));
+        const fileName = `${mod.slug}.png`;
+        await page.screenshot({
+          path: path.join(SCREENSHOTS_DIR, fileName),
+          fullPage: false,
+        });
+        results.push({
+          ...mod,
+          screenshot: `guide-screenshots/${fileName}`,
+          captureOk: true,
+        });
+        console.log(`  📸 ${mod.label} (login)`);
+        await login(page, portalKey, account);
+        continue;
+      }
+      await captureModule(page, mod, results);
+    }
   }
 
   await browser.close();

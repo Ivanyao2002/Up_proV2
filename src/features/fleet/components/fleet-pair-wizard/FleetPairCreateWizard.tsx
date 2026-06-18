@@ -314,7 +314,11 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
       });
 
       if (props.variant === "admin") {
-        if (merged.vehicle.brand) {
+        if (merged.vehicle.brand_code) {
+          setBrandCode((b) => (replace ? merged.vehicle.brand_code! : b || merged.vehicle.brand_code!));
+          setProvenance((p) => ({ ...p, brand: "ai" }));
+          setPendingBrandLabel(null);
+        } else if (merged.vehicle.brand) {
           const brandMatch = matchBrandCatalogCode(props.brands, merged.vehicle.brand);
           if (brandMatch) {
             setBrandCode((b) => (replace ? brandMatch : b || brandMatch));
@@ -328,7 +332,11 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
           setBrandCode("");
           setPendingBrandLabel(null);
         }
-        if (merged.vehicle.color) {
+        if (merged.vehicle.color_code) {
+          setColorCode((c) => (replace ? merged.vehicle.color_code! : c || merged.vehicle.color_code!));
+          setProvenance((p) => ({ ...p, color: "ai" }));
+          setPendingColorLabel(null);
+        } else if (merged.vehicle.color) {
           const colorMatch = matchColorCatalogCode(props.colors, merged.vehicle.color);
           if (colorMatch) {
             setColorCode((c) => (replace ? colorMatch : c || colorMatch));
@@ -351,6 +359,7 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
           } else {
             setModelCode((m) => (replace ? "" : m));
             setPendingModelLabel(merged.vehicle.model);
+            setProvenance((p) => ({ ...p, model: "ai" }));
           }
         } else if (replace) {
           setModelCode("");

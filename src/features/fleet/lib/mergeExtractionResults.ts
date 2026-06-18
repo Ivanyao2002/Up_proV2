@@ -2,7 +2,7 @@ import type {
   DocumentExtractionResult,
   MergedExtraction,
 } from "./documentExtraction.types";
-import { vehicleIdentityPriority } from "@/app/api/document-extract/vehicleDocumentParsers";
+import { vehicleIdentityPriority } from "./vehicleIdentityPriority";
 import { consolidateExtractionWarnings } from "./localizeExtractionWarning";
 
 function mergeVehicleFromResults(
@@ -23,6 +23,10 @@ function mergeVehicleFromResults(
     if (v.model && !vehicle.model) vehicle.model = v.model;
     if (v.year && !vehicle.year) vehicle.year = v.year;
     if (v.color && !vehicle.color) vehicle.color = v.color;
+    if (v.brand_code && !vehicle.brand_code) vehicle.brand_code = v.brand_code;
+    if (v.model_id && !vehicle.model_id) vehicle.model_id = v.model_id;
+    if (v.color_id && !vehicle.color_id) vehicle.color_id = v.color_id;
+    if (v.color_code && !vehicle.color_code) vehicle.color_code = v.color_code;
     if (v.confidence != null && vehicle.confidence == null) {
       vehicle.confidence = v.confidence;
     }

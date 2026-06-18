@@ -536,6 +536,8 @@ export interface LiveMapDriver {
   /** Cap véhicule (degrés) — temps réel socket */
   heading?: number;
   speed_kmh?: number;
+  /** Âge du dernier point GPS (secondes) — snapshot HTTP ou delta socket */
+  location_age_seconds?: number;
   availability: Driver["availability"];
   vehicle: string;
   /** Code ou libellé couleur véhicule (catalogue) */

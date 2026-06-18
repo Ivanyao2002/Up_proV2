@@ -75,7 +75,7 @@ export function ExtractionStep({
         <div className="mx-auto mb-6 h-12 w-12 animate-pulse rounded-full bg-teal/15 ring-4 ring-teal/10" />
         <h2 className="text-lg font-semibold text-heading">Analyse des documents</h2>
         <p className="mt-2 text-sm text-muted">
-          Extraction des informations via IA… Cela peut prendre quelques secondes.
+          Lecture des documents en cours… Cela peut prendre quelques secondes.
         </p>
         <ul className="mt-6 space-y-2 text-left text-sm">
           {groups.map((g, i) => (

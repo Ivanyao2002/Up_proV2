@@ -12,7 +12,9 @@
     "vercel:login": "vercel login",
     "vercel:link": "vercel link",
     "deploy:vercel": "vercel --prod --yes",
-    "guide:report": "node scripts/generate-user-guide-report.mjs"
+    "guide:report": "node scripts/generate-user-guide-report.mjs",
+    "guide:pdf": "node scripts/html-to-pdf.mjs docs/GUIDE-UTILISATION-MODULES-UPJUNOO.html docs/GUIDE-UTILISATION-MODULES-UPJUNOO.pdf",
+    "guide:routes": "node -e \"import { GUIDE_MODULES } from './scripts/guide-modules.data.mjs'; for (const m of GUIDE_MODULES) console.log(m.portal.padEnd(10), m.path);\""
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",

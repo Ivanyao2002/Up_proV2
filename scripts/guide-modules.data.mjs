@@ -1,8 +1,11 @@
 /** Métadonnées modules — guide d'utilisation UpJunoo Pro */
 
+import { discoverAppRoutes, mergeGuideModules } from "./discover-app-routes.mjs";
+import { sortGuideModules } from "./guide-nav-order.mjs";
+
 export const REPORT_META = {
-  title: "Guide d'utilisation — UpJunoo Pro Back-office",
-  subtitle: "Documentation des modules · captures d'écran environnement DEV",
+  title: "Guide d'utilisation — UpJunoo Pro",
+  subtitle: "Portails Administrateur et Comptabilité · captures d'écran environnement DEV",
   version: "1.0",
   date: "17 juin 2026",
   environment: "https://api.upjunoo-dev.tech",
@@ -24,10 +27,73 @@ export const DEMO_ACCOUNTS = [
     password: "123456789",
     scope: "Finances et comptabilité — périmètre pays du comptable",
   },
+  {
+    portal: "Franchise",
+    loginUrl: "/franchise/login",
+    email: process.env.TEST_FRANCHISE_EMAIL ?? "dev.franchise.bf@upjunoo-dev.tech",
+    password: process.env.TEST_FRANCHISE_PASSWORD ?? "Upjunoo@Dev2026!",
+    scope: "Territoire franchise — opérations, flotte, finance locale",
+  },
+  {
+    portal: "Partenaire",
+    loginUrl: "/partner/login",
+    email: process.env.TEST_PARTNER_EMAIL ?? "contact@cocodyexpress.ci",
+    password: process.env.TEST_PARTNER_PASSWORD ?? "demo",
+    scope: "Flotte partenaire — chauffeurs, véhicules, wallet",
+  },
+  {
+    portal: "Dispatch",
+    loginUrl: "/dispatch/login",
+    email: process.env.TEST_DISPATCH_EMAIL ?? "aya.kone@upjunoo.ci",
+    password: process.env.TEST_DISPATCH_PASSWORD ?? "demo",
+    scope: "Console dispatch — réservation et assignation manuelle",
+  },
 ];
 
-/** @type {Array<{portal:'admin'|'compta', group:string, label:string, path:string, slug:string, objectif:string, usage:string[], tips?:string[]}>} */
-export const GUIDE_MODULES = [
+export const PORTAL_META = {
+  admin: { title: "Portail Administrateur", accountPortal: "Administrateur" },
+  compta: { title: "Portail Comptabilité", accountPortal: "Comptable" },
+  franchise: { title: "Portail Franchise", accountPortal: "Franchise" },
+  partner: { title: "Portail Partenaire", accountPortal: "Partenaire" },
+  dispatch: { title: "Portail Dispatch", accountPortal: "Dispatch" },
+  public: { title: "Pages publiques", accountPortal: null },
+};
+
+/** Routes exclues du guide (sous-pages dynamiques non pertinentes). */
+export const GUIDE_EXCLUDED_PATHS = new Set([
+  "/admin/settings/dispatchers/[id]",
+]);
+
+/** Portails inclus par défaut dans le guide. */
+export const GUIDE_DEFAULT_PORTALS = (process.env.GUIDE_PORTALS ?? "admin,compta")
+  .split(",")
+  .map((p) => p.trim())
+  .filter(Boolean);
+
+function applyGuideFilters(modules) {
+  const portalSet = new Set(GUIDE_DEFAULT_PORTALS);
+  return modules.filter(
+    (m) => portalSet.has(m.portal) && !GUIDE_EXCLUDED_PATHS.has(m.path)
+  );
+}
+
+/** Métadonnées enrichies manuellement (fusionnées avec la découverte auto des routes). */
+export const GUIDE_MODULES_MANUAL = [
+  {
+    portal: "admin",
+    group: "OPÉRATIONS",
+    label: "Accueil administrateur",
+    path: "/admin",
+    slug: "admin",
+    capturePath: "/admin/dashboard",
+    objectif:
+      "Point d'entrée du portail administrateur — vue tableau de bord après connexion.",
+    usage: [
+      "Se connecter via /admin/login.",
+      "Accéder au tableau de bord : KPI courses, flux, alertes et activité réseau.",
+      "Naviguer vers les modules via le menu latéral.",
+    ],
+  },
   // ——— ADMIN ———
   {
     portal: "admin",
@@ -496,3 +562,10 @@ export const GUIDE_MODULES = [
     ],
   },
 ];
+
+/** Toutes les routes app (auto) + enrichissements manuels, filtrées admin + compta. */
+export const GUIDE_MODULES = sortGuideModules(
+  applyGuideFilters(
+    mergeGuideModules(discoverAppRoutes(), GUIDE_MODULES_MANUAL)
+  )
+);

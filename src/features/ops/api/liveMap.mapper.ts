@@ -143,6 +143,7 @@ function mapDriver(
     lng: coords.lng,
     heading: loc?.heading ?? undefined,
     speed_kmh: loc?.speedKmh ?? undefined,
+    location_age_seconds: loc?.ageSeconds ?? undefined,
     availability: mapAvailability(
       driver.availabilityStatus,
       Boolean(active_trip)

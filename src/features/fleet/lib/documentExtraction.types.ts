@@ -23,6 +23,11 @@ export interface ExtractedVehicleFields {
   model?: string | null;
   year?: number | null;
   color?: string | null;
+  /** Code catalogue renvoyé par l'OCR carte grise (`prefill.brandCode`). */
+  brand_code?: string | null;
+  model_id?: string | null;
+  color_id?: string | null;
+  color_code?: string | null;
   confidence?: number;
 }
 

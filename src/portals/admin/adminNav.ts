@@ -129,12 +129,12 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "wallet",
         permission: "finance.transactions.view",
       },
-      {
-        label: "Interface comptable",
-        path: "/compta",
-        icon: "reports",
-        permission: "finance.transactions.view",
-      },
+      // {
+      //   label: "Interface comptable",
+      //   path: "/compta",
+      //   icon: "reports",
+      //   permission: "finance.transactions.view",
+      // },
       {
         label: "Ledger comptable",
         path: "/admin/finance/ledger",

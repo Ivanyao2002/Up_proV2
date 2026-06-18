@@ -6,8 +6,7 @@ import {
   wizardFilesForExtraction,
   type RectoVersoFiles,
 } from "@/shared/types/documentUpload";
-import { resolveDocumentExtractProvider } from "@/app/api/document-extract/config";
-import { runDocumentExtraction } from "@/app/api/document-extract/extractProviders";
+import { extractKycOcrGroup } from "@/features/fleet/api/kycOcr.service";
 import { runPaddleOcrOnFile } from "@/app/api/document-extract/paddleOcrClient";
 import {
   assignSlots,
@@ -131,17 +130,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Ajoutez au moins une image." }, { status: 400 });
   }
 
-  const provider = resolveDocumentExtractProvider(
-    (form.get("provider") as string | null) ?? process.env.DOCUMENT_EXTRACT_PROVIDER
-  );
-  const apiKey = process.env.OPENROUTER_API_KEY ?? "";
-
-  if (provider === "openrouter" && !apiKey) {
-    return NextResponse.json(
-      { message: "OPENROUTER_API_KEY manquant ou utilisez DOCUMENT_EXTRACT_PROVIDER=rules." },
-      { status: 503 }
-    );
-  }
 
   try {
     let partnerId: string | undefined;
@@ -213,12 +201,11 @@ export async function POST(req: NextRequest) {
 
     const extractionResults = await Promise.all(
       extractionGroups.map((group) =>
-        runDocumentExtraction(
-          provider,
-          apiKey,
+        extractKycOcrGroup(
           group.type as ExtractionDocumentType,
           group.files,
-          group.vehicleSubtype
+          group.vehicleSubtype,
+          { server: true }
         )
       )
     );
