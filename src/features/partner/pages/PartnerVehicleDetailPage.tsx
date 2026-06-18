@@ -100,7 +100,13 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
             <KycDocumentCard
               document={vehicle.registration_document}
               canUpload={canUpload}
-              onUpload={() => uploadRegistration.mutate()}
+              uploadHint="PDF ou image (JPG, PNG) · max 5 Mo"
+              onUpload={(file) => {
+                uploadRegistration.mutate(file, {
+                  onError: () =>
+                    notificationService.error("Échec de l'envoi de la carte grise"),
+                });
+              }}
             />
           </div>
         </div>

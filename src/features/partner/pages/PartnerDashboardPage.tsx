@@ -104,11 +104,16 @@ export function PartnerDashboardPage() {
                     >
                       {trip.ref}
                     </Link>
-                    <p className="mt-0.5 truncate text-xs text-muted">
-                      <span className="text-foreground/80">{trip.from_label}</span>
-                      <span className="mx-1">→</span>
-                      <span>{trip.to_label}</span>
-                    </p>
+                    <div className="mt-1 space-y-0.5">
+                      <p className="truncate text-xs" title={trip.from_label}>
+                        <span className="text-muted">Départ · </span>
+                        <span className="text-foreground/90">{trip.from_label}</span>
+                      </p>
+                      <p className="truncate text-xs" title={trip.to_label}>
+                        <span className="text-muted">Arrivée · </span>
+                        <span className="text-foreground/90">{trip.to_label}</span>
+                      </p>
+                    </div>
                   </div>
                   <div className="flex shrink-0 flex-col items-end gap-1.5">
                     <p className="text-sm font-medium tabular-nums">

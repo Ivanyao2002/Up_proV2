@@ -18,6 +18,7 @@ import { notificationService } from "@/core/http/notificationService";
 import type { KycDocument } from "@/shared/types";
 import {
   usePartnerDriverDetail,
+  useUpdatePartnerDriver,
   useUploadPartnerDriverDocument,
 } from "../api/drivers.queries";
 import {
@@ -29,7 +30,9 @@ import type {
   PartnerDriverWalletTransaction,
 } from "../api/partnerDriverDetail.service";
 import { PartnerDriverLiveMap } from "../components/PartnerDriverLiveMap";
+import { PartnerDriverEditModal } from "../components/PartnerDriverEditModal";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
+import type { CreateDriverPayload } from "../api/drivers.service";
 
 interface PartnerDriverDetailPageProps {
   driverId: string;
@@ -42,12 +45,14 @@ function canUploadDoc(doc: KycDocument): boolean {
 export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPageProps) {
   const [tab, setTab] = useState("overview");
   const [showWallet, setShowWallet] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data: driver, isLoading, isError } = usePartnerDriverDetail(driverId);
   const { data: tripsData, isLoading: tripsLoading } = usePartnerDriverTrips(driverId);
   const { data: walletData, isLoading: walletLoading } =
     usePartnerDriverWalletTransactions(driverId, showWallet);
   const uploadDoc = useUploadPartnerDriverDocument(driverId);
+  const updateDriver = useUpdatePartnerDriver(driverId);
 
   const stats = driver?.stats ?? {
     trips_total: 0,
@@ -166,6 +171,9 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
         breadcrumb={["Partenaire", "Chauffeurs", fullName]}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <Button variant="secondary" onClick={() => setShowEditModal(true)}>
+              Modifier
+            </Button>
             <AccountStatusPill status={driver.account_status} />
             <AvailabilityPill status={driver.availability} />
             {showLiveMap && (
@@ -175,6 +183,21 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             )}
           </div>
         }
+      />
+      <PartnerDriverEditModal
+        open={showEditModal}
+        driver={driver}
+        isSaving={updateDriver.isPending}
+        onClose={() => setShowEditModal(false)}
+        onSave={(data: CreateDriverPayload) => {
+          updateDriver.mutate(data, {
+            onSuccess: () => {
+              notificationService.success("Chauffeur mis à jour");
+              setShowEditModal(false);
+            },
+            onError: () => notificationService.error("Impossible de modifier le chauffeur"),
+          });
+        }}
       />
       <p className="-mt-4 mb-6 text-sm text-muted">
         {driver.phone}

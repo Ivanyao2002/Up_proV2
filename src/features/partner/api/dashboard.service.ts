@@ -5,74 +5,95 @@ import type { DashboardPartnerKpi, TripStatus } from "@/shared/types";
 interface PartnerDashboardApiResponse {
   status: string;
   generatedAt?: string;
-  dashboard: {
-    fleetName?: string;
-    driversCount?: number;
-    driversOnline?: number;
-    driversPendingKyc?: number;
-    vehiclesCount?: number;
-    tripsToday?: number;
-    tripsCompletedToday?: number;
-    tripsCancelledToday?: number;
-    revenueToday?: number;
-    revenueTrendPct?: number;
-    walletBalance?: number;
-    pendingWithdrawal?: number;
-    chartFlux?: { day: string; revenue: number; trips: number }[];
-    recentTrips?: ApiRecentTrip[];
-  };
+  dashboard?: Record<string, unknown>;
 }
 
-interface ApiRecentTrip {
-  id: string;
-  ref?: string;
-  status?: string;
-  amount?: number;
-  amount_fcfa?: number;
-  created_at?: string;
-  pickup_address?: string | null;
-  dropoff_address?: string | null;
-  from_label?: string | null;
-  to_label?: string | null;
-  driver_name?: string | null;
+function readString(
+  source: Record<string, unknown>,
+  ...keys: string[]
+): string | undefined {
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return undefined;
 }
 
-function mapRecentTrip(raw: ApiRecentTrip): DashboardPartnerKpi["recent_trips"][0] {
+function readNumber(
+  source: Record<string, unknown>,
+  ...keys: string[]
+): number | undefined {
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "number" && !Number.isNaN(value)) return value;
+  }
+  return undefined;
+}
+
+function mapRecentTrip(raw: Record<string, unknown>): DashboardPartnerKpi["recent_trips"][0] {
   return {
-    id: String(raw.id),
-    ref: raw.ref?.trim() || "—",
+    id: String(raw.id ?? ""),
+    ref:
+      readString(raw, "ref", "orderReference", "order_reference") ?? "—",
     from_label:
-      raw.from_label?.trim() ||
-      raw.pickup_address?.trim() ||
-      "—",
+      readString(
+        raw,
+        "from_label",
+        "fromLabel",
+        "pickup_address",
+        "pickupAddress"
+      ) ?? "—",
     to_label:
-      raw.to_label?.trim() ||
-      raw.dropoff_address?.trim() ||
-      "—",
-    driver_name: raw.driver_name?.trim() || undefined,
-    amount_fcfa: raw.amount_fcfa ?? raw.amount ?? 0,
-    status: (raw.status ?? "pending") as TripStatus,
-    created_at: raw.created_at ?? "",
+      readString(
+        raw,
+        "to_label",
+        "toLabel",
+        "dropoff_address",
+        "dropoffAddress"
+      ) ?? "—",
+    driver_name: readString(raw, "driver_name", "driverName"),
+    amount_fcfa:
+      readNumber(raw, "amount_fcfa", "amountFcfa", "amount", "amountXof", "amount_xof") ?? 0,
+    status: (readString(raw, "status") ?? "pending") as TripStatus,
+    created_at:
+      readString(raw, "created_at", "createdAt") ?? "",
   };
 }
 
 function mapApiResponse(raw: PartnerDashboardApiResponse): DashboardPartnerKpi {
   const d = raw.dashboard ?? {};
+  const recentRaw =
+    (Array.isArray(d.recentTrips) ? d.recentTrips : null) ??
+    (Array.isArray(d.recent_trips) ? d.recent_trips : null) ??
+    [];
+
   return {
-    fleet_name: d.fleetName ?? "Ma flotte",
-    trips_today: d.tripsToday ?? 0,
-    trips_completed_today: d.tripsCompletedToday ?? 0,
-    trips_cancelled_today: d.tripsCancelledToday ?? 0,
-    drivers_total: d.driversCount ?? 0,
-    drivers_online: d.driversOnline ?? 0,
-    drivers_pending_kyc: d.driversPendingKyc ?? 0,
-    vehicles_total: d.vehiclesCount ?? 0,
-    revenue_today_fcfa: d.revenueToday ?? 0,
-    revenue_trend_pct: d.revenueTrendPct ?? 0,
-    wallet_balance_fcfa: d.walletBalance ?? 0,
-    pending_withdrawal_fcfa: d.pendingWithdrawal ?? 0,
-    chart_flux: d.chartFlux ?? [],
-    recent_trips: (d.recentTrips ?? []).map(mapRecentTrip),
+    fleet_name: readString(d, "fleetName", "fleet_name") ?? "Ma flotte",
+    trips_today: readNumber(d, "tripsToday", "trips_today") ?? 0,
+    trips_completed_today:
+      readNumber(d, "tripsCompletedToday", "trips_completed_today") ?? 0,
+    trips_cancelled_today:
+      readNumber(d, "tripsCancelledToday", "trips_cancelled_today") ?? 0,
+    drivers_total: readNumber(d, "driversCount", "drivers_count") ?? 0,
+    drivers_online: readNumber(d, "driversOnline", "drivers_online") ?? 0,
+    drivers_pending_kyc:
+      readNumber(d, "driversPendingKyc", "drivers_pending_kyc") ?? 0,
+    vehicles_total: readNumber(d, "vehiclesCount", "vehicles_count") ?? 0,
+    revenue_today_fcfa:
+      readNumber(d, "revenueToday", "revenue_today", "revenueTodayFcfa") ?? 0,
+    revenue_trend_pct:
+      readNumber(d, "revenueTrendPct", "revenue_trend_pct") ?? 0,
+    wallet_balance_fcfa:
+      readNumber(d, "walletBalance", "wallet_balance") ?? 0,
+    pending_withdrawal_fcfa:
+      readNumber(d, "pendingWithdrawal", "pending_withdrawal") ?? 0,
+    chart_flux:
+      (Array.isArray(d.chartFlux) ? d.chartFlux : null) ??
+      (Array.isArray(d.chart_flux) ? d.chart_flux : null) ??
+      [],
+    recent_trips: recentRaw.map((trip) =>
+      mapRecentTrip(trip as Record<string, unknown>)
+    ),
   };
 }
 

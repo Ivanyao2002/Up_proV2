@@ -17,30 +17,30 @@ export const PARTNER_NAV: NavGroup[] = [
         icon: "fleet",
         permission: "fleet.drivers.view",
       },
-      {
-        label: "Véhicules à valider",
-        path: "/partner/fleet/pending",
-        icon: "fleet-pending",
-        permission: "fleet.drivers.view",
-      },
+      // {
+      //   label: "Véhicules à valider",
+      //   path: "/partner/fleet/pending",
+      //   icon: "fleet-pending",
+      //   permission: "fleet.drivers.view",
+      // },
       {
         label: "Chauffeurs",
         path: "/partner/drivers",
         icon: "drivers",
         permission: "fleet.drivers.view",
       },
-      {
-        label: "Chauffeurs KYC",
-        path: "/partner/drivers/pending",
-        icon: "drivers-pending",
-        permission: "fleet.drivers.view",
-      },
-      {
-        label: "Réservations",
-        path: "/partner/bookings",
-        icon: "trips",
-        permission: "ops.trips.view",
-      },
+      // {
+      //   label: "Chauffeurs KYC",
+      //   path: "/partner/drivers/pending",
+      //   icon: "drivers-pending",
+      //   permission: "fleet.drivers.view",
+      // },
+      // {
+      //   label: "Réservations",
+      //   path: "/partner/bookings",
+      //   icon: "trips",
+      //   permission: "ops.trips.view",
+      // },
       {
         label: "Courses",
         path: "/partner/orders",

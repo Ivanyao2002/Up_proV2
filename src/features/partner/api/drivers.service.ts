@@ -326,4 +326,56 @@ export const partnerDriversService = {
       phoneVerified: context?.phoneVerified,
     });
   },
+
+  update: async (
+    driverId: string,
+    data: Partial<CreateDriverPayload>
+  ): Promise<DriverDetail> => {
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable.");
+    }
+
+    const body: Record<string, string | undefined> = {
+      firstName: data.first_name?.trim(),
+      lastName: data.last_name?.trim(),
+      phone: data.phone ? normalizePhoneE164(data.phone) : undefined,
+      email: data.email?.trim(),
+      zone: data.zone?.trim(),
+    };
+
+    await apiClient.patch(
+      LINKS.partner.drivers.getById(partnerId, driverId),
+      body
+    );
+
+    return partnerDriversService.getById(driverId);
+  },
+
+  setAvailability: async (
+    driverId: string,
+    availability: "online" | "offline"
+  ): Promise<void> => {
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable.");
+    }
+
+    await apiClient.patch(LINKS.partner.drivers.getById(partnerId, driverId), {
+      availability_status: availability,
+      availability,
+    });
+  },
+
+  suspend: async (driverId: string): Promise<void> => {
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable.");
+    }
+
+    await apiClient.patch(LINKS.partner.drivers.getById(partnerId, driverId), {
+      account_status: "suspended",
+      approval_status: "suspended",
+    });
+  },
 };

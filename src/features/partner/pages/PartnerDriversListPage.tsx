@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { formatDate } from "@/shared/lib/format";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
@@ -11,7 +10,10 @@ import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
 import { Button } from "@/shared/ui/Button";
 import { BulkActionBar } from "@/shared/ui/BulkActionBar";
 import { notificationService } from "@/core/http/notificationService";
-import { driverBulkStatusMessage } from "@/shared/lib/bulkLabels";
+import {
+  driverBulkStatusMessage,
+  driverBulkSuspendMessage,
+} from "@/shared/lib/bulkLabels";
 import {
   getDriverAccountStatusLabel,
   getDriverAvailabilityLabel,
@@ -24,14 +26,15 @@ import {
 import type { Driver } from "@/shared/types";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { usePartnerDriversList } from "../api/drivers.queries";
+import { partnerDriversService } from "../api/drivers.service";
 
 interface PartnerDriversListPageProps {
   pendingOnly?: boolean;
 }
 
 export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPageProps) {
-  const router = useRouter();
   const [selected, setSelected] = useState<Set<string | number>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const table = useServerTableState([], {
     ...(pendingOnly ? { account_status: "pending" } : {}),
@@ -41,14 +44,34 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
     search: { value: table.search, set: table.setSearch },
   });
 
-  const { data, isLoading, isError } = usePartnerDriversList(table.listParams);
+  const { data, isLoading, isError, refetch } = usePartnerDriversList(table.listParams);
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
+  const selectedIds = Array.from(selected).map(String);
+  const selectedDrivers = rows.filter((driver) => selected.has(driver.id));
 
-  const kpiOnline = rows.filter(d => d.availability === "online").length;
-  const kpiInTrip = rows.filter(d => d.availability === "on_trip").length;
-  const kpiOffline = rows.filter(d => d.availability === "offline").length;
+  const kpiOnline = rows.filter((d) => d.availability === "online").length;
+  const kpiInTrip = rows.filter((d) => d.availability === "on_trip").length;
+  const kpiOffline = rows.filter((d) => d.availability === "offline").length;
+
+  const runBulkAction = async (
+    action: (driverId: string) => Promise<void>,
+    successMessage: string
+  ) => {
+    if (selectedIds.length === 0) return;
+    setBulkBusy(true);
+    try {
+      await Promise.all(selectedIds.map((id) => action(id)));
+      notificationService.success(successMessage);
+      setSelected(new Set());
+      await refetch();
+    } catch {
+      notificationService.error("Action impossible sur la sélection.");
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   const columns: Column<Driver>[] = [
     {
@@ -73,13 +96,6 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
       header: "Téléphone",
       cell: (d) => d.phone,
       exportValue: (d) => d.phone,
-    },
-    {
-      id: "zone",
-      header: "Zone",
-      cell: (d) => d.zone,
-      exportValue: (d) => d.zone,
-      sortKey: (d) => d.zone ?? "",
     },
     {
       id: "vehicle",
@@ -112,46 +128,24 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
       cell: (d) => <AvailabilityPill status={d.availability} />,
       exportValue: (d) => getDriverAvailabilityLabel(d.availability),
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: (d) => (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            className="px-2 py-1 text-xs"
-            onClick={() => router.push(`/partner/drivers/${d.id}`)}
-          >
-            Voir
-          </Button>
-          <Button
-            variant="ghost"
-            className="px-2 py-1 text-xs"
-            onClick={() => router.push(`/partner/drivers/${d.id}?edit=1`)}
-          >
-            Modifier
-          </Button>
-          <Button
-            variant="ghost"
-            className={`px-2 py-1 text-xs ${d.suspended ? "text-teal" : "text-red-600"}`}
-            onClick={() => {
-              notificationService.success(
-                d.suspended
-                  ? "Chauffeur réactivé (à brancher sur l'API)"
-                  : "Chauffeur suspendu (à brancher sur l'API)"
-              );
-            }}
-          >
-            {d.suspended ? "Réactiver" : "Suspendre"}
-          </Button>
-        </div>
-      ),
-    },
   ];
 
   if (isError) {
     return <p className="text-sm text-red-600">Impossible de charger les chauffeurs.</p>;
   }
+
+  const canSetOnline = selectedDrivers.some(
+    (driver) =>
+      !driver.suspended &&
+      driver.account_status !== "suspended" &&
+      driver.account_status !== "banned"
+  );
+  const canSuspend = selectedDrivers.some(
+    (driver) =>
+      !driver.suspended &&
+      driver.account_status !== "suspended" &&
+      driver.account_status !== "banned"
+  );
 
   return (
     <div className="animate-fade-up pb-24">
@@ -214,15 +208,33 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
           count={selected.size}
           onClear={() => setSelected(new Set())}
           actions={[
-            {
-              label: "Mettre en ligne",
-              onClick: () => {
-                notificationService.success(
-                  driverBulkStatusMessage(selected.size, "online")
-                );
-                setSelected(new Set());
-              },
-            },
+            ...(canSetOnline
+              ? [
+                  {
+                    label: "Mettre en ligne",
+                    disabled: bulkBusy,
+                    onClick: () =>
+                      void runBulkAction(
+                        (id) => partnerDriversService.setAvailability(id, "online"),
+                        driverBulkStatusMessage(selected.size, "online")
+                      ),
+                  },
+                ]
+              : []),
+            ...(canSuspend
+              ? [
+                  {
+                    label: "Suspendre",
+                    variant: "secondary" as const,
+                    disabled: bulkBusy,
+                    onClick: () =>
+                      void runBulkAction(
+                        (id) => partnerDriversService.suspend(id),
+                        driverBulkSuspendMessage(selected.size)
+                      ),
+                  },
+                ]
+              : []),
           ]}
         />
       )}

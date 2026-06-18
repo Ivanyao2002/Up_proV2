@@ -24,7 +24,10 @@ export function buildV1ListQuery(params?: ListParams): string {
   qs.set("limit", String(limit));
 
   if (params.search?.trim()) qs.set("search", params.search.trim());
-  if (params.status && params.status !== "all") qs.set("status", params.status);
+  if (params.status && params.status !== "all") {
+    qs.set("status", params.status);
+    qs.set("approvalStatus", params.status);
+  }
   if (params.zone && params.zone !== "all") qs.set("zone", params.zone);
   if (params.availability && params.availability !== "all") {
     qs.set("availability", params.availability);

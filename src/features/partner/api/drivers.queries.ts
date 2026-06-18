@@ -62,7 +62,19 @@ export function useUploadPartnerDriverDocument(driverId: string) {
       partnerDriversService.uploadDocument(driverId, type, file),
     onSuccess: (data) => {
       qc.setQueryData(partnerDriversKeys.detail(driverId), data);
-      void qc.invalidateQueries({ queryKey: partnerDriversKeys.list() });
+      void qc.invalidateQueries({ queryKey: partnerDriversKeys.all });
+    },
+  });
+}
+
+export function useUpdatePartnerDriver(driverId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<CreateDriverPayload>) =>
+      partnerDriversService.update(driverId, data),
+    onSuccess: (data) => {
+      qc.setQueryData(partnerDriversKeys.detail(driverId), data);
+      void qc.invalidateQueries({ queryKey: partnerDriversKeys.all });
     },
   });
 }
