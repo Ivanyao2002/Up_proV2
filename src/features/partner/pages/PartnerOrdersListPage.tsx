@@ -4,8 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
-import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
-import { FilterChips } from "@/shared/ui/FilterChips";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getTripStatusLabel, STATUS_FILTER_OPTIONS } from "@/shared/lib/tripLabels";
@@ -15,11 +13,11 @@ import {
   serverPaginationFromMeta,
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
-import { DateRangeFilter } from "@/shared/ui/DateRangeFilter";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import type { TripStatus } from "@/shared/types";
 import type { PartnerBooking } from "../api/bookings.service";
 import { usePartnerOrdersList } from "../api/orders.queries";
+import { PartnerListFiltersPanel } from "../components/PartnerListFiltersPanel";
 
 export function PartnerOrdersListPage() {
   const [statusFilter, setStatusFilter] = useState<TripStatus | "all">("all");
@@ -119,9 +117,11 @@ export function PartnerOrdersListPage() {
   ];
 
   const allRows = data?.data ?? [];
-  const kpiCompleted = allRows.filter(b => b.status === "completed").length;
-  const kpiInProgress = allRows.filter(b => b.status === "in_progress").length;
-  const kpiCancelled = allRows.filter(b => b.status === "cancelled").length;
+  const counters = data?.counters;
+  const kpiCompleted = counters?.completed ?? allRows.filter((b) => b.status === "completed").length;
+  const kpiInProgress = counters?.in_progress ?? allRows.filter((b) => b.status === "in_progress").length;
+  const kpiCancelled = counters?.cancelled ?? allRows.filter((b) => b.status === "cancelled").length;
+  const kpiTotal = counters?.total ?? meta?.total ?? 0;
 
   if (isError) {
     return <p className="text-sm text-red-600">Impossible de charger les courses.</p>;
@@ -136,36 +136,27 @@ export function PartnerOrdersListPage() {
 
       {(meta || isLoading) && (
         <div className="mb-5 grid gap-3 grid-cols-2 sm:grid-cols-4">
-          <KpiCard index={0} label="Total courses" value={String(meta?.total ?? 0)} isLoading={isLoading} />
+          <KpiCard index={0} label="Total courses" value={String(kpiTotal)} isLoading={isLoading} />
           <KpiCard index={1} label="En cours" value={String(kpiInProgress)} isLoading={isLoading} />
           <KpiCard index={2} label="Complétées" value={String(kpiCompleted)} isLoading={isLoading} />
           <KpiCard index={3} label="Annulées" value={String(kpiCancelled)} isLoading={isLoading} />
         </div>
       )}
 
-      <TableFiltersBar
+      <PartnerListFiltersPanel
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        statusOptions={STATUS_FILTER_OPTIONS}
+        allStatusValue="all"
+        dateRange={dateRange}
         search={table.search}
         onSearchChange={table.setSearch}
         searchPlaceholder="Réf., client, adresse, chauffeur…"
         totalLabel={meta ? `${meta.total} courses enregistrées` : undefined}
         hasActiveFilters={hasActiveFilters}
-        onReset={resetAll}
-      >
-        <FilterChips
-          options={STATUS_FILTER_OPTIONS}
-          value={statusFilter}
-          onChange={setStatusFilter}
-        />
-        <DateRangeFilter
-          preset={dateRange.preset}
-          onPresetChange={dateRange.setPreset}
-          customFrom={dateRange.customFrom}
-          customTo={dateRange.customTo}
-          onCustomFromChange={dateRange.setCustomFrom}
-          onCustomToChange={dateRange.setCustomTo}
-          rangeLabel={dateRange.rangeLabel}
-        />
-      </TableFiltersBar>
+        onResetAll={resetAll}
+        showAllDatePreset={false}
+      />
 
       <DataTable
         columns={columns}

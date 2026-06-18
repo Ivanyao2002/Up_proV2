@@ -1,9 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { VehicleApprovalStatus } from "@/shared/types";
 import { DATE_RANGE_PRESET_LABELS } from "@/shared/lib/dateRange";
-import { getVehicleApprovalLabel } from "@/shared/lib/vehicleLabels";
 import { Button } from "@/shared/ui/Button";
 import { DateRangeFilter } from "@/shared/ui/DateRangeFilter";
 import { FilterChips } from "@/shared/ui/FilterChips";
@@ -17,10 +15,11 @@ import type { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 
 type DateRangeState = ReturnType<typeof useDateRangeFilter>;
 
-interface PartnerVehiclesFiltersPanelProps {
-  statusFilter: VehicleApprovalStatus | "all";
-  onStatusFilterChange: (value: VehicleApprovalStatus | "all") => void;
-  statusOptions: { value: VehicleApprovalStatus | "all"; label: string }[];
+interface PartnerListFiltersPanelProps<T extends string> {
+  statusFilter: T;
+  onStatusFilterChange: (value: T) => void;
+  statusOptions: { value: T; label: string }[];
+  allStatusValue: T;
   showStatusFilters?: boolean;
   dateRange: DateRangeState;
   search: string;
@@ -29,6 +28,7 @@ interface PartnerVehiclesFiltersPanelProps {
   totalLabel?: string;
   hasActiveFilters: boolean;
   onResetAll: () => void;
+  showAllDatePreset?: boolean;
 }
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -50,26 +50,29 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
-export function PartnerVehiclesFiltersPanel({
+export function PartnerListFiltersPanel<T extends string>({
   statusFilter,
   onStatusFilterChange,
   statusOptions,
+  allStatusValue,
   showStatusFilters = true,
   dateRange,
   search,
   onSearchChange,
-  searchPlaceholder = "Marque, plaque, chauffeur…",
+  searchPlaceholder = "Rechercher…",
   totalLabel,
   hasActiveFilters,
   onResetAll,
-}: PartnerVehiclesFiltersPanelProps) {
+  showAllDatePreset = true,
+}: PartnerListFiltersPanelProps<T>) {
   const [expanded, setExpanded] = useState(false);
 
   const activeSummary = useMemo(() => {
     const items: string[] = [];
 
-    if (showStatusFilters && statusFilter !== "all") {
-      items.push(getVehicleApprovalLabel(statusFilter));
+    if (showStatusFilters && statusFilter !== allStatusValue) {
+      const label = statusOptions.find((option) => option.value === statusFilter)?.label;
+      if (label) items.push(label);
     }
 
     if (dateRange.preset !== "all") {
@@ -88,6 +91,8 @@ export function PartnerVehiclesFiltersPanel({
   }, [
     showStatusFilters,
     statusFilter,
+    allStatusValue,
+    statusOptions,
     dateRange.preset,
     dateRange.rangeLabel,
     search,
@@ -209,7 +214,7 @@ export function PartnerVehiclesFiltersPanel({
                 customTo={dateRange.customTo}
                 onCustomFromChange={dateRange.setCustomFrom}
                 onCustomToChange={dateRange.setCustomTo}
-                showAllPreset
+                showAllPreset={showAllDatePreset}
                 rangeLabel={dateRange.rangeLabel}
                 className="w-full"
               />

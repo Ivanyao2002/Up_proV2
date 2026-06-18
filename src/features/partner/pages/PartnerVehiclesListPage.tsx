@@ -18,7 +18,7 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { Vehicle, VehicleApprovalStatus } from "@/shared/types";
 import { usePartnerVehiclesList } from "../api/vehicles.queries";
-import { PartnerVehiclesFiltersPanel } from "../components/PartnerVehiclesFiltersPanel";
+import { PartnerListFiltersPanel } from "../components/PartnerListFiltersPanel";
 
 const STATUS_FILTERS: { value: VehicleApprovalStatus | "all"; label: string }[] = [
   { value: "all", label: "Tous" },
@@ -160,11 +160,12 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
         </div>
       )}
 
-      <PartnerVehiclesFiltersPanel
+      <PartnerListFiltersPanel
         showStatusFilters={!pendingOnly}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         statusOptions={STATUS_FILTERS}
+        allStatusValue="all"
         dateRange={dateRange}
         search={table.search}
         onSearchChange={table.setSearch}
