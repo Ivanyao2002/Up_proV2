@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/shared/ui/Button";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { AdminDriverRechargeModal } from "../components/AdminDriverRechargeModal";
@@ -45,15 +44,7 @@ const STATUS_FILTERS: {
   { value: "failed", label: DRIVER_TRANSFER_STATUS.failed.label },
 ];
 
-export function AdminDriverTransfersPage({
-  title = "Recharges chauffeurs",
-  breadcrumb = ["Admin", "Finance", "Recharges"],
-  readOnly = false,
-}: {
-  title?: string;
-  breadcrumb?: string[];
-  readOnly?: boolean;
-} = {}) {
+export function AdminDriverTransfersPage() {
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [sourceFilter, setSourceFilter] =
     useState<(typeof SOURCE_OPTIONS)[number]["value"]>("all");
@@ -158,31 +149,19 @@ export function AdminDriverTransfersPage({
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title={title}
-        breadcrumb={breadcrumb}
+        title="Recharges chauffeurs"
+        breadcrumb={["Admin", "Finance", "Recharges"]}
         actions={
-          readOnly ? undefined : (
-            <Button variant="primary" onClick={() => setRechargeOpen(true)}>
-              Nouvelle recharge
-            </Button>
-          )
+          <Button variant="primary" onClick={() => setRechargeOpen(true)}>
+            Nouvelle recharge
+          </Button>
         }
       />
 
-      {readOnly ? (
-        <p className="mb-4 text-sm text-muted">
-          Consultation seule — les recharges manuelles se font dans{" "}
-          <Link href="/admin/finance/driver-transfers" className="text-teal underline">
-            Finance admin
-          </Link>
-          .
-        </p>
-      ) : (
-        <p className="mb-6 max-w-2xl text-sm text-muted">
-          Vue plateforme de tous les transferts partenaires et franchises vers les
-          portefeuilles mobiles chauffeurs : montants, statuts et historique.
-        </p>
-      )}
+      <p className="mb-6 max-w-2xl text-sm text-muted">
+        Vue plateforme de tous les transferts partenaires et franchises vers les
+        portefeuilles mobiles chauffeurs : montants, statuts et historique.
+      </p>
 
       {statsLoading ? (
         <div className="mb-6 grid gap-4 sm:grid-cols-3">
@@ -255,12 +234,10 @@ export function AdminDriverTransfersPage({
         />
       )}
 
-      {!readOnly ? (
-        <AdminDriverRechargeModal
-          open={rechargeOpen}
-          onClose={() => setRechargeOpen(false)}
-        />
-      ) : null}
+      <AdminDriverRechargeModal
+        open={rechargeOpen}
+        onClose={() => setRechargeOpen(false)}
+      />
     </div>
   );
 }

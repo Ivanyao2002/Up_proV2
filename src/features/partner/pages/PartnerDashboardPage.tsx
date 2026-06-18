@@ -48,7 +48,7 @@ export function PartnerDashboardPage() {
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href="/partner/trips" className="block">
+          <Link href="/partner/orders" className="block">
             <KpiCard
               label="Courses aujourd'hui"
               value={String(data.trips_today)}
@@ -146,7 +146,7 @@ export function PartnerDashboardPage() {
             </ul>
             <div className="border-t border-border bg-slate-50/50 px-6 py-3">
               <div className="flex items-center justify-between">
-                <Link href="/partner/trips" className="text-sm text-amber-700 hover:text-amber-800 hover:underline">
+                <Link href="/partner/orders" className="text-sm text-amber-700 hover:text-amber-800 hover:underline">
                   Voir toutes les courses →
                 </Link>
               </div>

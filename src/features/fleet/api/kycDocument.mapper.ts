@@ -200,8 +200,12 @@ export function mapApiKycItemsForDriver(
 
 /** Regroupe recto/verso (CNI, permis) pour l'affichage fiche chauffeur. */
 export function organizeDriverKycDocuments(
-  documents: KycDocument[]
+  documents: KycDocument[] | null | undefined
 ): KycDocumentDisplayItem[] {
+  if (!documents || !Array.isArray(documents)) {
+    return [];
+  }
+
   const grouped = new Map<string, KycDocument[]>();
   const singles: KycDocument[] = [];
 

@@ -10,12 +10,14 @@ interface PortalTopbarProps extends PortalShellTopbarProps {
   scopeLabel: string;
   badge: string;
   loginPath: string;
+  extraActions?: React.ReactNode;
 }
 
 export function PortalTopbar({
   scopeLabel,
   badge,
   loginPath,
+  extraActions,
   onMenuToggle,
   mobileNavOpen,
 }: PortalTopbarProps) {
@@ -30,6 +32,7 @@ export function PortalTopbar({
         </span>
       </div>
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        {extraActions}
         <ThemeToggle />
         <span className="hidden max-w-[8rem] truncate text-sm text-muted sm:inline md:max-w-none">
           {user?.name}

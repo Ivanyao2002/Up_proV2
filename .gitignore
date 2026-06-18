@@ -13,14 +13,15 @@ REACT_REFONTE_KICKSTART.md
 CONTEXTE.md
 RAPPORT-API-MANQUANTE-PARTENAIRE.md
 rapport-activite/
-
-
+Module finance/
+AUDIT-ENDPOINTS-PARTENAIRE.md
+scripts/audit-results/
+guide-pdf/
 
 # testing
 /coverage
 docs/
-.tmp-cra-kit/
-cra-kit-inspect
+
 # next.js
 /.next/
 /out/

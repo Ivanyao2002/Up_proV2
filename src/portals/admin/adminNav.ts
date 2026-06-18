@@ -65,12 +65,6 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "partners",
         permission: "network.partners.view",
       },
-      {
-        label: "Comptables",
-        path: "/admin/network/accountants",
-        icon: "reports",
-        permission: "network.franchises.view",
-      },
     ],
   },
   {
@@ -129,12 +123,6 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "wallet",
         permission: "finance.transactions.view",
       },
-      // {
-      //   label: "Interface comptable",
-      //   path: "/compta",
-      //   icon: "reports",
-      //   permission: "finance.transactions.view",
-      // },
       {
         label: "Ledger comptable",
         path: "/admin/finance/ledger",

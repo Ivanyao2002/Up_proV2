@@ -23,7 +23,6 @@ import {
   mapApiOrderStatus,
   mapApiPaymentMethod,
   mapApiServiceType,
-  normalizeApiServiceType,
   orderRef,
   resolveOrderClientId,
 } from "@/features/admin/api/adminOrder.shared";
@@ -188,7 +187,6 @@ export function mapApiOrderToTripDetail(
     id: order.id,
     ref: orderRef(order),
     service: mapApiServiceType(order.service_type),
-    api_service_type: normalizeApiServiceType(order.service_type),
     from_label: order.pickup_address ?? "Prise en charge",
     to_label: order.dropoff_address ?? "Destination",
     from_coords: readCoord(order.pickup_latitude, order.pickup_longitude),

@@ -46,7 +46,6 @@ export function mergeLiveMapPositionDeltas(
         lng: longitude,
         heading: delta.heading ?? undefined,
         speed_kmh: delta.speedKmh ?? undefined,
-        location_age_seconds: delta.ageSeconds ?? driver.location_age_seconds,
       };
     }),
   };

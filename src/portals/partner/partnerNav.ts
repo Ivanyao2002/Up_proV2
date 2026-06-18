@@ -80,7 +80,19 @@ export const PARTNER_NAV: NavGroup[] = [
         label: "Offres de fret",
         path: "/partner/freight",
         icon: "trips",
-        permission: "fleet.drivers.view",
+        permission: "partner.freight.view",
+      },
+      {
+        label: "Zones & Couloirs",
+        path: "/partner/freight/zones",
+        icon: "map",
+        permission: "partner.freight.view",
+      },
+      {
+        label: "Réservations location",
+        path: "/partner/rental",
+        icon: "fleet",
+        permission: "partner.rental.view",
       },
     ],
   },
@@ -129,6 +141,18 @@ export const PARTNER_NAV: NavGroup[] = [
         permission: "finance.wallets.view",
       },
       {
+        label: "Acomptes",
+        path: "/partner/wallet/settlements",
+        icon: "wallet",
+        permission: "finance.wallets.view",
+      },
+      {
+        label: "Revenus",
+        path: "/partner/wallet/revenue",
+        icon: "wallet",
+        permission: "finance.wallets.view",
+      },
+      {
         label: "Grand livre",
         path: "/partner/wallet/ledger",
         icon: "wallet",
@@ -142,6 +166,18 @@ export const PARTNER_NAV: NavGroup[] = [
       {
         label: "Chat",
         path: "/partner/support/chat",
+        icon: "chat",
+        permission: "ops.dashboard.view",
+      },
+      {
+        label: "Notifications",
+        path: "/partner/support/notifications",
+        icon: "notifications",
+        permission: "ops.dashboard.view",
+      },
+      {
+        label: "Chat course",
+        path: "/partner/support/conversations",
         icon: "chat",
         permission: "ops.dashboard.view",
       },

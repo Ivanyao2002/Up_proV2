@@ -11,6 +11,8 @@ export interface Column<T> {
   cell: (row: T) => ReactNode;
   /** Valeur texte pour l'export CSV / Excel */
   exportValue?: (row: T) => string | number | null | undefined;
+  /** Clé de tri — si fournie, la colonne est triable côté client */
+  sortKey?: (row: T) => string | number | null | undefined;
   className?: string;
 }
 
@@ -114,6 +116,18 @@ export function DataTable<T>({
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
   const [exporting, setExporting] = useState<"csv" | "xlsx" | null>(null);
+  const [sortCol, setSortCol] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (colId: string) => {
+    if (sortCol === colId) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortCol(colId);
+      setSortDir("asc");
+    }
+    if (!serverMode) setPage(1);
+  };
 
   const rowClass = rowHeight === "compact" ? "h-10" : "h-[52px]";
   const colCount = columns.length + (selectable ? 1 : 0);
@@ -134,11 +148,24 @@ export function DataTable<T>({
     if (!serverMode && page > totalPages) setPage(totalPages);
   }, [page, totalPages, serverMode]);
 
+  const sortedData = useMemo(() => {
+    if (!sortCol) return data;
+    const col = columns.find(c => c.id === sortCol);
+    if (!col?.sortKey) return data;
+    return [...data].sort((a, b) => {
+      const va = col.sortKey!(a) ?? "";
+      const vb = col.sortKey!(b) ?? "";
+      if (va < vb) return sortDir === "asc" ? -1 : 1;
+      if (va > vb) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [data, columns, sortCol, sortDir]);
+
   const visibleData = useMemo(() => {
-    if (serverMode || !paginationEnabled) return data;
+    if (serverMode || !paginationEnabled) return sortedData;
     const start = (page - 1) * pageSize;
-    return data.slice(start, start + pageSize);
-  }, [data, page, pageSize, paginationEnabled, serverMode]);
+    return sortedData.slice(start, start + pageSize);
+  }, [sortedData, page, pageSize, paginationEnabled, serverMode]);
 
   const allSelected =
     data.length > 0 && data.every((row) => selectedKeys?.has(rowKey(row)));
@@ -267,11 +294,27 @@ export function DataTable<T>({
                   />
                 </th>
               )}
-              {columns.map((col) => (
-                <th key={col.id} className={`px-3 py-3 font-medium sm:px-6 ${col.className ?? ""}`}>
-                  {col.header}
-                </th>
-              ))}
+              {columns.map((col) => {
+                const isSortable = Boolean(col.sortKey);
+                const isActive = sortCol === col.id;
+                return (
+                  <th
+                    key={col.id}
+                    className={`px-3 py-3 font-medium sm:px-6 ${col.className ?? ""} ${isSortable ? "cursor-pointer select-none hover:text-foreground" : ""}`}
+                    onClick={isSortable ? () => handleSort(col.id) : undefined}
+                    aria-sort={isActive ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {col.header}
+                      {isSortable && (
+                        <span className={`text-[10px] ${isActive ? "text-teal" : "text-muted/40"}`}>
+                          {isActive ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}
+                        </span>
+                      )}
+                    </span>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>

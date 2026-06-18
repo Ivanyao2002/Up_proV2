@@ -120,15 +120,6 @@ export function matchModelCatalogCode(
 
   if (!extracted?.trim() || !items.length) return "";
 
-  const tokens = extracted
-    .trim()
-    .split(/[\s\-_/]+/)
-    .filter((t) => t.length >= 2);
-  for (const token of tokens) {
-    const fromToken = matchCatalogCode(items, token);
-    if (fromToken) return fromToken;
-  }
-
   const target = normalizeToken(extracted);
   const alias = MODEL_OCR_ALIASES[target];
   if (alias) {

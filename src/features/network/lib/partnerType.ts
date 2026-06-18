@@ -5,9 +5,6 @@ export type PartnerType = (typeof PARTNER_TYPES)[number];
 
 export const DEFAULT_PARTNER_TYPE: PartnerType = "FLEET";
 
-/** Taux commission partenaire par défaut (cahier finance — part partenaire 4 %). */
-export const DEFAULT_PARTNER_COMMISSION_RATE_PERCENT = 4;
-
 export const PARTNER_TYPE_OPTIONS: {
   value: PartnerType;
   label: string;

@@ -46,7 +46,6 @@ export interface CreatePartnerPayload {
   contact_phone: string;
   city: string;
   address?: string;
-  commission_rate?: number;
 }
 
 export interface FranchisePartnerCreateResult extends FranchisePartnerDetail {
@@ -224,9 +223,6 @@ export const franchisePartnersService = {
             }
           : {}),
         ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
-        ...(payload.commission_rate != null && !Number.isNaN(payload.commission_rate)
-          ? { commissionRate: payload.commission_rate }
-          : {}),
       }
     );
 

@@ -5,9 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
-import { PasswordInput } from "@/shared/ui/PasswordInput";
-import { PasswordMatchIndicator } from "@/shared/ui/PasswordMatchIndicator";
-import { DEFAULT_PARTNER_COMMISSION_RATE_PERCENT } from "@/features/network/lib/partnerType";
 import { useCreateFranchisePartner } from "../api/partners.queries";
 import type { CreatePartnerPayload } from "../api/partners.service";
 
@@ -20,7 +17,6 @@ const EMPTY_FORM: CreatePartnerPayload = {
   contact_phone: "",
   city: "",
   address: "",
-  commission_rate: DEFAULT_PARTNER_COMMISSION_RATE_PERCENT,
 };
 
 interface FilePreview {
@@ -128,11 +124,6 @@ export function FranchisePartnerNewPage() {
       setFormError("Les mots de passe ne correspondent pas.");
       return;
     }
-    const rate = form.commission_rate;
-    if (rate == null || Number.isNaN(rate) || rate < 0 || rate > 100) {
-      setFormError("Le taux de commission doit être entre 0 et 100 %.");
-      return;
-    }
     setFormError(null);
     createPartner.mutate(form, {
       onSuccess: (partner) => {
@@ -198,11 +189,12 @@ export function FranchisePartnerNewPage() {
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted">Mot de passe *</label>
-              <PasswordInput
+              <input
                 required
+                type="password"
                 autoComplete="new-password"
                 minLength={6}
-                className="bg-canvas"
+                className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
                 placeholder="Min. 6 caractères"
                 value={form.password}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
@@ -210,43 +202,14 @@ export function FranchisePartnerNewPage() {
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted">Confirmer le mot de passe *</label>
-              <PasswordInput
+              <input
                 required
+                type="password"
                 autoComplete="new-password"
-                className="bg-canvas"
+                className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
               />
-              <PasswordMatchIndicator
-                className="mt-1"
-                password={form.password}
-                confirm={passwordConfirm}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted">Taux de commission (%) *</label>
-              <input
-                required
-                type="number"
-                min={0}
-                max={100}
-                step="0.01"
-                className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
-                placeholder={`Défaut ${DEFAULT_PARTNER_COMMISSION_RATE_PERCENT} %`}
-                value={form.commission_rate ?? ""}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    commission_rate:
-                      e.target.value === ""
-                        ? undefined
-                        : Number(e.target.value.replace(",", ".")),
-                  }))
-                }
-              />
-              <p className="mt-1 text-xs text-muted/70">
-                Valeur par défaut : {DEFAULT_PARTNER_COMMISSION_RATE_PERCENT} %.
-              </p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted">Téléphone *</label>

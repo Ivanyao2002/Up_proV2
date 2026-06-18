@@ -62,17 +62,9 @@ export const LINKS = {
   v1: {
     drivers: {
       me: "/v1/drivers/me",
-      preferences: "/v1/drivers/me/preferences",
-      home: "/v1/drivers/me/home",
-      zoneFilterActivate: "/v1/drivers/me/zone-filter/activate",
-      zoneFilterDeactivate: "/v1/drivers/me/zone-filter/deactivate",
-      headingHomeActivate: "/v1/drivers/me/heading-home/activate",
-      headingHomeDeactivate: "/v1/drivers/me/heading-home/deactivate",
       getById: (id: string) => `${DRIVERS_V1_BASE}/${id}`,
       wallet: (id: string) => `${DRIVERS_V1_BASE}/${id}/wallet`,
       ledger: (id: string) => `${DRIVERS_V1_BASE}/${id}/ledger`,
-      dispatchEligibility: (id: string) =>
-        `${DRIVERS_V1_BASE}/${id}/dispatch-eligibility`,
       onboardingStart: `${DRIVERS_V1_BASE}/onboarding/start`,
     },
     files: {
@@ -126,7 +118,7 @@ export const LINKS = {
       documents: "/v1/kyc/documents",
     },
     catalog: {
-      countries: "/v1/catalog/countries",
+      bootstrap: "/v1/catalog/bootstrap",
       documentTypes: "/v1/catalog/document-types",
       countryCities: (countryCode: string) =>
         `/v1/catalog/countries/${countryCode}/cities`,
@@ -135,7 +127,6 @@ export const LINKS = {
       vehicleBrandModels: (brandCode: string) =>
         `/v1/catalog/vehicle-brands/${brandCode}/models`,
       vehicleColors: "/v1/catalog/vehicle-colors",
-      zones: "/v1/catalog/zones",
     },
   },
 
@@ -168,34 +159,6 @@ export const LINKS = {
     },
   },
 
-  /** Portail comptable — `/v1/compta/*` (voir docs/comptables.md) */
-  compta: {
-    v1: {
-      me: "/v1/compta/me",
-      dashboard: "/v1/compta/dashboard",
-      ledger: "/v1/compta/ledger",
-      ledgerExport: "/v1/compta/ledger/export",
-      ledgerById: (id: string) => `/v1/compta/ledger/${id}`,
-      ledgerReverse: (id: string) => `/v1/compta/ledger/${id}/reverse`,
-      periods: "/v1/compta/periods",
-      closePeriod: "/v1/compta/periods/close",
-      periodById: (id: string) => `/v1/compta/periods/${id}`,
-      periodLock: (id: string) => `/v1/compta/periods/${id}/lock`,
-      commissions: "/v1/compta/commissions",
-      wallets: "/v1/compta/wallets",
-      transactions: "/v1/compta/transactions",
-      transactionById: (id: string) => `/v1/compta/transactions/${id}`,
-      reconciliation: "/v1/compta/reconciliation",
-      cashReconciliations: "/v1/compta/cash-reconciliations",
-      withdrawals: "/v1/compta/withdrawals",
-      withdrawalById: (id: string) => `/v1/compta/withdrawals/${id}`,
-      driverTransfers: "/v1/compta/driver-transfers",
-      driverTransferStats: "/v1/compta/driver-transfers/stats",
-      filterOptions: "/v1/compta/filter-options",
-      reportsExport: "/v1/compta/reports/export",
-    },
-  },
-
   admin: {
     dashboard: "/admin/dashboard",
     v1: {
@@ -222,8 +185,6 @@ export const LINKS = {
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
       partnerById: (id: string) => `${ADMIN_V1_BASE}/partners/${id}`,
-      partnerActivate: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/activate`,
-      partnerSuspend: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/suspend`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
       withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>
@@ -258,30 +219,12 @@ export const LINKS = {
         transactionById: (id: string) =>
           `${ADMIN_V1_BASE}/finance/transactions/${id}`,
         ledger: `${ADMIN_V1_BASE}/ledger`,
-        ledgerExport: `${ADMIN_V1_BASE}/ledger/export`,
-        ledgerReverse: (id: string) => `${ADMIN_V1_BASE}/ledger/${id}/reverse`,
         wallets: `${ADMIN_V1_BASE}/finance/wallets`,
         commissions: `${ADMIN_V1_BASE}/finance/commissions`,
         reconciliation: `${ADMIN_V1_BASE}/finance/reconciliation`,
         driverTransfers: `${ADMIN_V1_BASE}/finance/driver-transfers`,
         driverTransferStats: `${ADMIN_V1_BASE}/finance/driver-transfers/stats`,
       },
-      accounting: {
-        periods: `${ADMIN_V1_BASE}/accounting/periods`,
-        closePeriod: `${ADMIN_V1_BASE}/accounting/periods/close`,
-        periodLock: (id: string) => `${ADMIN_V1_BASE}/accounting/periods/${id}/lock`,
-        cashReconciliations: `${ADMIN_V1_BASE}/cash-reconciliations`,
-        cashReconciliationReview: (id: string) =>
-          `${ADMIN_V1_BASE}/cash-reconciliations/${id}/review`,
-      },
-      accountants: {
-        list: `${ADMIN_V1_BASE}/accountants`,
-        create: `${ADMIN_V1_BASE}/accountants`,
-        getById: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}`,
-        suspend: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/suspend`,
-        activate: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/activate`,
-      },
-      reportsExport: `${ADMIN_V1_BASE}/reports/export`,
       bonusRules: `${ADMIN_V1_BASE}/bonus-rules`,
       bonusRuleById: (id: string) => `${ADMIN_V1_BASE}/bonus-rules/${id}`,
       bonusAwards: `${ADMIN_V1_BASE}/bonus-awards`,
@@ -713,6 +656,15 @@ export const LINKS = {
         `/v1/partners/${id}/freight-offers/${offerId}`,
       delete: (id: string | number, offerId: string | number) =>
         `/v1/partners/${id}/freight-offers/${offerId}`,
+    },
+
+    rental: {
+      list: (id: string | number) => `/v1/partners/${id}/rental-offers`,
+      create: (id: string | number) => `/v1/partners/${id}/rental-offers`,
+      update: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}`,
+      delete: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}`,
     },
 
     safety: {

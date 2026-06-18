@@ -1,8 +1,7 @@
 import { apiClient } from "@/core/http/apiClient";
+import { LINKS } from "@/core/api/links";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyAdminApi } from "@/core/api/v1AdminMode";
-import type { ComptaApiScope } from "@/features/compta/api/comptaApiScope";
-import { comptaFinanceLinks } from "@/features/compta/api/comptaApiScope";
 import type { Paginated } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import type { ApiFinanceListResponse, ApiFinanceWalletItem } from "./adminFinance.api.types";
@@ -22,19 +21,15 @@ export interface PlatformWallet {
 }
 
 export const walletsService = {
-  list: async (
-    params?: ListParams,
-    scope: ComptaApiScope = "admin"
-  ): Promise<Paginated<PlatformWallet>> => {
+  list: async (params?: ListParams): Promise<Paginated<PlatformWallet>> => {
     if (useLegacyAdminApi()) {
       return apiClient.get<Paginated<PlatformWallet>>(
         `/admin/finance/wallets${buildListQuery(params)}`
       );
     }
 
-    const links = comptaFinanceLinks(scope);
     const response = await apiClient.get<ApiFinanceListResponse<ApiFinanceWalletItem>>(
-      `${links.wallets}${buildV1ListQuery(params)}`
+      `${LINKS.admin.v1.finance.wallets}${buildV1ListQuery(params)}`
     );
 
     return mapFinanceListResponse(response, params, mapFinanceWalletItem);

@@ -20,7 +20,6 @@ export interface MapboxPointFeature {
   pulse?: boolean;
   heading?: number;
   speedKmh?: number;
-  locationAgeSeconds?: number;
   vehicleIconUrl?: string;
   popupHtml: string;
 }
@@ -49,7 +48,6 @@ export function mapLiveMapDriverToFeature(driver: LiveMapDriver): MapboxPointFea
     pulse: driver.availability === "online" || driver.availability === "on_trip",
     heading: driver.heading,
     speedKmh: driver.speed_kmh,
-    locationAgeSeconds: driver.location_age_seconds,
     vehicleIconUrl: driver.vehicle_icon_url,
     popupHtml: buildDriverPopupHtml(driver),
   };
@@ -75,23 +73,6 @@ export function liveMapDataToMapFeatures(data: LiveMapData): MapboxPointFeature[
   );
 
   return [...driverFeatures, ...orderFeatures];
-}
-
-/** Au-delà de ce seuil, le marqueur reste figé (pas d’animation fantôme). */
-export const STALE_DRIVER_LOCATION_SECONDS = 120;
-
-export function shouldSmoothDriverMotion(feature: MapboxPointFeature): boolean {
-  if (feature.kind !== "driver") return false;
-  const age = feature.locationAgeSeconds;
-  if (age != null && age > STALE_DRIVER_LOCATION_SECONDS) return false;
-  if (
-    feature.speedKmh != null &&
-    Number.isFinite(feature.speedKmh) &&
-    feature.speedKmh <= 0
-  ) {
-    return false;
-  }
-  return true;
 }
 
 export function boundsToMapboxLngLatBounds(

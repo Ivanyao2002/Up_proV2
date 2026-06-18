@@ -1,6 +1,8 @@
-export type Scope = "platform" | "franchise" | "owner" | "accountant";
+export type Scope = "platform" | "franchise" | "owner";
 
-export type PortalRole = "admin" | "compta" | "partner" | "franchise" | "dispatch";
+export type PortalRole = "admin" | "partner" | "franchise" | "dispatch";
+
+export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
 
 export interface User {
   id: string | number;
@@ -10,6 +12,8 @@ export interface User {
   scope: Scope;
   franchise_id?: number | string;
   owner_id?: number | string;
+  /** Type de partenaire — détermine l'accès aux modules fret/location */
+  partner_type?: PartnerType;
   /** Comptes dispatch — zones autorisées */
   zone_ids?: number[];
   zone_names?: string[];
@@ -129,8 +133,6 @@ export interface TripDetail extends Trip {
   franchise_name?: string;
   estimated_arrival_at?: string;
   timeline: TripTimelineEvent[];
-  /** Type service API (`RIDE`, `DELIVERY_CARGO`, …) pour routes dispatch. */
-  api_service_type?: string;
 }
 
 export interface Franchise {
@@ -536,8 +538,6 @@ export interface LiveMapDriver {
   /** Cap véhicule (degrés) — temps réel socket */
   heading?: number;
   speed_kmh?: number;
-  /** Âge du dernier point GPS (secondes) — snapshot HTTP ou delta socket */
-  location_age_seconds?: number;
   availability: Driver["availability"];
   vehicle: string;
   /** Code ou libellé couleur véhicule (catalogue) */
@@ -819,6 +819,10 @@ export interface PartnerWallet {
   non_withdrawable_fcfa?: number;
   pending_withdrawal_fcfa: number;
   available_fcfa: number;
+  /** Plafond de retrait journalier (défaut 30 000 XOF) */
+  daily_cap_fcfa?: number;
+  /** Montant déjà retiré aujourd'hui */
+  today_withdrawn_fcfa?: number;
   last_withdrawal?: {
     id: string;
     amount_fcfa: number;

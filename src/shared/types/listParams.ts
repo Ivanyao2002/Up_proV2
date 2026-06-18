@@ -17,10 +17,6 @@ export interface ListParams {
   /** Plage de dates (YYYY-MM-DD) — envoyée à l’API v1 en `dateFrom` / `dateTo`. */
   date_from?: string;
   date_to?: string;
-  /** Ledger comptable */
-  direction?: string;
-  balance_bucket?: string;
-  entry_type?: string;
 }
 
 export function buildListQuery(params?: ListParams): string {

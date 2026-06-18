@@ -34,7 +34,7 @@ export function downloadCsv<T>(
     .map((row) => row.map(escapeCsvCell).join(";"))
     .join("\r\n");
   const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-  downloadBlob(blob, `${fileName}.csv`);
+  triggerDownload(blob, `${fileName}.csv`);
   return true;
 }
 
@@ -54,7 +54,7 @@ export async function downloadExcel<T>(
   return true;
 }
 
-export function downloadBlob(blob: Blob, fileName: string) {
+function triggerDownload(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

@@ -323,7 +323,7 @@ function EditPartnerModal({
     contact_email: data.contact_email ?? "",
     contact_phone: data.contact_phone ?? "",
     city: data.city,
-    address: data.address ?? undefined,
+    address: data.address,
   });
   const update = useUpdateFranchisePartner(String(data.id));
 

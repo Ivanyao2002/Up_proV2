@@ -37,9 +37,9 @@ export function AdminDashboardSkeleton() {
           </div>
           <div className="flex flex-col gap-5">
             <KpiCardSkeleton variant="charcoal" compact />
+            <KpiCardSkeleton variant="deep-teal" compact />
           </div>
         </div>
-        <KpiCardSkeleton variant="deep-teal" />
         <div className="grid gap-5 md:grid-cols-3">
           {KPI_DARK_VARIANTS.map((variant) => (
             <KpiCardSkeleton key={variant} variant={variant} />

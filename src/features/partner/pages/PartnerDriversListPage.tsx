@@ -22,6 +22,7 @@ import {
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
 import type { Driver } from "@/shared/types";
+import { KpiCard } from "@/shared/ui/KpiCard";
 import { usePartnerDriversList } from "../api/drivers.queries";
 
 interface PartnerDriversListPageProps {
@@ -45,6 +46,10 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
   const rows = data?.data ?? [];
   const meta = data?.meta;
 
+  const kpiOnline = rows.filter(d => d.availability === "online").length;
+  const kpiInTrip = rows.filter(d => d.availability === "on_trip").length;
+  const kpiOffline = rows.filter(d => d.availability === "offline").length;
+
   const columns: Column<Driver>[] = [
     {
       id: "name",
@@ -61,6 +66,7 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
         </div>
       ),
       exportValue: (d) => `${d.first_name} ${d.last_name}`,
+      sortKey: (d) => `${d.last_name} ${d.first_name}`.toLowerCase(),
     },
     {
       id: "phone",
@@ -73,6 +79,7 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
       header: "Zone",
       cell: (d) => d.zone,
       exportValue: (d) => d.zone,
+      sortKey: (d) => d.zone ?? "",
     },
     {
       id: "vehicle",
@@ -91,6 +98,7 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
       header: "Date création",
       cell: (d) => formatDate(d.created_at),
       exportValue: (d) => d.created_at ?? "",
+      sortKey: (d) => d.created_at ?? "",
     },
     {
       id: "account",
@@ -158,6 +166,15 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
           ) : undefined
         }
       />
+
+      {!pendingOnly && (meta || isLoading) && (
+        <div className="mb-5 grid gap-3 grid-cols-2 sm:grid-cols-4">
+          <KpiCard index={0} label="Total chauffeurs" value={String(meta?.total ?? 0)} isLoading={isLoading} />
+          <KpiCard index={1} label="En ligne" value={String(kpiOnline)} isLoading={isLoading} />
+          <KpiCard index={2} label="En course" value={String(kpiInTrip)} isLoading={isLoading} />
+          <KpiCard index={3} label="Hors ligne" value={String(kpiOffline)} isLoading={isLoading} />
+        </div>
+      )}
 
       <TableFiltersBar
         search={table.search}

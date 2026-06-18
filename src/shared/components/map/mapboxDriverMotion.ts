@@ -22,6 +22,8 @@ const STATIONARY_DISTANCE_M = 2.5;
 const ROUTE_REFETCH_MIN_M = 18;
 /** Intervalle minimum entre deux Directions par marqueur. */
 const ROUTE_MIN_INTERVAL_MS = 3500;
+/** Vitesse par défaut si GPS ne renvoie pas speedKmh (m/s). */
+const DEFAULT_SPEED_MPS = 8;
 const MIN_SPEED_MPS = 0.8;
 const MAX_SPEED_MPS = 38;
 /** Extrapolation cible après silence socket (ms). */
@@ -115,7 +117,7 @@ function applyStateToMarker(state: DriverMotionState): void {
 }
 
 function clampSpeedMps(speedMps: number): number {
-  if (!Number.isFinite(speedMps) || speedMps <= 0) return 0;
+  if (!Number.isFinite(speedMps) || speedMps <= 0) return DEFAULT_SPEED_MPS;
   return Math.min(MAX_SPEED_MPS, Math.max(MIN_SPEED_MPS, speedMps));
 }
 
@@ -140,28 +142,7 @@ function updateSpeedFromMove(
   if (dtMs > 80 && moveM >= STATIONARY_DISTANCE_M) {
     const inferred = moveM / (dtMs / 1000);
     state.speedMps = clampSpeedMps(inferred * 0.85 + state.speedMps * 0.15);
-    return;
   }
-  if (dtMs > 80) {
-    state.speedMps = fromGps ?? 0;
-  }
-}
-
-function isDriverMotionActive(state: DriverMotionState): boolean {
-  if (state.speedMps >= MIN_SPEED_MPS) return true;
-  const distM = haversineDistanceM(
-    [state.lng, state.lat],
-    [state.targetLng, state.targetLat]
-  );
-  return distM >= STATIONARY_DISTANCE_M;
-}
-
-function snapDriverMotionState(state: DriverMotionState): void {
-  state.lng = state.targetLng;
-  state.lat = state.targetLat;
-  state.path = null;
-  state.pathDistanceM = 0;
-  state.pathTotalM = 0;
 }
 
 function extrapolateTargetIfStale(state: DriverMotionState, now: number): void {
@@ -284,20 +265,12 @@ function motionTick(now: number): void {
   }
 
   const headAlpha = smoothAlpha(dt, HEADING_SMOOTH_MS);
-  let hasActiveMotion = false;
 
   for (const state of motions.values()) {
     if (!Number.isFinite(state.lng) || !Number.isFinite(state.lat)) continue;
     extrapolateTargetIfStale(state, now);
     advanceAlongPathOrTarget(state, dt, headAlpha);
     applyStateToMarker(state);
-    if (isDriverMotionActive(state)) hasActiveMotion = true;
-  }
-
-  if (!hasActiveMotion) {
-    rafId = null;
-    lastFrameTime = 0;
-    return;
   }
 
   rafId = requestAnimationFrame(motionTick);
@@ -384,7 +357,7 @@ export function setDriverMotionTarget(
 
   if (!state) {
     const initialHeading = api ?? 0;
-    const speedMps = speedMpsFromKmh(speedKmh) ?? 0;
+    const speedMps = speedMpsFromKmh(speedKmh) ?? DEFAULT_SPEED_MPS;
     state = {
       marker,
       vehicleEl: vehicleRoot,
@@ -405,7 +378,7 @@ export function setDriverMotionTarget(
     motions.set(marker, state);
     marker.setLngLat(targetLng, targetLat);
     applyHeadingToVehicleElement(vehicleRoot, initialHeading);
-    if (speedMps >= MIN_SPEED_MPS) ensureMotionLoop();
+    ensureMotionLoop();
     return;
   }
 
@@ -424,9 +397,7 @@ export function setDriverMotionTarget(
   updateSpeedFromMove(state, apiMoveM > moveM ? apiMoveM : moveM, dtMs, speedKmh);
 
   if (moveM < STATIONARY_DISTANCE_M && apiMoveM < STATIONARY_DISTANCE_M) {
-    state.speedMps = speedMpsFromKmh(speedKmh) ?? 0;
-    snapDriverMotionState(state);
-    applyStateToMarker(state);
+    ensureMotionLoop();
     return;
   }
 

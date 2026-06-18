@@ -21,9 +21,7 @@ import {
   useDispatchPortalConsole,
 } from "@/features/dispatch/api/dispatchPortal.queries";
 import { DispatchMapPreview } from "../components/DispatchMapPreview";
-import { TripDispatchLogsPanel } from "../components/TripDispatchLogsPanel";
 import { TripsScopeFilters } from "../components/TripsScopeFilters";
-import { toApiServiceType } from "@/features/admin/api/adminOrder.shared";
 import { FranchiseLiveMapPartnerFilter } from "@/features/franchise/components/FranchiseLiveMapPartnerFilter";
 import type { FranchiseLiveMapFiltersValue } from "@/features/franchise/api/liveMap.types";
 import {
@@ -383,11 +381,6 @@ export function DispatchConsolePage({
                       : "Assigner le chauffeur"}
                   </Button>
                 )}
-
-                <TripDispatchLogsPanel
-                  orderId={selected.trip.id}
-                  serviceType={toApiServiceType(selected.trip.service)}
-                />
               </>
             )}
           </main>
