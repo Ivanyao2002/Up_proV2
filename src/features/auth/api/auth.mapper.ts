@@ -4,7 +4,12 @@ import type {
   ApiAuthMeResponse,
   ApiUserType,
 } from "./auth.types";
-import { ADMIN_BACKOFFICE_PERMISSIONS } from "./auth.permissions";
+import {
+  ADMIN_BACKOFFICE_PERMISSIONS,
+  COMPTA_BACKOFFICE_PERMISSIONS,
+  FRANCHISE_BACKOFFICE_PERMISSIONS,
+  PARTNER_BACKOFFICE_PERMISSIONS,
+} from "./auth.permissions";
 
 const PORTAL_BY_USER_TYPE: Record<string, PortalRole> = {
   ADMIN: "admin",
@@ -37,37 +42,11 @@ function defaultPermissions(portal: PortalRole): string[] {
     case "admin":
       return ADMIN_BACKOFFICE_PERMISSIONS;
     case "compta":
-      return [
-        "finance.transactions.view",
-        "finance.ledger.view",
-        "finance.wallets.view",
-        "finance.commissions.view",
-        "finance.reconciliation.view",
-        "accounting.export",
-        "accounting.reverse",
-        "accounting.periods.close",
-        "accounting.periods.lock",
-        "accounting.entries.classify",
-      ];
+      return COMPTA_BACKOFFICE_PERMISSIONS;
     case "partner":
-      return [
-        "ops.dashboard.view",
-        "ops.trips.view",
-        "ops.map.view",
-        "fleet.drivers.view",
-        "finance.wallets.view",
-      ];
+      return PARTNER_BACKOFFICE_PERMISSIONS;
     case "franchise":
-      return [
-        "ops.dashboard.view",
-        "ops.map.view",
-        "ops.trips.view",
-        "ops.dispatch.view",
-        "network.partners.view",
-        "fleet.drivers.view",
-        "fleet.kyc.approve",
-        "finance.wallets.view",
-      ];
+      return FRANCHISE_BACKOFFICE_PERMISSIONS;
     case "dispatch":
       return ["ops.dispatch.view", "ops.trips.view", "ops.map.view"];
     default:
@@ -114,9 +93,11 @@ function readScopedId(
 function extractFranchiseId(data: ApiAuthUserPayload): string | undefined {
   const member = data.franchiseMember as Record<string, unknown> | undefined;
   const franchise = data.franchise as Record<string, unknown> | undefined;
+  const access = (data as { access?: Record<string, unknown> }).access;
   return (
     readScopedId(member, ["franchise_id", "franchiseId", "id"]) ??
-    readScopedId(franchise, ["id"])
+    readScopedId(franchise, ["id"]) ??
+    readScopedId(access, ["franchiseId", "franchise_id"])
   );
 }
 
@@ -136,9 +117,11 @@ function resolveScope(portal: PortalRole, apiScope?: string): Scope {
 
 function resolvePermissions(portal: PortalRole, apiPermissions: string[]): string[] {
   const defaults = defaultPermissions(portal);
-  // Admin back-office : catalogue front complet (l'API peut renvoyer un sous-ensemble).
+  // Catalogue nav front toujours garanti ; l'API peut ajouter des droits ou utiliser
+  // un vocabulaire différent — ne jamais remplacer entièrement les defaults.
   if (portal === "admin") return defaults;
-  return apiPermissions.length > 0 ? apiPermissions : defaults;
+  if (apiPermissions.length === 0) return defaults;
+  return [...new Set([...defaults, ...apiPermissions])];
 }
 
 function buildUserFromApi(
