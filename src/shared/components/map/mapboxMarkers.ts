@@ -20,8 +20,25 @@ export interface MapboxPointFeature {
   pulse?: boolean;
   heading?: number;
   speedKmh?: number;
+  /** Âge du dernier point GPS (secondes) — snapshot HTTP ou delta socket */
+  locationAgeSeconds?: number;
   vehicleIconUrl?: string;
   popupHtml: string;
+}
+
+const STALE_LOCATION_AGE_SEC = 120;
+
+/** Interpolation fluide uniquement si le véhicule bouge et le GPS est récent. */
+export function shouldSmoothDriverMotion(feature: MapboxPointFeature): boolean {
+  if (feature.kind !== "driver") return false;
+
+  const age = feature.locationAgeSeconds;
+  if (age != null && age > STALE_LOCATION_AGE_SEC) return false;
+
+  const speed = feature.speedKmh;
+  if (speed != null && speed <= 0) return false;
+
+  return true;
 }
 
 export function mapLiveMapDriverToFeature(driver: LiveMapDriver): MapboxPointFeature {
@@ -48,6 +65,7 @@ export function mapLiveMapDriverToFeature(driver: LiveMapDriver): MapboxPointFea
     pulse: driver.availability === "online" || driver.availability === "on_trip",
     heading: driver.heading,
     speedKmh: driver.speed_kmh,
+    locationAgeSeconds: driver.location_age_seconds,
     vehicleIconUrl: driver.vehicle_icon_url,
     popupHtml: buildDriverPopupHtml(driver),
   };

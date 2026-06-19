@@ -1,6 +1,13 @@
 export type Scope = "platform" | "franchise" | "owner";
 
-export type PortalRole = "admin" | "partner" | "franchise" | "dispatch";
+export type PortalRole =
+  | "admin"
+  | "compta"
+  | "support"
+  | "reporting"
+  | "partner"
+  | "franchise"
+  | "dispatch";
 
 export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
 
@@ -538,6 +545,8 @@ export interface LiveMapDriver {
   /** Cap véhicule (degrés) — temps réel socket */
   heading?: number;
   speed_kmh?: number;
+  /** Âge du dernier point GPS (secondes) — snapshot HTTP ou delta socket */
+  location_age_seconds?: number;
   availability: Driver["availability"];
   vehicle: string;
   /** Code ou libellé couleur véhicule (catalogue) */
@@ -712,6 +721,8 @@ export interface LiveMapHotZone {
   surge?: number;
   franchise_id?: string | null;
   city?: string;
+  /** Contour OSM / buffer — prioritaire sur le point centre pour l’affichage carte */
+  polygon_geojson?: ZonePolygonGeoJson;
 }
 
 /** meta.realtime — GET /v1/admin/live-map */

@@ -62,3 +62,8 @@ function triggerDownload(blob: Blob, fileName: string) {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+/** Téléchargement d'un blob serveur (exports CSV API, etc.). */
+export function downloadBlob(blob: Blob, fileName: string) {
+  triggerDownload(blob, fileName);
+}

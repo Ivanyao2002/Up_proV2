@@ -6,7 +6,7 @@ import { useAuthStore } from "@/core/auth/authStore";
 import { clearAuthCookie, setAuthCookie } from "@/core/auth/authCookie";
 import { AppError, resolveUserFacingMessage } from "@/core/http/errorHandler";
 import { notificationService } from "@/core/http/notificationService";
-import { DASHBOARD_BY_PORTAL } from "@/core/auth/authRoutes";
+import { DASHBOARD_BY_PORTAL, canAccessPortal } from "@/core/auth/authRoutes";
 import { readReturnUrlFromLocation } from "@/core/auth/returnUrl";
 import { authService, type LoginPayload } from "./auth.service";
 
@@ -31,7 +31,7 @@ export function useLoginMutation(portal: LoginPayload["portal"]) {
     mutationFn: (payload: Omit<LoginPayload, "portal">) =>
       authService.login({ ...payload, portal }),
     onSuccess: (data) => {
-      if (data.user.role !== portal) {
+      if (!canAccessPortal(data.user.role, portal)) {
         notificationService.error(
           "Ce compte n'est pas autorisé sur ce portail. Utilisez le portail correspondant."
         );

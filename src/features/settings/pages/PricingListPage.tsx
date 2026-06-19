@@ -163,9 +163,14 @@ export function PricingListPage() {
         title="Tarification par franchise"
         breadcrumb={["Admin", "Paramètres", "Tarification"]}
         actions={
-          <Link href="/admin/settings/pricing/new">
-            <Button variant="primary">Nouvelle grille</Button>
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/settings/pricing/calibration">
+              <Button variant="secondary">Calibration moteur</Button>
+            </Link>
+            <Link href="/admin/settings/pricing/new">
+              <Button variant="primary">Nouvelle grille</Button>
+            </Link>
+          </div>
         }
       />
 

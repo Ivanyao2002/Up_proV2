@@ -1,7 +1,12 @@
 import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import L from "leaflet";
 import type { LiveMapHotZone } from "@/shared/types";
-import { hotZonePopupHtml } from "./mapboxHotZones";
+import { getZonePolygonRings } from "./zonesMapGeoJson";
+import {
+  hotZoneFillOpacity,
+  hotZonePopupHtml,
+  hotZoneStrokeColor,
+} from "./mapboxHotZones";
 
 function heatRadius(heatLevel: number, kind: "glow" | "core"): number {
   const heat = Math.min(3, Math.max(1, heatLevel));
@@ -15,15 +20,30 @@ function heatRadius(heatLevel: number, kind: "glow" | "core"): number {
   return 5;
 }
 
-function heatGlowColor(heatLevel: number): string {
-  const heat = Math.min(3, Math.max(1, heatLevel));
-  if (heat >= 3) return "#ef4444";
-  if (heat >= 2) return "#f97316";
-  return "#f59e0b";
-}
+function addPointHotZone(layerGroup: LayerGroup, zone: LiveMapHotZone): void {
+  const latlng: [number, number] = [zone.lat, zone.lng];
+  const stroke = hotZoneStrokeColor(zone.heatLevel);
 
-function heatCoreColor(heatLevel: number): string {
-  return heatGlowColor(heatLevel);
+  L.circleMarker(latlng, {
+    radius: heatRadius(zone.heatLevel, "glow"),
+    color: "transparent",
+    weight: 0,
+    fillColor: stroke,
+    fillOpacity: 0.28,
+  }).addTo(layerGroup);
+
+  L.circleMarker(latlng, {
+    radius: heatRadius(zone.heatLevel, "core"),
+    color: "#ffffff",
+    weight: 1.5,
+    fillColor: stroke,
+    fillOpacity: 0.9,
+  })
+    .bindPopup(hotZonePopupHtml(zone), {
+      className: "mapbox-live-popup",
+      maxWidth: 280,
+    })
+    .addTo(layerGroup);
 }
 
 export function syncLeafletHotZones(
@@ -34,27 +54,27 @@ export function syncLeafletHotZones(
   layerGroup.clearLayers();
 
   for (const zone of zones) {
-    const latlng: [number, number] = [zone.lat, zone.lng];
+    const rings = getZonePolygonRings(zone.polygon_geojson);
+    if (rings.length === 0) {
+      addPointHotZone(layerGroup, zone);
+      continue;
+    }
 
-    L.circleMarker(latlng, {
-      radius: heatRadius(zone.heatLevel, "glow"),
-      color: "transparent",
-      weight: 0,
-      fillColor: heatGlowColor(zone.heatLevel),
-      fillOpacity: 0.28,
+    const geo = zone.polygon_geojson!;
+    L.geoJSON(geo as GeoJSON.GeoJsonObject, {
+      style: {
+        color: hotZoneStrokeColor(zone.heatLevel),
+        weight: 2,
+        opacity: 0.9,
+        fillColor: hotZoneStrokeColor(zone.heatLevel),
+        fillOpacity: hotZoneFillOpacity(zone.heatLevel),
+      },
+      onEachFeature: (_feature, layer) => {
+        layer.bindPopup(hotZonePopupHtml(zone), {
+          className: "mapbox-live-popup",
+          maxWidth: 280,
+        });
+      },
     }).addTo(layerGroup);
-
-    L.circleMarker(latlng, {
-      radius: heatRadius(zone.heatLevel, "core"),
-      color: "#ffffff",
-      weight: 1.5,
-      fillColor: heatCoreColor(zone.heatLevel),
-      fillOpacity: 0.9,
-    })
-      .bindPopup(hotZonePopupHtml(zone), {
-        className: "mapbox-live-popup",
-        maxWidth: 280,
-      })
-      .addTo(layerGroup);
   }
 }

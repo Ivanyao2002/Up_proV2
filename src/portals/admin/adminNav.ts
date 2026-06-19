@@ -211,7 +211,7 @@ export const ADMIN_NAV: NavGroup[] = [
       //   permission: "settings.dispatchers.view",
       // },
       {
-        label: "Règles de dispatch",
+        label: "Calibration dispatch",
         path: "/admin/settings/dispatch-rules",
         icon: "trips",
         permission: "settings.dispatch_rules.view",
@@ -229,23 +229,29 @@ export const ADMIN_NAV: NavGroup[] = [
         permission: "settings.pricing.view",
       },
       {
+        label: "Calibration prix",
+        path: "/admin/settings/pricing/calibration",
+        icon: "finance",
+        permission: "settings.pricing.view",
+      },
+      {
         label: "Plafonds finance",
         path: "/admin/settings/finance-caps",
         icon: "wallet",
         permission: "settings.pricing.view",
       },
-      {
-        label: "Intégrations",
-        path: "/admin/settings/integrations",
-        icon: "integrations",
-        permission: "settings.dispatchers.view",
-      },
-      {
-        label: "Météo",
-        path: "/admin/settings/weather",
-        icon: "map",
-        permission: "settings.dispatchers.view",
-      },
+      // {
+      //   label: "Intégrations",
+      //   path: "/admin/settings/integrations",
+      //   icon: "integrations",
+      //   permission: "settings.dispatchers.view",
+      // },
+      // {
+      //   label: "Météo",
+      //   path: "/admin/settings/weather",
+      //   icon: "map",
+      //   permission: "settings.dispatchers.view",
+      // },
       {
         label: "Audit",
         path: "/admin/settings/audit",
