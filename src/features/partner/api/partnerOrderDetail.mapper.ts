@@ -10,6 +10,11 @@ import {
   mapFranchiseOrderToTripDetail,
 } from "@/features/franchise/api/franchisePortal.mapper";
 import {
+  formatApiVehicleLabel,
+  mapApiLocationToTripDriverLocation,
+} from "@/features/ops/api/adminOrderVehicle";
+import { resolveVehicleMapIconUrl } from "@/shared/lib/vehicleMapIcons";
+import {
   mapApiBookingItemToPartnerBooking,
   type ApiBookingItem,
 } from "./bookings.service";
@@ -239,7 +244,21 @@ function mapPartnerTripPayloadToTripDetail(
         : buildTimelineFromMilestones(raw, booking.status);
 
   const vehicle = resolveVehicleFields(raw);
+  const vehicleRaw = raw.vehicle as Record<string, unknown> | undefined;
   const serviceCode = readString(raw, "service_type", "serviceType", "service");
+  const tracking = raw.tracking as Record<string, unknown> | undefined;
+  const driverLocation =
+    mapApiLocationToTripDriverLocation(
+      raw.driver_location as Record<string, unknown> | undefined
+    ) ??
+    mapApiLocationToTripDriverLocation(
+      tracking?.driverLocation as Record<string, unknown> | undefined
+    ) ??
+    mapApiLocationToTripDriverLocation(
+      (raw.driver as Record<string, unknown> | undefined)?.location as
+        | Record<string, unknown>
+        | undefined
+    );
 
   return {
     id: booking.id,
@@ -266,7 +285,13 @@ function mapPartnerTripPayloadToTripDetail(
     created_at: booking.created_at,
     vehicle_id: vehicle.vehicle_id,
     vehicle_plate: vehicle.vehicle_plate,
-    vehicle_label: vehicle.vehicle_label,
+    vehicle_label:
+      formatApiVehicleLabel(vehicleRaw, vehicle.vehicle_plate) ??
+      vehicle.vehicle_label,
+    vehicle_icon_url: resolveVehicleMapIconUrl(
+      readString(vehicleRaw ?? {}, "colorCode", "color_code", "color") ?? null
+    ),
+    driver_location: driverLocation,
     zone_name: readString(raw, "zone_name", "zoneName"),
     estimated_arrival_at: readString(
       raw,

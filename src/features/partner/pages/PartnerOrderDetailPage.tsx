@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useScope } from "@/core/auth/useScope";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { ServicePill } from "@/shared/ui/ServicePill";
@@ -14,7 +15,7 @@ import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { formatDateTime } from "@/shared/lib/format";
 import { getPaymentLabel } from "@/shared/lib/paymentLabels";
 import { TripFinancePanel } from "@/shared/finance/TripFinancePanel";
-import { useTripDriverLiveLocation } from "@/features/ops/hooks/useTripDriverLiveLocation";
+import { usePartnerTripDriverLiveLocation } from "../hooks/usePartnerTripDriverLiveLocation";
 import { usePartnerOrderDetail } from "../api/orders.queries";
 
 interface Props {
@@ -31,16 +32,53 @@ function formatPaymentStatus(status?: string | null): string {
   return status;
 }
 
+function TripLiveTrackingBadge({
+  isRealtime,
+  socketStatus,
+  liveTracking,
+}: {
+  isRealtime: boolean;
+  socketStatus: string;
+  liveTracking: boolean;
+}) {
+  if (!liveTracking) return null;
+
+  const label = isRealtime
+    ? "Suivi live · socket"
+    : socketStatus === "connecting"
+      ? "Connexion socket…"
+      : socketStatus === "error"
+        ? "Socket indisponible · polling"
+        : "Suivi HTTP";
+
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-teal/10 px-2.5 py-1 text-[11px] font-semibold text-teal-dark">
+      {isRealtime ? (
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
+        </span>
+      ) : (
+        <span className="inline-flex h-2 w-2 rounded-full bg-muted" />
+      )}
+      {label}
+    </span>
+  );
+}
+
 export function PartnerOrderDetailPage({ orderId }: Props) {
+  const { ownerId } = useScope();
   const { data: trip, isLoading, isError } = usePartnerOrderDetail(orderId);
   const liveTracking = Boolean(
     trip && isTripLiveOnMap(trip.status) && trip.driver_id
   );
-  const { location: driverLiveLocation, isRealtime } = useTripDriverLiveLocation({
-    driverId: trip?.driver_id,
-    initial: trip?.driver_location,
-    enabled: liveTracking,
-  });
+  const { location: driverLiveLocation, isRealtime, socketStatus } =
+    usePartnerTripDriverLiveLocation({
+      partnerId: ownerId,
+      driverId: trip?.driver_id,
+      initial: trip?.driver_location,
+      enabled: liveTracking,
+    });
 
   if (isLoading) {
     return (
@@ -82,6 +120,11 @@ export function PartnerOrderDetailPage({ orderId }: Props) {
             <div className="flex flex-wrap items-center gap-2">
               <ServicePill service={trip.service} />
               <StatusPill status={trip.status} pulse={trip.status === "in_progress"} />
+              <TripLiveTrackingBadge
+                isRealtime={isRealtime}
+                socketStatus={socketStatus}
+                liveTracking={liveTracking}
+              />
             </div>
           }
         />
@@ -92,15 +135,35 @@ export function PartnerOrderDetailPage({ orderId }: Props) {
 
       <div className="detail-page-grid">
         <div className="space-y-6">
-          <TripRoutePreview
-            fromLabel={trip.from_label}
-            toLabel={trip.to_label}
-            fromCoords={trip.from_coords}
-            toCoords={trip.to_coords}
-            driverLocation={showDriverOnMap ? driverLiveLocation : undefined}
-            driverLive={isRealtime}
-            vehicleIconUrl={trip.vehicle_icon_url}
-          />
+          <div className="space-y-2">
+            <TripRoutePreview
+              fromLabel={trip.from_label}
+              toLabel={trip.to_label}
+              fromCoords={trip.from_coords}
+              toCoords={trip.to_coords}
+              driverLocation={showDriverOnMap ? driverLiveLocation : undefined}
+              driverLive={isRealtime}
+              vehicleIconUrl={trip.vehicle_icon_url}
+            />
+            {liveTracking && trip.driver_id && (
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+                <span>
+                  {driverLiveLocation?.speed_kmh != null
+                    ? `Vitesse ${Math.round(driverLiveLocation.speed_kmh)} km/h`
+                    : "Position chauffeur"}
+                  {driverLiveLocation?.recorded_at
+                    ? ` · ${formatDateTime(driverLiveLocation.recorded_at)}`
+                    : ""}
+                </span>
+                <Link
+                  href={`/partner/map`}
+                  className="font-medium text-teal hover:text-teal-dark"
+                >
+                  Ouvrir la carte live →
+                </Link>
+              </div>
+            )}
+          </div>
 
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
             <h2 className="text-sm font-semibold text-foreground">Suivi</h2>
@@ -139,6 +202,14 @@ export function PartnerOrderDetailPage({ orderId }: Props) {
                   {trip.driver_phone && (
                     <p className="text-sm text-muted">{trip.driver_phone}</p>
                   )}
+                  {liveTracking && (
+                    <Link
+                      href={`/partner/drivers/${trip.driver_id ?? ""}`}
+                      className="mt-2 inline-block text-xs font-medium text-teal hover:text-teal-dark"
+                    >
+                      Suivre sur la carte live
+                    </Link>
+                  )}
                 </>
               ) : (
                 <p className="mt-2 text-sm text-muted">Non assigné</p>
@@ -168,7 +239,7 @@ export function PartnerOrderDetailPage({ orderId }: Props) {
           <TripFinancePanel trip={trip} />
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-foreground">Détails</h3>
+            <h3 className="font-semibold text-foreground">Contexte</h3>
             <dl className="mt-3 space-y-2 text-muted">
               <div className="flex justify-between gap-2">
                 <dt>Référence</dt>

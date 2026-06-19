@@ -59,12 +59,12 @@ export const PARTNER_NAV: NavGroup[] = [
         icon: "reports",
         permission: "fleet.drivers.view",
       },
-      {
-        label: "Balises GPS",
-        path: "/partner/gps-devices",
-        icon: "map",
-        permission: "fleet.drivers.view",
-      },
+      // {
+      //   label: "Balises GPS",
+      //   path: "/partner/gps-devices",
+      //   icon: "map",
+      //   permission: "fleet.drivers.view",
+      // },
       {
         label: "Sécurité / SOS",
         path: "/partner/safety",

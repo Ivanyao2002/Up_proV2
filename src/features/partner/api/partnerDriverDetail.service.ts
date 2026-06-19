@@ -153,6 +153,6 @@ export const partnerLiveMapService = {
     const response = await apiClient.get<ApiPartnerLiveMapResponse>(
       LINKS.partner.ops.map(partnerId)
     );
-    return mapApiPartnerLiveMapToData(response);
+    return mapApiPartnerLiveMapToData(response, String(partnerId));
   },
 };
