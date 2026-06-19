@@ -321,12 +321,10 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
               {formatFCFA(stats.wallet_balance_fcfa)}
             </p>
-            {(stats.wallet_withdrawable_fcfa != null || stats.wallet_non_withdrawable_fcfa != null) && (
-              <div className="mt-2 flex gap-3 text-xs text-muted">
-                <span>Retirable : <strong className="text-teal-dark">{formatFCFA(stats.wallet_withdrawable_fcfa ?? 0)}</strong></span>
-                <span>Service : <strong className="text-foreground">{formatFCFA(stats.wallet_non_withdrawable_fcfa ?? 0)}</strong></span>
-              </div>
-            )}
+            <div className="mt-2 flex gap-3 text-xs text-muted">
+              <span>Retirable : <strong className="text-teal-dark">{formatFCFA(stats.wallet_withdrawable_fcfa ?? 0)}</strong></span>
+              <span>Service : <strong className="text-foreground">{formatFCFA(stats.wallet_non_withdrawable_fcfa ?? 0)}</strong></span>
+            </div>
             <p className="mt-1 text-xs text-muted">
               Solde app chauffeur · rechargeable depuis votre portefeuille
             </p>
@@ -376,7 +374,18 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
               <div className="flex justify-between gap-2">
                 <dt>Véhicule</dt>
                 <dd className="text-right text-foreground">
-                  {driver.vehicle_label ?? "—"}
+                  {driver.vehicle_label && driver.vehicle_id ? (
+                    <Link
+                      href={`/partner/fleet/${driver.vehicle_id}`}
+                      className="text-teal hover:text-teal-dark hover:underline"
+                    >
+                      {driver.vehicle_label}
+                    </Link>
+                  ) : driver.vehicle_label ? (
+                    driver.vehicle_label
+                  ) : (
+                    "—"
+                  )}
                 </dd>
               </div>
             </dl>

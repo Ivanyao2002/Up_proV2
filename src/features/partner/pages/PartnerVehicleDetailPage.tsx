@@ -132,6 +132,10 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
                 </dd>
               </div>
               <div className="flex justify-between gap-2">
+                <dt>Catégorie</dt>
+                <dd className="text-foreground">{vehicle.category_code || vehicle.category_label || "—"}</dd>
+              </div>
+              <div className="flex justify-between gap-2">
                 <dt>Année · Couleur</dt>
                 <dd className="text-foreground">
                   {vehicle.year} · {vehicle.color}
@@ -143,7 +147,18 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Chauffeur</dt>
-                <dd className="text-foreground">{vehicle.driver_name ?? "Non assigné"}</dd>
+                <dd className="text-foreground">
+                  {vehicle.driver_name ? (
+                    <Link
+                      href={`/partner/drivers/${vehicle.driver_id}`}
+                      className="text-teal hover:text-teal-dark hover:underline"
+                    >
+                      {vehicle.driver_name}
+                    </Link>
+                  ) : (
+                    "Non assigné"
+                  )}
+                </dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Créé le</dt>

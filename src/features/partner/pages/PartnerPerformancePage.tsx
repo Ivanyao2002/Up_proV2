@@ -41,8 +41,10 @@ function PerformanceVehicleCell({ row }: { row: FleetPerformanceRow }) {
     plate: row.plate ?? "",
     brand: row.brand,
     model: row.model,
-    ride_category_code: row.category_code,
-    service: "taxi" as const,
+    category: (row.category_code as Vehicle["category"]) ?? "taxi",
+    category_code: row.category_code,
+    year: row.year ?? 0,
+    color: "",
   } satisfies Partial<Vehicle>;
 
   const vehicleTitle =
@@ -298,7 +300,6 @@ export function PartnerPerformancePage() {
           emptyTitle="Aucune donnée de performance"
           emptyDescription="Les statistiques de votre flotte apparaîtront ici pour la période sélectionnée."
           exportFileName="performance-flotte-partenaire"
-          pagination={false}
         />
       )}
     </div>

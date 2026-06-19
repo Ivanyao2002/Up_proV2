@@ -46,6 +46,7 @@ export interface ApiBookingItem {
   status: string;
   payment_status?: string | null;
   payment_method_code?: string | null;
+  payment_method?: string | null;
   pickup_address?: string | null;
   pickup_latitude?: number | null;
   pickup_longitude?: number | null;
@@ -184,9 +185,9 @@ export function mapApiBookingItemToPartnerBooking(item: ApiBookingItem): Partner
     client_phone: meta.clientPhone ?? driver?.phone ?? undefined,
     service: meta.service === "delivery" ? "delivery" : "taxi",
     payment_method:
-      item.payment_method_code === "wallet"
+      item.payment_method_code === "wallet" || item.payment_method?.toLowerCase() === "wallet"
         ? "wallet"
-        : item.payment_method_code === "orange_money"
+        : item.payment_method_code === "orange_money" || item.payment_method?.toLowerCase() === "orange_money"
           ? "orange_money"
           : "cash",
     status: mapApiStatusToTripStatus(item.status),

@@ -212,6 +212,7 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
 
     // Driver peut être dans raw.driver ou v.driver
     const driver = (raw.driver ?? v.driver) as {
+      id?: string;
       displayName?: string;
       profile?: { firstName?: string; lastName?: string };
     } | null;
@@ -269,6 +270,7 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
       plate: (v.plate_number as string) ?? (v.plate as string) ?? "",
       seats: (v.seats_count as number) ?? (v.seats as number) ?? 0,
       approval_status: ((v.status as string) ?? "pending") as Vehicle["approval_status"],
+      driver_id: (v.driver_id as string | null) ?? driver?.id ?? null,
       driver_name: driverName,
       registration_document: registrationDoc,
       owner_id: partnerId,

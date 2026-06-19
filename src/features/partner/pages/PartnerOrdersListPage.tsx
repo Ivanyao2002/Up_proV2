@@ -7,6 +7,7 @@ import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getTripStatusLabel, STATUS_FILTER_OPTIONS } from "@/shared/lib/tripLabels";
+import { getPaymentLabel } from "@/shared/lib/paymentLabels";
 import { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
@@ -89,6 +90,12 @@ export function PartnerOrdersListPage() {
       header: "Paiement",
       cell: (b) => b.payment_status ?? "—",
       exportValue: (b) => b.payment_status ?? "",
+    },
+    {
+      id: "payment_method",
+      header: "Mode",
+      cell: (b) => (b.payment_method ? getPaymentLabel(b.payment_method) : "—"),
+      exportValue: (b) => (b.payment_method ? getPaymentLabel(b.payment_method) : ""),
     },
     {
       id: "amount",

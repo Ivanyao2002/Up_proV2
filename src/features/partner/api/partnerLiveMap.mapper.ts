@@ -16,9 +16,29 @@ export interface ApiPartnerLiveMapDriver {
   partner_id?: string;
   city_id?: string;
   driver_code?: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  display_name?: string;
+  profile?: {
+    first_name?: string;
+    last_name?: string;
+    display_name?: string;
+    phone?: string;
+  } | null;
   availability_status?: string;
   last_online_at?: string;
   current_vehicle_id?: string;
+  vehicle_label?: string;
+  vehicle_color?: string | null;
+  vehicle?: {
+    id?: string;
+    brand?: string;
+    model?: string;
+    plate_number?: string;
+    label?: string;
+    display_name?: string;
+  } | null;
   latitude?: number | null;
   longitude?: number | null;
   heading?: number | null;
@@ -300,15 +320,47 @@ export function mapApiPartnerLiveMapToData(
 
     const active_trip = activeOrder ? mapActiveTrip(activeOrder) : undefined;
 
+    const firstName = d.first_name ?? d.profile?.first_name;
+    const lastName = d.last_name ?? d.profile?.last_name;
+    const displayName = d.display_name ?? d.profile?.display_name;
+    const driverName =
+      d.name ??
+      displayName ??
+      (firstName && lastName ? `${firstName} ${lastName}` : null) ??
+      (firstName ?? lastName ?? null) ??
+      d.driver_code ??
+      `Chauffeur ${String(d.id).slice(0, 6)}`;
+
+    const v = d.vehicle;
+    const vehicleLabel =
+      d.vehicle_label ??
+      (v
+        ? v.label ??
+          v.display_name ??
+          [v.brand, v.model].filter(Boolean).join(" ") ??
+          null
+        : null);
+    const vehiclePlate = v?.plate_number ?? null;
+    const vehicleDisplay = vehicleLabel
+      ? vehiclePlate && !vehicleLabel.includes(vehiclePlate)
+        ? `${vehicleLabel} · ${vehiclePlate}`
+        : vehicleLabel
+      : d.current_vehicle_id
+        ? `Véh. ${d.current_vehicle_id.slice(0, 8)}`
+        : "—";
+    const vehicleColor = d.vehicle_color ?? null;
+
     drivers.push({
       id: d.id,
-      name: d.driver_code ?? `Chauffeur ${String(d.id).slice(0, 6)}`,
+      name: driverName,
       lat: coords.lat,
       lng: coords.lng,
       heading: d.heading ?? d.location?.heading ?? undefined,
       speed_kmh: d.speed_kmh ?? d.location?.speedKmh ?? undefined,
       availability: mapAvailability(d.availability_status),
-      vehicle: d.current_vehicle_id ? `Véh. ${d.current_vehicle_id.slice(0, 8)}` : "—",
+      vehicle: vehicleDisplay,
+      vehicle_color: vehicleColor,
+      vehicle_color_hex: vehicleColor,
       zone_name: d.metadata?.zoneLabel,
       active_trip,
     });

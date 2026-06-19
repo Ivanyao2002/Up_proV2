@@ -781,6 +781,7 @@ export interface VehicleDetail extends Vehicle {
   owner_id: number | string;
   registration_document: KycDocument;
   approved_at?: string | null;
+  driver_id?: string | null;
 }
 
 /** Fiche véhicule admin — GET /v1/partners/{partnerId}/vehicles/{vehicleId} */

@@ -198,14 +198,17 @@ function resolveVehicleFields(raw: Record<string, unknown>) {
   const vehicleId =
     readString(raw, "vehicle_id", "vehicleId") ??
     readString(vehicle ?? {}, "id");
-  const vehiclePlate = readString(
-    vehicle ?? {},
-    "plate",
-    "plateNumber",
-    "license_plate"
-  );
+  const vehiclePlate =
+    readString(vehicle ?? {}, "plate", "plateNumber", "license_plate", "plate_number") ??
+    readString(raw, "vehicle_plate", "vehiclePlate");
   const vehicleLabel =
-    readString(vehicle ?? {}, "label", "displayName", "name") ?? vehiclePlate;
+    readString(vehicle ?? {}, "label", "displayName", "name") ??
+    (vehicle
+      ? [readString(vehicle, "brand", "brandLabel"), readString(vehicle, "model", "modelLabel")]
+          .filter(Boolean)
+          .join(" ") || undefined
+      : undefined) ??
+    vehiclePlate;
 
   return {
     vehicle_id: vehicleId,

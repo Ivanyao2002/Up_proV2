@@ -423,7 +423,7 @@ async function fetchVehicleDriverAssignments(
       status?: string;
       items?: ApiFleetVehicleAssignment[];
     }>(
-      `${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery({ per_page: 200 })}`
+      `${LINKS.v1.partners.vehicles(String(partnerId))}${buildV1ListQuery({ per_page: 200 })}`
     );
     const map = new Map<string, string>();
     for (const item of response.items ?? []) {
