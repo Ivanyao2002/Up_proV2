@@ -7,13 +7,17 @@ import { resolveFranchiseId } from "@/core/api/franchiseContext.service";
 import { LINKS, appendQuery, createUrl } from "@/core/api/links";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
+import type { ApiAdminDriverItem } from "@/features/fleet/api/adminDrivers.api.types";
+import { mapAdminDriverItemToListDriver } from "@/features/fleet/api/adminDrivers.mapper";
 import type { ApiV1FranchisePartnersResponse } from "@/features/network/api/adminFranchises.api.types";
 import type { ApiPartnerCreateResponse } from "@/features/network/api/adminPartners.api.types";
 import {
   mapAdminPartnerItemToPartner,
   mapAdminPartnersToPaginated,
 } from "@/features/network/api/adminPartners.mapper";
-import type { Driver, Paginated, Partner, Trip } from "@/shared/types";
+import type { ApiAdminVehiclesListResponse } from "@/features/fleet/api/adminVehicles.api.types";
+import { mapAdminVehiclesToPaginated } from "@/features/fleet/api/adminVehicles.mapper";
+import type { Driver, Paginated, Partner, Trip, Vehicle } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import {
   mapFranchiseOrdersToTripsList,
@@ -66,13 +70,15 @@ export interface PartnerCommission {
 
 interface V1PartnerDriversResponse {
   status?: string;
-  items?: Driver[];
+  items?: ApiAdminDriverItem[];
+  drivers?: ApiAdminDriverItem[];
   pagination?: { total?: number; page?: number; per_page?: number; total_pages?: number };
 }
 
 interface V1PartnerCommissionsResponse {
   status?: string;
   items?: PartnerCommission[];
+  commissions?: PartnerCommission[];
   pagination?: { total?: number; page?: number; per_page?: number; total_pages?: number };
   stats?: {
     total_fcfa: number;
@@ -262,15 +268,25 @@ export const franchisePartnersService = {
     const res = await apiClient.get<V1PartnerDriversResponse>(
       appendQuery(LINKS.franchise.v1.partnerDrivers(franchiseId, partnerId), buildV1ListQuery(params))
     );
+    const raw = res.items ?? res.drivers ?? [];
+    const data = raw.map(mapAdminDriverItemToListDriver);
     return {
-      data: res.items ?? [],
+      data,
       meta: {
-        total: res.pagination?.total ?? res.items?.length ?? 0,
+        total: res.pagination?.total ?? data.length,
         current_page: res.pagination?.page ?? 1,
         per_page: res.pagination?.per_page ?? 20,
         last_page: res.pagination?.total_pages ?? 1,
       },
     };
+  },
+
+  getVehicles: async (partnerId: string, params?: ListParams): Promise<Paginated<Vehicle>> => {
+    const res = await apiClient.get<ApiAdminVehiclesListResponse>(
+      appendQuery(LINKS.v1.partners.vehicles(partnerId), buildV1ListQuery(params))
+    );
+    const items = res.items ?? [];
+    return mapAdminVehiclesToPaginated(items, params, res.pagination);
   },
 
   getOrders: async (partnerId: string, params?: ListParams): Promise<{ data: Trip[]; meta: Paginated<Trip>["meta"] }> => {
@@ -291,15 +307,18 @@ export const franchisePartnersService = {
     const res = await apiClient.get<V1PartnerCommissionsResponse>(
       appendQuery(LINKS.franchise.v1.partnerCommissions(franchiseId, partnerId), buildV1ListQuery(params))
     );
+    const items = res.items ?? res.commissions ?? [];
+    const rawAvgRate = res.stats?.avg_rate_pct ?? 0;
+    const avgRatePct = rawAvgRate > 100 ? rawAvgRate / 100 : rawAvgRate;
     return {
-      data: res.items ?? [],
+      data: items,
       meta: {
-        total: res.pagination?.total ?? res.items?.length ?? 0,
+        total: res.pagination?.total ?? items.length,
         current_page: res.pagination?.page ?? 1,
         per_page: res.pagination?.per_page ?? 20,
         last_page: res.pagination?.total_pages ?? 1,
       },
-      stats: res.stats,
+      stats: res.stats ? { ...res.stats, avg_rate_pct: avgRatePct } : undefined,
     };
   },
 };

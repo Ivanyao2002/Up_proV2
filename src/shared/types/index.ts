@@ -82,6 +82,10 @@ export interface TripTimelineEvent {
   label: string;
   description?: string;
   at: string;
+  /** Étape non encore atteinte (pas de date) — affichée en muted */
+  pending?: boolean;
+  /** Étape courante (current: true côté backend) */
+  is_current?: boolean;
   /** Chauffeurs contactés pendant la recherche (détail par nom + issue) */
   matching_drivers?: TripMatchingDriver[];
 }

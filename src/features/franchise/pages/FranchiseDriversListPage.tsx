@@ -27,6 +27,7 @@ import type { Driver, KycQueueItem } from "@/shared/types";
 import { ModalPortal } from "@/shared/ui/ModalPortal";
 import {
   useFranchiseDriversList,
+  useFranchiseDriverFilterOptions,
   useFranchiseKycQueue,
   useBulkDriverAvailability,
   useBulkSuspendDrivers,
@@ -36,16 +37,6 @@ import { useBulkTransferDriversToPartner } from "@/features/fleet/api/driverTran
 import { BulkDriverTransferModal } from "@/features/fleet/components/BulkDriverTransferModal";
 import { useScope } from "@/core/auth/useScope";
 import { BulkActionBar } from "@/shared/ui/BulkActionBar";
-
-const ZONE_OPTIONS = [
-  { value: "all" as const, label: "Toutes les zones" },
-  { value: "Cocody", label: "Cocody" },
-  { value: "Yopougon", label: "Yopougon" },
-  { value: "Plateau", label: "Plateau" },
-  { value: "Marcory", label: "Marcory" },
-  { value: "Treichville", label: "Treichville" },
-  { value: "Adjamé", label: "Adjamé" },
-];
 
 const ACCOUNT_OPTIONS = [
   { value: "all" as const, label: "Tous les comptes" },
@@ -365,21 +356,40 @@ export function FranchiseDriversListPage({ pendingOnly }: FranchiseDriversListPa
 
 function DriversListView() {
   const { franchiseId } = useScope();
-  const [zoneFilter, setZoneFilter] = useState<(typeof ZONE_OPTIONS)[number]["value"]>("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [partnerFilter, setPartnerFilter] = useState("all");
   const [accountFilter, setAccountFilter] =
     useState<(typeof ACCOUNT_OPTIONS)[number]["value"]>("all");
   const [availabilityFilter, setAvailabilityFilter] =
     useState<(typeof AVAILABILITY_OPTIONS)[number]["value"]>("all");
-  const [complianceFilter, setComplianceFilter] = useState<
-    (typeof DRIVER_COMPLIANCE_FILTER_OPTIONS)[number]["value"]
-  >("all");
+  const [complianceFilter, setComplianceFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Set<string | number>>(new Set());
   const [showBulkTransfer, setShowBulkTransfer] = useState(false);
 
+  const { data: filterOptions } = useFranchiseDriverFilterOptions();
+
+  const cityOptions = [
+    { value: "all", label: "Toutes les villes" },
+    ...(filterOptions?.cities ?? []).map((c) => ({ value: c.slug, label: c.name })),
+  ];
+
+  const partnerOptions = [
+    { value: "all", label: "Tous les partenaires" },
+    ...(filterOptions?.partners ?? []).map((p) => ({ value: p.id, label: p.name })),
+  ];
+
+  const complianceOptions = filterOptions?.complianceStatuses?.length
+    ? [
+        { value: "all" as const, label: "Toutes conformités" },
+        ...filterOptions.complianceStatuses.map((s) => ({ value: s.value, label: s.label })),
+      ]
+    : DRIVER_COMPLIANCE_FILTER_OPTIONS;
+
   const table = useServerTableState(
-    [zoneFilter, accountFilter, availabilityFilter, complianceFilter],
+    [cityFilter, partnerFilter, accountFilter, availabilityFilter, complianceFilter],
     {
-      zone: zoneFilter !== "all" ? zoneFilter : undefined,
+      zone: cityFilter !== "all" ? cityFilter : undefined,
+      partner_id: partnerFilter !== "all" ? partnerFilter : undefined,
       account_status: accountFilter !== "all" ? accountFilter : undefined,
       availability: availabilityFilter !== "all" ? availabilityFilter : undefined,
       compliance_status:
@@ -392,7 +402,8 @@ function DriversListView() {
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
     fields: [
-      { value: zoneFilter, defaultValue: "all", reset: () => setZoneFilter("all") },
+      { value: cityFilter, defaultValue: "all", reset: () => setCityFilter("all") },
+      { value: partnerFilter, defaultValue: "all", reset: () => setPartnerFilter("all") },
       { value: accountFilter, defaultValue: "all" as const, reset: () => setAccountFilter("all") },
       { value: availabilityFilter, defaultValue: "all", reset: () => setAvailabilityFilter("all") },
       { value: complianceFilter, defaultValue: "all", reset: () => setComplianceFilter("all") },
@@ -456,7 +467,7 @@ function DriversListView() {
     {
       id: "vehicle",
       header: "Véhicule",
-      cell: (d) => <span className="text-muted">{d.vehicle_label ?? "—"}</span>,
+      cell: (d) => d.vehicle_label ? <span className="text-muted">{d.vehicle_label}</span> : null,
       exportValue: (d) => d.vehicle_label ?? "",
     },
     {
@@ -556,10 +567,11 @@ function DriversListView() {
         onReset={resetAll}
       >
         <div className="flex flex-wrap items-end gap-3">
-          <SelectFilter label="Zone" value={zoneFilter} onChange={setZoneFilter} options={ZONE_OPTIONS} />
+          <SelectFilter label="Ville" value={cityFilter} onChange={setCityFilter} options={cityOptions} />
+          <SelectFilter label="Partenaire" value={partnerFilter} onChange={setPartnerFilter} options={partnerOptions} />
           <SelectFilter label="Compte" value={accountFilter} onChange={setAccountFilter} options={ACCOUNT_OPTIONS} />
           <SelectFilter label="Disponibilité" value={availabilityFilter} onChange={setAvailabilityFilter} options={AVAILABILITY_OPTIONS} />
-          <SelectFilter label="Conformité" value={complianceFilter} onChange={setComplianceFilter} options={DRIVER_COMPLIANCE_FILTER_OPTIONS} />
+          <SelectFilter label="Conformité" value={complianceFilter} onChange={setComplianceFilter} options={complianceOptions} />
         </div>
       </TableFiltersBar>
 

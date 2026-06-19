@@ -1,18 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { FilterChips } from "@/shared/ui/FilterChips";
 import { SelectFilter } from "@/shared/ui/SelectFilter";
 import { VehicleApprovalPill } from "@/shared/ui/VehicleApprovalPill";
+import { VehicleIdentityCell } from "@/shared/ui/VehicleIdentityCell";
+import { DateRangeFilter } from "@/shared/ui/DateRangeFilter";
 import { formatDateTime } from "@/shared/lib/format";
-import {
-  getVehicleApprovalLabel,
-  getVehicleCategoryLabel,
-} from "@/shared/lib/vehicleLabels";
+import { getVehicleApprovalLabel } from "@/shared/lib/vehicleLabels";
+import { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
   serverPaginationFromMeta,
@@ -37,30 +36,30 @@ export function FranchiseVehiclesListPage() {
   const [statusFilter, setStatusFilter] = useState<VehicleApprovalStatus | "all">("all");
   const [partnerFilter, setPartnerFilter] = useState<string>("all");
 
-  const table = useServerTableState([statusFilter, partnerFilter]);
+  const dateRange = useDateRangeFilter({ defaultPreset: "all" });
+
+  const table = useServerTableState(
+    [statusFilter, partnerFilter, dateRange.dateFrom, dateRange.dateTo],
+    {
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      partner_id: partnerFilter !== "all" ? partnerFilter : undefined,
+      ...dateRange.listParams,
+    }
+  );
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
     fields: [
-      {
-        value: statusFilter,
-        defaultValue: "all",
-        reset: () => setStatusFilter("all"),
-      },
-      {
-        value: partnerFilter,
-        defaultValue: "all",
-        reset: () => setPartnerFilter("all"),
-      },
+      { value: statusFilter, defaultValue: "all", reset: () => setStatusFilter("all") },
+      { value: partnerFilter, defaultValue: "all", reset: () => setPartnerFilter("all") },
+      dateRange.resetField,
     ],
   });
 
   const { data: partners } = useFranchisePartnersList({ per_page: 100 });
 
   const listParams: FranchiseVehicleFilters = {
-    page: table.page,
-    per_page: table.pageSize,
-    search: table.search || undefined,
+    ...table.listParams,
     approval_status: statusFilter !== "all" ? statusFilter : undefined,
     partner_id: partnerFilter !== "all" ? partnerFilter : undefined,
   };
@@ -75,21 +74,12 @@ export function FranchiseVehiclesListPage() {
       id: "vehicle",
       header: "Véhicule",
       cell: (v) => (
-        <div>
-          <Link
-            href={`/franchise/fleet/vehicles/${v.id}`}
-            className="font-medium text-foreground hover:text-teal"
-          >
-            {v.label}
-          </Link>
-          <p className="text-xs text-muted">
-            {v.plate || "Plaque à renseigner"} ·{" "}
-            {v.category_label ?? getVehicleCategoryLabel(v.category)}
-          </p>
-        </div>
+        <VehicleIdentityCell
+          vehicle={v}
+          href={`/franchise/fleet/vehicles/${v.id}`}
+        />
       ),
-      exportValue: (v) =>
-        `${v.label} · ${v.plate || "—"} · ${v.category_label ?? getVehicleCategoryLabel(v.category)}`,
+      exportValue: (v) => `${v.label} · ${v.plate || "—"} · ${v.category}`,
     },
     {
       id: "partner",
@@ -121,19 +111,6 @@ export function FranchiseVehiclesListPage() {
       header: "Créé le",
       cell: (v) => formatDateTime(v.created_at),
       exportValue: (v) => formatDateTime(v.created_at),
-    },
-    {
-      id: "actions",
-      header: "",
-      cell: (v) => (
-        <Link
-          href={`/franchise/fleet/vehicles/${v.id}`}
-          className="text-sm font-medium text-teal hover:underline"
-        >
-          Détail
-        </Link>
-      ),
-      exportValue: () => "",
     },
   ];
 
@@ -172,6 +149,16 @@ export function FranchiseVehiclesListPage() {
               label: p.name,
             })),
           ]}
+        />
+        <DateRangeFilter
+          preset={dateRange.preset}
+          onPresetChange={dateRange.setPreset}
+          customFrom={dateRange.customFrom}
+          customTo={dateRange.customTo}
+          onCustomFromChange={dateRange.setCustomFrom}
+          onCustomToChange={dateRange.setCustomTo}
+          showAllPreset
+          rangeLabel={dateRange.rangeLabel}
         />
       </TableFiltersBar>
 

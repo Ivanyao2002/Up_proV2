@@ -227,4 +227,64 @@ export function mapFranchiseOrdersToTripsList(response: ApiFranchiseOrdersRespon
 
 ---
 
+## 🚗 Actions Chauffeur — Gaps Identifiés (2026-06-18)
+
+**Franchise ID:** `1bb2bff7-edcc-496d-a87a-4126c19be278`  
+**Driver ID testé:** `7abb2329-7404-4224-b347-fb6297480e6b` (rattaché via partenaire `71a1aad7`)
+
+---
+
+### Endpoints Swagger déclarés
+
+| Méthode | Route | Rôle |
+|---------|-------|------|
+| `PATCH` | `/v1/franchises/{id}/drivers/{driverId}` | Modifier un chauffeur |
+| `DELETE` | `/v1/franchises/{id}/drivers/{driverId}` | Supprimer un chauffeur |
+| `POST` | `/v1/franchises/{id}/drivers/{driverId}/suspend` | Suspendre |
+| `POST` | `/v1/franchises/{id}/drivers/{driverId}/activate` | Réactiver |
+
+---
+
+### ❌ Bug Confirmé — `/suspend` et `/activate`
+
+**Symptôme :**
+```
+POST /v1/franchises/1bb2bff7.../drivers/7abb2329.../suspend
+→ 404 Not Found
+{ "code": "DRIVER_NOT_FOUND", "message": "Driver not found for this franchise" }
+```
+
+**Cause probable :**  
+Le backend recherche le chauffeur uniquement parmi les chauffeurs **directement rattachés** à la franchise (`franchise_id = franchiseId`).  
+Ce chauffeur est rattaché via un **partenaire** (`partner_id = 71a1aad7`) lui-même membre de la franchise — il n'est donc pas trouvé.
+
+**Impact :** Toutes les actions (`/suspend`, `/activate`) échouent pour les chauffeurs rattachés via partenaire, soit la majorité des chauffeurs d'une franchise.
+
+**Fix temporaire frontend :**  
+Fallback sur `POST /v1/admin/users/{userId}/suspend` et `POST /v1/admin/users/{userId}/activate` en cas de 404, en récupérant le `user_id` depuis l'endpoint detail du chauffeur.
+
+**Fix attendu backend :**  
+L'endpoint `/v1/franchises/{id}/drivers/{driverId}/suspend` doit résoudre le chauffeur en cherchant aussi les chauffeurs rattachés via les partenaires de la franchise (`JOIN partners WHERE partners.franchise_id = franchiseId`).
+
+---
+
+### ⚠️ Risque similaire — `PATCH` et `DELETE`
+
+Les endpoints `PATCH /v1/franchises/{id}/drivers/{driverId}` et `DELETE /v1/franchises/{id}/drivers/{driverId}` utilisent probablement la même logique de résolution. Si c'est le cas, ils retourneront aussi `404` pour les chauffeurs via partenaire.
+
+**À tester :**
+- [ ] `PATCH /v1/franchises/{id}/drivers/{driverId}` → chauffeur via partenaire
+- [ ] `DELETE /v1/franchises/{id}/drivers/{driverId}` → chauffeur via partenaire
+
+---
+
+### Questions pour le Backend
+
+- [ ] **CRITIQUE :** L'endpoint `/suspend` et `/activate` cherche-t-il les chauffeurs directs seulement ou aussi via partenaires ?
+- [ ] Même question pour `PATCH` et `DELETE`.
+- [ ] Y a-t-il un endpoint `/v1/admin/drivers/{id}/suspend` utilisable avec un token franchise ?
+- [ ] La résolution chauffeur devrait-elle inclure `WHERE franchise_id = X OR partner.franchise_id = X` ?
+
+---
+
 *Rapport généré automatiquement*

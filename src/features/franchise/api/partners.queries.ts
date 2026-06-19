@@ -12,6 +12,7 @@ export const franchisePartnersKeys = {
   drivers: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "drivers", filters] as const,
   orders: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "orders", filters] as const,
   commissions: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "commissions", filters] as const,
+  vehicles: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "vehicles", filters] as const,
 };
 
 export function useFranchisePartnersList(params?: ListParams) {
@@ -49,6 +50,14 @@ export function useFranchisePartnerCommissions(partnerId: string, params?: ListP
   return useQuery({
     queryKey: franchisePartnersKeys.commissions(partnerId, params),
     queryFn: () => franchisePartnersService.getCommissions(partnerId, params),
+    enabled: Boolean(partnerId),
+  });
+}
+
+export function useFranchisePartnerVehicles(partnerId: string, params?: ListParams) {
+  return useQuery({
+    queryKey: franchisePartnersKeys.vehicles(partnerId, params),
+    queryFn: () => franchisePartnersService.getVehicles(partnerId, params),
     enabled: Boolean(partnerId),
   });
 }

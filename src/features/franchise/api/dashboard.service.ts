@@ -14,6 +14,8 @@ export interface FranchiseDashboard {
   trips_today: number;
   trips_today_trend_pct: number;
   trips_completed_today: number;
+  trips_in_progress_today: number;
+  trips_cancelled_today: number;
   revenue_today_fcfa: number;
   revenue_trend_pct: number;
   pending_kyc: number;

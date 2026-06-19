@@ -32,11 +32,13 @@ export function sortTripTimelineDisplayOrder(
 }
 
 export function tripTimelineVariant(
-  type: TripTimelineEvent["type"]
+  event: TripTimelineEvent
 ): TimelineItem["variant"] {
-  if (type === "completed" || type === "in_progress") return "success";
-  if (type === "cancelled") return "muted";
-  if (type === "matching" || type === "requested") return "warning";
+  if (event.pending) return "muted";
+  if (event.is_current) return "warning";
+  if (event.type === "completed" || event.type === "in_progress") return "success";
+  if (event.type === "cancelled") return "muted";
+  if (event.type === "matching" || event.type === "requested") return "warning";
   return "default";
 }
 
@@ -45,12 +47,16 @@ export function tripTimelineToItems(
   options?: { driverLinkBase?: string }
 ): TimelineItem[] {
   const base = options?.driverLinkBase ?? "/admin/fleet/drivers";
-  return sortTripTimelineDisplayOrder(events).map((e) => ({
+  // Les étapes pending (sans date) restent à la fin, dans leur ordre d'origine
+  const withDate = events.filter((e) => !e.pending);
+  const withoutDate = events.filter((e) => e.pending);
+  const sorted = [...sortTripTimelineDisplayOrder(withDate), ...withoutDate];
+  return sorted.map((e) => ({
     id: e.id,
     label: e.label,
     description: e.matching_drivers?.length ? undefined : e.description,
-    at: e.at,
-    variant: tripTimelineVariant(e.type),
+    at: e.at || "",
+    variant: tripTimelineVariant(e),
     matching_drivers: e.matching_drivers?.map((d) => ({
       ...d,
       href: `${base}/${d.driver_id}`,

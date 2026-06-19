@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Recette Franchise — UPJUNOO PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-teal: #016d71;
+            --primary-teal-dark: #015456;
+            --primary-teal-light: #018a8f;
+            --primary-yellow: #f8bb10;
+            --primary-yellow-light: #fcd34d;
+            --bg-light: #f8fafc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --success: #047857;
+            --success-bg: rgba(4, 120, 87, 0.06);
+            --warning: #b7791f;
+            --warning-bg: rgba(248, 187, 16, 0.08);
+            --danger: #b91c1c;
+            --danger-bg: rgba(185, 28, 28, 0.06);
+            --info: #1d4ed8;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px 10px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--primary-teal-dark) 0%, var(--primary-teal) 50%, var(--primary-teal-light) 100%);
+            color: #ffffff;
+            padding: 40px 24px;
+            text-align: center;
+            position: relative;
+            border-bottom: 6px solid var(--primary-yellow);
+        }
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50px; right: -50px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(248, 187, 16, 0.05);
+        }
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(24px, 5vw, 36px);
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .logo-text span { color: var(--primary-yellow); }
+        .header-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+        .subtitle {
+            font-size: clamp(12px, 3vw, 14px);
+            color: rgba(255,255,255,0.75);
+            max-width: 600px;
+            margin: 0 auto 24px auto;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            max-width: 700px;
+            margin: 0 auto;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 18px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .meta-item strong {
+            color: var(--primary-yellow);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* CONTENT */
+        .content { padding: 24px 16px; }
+        @media(min-width: 768px) { .content { padding: 40px 32px; } }
+
+        h2.section-header {
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary-teal);
+            font-size: clamp(18px, 4vw, 22px);
+            font-weight: 700;
+            margin: 35px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h2.section-header::before {
+            content: '';
+            display: inline-block;
+            width: 8px; height: 20px;
+            background: var(--primary-yellow);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        h3.sub-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-teal-dark);
+            margin: 22px 0 10px 0;
+        }
+        p.intro-text {
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* KPI SUMMARY BAR */
+        .kpi-bar {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+        @media(min-width: 600px) { .kpi-bar { grid-template-columns: repeat(4, 1fr); } }
+        .kpi-box {
+            border-radius: var(--radius-md);
+            padding: 18px 16px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+        }
+        .kpi-box .kpi-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .kpi-box .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+        }
+        .kpi-box.ok   { background: #ecfdf5; border-color: #a7f3d0; }
+        .kpi-box.ok   .kpi-num { color: var(--success); }
+        .kpi-box.todo { background: #f0fdf4; border-color: #86efac; }
+        .kpi-box.todo .kpi-num { color: #15803d; }
+        .kpi-box.out  { background: #f8fafc; border-color: #cbd5e1; }
+        .kpi-box.out  .kpi-num { color: var(--text-muted); }
+        .kpi-box.crit { background: #fef2f2; border-color: #fca5a5; }
+        .kpi-box.crit .kpi-num { color: var(--danger); }
+
+        /* GRID CARDS */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media(min-width: 768px) { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
+
+        .info-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .info-card:hover { border-color: var(--primary-teal); transform: translateY(-2px); }
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-teal);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+        .info-card.accent::before { background: linear-gradient(90deg, var(--primary-teal), var(--primary-yellow)); }
+        .info-card.danger::before { background: var(--danger); }
+        .info-card.warn::before   { background: var(--primary-yellow); }
+        .info-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-card.danger .info-card-title { color: var(--danger); }
+        .info-card.warn   .info-card-title { color: #92400e; }
+        .info-card-desc { font-size: 13px; color: #4a5568; }
+
+        /* POLE CARDS */
+        .pole-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+        .pole-header {
+            background: linear-gradient(90deg, var(--primary-teal) 0%, var(--primary-teal-light) 100%);
+            color: #ffffff;
+            padding: 14px 20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+        .pole-header.danger-header { background: linear-gradient(90deg, #991b1b, #dc2626); }
+        .pole-header.warn-header   { background: linear-gradient(90deg, #92400e, #b45309); }
+        .pole-header.out-header    { background: linear-gradient(90deg, #475569, #64748b); }
+        .pole-header span.badge-num {
+            background: var(--primary-yellow);
+            color: var(--primary-teal-dark);
+            min-width: 24px; height: 24px;
+            border-radius: 12px;
+            padding: 0 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .pole-body { padding: 20px; }
+        .pole-subtitle {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--primary-teal);
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        /* LIST RICH */
+        .list-rich { list-style: none; font-size: 13px; margin-bottom: 15px; }
+        .list-rich li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            text-align: justify;
+        }
+        .list-rich li::before {
+            content: '➔';
+            position: absolute;
+            left: 0;
+            color: var(--primary-yellow);
+            font-weight: bold;
+        }
+
+        /* TABLES */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 16px 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 500px; }
+        th {
+            background-color: var(--primary-teal-dark);
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 11px 14px;
+        }
+        td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: #334155;
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background-color: var(--bg-light); }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .badge.ok     { background: rgba(4,120,87,0.1);   color: var(--success); }
+        .badge.todo   { background: rgba(21,128,61,0.1);  color: #15803d; }
+        .badge.out    { background: #f1f5f9;               color: var(--text-muted); }
+        .badge.crit   { background: rgba(185,28,28,0.1);  color: var(--danger); }
+        .badge.warn   { background: rgba(180,83,9,0.1);   color: #92400e; }
+        .badge.p0     { background: #fef2f2; color: #b91c1c; }
+        .badge.p1     { background: #fff7ed; color: #c2410c; }
+        .badge.p2     { background: #fefce8; color: #a16207; }
+        .badge.p3     { background: #eff6ff; color: #1d4ed8; }
+
+        /* ALERT CARDS */
+        .alert-card {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            font-size: 13px;
+            border-left: 4px solid;
+            box-shadow: var(--card-shadow);
+        }
+        .alert-card.note    { background: #ecfeff; border-left-color: var(--primary-teal); color: var(--primary-teal-dark); }
+        .alert-card.warning { background: #fffdf5; border-left-color: var(--primary-yellow); color: #744210; }
+        .alert-card.success { background: #ecfdf5; border-left-color: var(--success); color: #064e3b; }
+        .alert-card.danger  { background: #fef2f2; border-left-color: var(--danger); color: #7f1d1d; }
+        .alert-title {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* PROGRESS BAR */
+        .progress-wrap { margin: 6px 0 4px 0; }
+        .progress-bar-bg {
+            background: #e2e8f0;
+            border-radius: 99px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--primary-teal), var(--primary-teal-light));
+        }
+        .progress-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--primary-teal-dark);
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            padding: 24px;
+            font-size: 11px;
+            border-top: 4px solid var(--primary-yellow);
+        }
+        footer strong { color: #ffffff; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-tag">Plan de Recette & Déploiement — Juin 2026</div>
+        <div class="logo-text">UP<span>JUNOO</span> PRO</div>
+        <h1>Rapport de Couverture — Module Franchise</h1>
+        <div class="subtitle">Comparaison entre le Plan de Recette officiel et l'implémentation front-office du portail franchise. Décisions de prise en charge intégrées.</div>
+        <div class="meta-grid">
+            <div class="meta-item"><strong>Date d'édition</strong>18 Juin 2026</div>
+            <div class="meta-item"><strong>Jalon cible</strong>21 Juin 2026 — Test Réel</div>
+            <div class="meta-item"><strong>Périmètre</strong>Portail Franchise (Front)</div>
+            <div class="meta-item"><strong>Statut</strong>Décisions validées</div>
+        </div>
+    </header>
+
+    <div class="content">
+
+        <p class="intro-text">
+            Ce rapport analyse point par point la couverture du module Franchise du back-office web <strong>UPJUNOO PRO</strong> au regard du Plan de Recette et Déploiement v1.0 (Juin 2026). Pour chacune des 13 fonctionnalités exigées (§5.6), les use cases UC-FR01 et UC-FR02 ont été mis en regard de l'implémentation réelle dans <code>src/features/franchise/</code>. Les décisions de prise en charge ont été arbitrées en vue du jalon critique du <strong>dimanche 21 juin 2026</strong>.
+        </p>
+
+        <!-- KPI RÉSUMÉ -->
+        <div class="kpi-bar">
+            <div class="kpi-box ok">
+                <div class="kpi-num">17</div>
+                <div class="kpi-label">Fonctionnalités ✅ déjà couvertes</div>
+            </div>
+            <div class="kpi-box todo">
+                <div class="kpi-num">9</div>
+                <div class="kpi-label">Éléments 🟢 pris en charge</div>
+            </div>
+            <div class="kpi-box crit">
+                <div class="kpi-num">2</div>
+                <div class="kpi-label">Blocs 🔴 critiques P0</div>
+            </div>
+            <div class="kpi-box out">
+                <div class="kpi-num">7</div>
+                <div class="kpi-label">Points ⬜ hors scope</div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 1 — DASHBOARD -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">1. Tableau de Bord — UC-FR01</h2>
+        <p class="intro-text">
+            Le plan exige 14 indicateurs de supervision de zone en temps réel (§10, UC-FR01). Le dashboard actuel couvre les KPI financiers et opérationnels VTC. Les indicateurs liés aux services non-VTC (livreurs, livraisons, fret, locations) et aux indicateurs qualitatifs (taux d'annulation, incidents, réclamations) sont partiellement absents.
+        </p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Indicateur exigé</th>
+                        <th>Composant / Source</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Partenaires actifs</td><td><code>data.partners_count</code></td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td>Chauffeurs en ligne / total</td><td><code>data.drivers_online / drivers_total</code></td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td>Courses aujourd'hui + trend</td><td><code>HeroTripsTodayKpi</code></td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td>Courses terminées</td><td><code>data.trips_completed_today</code></td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td>Flux 7 jours (revenus + courses)</td><td>Graphique barre custom</td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td>Retraits en attente</td><td><code>FranchisePendingWithdrawalsKpi</code></td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td>KYC à modérer</td><td>Bandeau alerte → modération</td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td>Live refresh indicator</td><td><code>LiveRefreshIndicator</code></td><td><span class="badge ok">✅ Implémenté</span></td></tr>
+                    <tr><td><strong>Livreurs actifs</strong></td><td>—</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                    <tr><td><strong>Clients actifs</strong></td><td>—</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                    <tr><td><strong>Livraisons réalisées</strong></td><td>—</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                    <tr><td><strong>Taux d'annulation</strong></td><td>—</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                    <tr><td><strong>Incidents en cours</strong></td><td>—</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                    <tr><td><strong>Réclamations en cours</strong></td><td>—</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                    <tr><td>Fret réalisé</td><td>—</td><td><span class="badge out">⬜ Hors scope</span></td></tr>
+                    <tr><td>Locations réalisées</td><td>—</td><td><span class="badge out">⬜ Hors scope</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="progress-wrap">
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:50%"></div></div>
+            <div class="progress-label">Couverture actuelle : 8 / 16 indicateurs — 6 pris en charge, 2 hors scope</div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 2 — UC-FR02 MOTEUR BONUS -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">2. UC-FR02 — Moteur de Bonus Performance <span style="font-size:13px;color:var(--danger);font-weight:700;margin-left:8px;">CRITIQUE</span></h2>
+        <p class="intro-text">
+            UC-FR02 est classé <strong>Critique</strong> dans le plan de recette (§5.6). La franchise supervise sa zone et reverse automatiquement des bonus de performance aux chauffeurs selon des indicateurs prédéfinis — notation, taux d'acceptation, volume. Le moteur évalue en fin de période et crédite les wallets sans intervention manuelle.
+        </p>
+
+        <div class="alert-card danger">
+            <div class="alert-title">🔴 ABSENT — Pris en charge (front uniquement)</div>
+            Aucune page, aucun service, aucune query relative aux bonus dans <code>src/features/franchise/</code>. Module entièrement à créer. La partie cron backend (calcul automatique + push notification chauffeur) est hors scope front et relève de l'éditeur backend.
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header"><span>UC-FR02 — Sous-fonctionnalités détaillées</span><span class="badge-num">10</span></div>
+            <div class="pole-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr><th>Sous-fonctionnalité</th><th>Décision</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Paramétrage seuils KPI (nb courses, note ≥ 4.5, acceptation ≥ 90%, annulation ≤ 5%)</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Enveloppe budgétaire bonus (% des commissions)</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Grille de montants par palier</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Bouton activation / désactivation du moteur</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Déclenchement manuel du calcul (interface)</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Rapport bonus exportable (.xlsx)</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Logs d'audit horodatés des reversements</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Débit wallet franchise du total reversé</td><td><span class="badge todo">🟢 À faire</span></td></tr>
+                            <tr><td>Calcul automatique cron fin de période (backend)</td><td><span class="badge out">⬜ Hors scope</span></td></tr>
+                            <tr><td>Notification push chauffeur "Bonus reçu" (backend)</td><td><span class="badge out">⬜ Hors scope</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 3 — LIVREURS -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">3. Suivi des Livreurs — §8 & §5.6 Fonctionnalité 4</h2>
+        <p class="intro-text">
+            Le plan traite les livreurs comme un profil distinct des chauffeurs (§8 — 14 fonctionnalités dédiées). La franchise doit pouvoir superviser ses livreurs au même titre que ses chauffeurs. Aucune page dédiée n'existe aujourd'hui dans le portail franchise.
+        </p>
+
+        <div class="grid-cards">
+            <div class="info-card danger">
+                <div class="info-card-title"><span>❌</span> Situation actuelle</div>
+                <div class="info-card-desc">
+                    Aucune page <code>FranchiseDeliverymen*</code> dans <code>src/features/franchise/pages/</code>. Aucun service ni query dédiés aux livreurs dans <code>src/features/franchise/api/</code>. La section chauffeurs (<code>FranchiseDrivers*</code>) ne couvre que le profil VTC.
+                </div>
+            </div>
+            <div class="info-card accent">
+                <div class="info-card-title"><span>🟢</span> Pris en charge</div>
+                <div class="info-card-desc">
+                    Création des pages <strong>liste livreurs</strong> et <strong>détail livreur</strong> dans le portail franchise, incluant : profil, documents KYC, wallet, historique missions, statut actif/suspendu et transferts wallet.
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 4 — ONGLETS BIEN COUVERTS -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">4. Modules Déjà Couverts</h2>
+        <p class="intro-text">Les fonctionnalités suivantes sont conformes aux exigences du plan de recette et ne nécessitent pas de développement complémentaire.</p>
+
+        <div class="grid-cards">
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Gestion du territoire</div>
+                <div class="info-card-desc">Carte zones, KPI superficie/partenaires/chauffeurs, sélection interactive, demande d'extension. <code>FranchiseTerritoryPage</code> + <code>FranchiseZonesPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Suivi des partenaires</div>
+                <div class="info-card-desc">Liste, détail, création, transferts wallet. Cloisonnement zone assuré par filtrage API. <code>FranchisePartnersListPage</code> + <code>FranchisePartnerDetailPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Suivi des chauffeurs VTC</div>
+                <div class="info-card-desc">Liste, détail, création, KYC (file + modération), transferts wallet, suspension/réactivation. <code>FranchiseDriversListPage</code> + <code>FranchiseDriverDetailPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Suivi des clients</div>
+                <div class="info-card-desc">Liste et détail clients de la zone. <code>clients.service.ts</code> — intégration dashboard KPI à compléter.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Finance & Commissions</div>
+                <div class="info-card-desc">Solde, recharges cascade, commissions par partenaire, réconciliation, transferts, export CSV. <code>FranchiseFinancePage</code> + <code>FranchiseCommissionsListPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> SOS Guardian</div>
+                <div class="info-card-desc">Centre de sécurité temps réel, incidents actifs, KPI sévérité, risk score, escalade. Rafraîchissement auto 30s. <code>FranchiseSosGuardianPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Carte Live</div>
+                <div class="info-card-desc">Supervision terrain temps réel avec filtre partenaire. <code>FranchiseLiveMapPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Support</div>
+                <div class="info-card-desc">Tickets support (liste + détail) et chat (liste + détail). Infrastructure UC-S01 en place. <code>FranchiseSupportTicketsPage</code> + <code>FranchiseSupportChatListPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Flotte / Véhicules</div>
+                <div class="info-card-desc">Liste et détail véhicules (documents, statut, chauffeur lié). <code>FranchiseVehiclesListPage</code>.</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Cloisonnement zone (UC-03)</div>
+                <div class="info-card-desc">La franchise ne voit que les données de son périmètre géographique. Filtrage assuré via <code>resolveFranchiseId()</code> injecté dans toutes les requêtes API.</div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 5 — POINTS PARTIELS PRIS EN CHARGE -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">5. Points Partiels — Pris en Charge</h2>
+
+        <div class="pole-card">
+            <div class="pole-header warn-header"><span>🟡 Livraisons — Suivi de zone</span><span class="badge-num">P1</span></div>
+            <div class="pole-body">
+                <p class="intro-text" style="margin-bottom:10px;">Le plan exige un suivi courses <em>et livraisons</em> (§5.2 — Fonctionnalité 6). Seules les courses VTC sont visibles. Un onglet livraisons dédié sera ajouté.</p>
+                <ul class="list-rich">
+                    <li><strong>Existant :</strong> <code>FranchiseTripsListPage</code> + <code>FranchiseTripDetailPage</code> (courses VTC uniquement).</li>
+                    <li><strong>À créer :</strong> Page liste livraisons franchise filtrée par zone, avec détail par mission et export .xlsx.</li>
+                    <li><strong>Hors scope :</strong> Fret et Location — non retenus pour cette itération.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header warn-header"><span>🟡 Export Excel (.xlsx)</span><span class="badge-num">P2</span></div>
+            <div class="pole-body">
+                <p class="intro-text" style="margin-bottom:10px;">Le plan exige CSV + Excel + PDF. Seul le CSV est actuellement disponible via le composant <code>DataTable</code>. L'export PDF est hors scope. L'export Excel (.xlsx) est pris en charge.</p>
+                <ul class="list-rich">
+                    <li><strong>Pages concernées :</strong> Commissions, Réconciliation, Courses, Livraisons, Rapport Bonus, Transferts.</li>
+                    <li><strong>Bibliothèque :</strong> <code>xlsx</code> déjà présente dans <code>package.json</code> — intégration à prévoir dans le composant <code>DataTable</code> exportFileName.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header warn-header"><span>🟡 Paramétrage & Activation de Zone</span><span class="badge-num">P2</span></div>
+            <div class="pole-body">
+                <p class="intro-text" style="margin-bottom:10px;">La carte territoire est en lecture seule. Le plan exige un paramétrage de zone (Fonctionnalité 1 — §5.6). Activation/désactivation d'une zone depuis le portail franchise.</p>
+                <ul class="list-rich">
+                    <li><strong>Existant :</strong> <code>FranchiseTerritoryPage</code> — carte + légende, KPI, extension. Aucun bouton d'action.</li>
+                    <li><strong>À ajouter :</strong> Bouton toggle actif/inactif sur chaque zone dans <code>FranchiseZonesPage</code> et dans la légende territoire.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header warn-header"><span>🟡 Pricing Franchise — Verrouillage lecture seule</span><span class="badge-num">P2</span></div>
+            <div class="pole-body">
+                <p class="intro-text" style="margin-bottom:10px;">Le plan stipule que le paramétrage des tarifs est l'apanage du Central (UC-A01a). La franchise dispose actuellement de pages d'édition tarifaire, ce qui est en contradiction avec les droits définis.</p>
+                <ul class="list-rich">
+                    <li><strong>À faire :</strong> Passer <code>FranchisePricingEditPage</code> et <code>FranchisePricingNewPage</code> en mode lecture seule pour le profil franchise. Masquer les boutons de création/modification.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header"><span>🔵 SOS — Bouton escalade explicite vers Central</span><span class="badge-num">P3</span></div>
+            <div class="pole-body">
+                <p class="intro-text" style="margin-bottom:10px;">Le niveau d'escalade est affiché dans <code>FranchiseSosIncidentDetailPage</code> mais aucune action d'escalade explicite n'est disponible depuis l'interface.</p>
+                <ul class="list-rich">
+                    <li><strong>À ajouter :</strong> Bouton « Escalader vers Central » dans la page détail incident SOS, déclenché manuellement par l'opérateur franchise.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header"><span>🔵 Support UC-S01 — Cycle réclamation complet</span><span class="badge-num">P3</span></div>
+            <div class="pole-body">
+                <p class="intro-text" style="margin-bottom:10px;">L'infrastructure support (tickets + chat) est en place. Le cycle complet UC-S01 exige : statuts traçables (ouvert → en cours → résolu), dédommagement wallet depuis l'interface franchise et historique des résolutions.</p>
+                <ul class="list-rich">
+                    <li><strong>À compléter :</strong> Gestion des statuts ticket avec transitions, et action « Créditer wallet » depuis le détail ticket en cas de dédommagement validé.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 6 — SYNTHÈSE USE CASES -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">6. Synthèse par Use Case Officiel</h2>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Use Case</th>
+                        <th>Intitulé</th>
+                        <th>Criticité</th>
+                        <th>Statut actuel</th>
+                        <th>Décision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>UC-FR01</strong></td>
+                        <td>Supervision d'une zone franchise</td>
+                        <td><span class="badge crit">Critique</span></td>
+                        <td>⚠️ Partiel</td>
+                        <td><span class="badge todo">🟢 Complété (sans fret/locations)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UC-FR02</strong></td>
+                        <td>Reversement automatique bonus performance</td>
+                        <td><span class="badge crit">Critique</span></td>
+                        <td>❌ Absent</td>
+                        <td><span class="badge todo">🟢 Pris en charge (front)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UC-FIN03</strong></td>
+                        <td>Répartition 4 tiers plateforme/partenaire/franchise/central</td>
+                        <td><span class="badge crit">Critique</span></td>
+                        <td>⚠️ Partiel</td>
+                        <td><span class="badge out">⬜ Hors scope</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UC-C03</strong></td>
+                        <td>Gestion réclamations (escalade)</td>
+                        <td><span class="badge warn">Majeure</span></td>
+                        <td>⚠️ Partiel</td>
+                        <td><span class="badge todo">🟢 Pris en charge</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UC-S01</strong></td>
+                        <td>Cycle complet réclamation support</td>
+                        <td><span class="badge warn">Majeure</span></td>
+                        <td>⚠️ Partiel</td>
+                        <td><span class="badge todo">🟢 Pris en charge</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UC-03</strong></td>
+                        <td>Cloisonnement des droits par zone</td>
+                        <td><span class="badge crit">Critique</span></td>
+                        <td>✅ Couvert</td>
+                        <td><span class="badge ok">✅ RAS</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 7 — PLAN DE DEV RETENU -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">7. Plan de Développement Retenu</h2>
+        <p class="intro-text">9 éléments pris en charge, classés par priorité en vue du test réel du 21 juin.</p>
+
+        <div class="pole-card">
+            <div class="pole-header danger-header"><span>🔴 P0 — Critiques bloquants (avant J0)</span><span class="badge-num">2</span></div>
+            <div class="pole-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>#</th><th>Fonctionnalité</th><th>Détail</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge p0">P0</span></td>
+                                <td><strong>UC-FR02 — Moteur bonus performance</strong></td>
+                                <td>Page paramétrage KPI + enveloppe + grille paliers + activation + déclenchement manuel + rapport .xlsx + logs audit</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge p0">P0</span></td>
+                                <td><strong>Suivi livreurs franchise</strong></td>
+                                <td>Pages liste + détail livreur (profil, KYC, wallet, historique missions, transferts)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header warn-header"><span>🟠 P1 — Fort impact recette</span><span class="badge-num">2</span></div>
+            <div class="pole-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>#</th><th>Fonctionnalité</th><th>Détail</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge p1">P1</span></td>
+                                <td><strong>Dashboard — 6 indicateurs manquants</strong></td>
+                                <td>Livreurs actifs, clients actifs, livraisons réalisées, taux annulation, incidents en cours, réclamations en cours</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge p1">P1</span></td>
+                                <td><strong>Liste livraisons franchise</strong></td>
+                                <td>Onglet livraisons dans le suivi de zone (liste + détail mission)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header"><span>🟡 P2 — Qualité recette</span><span class="badge-num">3</span></div>
+            <div class="pole-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>#</th><th>Fonctionnalité</th><th>Détail</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge p2">P2</span></td>
+                                <td><strong>Export Excel (.xlsx)</strong></td>
+                                <td>Sur toutes les DataTable (bibliothèque <code>xlsx</code> déjà présente dans package.json)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge p2">P2</span></td>
+                                <td><strong>Activation / désactivation de zone</strong></td>
+                                <td>Bouton toggle dans <code>FranchiseZonesPage</code> et légende territoire</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge p2">P2</span></td>
+                                <td><strong>Pricing franchise → lecture seule</strong></td>
+                                <td>Verrouillage de <code>FranchisePricingEditPage</code> / <code>NewPage</code> pour le rôle franchise</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="pole-card">
+            <div class="pole-header"><span>🔵 P3 — Confort & exhaustivité</span><span class="badge-num">2</span></div>
+            <div class="pole-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>#</th><th>Fonctionnalité</th><th>Détail</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge p3">P3</span></td>
+                                <td><strong>SOS — Bouton escalade vers Central</strong></td>
+                                <td>Action explicite dans <code>FranchiseSosIncidentDetailPage</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge p3">P3</span></td>
+                                <td><strong>Support UC-S01 — Cycle complet réclamation</strong></td>
+                                <td>Transitions de statuts + action « Créditer wallet » dans détail ticket</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 8 — HORS SCOPE -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">8. Éléments Hors Scope — Non Retenus</h2>
+
+        <div class="pole-card">
+            <div class="pole-header out-header"><span>⬜ Hors scope pour cette itération</span><span class="badge-num">7</span></div>
+            <div class="pole-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>Fonctionnalité</th><th>Raison</th></tr></thead>
+                        <tbody>
+                            <tr><td>Calcul cron automatique bonus fin de période</td><td>Côté backend — hors scope front-office</td></tr>
+                            <tr><td>Notification push chauffeur "Bonus reçu"</td><td>Côté backend — hors scope front-office</td></tr>
+                            <tr><td>Suivi fret depuis portail franchise</td><td>Non retenu pour cette itération</td></tr>
+                            <tr><td>Suivi location depuis portail franchise</td><td>Non retenu pour cette itération</td></tr>
+                            <tr><td>Fret / Locations dans dashboard</td><td>Non retenu</td></tr>
+                            <tr><td>Export PDF</td><td>Non retenu (CSV + Excel suffisant)</td></tr>
+                            <tr><td>Ventilation 4 tiers UC-FIN03 explicite</td><td>Non retenu — visible indirectement via commissions</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert-card note" style="margin-top:14px;">
+                    <div class="alert-title">ℹ️ Note</div>
+                    Les éléments hors scope front-office (cron backend, push notification) relèvent de l'éditeur API et doivent être tracés dans un ticket backend séparé avant le 21 juin.
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- SECTION 9 — CONCLUSION -->
+        <!-- ═══════════════════════════════════════ -->
+        <h2 class="section-header">9. Conclusion & Verdict Go / No-Go</h2>
+
+        <div class="alert-card warning">
+            <div class="alert-title">⚠️ Condition Go — 21 Juin 2026</div>
+            Le test réel du dimanche 21 juin est atteignable <strong>si et seulement si les 2 blocs P0 sont livrés</strong> : UC-FR02 (moteur bonus) et la section livreurs. Sans ces deux éléments, les use cases critiques UC-FR02 seront en échec lors de la recette, entraînant un <strong>No-Go</strong> sur la partie franchise.
+        </div>
+
+        <div class="grid-cards" style="margin-top:20px;">
+            <div class="info-card">
+                <div class="info-card-title"><span>✅</span> Points forts consolidés</div>
+                <div class="info-card-desc">
+                    <ul style="list-style:none;font-size:13px;">
+                        <li style="margin-bottom:6px;">✅ Cloisonnement zone (UC-03) — conforme</li>
+                        <li style="margin-bottom:6px;">✅ KYC / modération chauffeurs — complet</li>
+                        <li style="margin-bottom:6px;">✅ Finance (solde, commissions, réconciliation, transferts)</li>
+                        <li style="margin-bottom:6px;">✅ SOS Guardian — temps réel, escalade niveau</li>
+                        <li style="margin-bottom:6px;">✅ Carte live supervision terrain</li>
+                        <li style="margin-bottom:6px;">✅ Territoire (carte zones + extension)</li>
+                        <li>✅ Support (tickets + chat)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="info-card danger">
+                <div class="info-card-title"><span>🔴</span> Risques restants</div>
+                <div class="info-card-desc">
+                    <ul style="list-style:none;font-size:13px;">
+                        <li style="margin-bottom:6px;">❌ UC-FR02 moteur bonus : 0% implémenté → <strong>No-Go si non livré</strong></li>
+                        <li style="margin-bottom:6px;">❌ Livreurs franchise : aucune page → profil absent</li>
+                        <li style="margin-bottom:6px;">⚠️ Dashboard incomplet : 6 indicateurs manquants</li>
+                        <li style="margin-bottom:6px;">⚠️ Livraisons non visibles depuis la zone</li>
+                        <li>⚠️ Cron backend bonus à confirmer côté éditeur API</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end .content -->
+
+    <footer>
+        <strong>UPJUNOO PRO</strong> — Rapport de Couverture Module Franchise &nbsp;·&nbsp;
+        Plan de Recette & Déploiement v1.0 &nbsp;·&nbsp;
+        Édité le 18 Juin 2026 &nbsp;·&nbsp;
+        Jalon : <strong>Dimanche 21 Juin 2026 — Journée Test Réel 40 Engins</strong>
+    </footer>
+
+</div>
+</body>
+</html>

@@ -510,6 +510,7 @@ export const LINKS = {
       reconciliation: "/v1/franchise/finance/reconciliation",
       // Clients
       clients: "/v1/franchise/clients",
+      clientById: (franchiseId: string, clientId: string) => `/v1/franchises/${franchiseId}/clients/${clientId}`,
       // Support
       supportTickets: "/v1/franchise/support/tickets",
       supportTicketById: (id: string) => `/v1/franchise/support/tickets/${id}`,
@@ -529,7 +530,13 @@ export const LINKS = {
       // Dispatch
       dispatchOrders: "/v1/franchise/dispatch/orders",
       dispatchAssign: (tripId: string) => `/v1/franchise/dispatch/orders/${tripId}/assign`,
-      // Drivers (par ID franchise)
+      // Drivers — routes contextuelles (token franchise, sans franchiseId dans l'URL)
+      driverCtx: (driverId: string) => `/v1/franchise/drivers/${driverId}`,
+      driverSuspendCtx: (driverId: string) => `/v1/franchise/drivers/${driverId}/suspend`,
+      driverActivateCtx: (driverId: string) => `/v1/franchise/drivers/${driverId}/activate`,
+      driverAvailabilityCtx: (driverId: string) => `/v1/franchise/drivers/${driverId}/availability`,
+      driverTransferCtx: (driverId: string) => `/v1/franchise/drivers/${driverId}/transfer`,
+      // Drivers (par ID franchise — legacy)
       driverById: (franchiseId: string, driverId: string) => `/v1/franchises/${franchiseId}/drivers/${driverId}`,
       // Safety / SOS Guardian — corrigé pour utiliser /v1/franchises/{id}/safety/sos
       sos: {
@@ -580,6 +587,10 @@ export const LINKS = {
         byId: (id: string | number) => `/v1/franchise/fleet/vehicles/${id}`,
         approve: (id: string | number) => `/v1/franchise/fleet/vehicles/${id}/approve`,
         reject: (id: string | number) => `/v1/franchise/fleet/vehicles/${id}/reject`,
+        approveV1: (franchiseId: string, vehicleId: string | number) => `/v1/franchises/${franchiseId}/fleet/vehicles/${vehicleId}/approve`,
+        rejectV1: (franchiseId: string, vehicleId: string | number) => `/v1/franchises/${franchiseId}/fleet/vehicles/${vehicleId}/reject`,
+        listV1: (franchiseId: string) => `/v1/franchises/${franchiseId}/fleet/vehicles`,
+        detailV1: (franchiseId: string, vehicleId: string | number) => `/v1/franchises/${franchiseId}/fleet/vehicles/${vehicleId}`,
       },
     },
 
