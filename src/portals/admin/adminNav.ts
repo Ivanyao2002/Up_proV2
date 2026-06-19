@@ -65,6 +65,24 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "partners",
         permission: "network.partners.view",
       },
+      {
+        label: "Comptables",
+        path: "/admin/network/accountants",
+        icon: "finance",
+        permission: "network.partners.view",
+      },
+      {
+        label: "Agents support",
+        path: "/admin/network/support-agents",
+        icon: "support",
+        permission: "network.partners.view",
+      },
+      {
+        label: "Analystes reporting",
+        path: "/admin/network/reporting-users",
+        icon: "dashboard",
+        permission: "network.partners.view",
+      },
     ],
   },
   {
@@ -212,7 +230,7 @@ export const ADMIN_NAV: NavGroup[] = [
       // },
       {
         label: "Calibration dispatch",
-        path: "/admin/settings/dispatch-rules",
+          path: "/admin/settings/dispatch-rules",
         icon: "trips",
         permission: "settings.dispatch_rules.view",
       },

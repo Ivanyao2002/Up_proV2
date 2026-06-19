@@ -32,6 +32,6 @@ export function useReconciliationList(params?: ListParams) {
   const scope = useComptaApiScope();
   return useQuery({
     queryKey: reconciliationKeys.list(scope, params),
-    queryFn: () => reconciliationService.list(params, scope),
+    queryFn: () => reconciliationService.list(params),
   });
 }

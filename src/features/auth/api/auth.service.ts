@@ -33,11 +33,14 @@ function useLegacyAuth(): boolean {
   return env.useMocks && !env.useRealAuth;
 }
 
+const SIEGE_PORTAL_LOGIN = new Set<LoginPortal>(["compta", "support", "reporting"]);
+
 async function loginV1(payload: LoginPayload): Promise<AuthSession> {
   const endpoint = V1_LOGIN_BY_PORTAL[payload.portal] ?? LINKS.auth.v1.login;
   const body: ApiAuthLoginBody = {
     email: payload.email.trim(),
     password: payload.password,
+    ...(SIEGE_PORTAL_LOGIN.has(payload.portal) ? { portal: payload.portal } : {}),
   };
 
   const data = await apiClient.post<ApiAuthLoginResponse>(endpoint, body);
