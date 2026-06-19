@@ -4,24 +4,56 @@ import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { ServicePill } from "@/shared/ui/ServicePill";
+import { Timeline } from "@/shared/ui/Timeline";
+import { tripTimelineToItems } from "@/shared/lib/tripTimeline";
 import { Button } from "@/shared/ui/Button";
+import { TripRoutePreview } from "@/features/ops/components/TripRoutePreview";
+import { TripAssignedVehicleCard } from "@/features/ops/components/TripAssignedVehicleCard";
+import { isTripLiveOnMap } from "@/shared/lib/tripDriver";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
-import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { formatDateTime } from "@/shared/lib/format";
 import { getPaymentLabel } from "@/shared/lib/paymentLabels";
+import { TripFinancePanel } from "@/shared/finance/TripFinancePanel";
+import { useTripDriverLiveLocation } from "@/features/ops/hooks/useTripDriverLiveLocation";
 import { usePartnerOrderDetail } from "../api/orders.queries";
 
 interface Props {
   orderId: string;
 }
 
+function formatPaymentStatus(status?: string | null): string {
+  if (!status?.trim()) return "—";
+  const key = status.toLowerCase();
+  if (key === "pending") return "En attente";
+  if (key === "paid" || key === "completed") return "Payé";
+  if (key === "failed") return "Échoué";
+  if (key === "refunded") return "Remboursé";
+  return status;
+}
+
 export function PartnerOrderDetailPage({ orderId }: Props) {
-  const { data: order, isLoading, isError } = usePartnerOrderDetail(orderId);
+  const { data: trip, isLoading, isError } = usePartnerOrderDetail(orderId);
+  const liveTracking = Boolean(
+    trip && isTripLiveOnMap(trip.status) && trip.driver_id
+  );
+  const { location: driverLiveLocation, isRealtime } = useTripDriverLiveLocation({
+    driverId: trip?.driver_id,
+    initial: trip?.driver_location,
+    enabled: liveTracking,
+  });
 
   if (isLoading) {
-    return <DetailPageSkeleton title="Course" breadcrumb={["Partenaire", "Courses"]} />;
+    return (
+      <DetailPageSkeleton
+        title="Course"
+        breadcrumb={["Partenaire", "Courses"]}
+        showSidebar={false}
+        kpiCount={3}
+      />
+    );
   }
 
-  if (isError || !order) {
+  if (isError || !trip) {
     return (
       <p className="text-sm text-red-600">
         Course introuvable.{" "}
@@ -32,140 +64,168 @@ export function PartnerOrderDetailPage({ orderId }: Props) {
     );
   }
 
+  const timelineItems = tripTimelineToItems(trip.timeline, {
+    driverLinkBase: "/partner/drivers",
+  });
+  const showDriverOnMap = liveTracking && Boolean(driverLiveLocation);
+  const vehicleDetailHref = trip.vehicle_id
+    ? `/partner/fleet/${trip.vehicle_id}`
+    : null;
+
   return (
     <div className="animate-fade-up mx-auto w-full max-w-6xl">
-      <PageHeader
-        title={order.ref}
-        breadcrumb={["Partenaire", "Courses", order.ref]}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {order.service && <ServicePill service={order.service} />}
-            <StatusPill status={order.status} pulse={order.status === "in_progress"} />
-          </div>
-        }
-      />
+      <div className="page-sticky-header">
+        <PageHeader
+          title={trip.ref}
+          breadcrumb={["Partenaire", "Courses", trip.ref]}
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <ServicePill service={trip.service} />
+              <StatusPill status={trip.status} pulse={trip.status === "in_progress"} />
+            </div>
+          }
+        />
+        <p className="mt-1 text-sm text-muted">
+          {trip.client_name} · {trip.from_label} → {trip.to_label}
+        </p>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-        {/* Colonne principale */}
+      <div className="detail-page-grid">
         <div className="space-y-6">
-          {/* Trajet */}
+          <TripRoutePreview
+            fromLabel={trip.from_label}
+            toLabel={trip.to_label}
+            fromCoords={trip.from_coords}
+            toCoords={trip.to_coords}
+            driverLocation={showDriverOnMap ? driverLiveLocation : undefined}
+            driverLive={isRealtime}
+            vehicleIconUrl={trip.vehicle_icon_url}
+          />
+
           <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">
-              Trajet
-            </h2>
-            <div className="mt-4 space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal/10 text-xs font-bold text-teal">
-                  A
-                </span>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{order.from_label}</p>
-                  <p className="text-xs text-muted">Point de départ</p>
-                </div>
-              </div>
-              <div className="ml-3 h-6 w-px bg-border" />
-              <div className="flex items-start gap-3">
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-xs font-bold text-red-500">
-                  B
-                </span>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{order.to_label}</p>
-                  <p className="text-xs text-muted">Destination</p>
-                </div>
-              </div>
+            <h2 className="text-sm font-semibold text-foreground">Suivi</h2>
+            <div className="mt-4">
+              {timelineItems.length > 0 ? (
+                <Timeline items={timelineItems} />
+              ) : (
+                <p className="text-sm text-muted">Aucun événement de suivi disponible.</p>
+              )}
             </div>
           </div>
 
-          {/* Client & Chauffeur */}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-card border border-border bg-surface p-5 shadow-card">
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                 Client
               </h3>
-              <p className="mt-2 font-medium text-foreground">{order.client_name || "—"}</p>
-              {order.client_phone && (
-                <p className="mt-1 text-sm text-muted">{order.client_phone}</p>
+              <p className="mt-2 font-medium text-foreground">{trip.client_name}</p>
+              {trip.client_phone && (
+                <p className="text-sm text-muted">{trip.client_phone}</p>
               )}
             </div>
+
             <div className="rounded-card border border-border bg-surface p-5 shadow-card">
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                 Chauffeur
               </h3>
-              {order.driver_name ? (
+              {trip.driver_name ? (
                 <>
                   <Link
-                    href={`/partner/drivers/${order.driver_id ?? ""}`}
+                    href={`/partner/drivers/${trip.driver_id ?? ""}`}
                     className="mt-2 block font-medium text-foreground hover:text-teal"
                   >
-                    {order.driver_name}
+                    {trip.driver_name}
                   </Link>
-                  {order.driver_phone && (
-                    <p className="mt-1 text-sm text-muted">{order.driver_phone}</p>
+                  {trip.driver_phone && (
+                    <p className="text-sm text-muted">{trip.driver_phone}</p>
                   )}
                 </>
               ) : (
-                <p className="mt-2 text-sm text-muted">
-                  {order.driver_id
-                    ? `ID : ${String(order.driver_id).slice(0, 8)}…`
-                    : "Non assigné"}
-                </p>
+                <p className="mt-2 text-sm text-muted">Non assigné</p>
               )}
             </div>
+
+            <TripAssignedVehicleCard
+              trip={trip}
+              driverLocation={driverLiveLocation}
+              driverLive={isRealtime}
+              vehicleDetailHref={vehicleDetailHref}
+              ignoreStatusCheck
+            />
           </div>
 
-          {/* Notes */}
-          {order.notes && (
+          {trip.notes && (
             <div className="rounded-card border border-border bg-surface p-5 shadow-card">
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                 Notes
               </h3>
-              <p className="mt-2 text-sm text-foreground">{order.notes}</p>
+              <p className="mt-2 text-sm text-foreground">{trip.notes}</p>
             </div>
           )}
         </div>
 
-        {/* Sidebar */}
         <aside className="space-y-4">
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">Montant</p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-heading">
-              {order.amount_fcfa != null ? formatFCFA(order.amount_fcfa) : "—"}
-            </p>
-            {order.payment_method && (
-              <p className="mt-1 text-sm text-muted">{getPaymentLabel(order.payment_method)}</p>
-            )}
-            {order.payment_status && (
-              <p className="mt-1 text-xs text-muted capitalize">{order.payment_status}</p>
-            )}
-          </div>
+          <TripFinancePanel trip={trip} />
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
             <h3 className="font-semibold text-foreground">Détails</h3>
             <dl className="mt-3 space-y-2 text-muted">
               <div className="flex justify-between gap-2">
                 <dt>Référence</dt>
-                <dd className="font-mono text-xs text-foreground">{order.ref}</dd>
+                <dd className="font-mono text-xs text-foreground">{trip.ref}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Statut</dt>
                 <dd className="text-foreground">
-                  <StatusPill status={order.status} />
+                  <StatusPill status={trip.status} />
                 </dd>
               </div>
-              {order.category_code && (
+              {trip.category_code && (
                 <div className="flex justify-between gap-2">
                   <dt>Catégorie</dt>
-                  <dd className="text-foreground">{order.category_code}</dd>
+                  <dd className="text-foreground">{trip.category_code}</dd>
+                </div>
+              )}
+              {trip.zone_name && (
+                <div className="flex justify-between gap-2">
+                  <dt>Zone</dt>
+                  <dd className="text-foreground">{trip.zone_name}</dd>
+                </div>
+              )}
+              <div className="flex justify-between gap-2">
+                <dt>Paiement</dt>
+                <dd className="text-foreground">{getPaymentLabel(trip.payment_method)}</dd>
+              </div>
+              {trip.payment_status && (
+                <div className="flex justify-between gap-2">
+                  <dt>Statut paiement</dt>
+                  <dd className="text-foreground">
+                    {formatPaymentStatus(trip.payment_status)}
+                  </dd>
                 </div>
               )}
               <div className="flex justify-between gap-2">
                 <dt>Créée le</dt>
-                <dd className="text-foreground">{formatDateTime(order.created_at)}</dd>
+                <dd className="text-foreground">{formatDateTime(trip.created_at)}</dd>
               </div>
-              {order.scheduled_at && (
+              {trip.completed_at && (
                 <div className="flex justify-between gap-2">
-                  <dt>Programmée</dt>
-                  <dd className="text-foreground">{formatDateTime(order.scheduled_at)}</dd>
+                  <dt>Terminée le</dt>
+                  <dd className="text-foreground">{formatDateTime(trip.completed_at)}</dd>
+                </div>
+              )}
+              {trip.cancelled_at && (
+                <div className="flex justify-between gap-2">
+                  <dt>Annulée le</dt>
+                  <dd className="text-foreground">{formatDateTime(trip.cancelled_at)}</dd>
+                </div>
+              )}
+              {trip.estimated_arrival_at && (
+                <div className="flex justify-between gap-2">
+                  <dt>Arrivée estimée</dt>
+                  <dd className="text-foreground">
+                    {formatDateTime(trip.estimated_arrival_at)}
+                  </dd>
                 </div>
               )}
             </dl>

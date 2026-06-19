@@ -3,11 +3,15 @@ import { LINKS } from "@/core/api/links";
 import type { Paginated } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import {
-  type ApiBookingItem,
   type BookingsApiResponse,
   type PartnerBooking,
   mapApiBookingItemToPartnerBooking,
 } from "./bookings.service";
+import {
+  mapPartnerOrderDetailResponse,
+  type PartnerOrderDetailApiResponse,
+  type PartnerTripDetail,
+} from "./partnerOrderDetail.mapper";
 
 export interface PartnerOrdersListResponse extends Paginated<PartnerBooking> {
   counters?: {
@@ -64,14 +68,10 @@ export const partnerOrdersService = {
     return mapOrdersResponse(response);
   },
 
-  getById: async (partnerId: string | number, id: string) => {
+  getById: async (partnerId: string | number, id: string): Promise<PartnerTripDetail> => {
     const response = await apiClient.get<
-      { order?: ApiBookingItem; trip?: ApiBookingItem } & Partial<ApiBookingItem>
+      PartnerOrderDetailApiResponse & Record<string, unknown>
     >(LINKS.partner.trips.getById(partnerId, id));
-    const raw = response.order ?? response.trip ?? (response.id ? (response as unknown as ApiBookingItem) : null);
-    if (raw) {
-      return mapApiBookingItemToPartnerBooking(raw);
-    }
-    throw new Error("Commande introuvable.");
+    return mapPartnerOrderDetailResponse(response);
   },
 };

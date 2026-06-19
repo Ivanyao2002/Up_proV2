@@ -5,7 +5,6 @@ import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { formatDate } from "@/shared/lib/format";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
-import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
 import { Button } from "@/shared/ui/Button";
 import { BulkActionBar } from "@/shared/ui/BulkActionBar";
@@ -27,6 +26,7 @@ import type { Driver } from "@/shared/types";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { usePartnerDriversList } from "../api/drivers.queries";
 import { partnerDriversService } from "../api/drivers.service";
+import { PartnerDriversFiltersPanel } from "../components/PartnerDriversFiltersPanel";
 
 interface PartnerDriversListPageProps {
   pendingOnly?: boolean;
@@ -35,13 +35,44 @@ interface PartnerDriversListPageProps {
 export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPageProps) {
   const [selected, setSelected] = useState<Set<string | number>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [accountStatusFilter, setAccountStatusFilter] = useState<Driver["account_status"] | "all">(
+    pendingOnly ? "pending" : "all"
+  );
+  const [availabilityFilter, setAvailabilityFilter] = useState<Driver["availability"] | "all">(
+    "all"
+  );
 
-  const table = useServerTableState([], {
-    ...(pendingOnly ? { account_status: "pending" } : {}),
-  });
+  const effectiveAccountStatus: Driver["account_status"] | "all" = pendingOnly
+    ? "pending"
+    : accountStatusFilter;
+
+  const table = useServerTableState(
+    [effectiveAccountStatus, availabilityFilter, pendingOnly],
+    {
+      account_status:
+        effectiveAccountStatus !== "all" ? effectiveAccountStatus : undefined,
+      availability: availabilityFilter !== "all" ? availabilityFilter : undefined,
+    }
+  );
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
+    fields: [
+      ...(!pendingOnly
+        ? [
+            {
+              value: accountStatusFilter,
+              defaultValue: "all" as const,
+              reset: () => setAccountStatusFilter("all"),
+            },
+          ]
+        : []),
+      {
+        value: availabilityFilter,
+        defaultValue: "all" as const,
+        reset: () => setAvailabilityFilter("all"),
+      },
+    ],
   });
 
   const { data, isLoading, isError, refetch } = usePartnerDriversList(table.listParams);
@@ -170,7 +201,12 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
         </div>
       )}
 
-      <TableFiltersBar
+      <PartnerDriversFiltersPanel
+        showAccountStatusFilters={!pendingOnly}
+        accountStatusFilter={accountStatusFilter}
+        onAccountStatusFilterChange={setAccountStatusFilter}
+        availabilityFilter={availabilityFilter}
+        onAvailabilityFilterChange={setAvailabilityFilter}
         search={table.search}
         onSearchChange={table.setSearch}
         searchPlaceholder="Nom, téléphone, zone…"
@@ -180,7 +216,7 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
             : undefined
         }
         hasActiveFilters={hasActiveFilters}
-        onReset={resetAll}
+        onResetAll={resetAll}
       />
 
       <DataTable
