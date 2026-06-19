@@ -674,6 +674,8 @@ export const LINKS = {
           `/v1/partners/${id}/safety/sos/${sosId}`,
         acknowledge: (id: string | number, sosId: string | number) =>
           `/v1/partners/${id}/safety/sos/${sosId}/acknowledge`,
+        resolve: (id: string | number, sosId: string | number) =>
+          `/v1/partners/${id}/safety/sos/${sosId}/resolve`,
         dashboard: (id: string | number) => `/v1/partners/${id}/safety/sos/dashboard`,
       },
     },

@@ -65,12 +65,12 @@ export const PARTNER_NAV: NavGroup[] = [
       //   icon: "map",
       //   permission: "fleet.drivers.view",
       // },
-      {
-        label: "Sécurité / SOS",
-        path: "/partner/safety",
-        icon: "drivers-pending",
-        permission: "fleet.drivers.view",
-      },
+      // {
+      //   label: "Sécurité / SOS",
+      //   path: "/partner/safety",
+      //   icon: "drivers-pending",
+      //   permission: "fleet.drivers.view",
+      // },
     ],
   },
   {
