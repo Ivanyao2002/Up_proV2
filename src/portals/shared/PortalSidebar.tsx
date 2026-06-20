@@ -12,7 +12,7 @@ import { isNavGroupActive, isNavItemActive } from "./navActive";
 interface PortalSidebarProps {
   nav: NavGroup[];
   subtitle: string;
-  appearance?: "default" | "support";
+  appearance?: "default" | "support" | "reporting";
   filterByPermission?: boolean;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
@@ -30,6 +30,8 @@ export function PortalSidebar({
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const isSupport = appearance === "support";
+  const isReporting = appearance === "reporting";
+  const isWorkspace = isSupport || isReporting;
 
   useEffect(() => {
     setOpenGroups((prev) => {
@@ -56,24 +58,28 @@ export function PortalSidebar({
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-50 flex h-screen max-h-screen max-w-[85vw] shrink-0 flex-col overflow-hidden border-r border-border bg-surface transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
-        isSupport ? "w-64" : "w-60"
+        isWorkspace ? "w-64" : "w-60"
       } ${
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}
     >
       <div
         className={`shrink-0 border-b border-border ${
-          isSupport
+          isWorkspace
             ? "bg-gradient-to-br from-teal/10 via-surface to-surface px-5 py-5"
             : "px-5 py-5"
         }`}
       >
-        <AppLogo size="md" subtitle={isSupport ? undefined : subtitle} />
-        {isSupport && (
+        <AppLogo size="md" subtitle={isWorkspace ? undefined : subtitle} />
+        {isWorkspace && (
           <div className="mt-4 flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-heading">Centre support</p>
-              <p className="text-xs text-muted">Espace agents</p>
+              <p className="text-sm font-semibold text-heading">
+                {isSupport ? "Centre support" : "Centre reporting"}
+              </p>
+              <p className="text-xs text-muted">
+                {isSupport ? "Espace agents" : "Pilotage & analyses"}
+              </p>
             </div>
             <span className="rounded-full border border-teal/20 bg-teal/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-teal-dark">
               Pro
@@ -83,7 +89,7 @@ export function PortalSidebar({
       </div>
       <nav
         className={`min-h-0 flex-1 overflow-y-auto overscroll-contain ${
-          isSupport ? "px-3 py-5" : "px-3 py-4"
+          isWorkspace ? "px-3 py-5" : "px-3 py-4"
         }`}
       >
         {nav.map((section) => {
@@ -96,12 +102,12 @@ export function PortalSidebar({
           const groupActive = isNavGroupActive(pathname, items);
 
           return (
-            <div key={section.group} className={isSupport ? "mb-5" : "mb-2"}>
+            <div key={section.group} className={isWorkspace ? "mb-5" : "mb-2"}>
               <button
                 type="button"
                 onClick={() => toggleGroup(section.group)}
                 className={`mb-1 flex w-full items-center justify-between gap-2 rounded-lg text-left transition-colors hover:bg-surface-hover ${
-                  isSupport ? "px-3 py-2" : "px-2 py-2"
+                  isWorkspace ? "px-3 py-2" : "px-2 py-2"
                 } ${
                   groupActive ? "text-teal-dark" : "text-muted"
                 }`}
@@ -120,7 +126,7 @@ export function PortalSidebar({
               {isOpen && (
                 <ul
                   className={
-                    isSupport
+                    isWorkspace
                       ? "space-y-1.5"
                       : "ml-1 space-y-0.5 border-l border-border/60 pl-2"
                   }
@@ -133,20 +139,20 @@ export function PortalSidebar({
                           href={item.path}
                           onClick={() => onMobileClose?.()}
                           className={`relative flex items-center text-sm font-medium transition-all duration-150 ${
-                            isSupport
+                            isWorkspace
                               ? "gap-3 rounded-xl border px-3 py-3"
                               : "gap-2.5 rounded-lg px-3 py-2.5"
                           } ${
                             active
-                              ? isSupport
+                              ? isWorkspace
                                 ? "border-teal/25 bg-teal/10 text-teal-dark shadow-sm"
                                 : "bg-teal/10 text-teal-dark"
-                              : isSupport
+                              : isWorkspace
                                 ? "border-transparent text-muted hover:border-border hover:bg-surface-hover hover:text-foreground"
                                 : "text-muted hover:bg-surface-hover hover:text-foreground"
                           }`}
                         >
-                          {active && !isSupport && (
+                          {active && !isWorkspace && (
                             <span
                               className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-teal"
                               aria-hidden
@@ -155,7 +161,7 @@ export function PortalSidebar({
                           {item.icon ? (
                             <span
                               className={
-                                isSupport
+                                isWorkspace
                                   ? `flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
                                       active
                                         ? "bg-teal text-white"
@@ -167,9 +173,9 @@ export function PortalSidebar({
                               <NavIcon
                                 name={item.icon}
                                 className={`h-[18px] w-[18px] shrink-0 ${
-                                  active && !isSupport
+                                  active && !isWorkspace
                                     ? "text-teal-dark"
-                                    : !isSupport
+                                    : !isWorkspace
                                       ? "text-muted"
                                       : ""
                                 }`}
@@ -177,7 +183,7 @@ export function PortalSidebar({
                             </span>
                           ) : null}
                           <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                          {active && isSupport && (
+                          {active && isWorkspace && (
                             <span className="h-2 w-2 shrink-0 rounded-full bg-teal" />
                           )}
                         </Link>
@@ -190,16 +196,23 @@ export function PortalSidebar({
           );
         })}
       </nav>
-      {isSupport && (
+      {isWorkspace && (
         <div className="shrink-0 border-t border-border p-3">
           <div className="rounded-xl border border-border bg-canvas/70 p-3">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal/10 text-teal-dark">
-                <NavIcon name="support" className="h-4 w-4" />
+                <NavIcon
+                  name={isSupport ? "support" : "reports"}
+                  className="h-4 w-4"
+                />
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-foreground">File partagée</p>
-                <p className="text-[11px] text-muted">Premier agent assigné</p>
+                <p className="text-xs font-semibold text-foreground">
+                  {isSupport ? "File partagée" : "Données consolidées"}
+                </p>
+                <p className="text-[11px] text-muted">
+                  {isSupport ? "Premier agent assigné" : "Consultation en lecture seule"}
+                </p>
               </div>
             </div>
           </div>

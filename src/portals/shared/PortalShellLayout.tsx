@@ -13,7 +13,7 @@ export interface PortalShellTopbarProps {
 interface PortalShellLayoutProps {
   nav: NavGroup[];
   subtitle: string;
-  sidebarAppearance?: "default" | "support";
+  sidebarAppearance?: "default" | "support" | "reporting";
   topbar: (props: PortalShellTopbarProps) => ReactNode;
   children: ReactNode;
   headerSlot?: ReactNode;

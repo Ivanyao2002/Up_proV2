@@ -813,6 +813,22 @@ export const LINKS = {
       create: "/dispatch/bookings",
     },
   },
+
+  reporting: {
+    filterOptions: "/v1/reporting/filter-options",
+    overview: "/v1/reporting/overview",
+    activity: "/v1/reporting/activity",
+    finance: "/v1/reporting/finance",
+    quality: "/v1/reporting/quality",
+    governance: "/v1/reporting/governance",
+    reports: "/v1/reporting/reports",
+    exports: {
+      list: "/v1/reporting/exports",
+      create: "/v1/reporting/exports",
+      getById: (id: string) => `/v1/reporting/exports/${id}`,
+      download: (id: string) => `/v1/reporting/exports/${id}/download`,
+    },
+  },
 } as const;
 
 export type ApiLinks = typeof LINKS;

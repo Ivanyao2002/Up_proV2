@@ -1,0 +1,44 @@
+{
+  "period": { "date_from": "2026-06-01", "date_to": "2026-06-30", "timezone": "Africa/Abidjan" },
+  "scope": { "service": null, "country_code": null, "zone_id": null, "franchise_id": null, "partner_id": null },
+  "generated_at": "2026-06-20T10:45:00Z",
+  "currency": "XOF",
+  "kpis": {
+    "gross_revenue": 184500000,
+    "platform_commission": 22140000,
+    "partner_commission": 12915000,
+    "franchise_commission": 9225000,
+    "wallet_balance": 98500000,
+    "wallet_topups": 42800000,
+    "wallet_debits": 36100000,
+    "transactions_count": 18620
+  },
+  "series": [
+    { "bucket": "2026-06-01", "gross_revenue": 6150000, "platform_commission": 738000, "partner_commission": 430500, "franchise_commission": 307500, "wallet_topups": 1420000, "wallet_debits": 1180000 },
+    { "bucket": "2026-06-02", "gross_revenue": 5820000, "platform_commission": 698400, "partner_commission": 407400, "franchise_commission": 291000, "wallet_topups": 1350000, "wallet_debits": 1100000 },
+    { "bucket": "2026-06-03", "gross_revenue": 6430000, "platform_commission": 771600, "partner_commission": 450100, "franchise_commission": 321500, "wallet_topups": 1480000, "wallet_debits": 1240000 },
+    { "bucket": "2026-06-04", "gross_revenue": 7580000, "platform_commission": 909600, "partner_commission": 530600, "franchise_commission": 379000, "wallet_topups": 1720000, "wallet_debits": 1450000 },
+    { "bucket": "2026-06-05", "gross_revenue": 7140000, "platform_commission": 856800, "partner_commission": 499800, "franchise_commission": 357000, "wallet_topups": 1620000, "wallet_debits": 1360000 },
+    { "bucket": "2026-06-06", "gross_revenue": 5820000, "platform_commission": 698400, "partner_commission": 407400, "franchise_commission": 291000, "wallet_topups": 1340000, "wallet_debits": 1110000 },
+    { "bucket": "2026-06-07", "gross_revenue": 5420000, "platform_commission": 650400, "partner_commission": 379400, "franchise_commission": 271000, "wallet_topups": 1250000, "wallet_debits": 1040000 }
+  ],
+  "transactions": {
+    "by_status": [
+      { "status": "completed", "count": 17820, "amount": 213500000 },
+      { "status": "pending", "count": 620, "amount": 7800000 },
+      { "status": "failed", "count": 180, "amount": 2150000 }
+    ],
+    "by_payment_method": [
+      { "payment_method": "cash", "count": 8200, "amount": 74500000 },
+      { "payment_method": "wallet", "count": 6280, "amount": 68700000 },
+      { "payment_method": "mobile_money", "count": 4140, "amount": 70300000 }
+    ]
+  },
+  "commission_breakdown": [
+    { "dimension_type": "franchise", "dimension_id": "FR-001", "dimension_label": "Franchise Cocody", "gross_revenue": 62000000, "platform_commission": 7440000, "partner_commission": 4340000, "franchise_commission": 3100000 },
+    { "dimension_type": "franchise", "dimension_id": "FR-002", "dimension_label": "Franchise Plateau", "gross_revenue": 45800000, "platform_commission": 5496000, "partner_commission": 3206000, "franchise_commission": 2290000 },
+    { "dimension_type": "franchise", "dimension_id": "FR-003", "dimension_label": "Franchise Yopougon", "gross_revenue": 38200000, "platform_commission": 4584000, "partner_commission": 2674000, "franchise_commission": 1910000 },
+    { "dimension_type": "franchise", "dimension_id": "FR-004", "dimension_label": "Franchise Abobo", "gross_revenue": 21500000, "platform_commission": 2580000, "partner_commission": 1505000, "franchise_commission": 1075000 },
+    { "dimension_type": "franchise", "dimension_id": "FR-005", "dimension_label": "Franchise Marcory", "gross_revenue": 17000000, "platform_commission": 2040000, "partner_commission": 1190000, "franchise_commission": 850000 }
+  ]
+}

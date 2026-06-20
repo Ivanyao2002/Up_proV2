@@ -1,139 +1,176 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
-import { NavIcon, type NavIconName } from "@/portals/shared/NavIcon";
-import { useComptaLedgerExport, useComptaReportsExport } from "@/features/compta/api/comptaExport.queries";
+import {
+  useCreateExport,
+  useDownloadExport,
+  useExports,
+  useReportCatalog,
+} from "@/features/reporting/api/reporting.queries";
+import type { ExportFormat } from "@/features/reporting/api/reporting.types";
 
-const MODULE_EXPORTS = [
-  {
-    id: "transactions",
-    title: "Transactions",
-    description: "Liste détaillée avec export CSV depuis le tableau.",
-    icon: "transactions" as NavIconName,
-    href: "/admin/finance/transactions",
-  },
-  {
-    id: "wallets",
-    title: "Portefeuilles",
-    description: "Soldes plateforme, partenaires et chauffeurs.",
-    icon: "wallet" as NavIconName,
-    href: "/admin/finance/wallets",
-  },
-  {
-    id: "finance-dash",
-    title: "Dashboard finance",
-    description: "GMV, commissions et alertes de réconciliation.",
-    icon: "finance" as NavIconName,
-    href: "/admin/finance",
-  },
-  {
-    id: "reconciliation",
-    title: "Réconciliation",
-    description: "Écarts cash et paiements à investiguer.",
-    icon: "reconciliation" as NavIconName,
-    href: "/admin/finance/reconciliation",
-  },
-] as const;
+const STATUS_LABEL: Record<string, string> = {
+  queued: "En attente",
+  processing: "En cours",
+  ready: "Disponible",
+  failed: "Échoué",
+  expired: "Expiré",
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  queued: "text-muted",
+  processing: "text-amber-600",
+  ready: "text-teal-dark",
+  failed: "text-red-600",
+  expired: "text-muted line-through",
+};
+
+function formatBytes(n: number) {
+  if (n < 1024) return `${n} o`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} Ko`;
+  return `${(n / (1024 * 1024)).toFixed(1)} Mo`;
+}
 
 export function ReportingExportsPage() {
-  const exportLedger = useComptaLedgerExport();
-  const exportReports = useComptaReportsExport();
+  const searchParams = useSearchParams();
+  const { data: catalog } = useReportCatalog();
+  const { data: exportsData, isLoading } = useExports();
+  const createExport = useCreateExport();
+  const downloadExport = useDownloadExport();
+
+  const [selectedCode, setSelectedCode] = useState("");
+  const [selectedFormat, setSelectedFormat] = useState<ExportFormat>("xlsx");
+
+  const selectedReport = catalog?.data.find((r) => r.code === selectedCode);
+
+  useEffect(() => {
+    const reportCode = searchParams.get("report");
+    if (reportCode) setSelectedCode(reportCode);
+  }, [searchParams]);
+
+  function handleCreate() {
+    if (!selectedCode) return;
+    createExport.mutate({
+      report_code: selectedCode,
+      format: selectedFormat,
+      filters: {},
+    });
+  }
 
   return (
     <div className="animate-fade-up">
       <PageHeader title="Rapports & exports" breadcrumb={["Reporting", "Exports"]} />
       <p className="-mt-2 mb-6 text-sm text-muted">
-        Téléchargements CSV serveur et accès aux tableaux exportables de la plateforme.
+        Génération asynchrone de rapports CSV ou XLSX — disponibles au téléchargement dès prêts.
       </p>
 
-      <div className="kpi-card mb-8 rounded-card border border-border bg-gradient-to-br from-navy to-navy/90 p-6 text-white shadow-card">
-        <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
-          Exports consolidés
-        </p>
-        <h2 className="mt-2 text-lg font-bold">22 rapports plan recette</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/85">
-          Journal comptable, synthèses mensuelles et exports par module — format CSV prêt
-          pour Excel ou outil BI.
-        </p>
-      </div>
-
-      <section className="mb-8">
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-heading">Téléchargements directs</h2>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal/10 text-teal-dark">
-                <NavIcon name="finance" className="h-5 w-5" />
-              </span>
-              <div className="flex-1">
-                <h3 className="font-semibold text-heading">Journal comptable</h3>
-                <p className="mt-1 text-sm text-muted">
-                  Export CSV serveur des écritures ledger.
-                </p>
-                <Button
-                  className="mt-4 w-full"
-                  disabled={exportLedger.isPending}
-                  onClick={() => exportLedger.mutate({ per_page: 500 })}
-                >
-                  {exportLedger.isPending ? "Préparation…" : "Télécharger le journal"}
-                </Button>
-              </div>
-            </div>
+      <section className="mb-8 rounded-card border border-border bg-surface p-5 shadow-card">
+        <h2 className="mb-4 text-sm font-semibold text-heading">Générer un rapport</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="mb-1 block text-xs text-muted">Rapport</label>
+            <select
+              className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm text-foreground focus:border-teal focus:outline-none"
+              value={selectedCode}
+              onChange={(e) => setSelectedCode(e.target.value)}
+            >
+              <option value="">Sélectionner un rapport…</option>
+              {catalog?.data.map((r) => (
+                <option key={r.code} value={r.code}>{r.label}</option>
+              ))}
+            </select>
           </div>
-
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal/10 text-teal-dark">
-                <NavIcon name="reports" className="h-5 w-5" />
-              </span>
-              <div className="flex-1">
-                <h3 className="font-semibold text-heading">Rapports agrégés</h3>
-                <p className="mt-1 text-sm text-muted">
-                  Synthèse mensuelle multi-postes en CSV.
-                </p>
-                <Button
-                  className="mt-4 w-full"
-                  variant="secondary"
-                  disabled={exportReports.isPending}
-                  onClick={() => exportReports.mutate({})}
-                >
-                  {exportReports.isPending ? "Préparation…" : "Télécharger le rapport"}
-                </Button>
-              </div>
-            </div>
+          <div className="w-32">
+            <label className="mb-1 block text-xs text-muted">Format</label>
+            <select
+              className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm text-foreground focus:border-teal focus:outline-none"
+              value={selectedFormat}
+              onChange={(e) => setSelectedFormat(e.target.value as ExportFormat)}
+            >
+              {(selectedReport?.formats ?? ["csv", "xlsx"]).map((f) => (
+                <option key={f} value={f}>{f.toUpperCase()}</option>
+              ))}
+            </select>
           </div>
+          <Button
+            disabled={!selectedCode || createExport.isPending}
+            onClick={handleCreate}
+          >
+            {createExport.isPending ? "Génération…" : "Générer"}
+          </Button>
         </div>
+        {selectedReport && (
+          <p className="mt-2 text-xs text-muted">{selectedReport.description}</p>
+        )}
       </section>
 
       <section>
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-heading">Exports depuis les modules</h2>
-          <p className="mt-0.5 text-xs text-muted">CSV local via bouton export des tableaux</p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {MODULE_EXPORTS.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className="group flex h-full flex-col rounded-card border border-border bg-surface p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-teal/35"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal/10 text-teal-dark">
-                <NavIcon name={item.icon} className="h-5 w-5" />
-              </span>
-              <h3 className="mt-3 font-semibold text-heading group-hover:text-teal-dark">
-                {item.title}
-              </h3>
-              <p className="mt-1 flex-1 text-sm text-muted">{item.description}</p>
-              <span className="mt-3 text-sm font-medium text-teal group-hover:underline">
-                Ouvrir →
-              </span>
-            </Link>
-          ))}
-        </div>
+        <h2 className="mb-3 text-sm font-semibold text-heading">Historique</h2>
+        {downloadExport.isError ? (
+          <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {downloadExport.error instanceof Error
+              ? downloadExport.error.message
+              : "Le téléchargement a échoué."}
+          </p>
+        ) : null}
+        {isLoading ? (
+          <p className="text-sm text-muted">Chargement…</p>
+        ) : !exportsData?.data.length ? (
+          <div className="rounded-card border border-border bg-surface px-6 py-10 text-center text-sm text-muted shadow-card">
+            Aucun export généré.
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-surface-hover text-left text-xs text-muted">
+                  <th className="px-4 py-3">Rapport</th>
+                  <th className="px-4 py-3">Format</th>
+                  <th className="px-4 py-3">Statut</th>
+                  <th className="px-4 py-3 text-right">Taille</th>
+                  <th className="px-4 py-3">Généré le</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {exportsData.data.map((exp) => (
+                  <tr key={exp.id} className="hover:bg-surface-hover">
+                    <td className="px-4 py-3 font-medium text-foreground">{exp.report_label ?? exp.report_code}</td>
+                    <td className="px-4 py-3 uppercase text-muted">{exp.format}</td>
+                    <td className={`px-4 py-3 ${STATUS_COLOR[exp.status]}`}>{STATUS_LABEL[exp.status]}</td>
+                    <td className="px-4 py-3 text-right tabular-nums text-muted">
+                      {exp.file_size_bytes ? formatBytes(exp.file_size_bytes) : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {new Date(exp.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {exp.status === "ready" && (
+                        <button
+                          type="button"
+                          className="text-sm font-medium text-teal hover:underline disabled:cursor-wait disabled:opacity-60"
+                          disabled={
+                            downloadExport.isPending &&
+                            downloadExport.variables?.id === exp.id
+                          }
+                          onClick={() => downloadExport.mutate(exp)}
+                        >
+                          {downloadExport.isPending &&
+                          downloadExport.variables?.id === exp.id
+                            ? "Téléchargement…"
+                            : "Télécharger"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );
