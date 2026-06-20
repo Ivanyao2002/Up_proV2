@@ -194,7 +194,11 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
       setProvenance((p) => ({ ...p, brand: "ai" }));
       setPendingBrandLabel(null);
     }
-  }, [pendingBrandLabel, props.brands, props.variant]);
+  }, [
+    pendingBrandLabel,
+    props.variant,
+    props.variant === "admin" ? props.brands : null,
+  ]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !pendingModelLabel) return;
@@ -214,7 +218,11 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
       setProvenance((p) => ({ ...p, color: "ai" }));
       setPendingColorLabel(null);
     }
-  }, [pendingColorLabel, props.colors, props.variant]);
+  }, [
+    pendingColorLabel,
+    props.variant,
+    props.variant === "admin" ? props.colors : null,
+  ]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !adminLocked) return;

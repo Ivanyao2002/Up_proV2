@@ -18,6 +18,7 @@ export interface User {
   role: PortalRole;
   scope: Scope;
   franchise_id?: number | string;
+  franchise_name?: string;
   owner_id?: number | string;
   /** Type de partenaire — détermine l'accès aux modules fret/location */
   partner_type?: PartnerType;

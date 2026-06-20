@@ -214,6 +214,8 @@ export const LINKS = {
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
       partnerById: (id: string) => `${ADMIN_V1_BASE}/partners/${id}`,
+      partnerActivate: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/activate`,
+      partnerSuspend: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/suspend`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
       withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>

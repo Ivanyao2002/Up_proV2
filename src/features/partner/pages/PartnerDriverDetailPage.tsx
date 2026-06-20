@@ -16,6 +16,7 @@ import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getTripStatusLabel } from "@/shared/lib/tripLabels";
 import { notificationService } from "@/core/http/notificationService";
 import type { KycDocument } from "@/shared/types";
+import type { DriverKycDocumentType } from "@/shared/types/driverDocuments";
 import {
   usePartnerDriverDetail,
   useUploadPartnerDriverDocument,
@@ -33,6 +34,12 @@ import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 
 interface PartnerDriverDetailPageProps {
   driverId: string;
+}
+
+function isDriverKycUploadType(
+  type: KycDocument["type"]
+): type is DriverKycDocumentType {
+  return type === "cni" || type === "license" || type === "selfie";
 }
 
 function canUploadDoc(doc: KycDocument): boolean {
@@ -269,8 +276,10 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
                         canUpload={canUploadDoc(item.document)}
                         uploadHint="PDF ou image · max 5 Mo"
                         onUpload={(file) => {
+                          const docType = item.document.type;
+                          if (!isDriverKycUploadType(docType)) return;
                           uploadDoc.mutate(
-                            { type: item.document.type, file },
+                            { type: docType, file },
                             {
                               onSuccess: () =>
                                 notificationService.success(
