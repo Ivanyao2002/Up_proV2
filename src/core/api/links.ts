@@ -116,6 +116,7 @@ export const LINKS = {
     },
     kyc: {
       documents: "/v1/kyc/documents",
+      documentById: (id: string | number) => `/v1/kyc/documents/${id}`,
     },
     catalog: {
       bootstrap: "/v1/catalog/bootstrap",
@@ -225,6 +226,8 @@ export const LINKS = {
       userActivate: (id: string) => `${ADMIN_V1_BASE}/users/${id}/activate`,
       filterOptions: `${ADMIN_V1_BASE}/filter-options`,
       driverById: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}`,
+      driverBonusSettings: (id: string) =>
+        `${ADMIN_V1_BASE}/drivers/${id}/bonus/settings`,
       driverApprove: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/approve`,
       driverReject: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/reject`,
       vehicles: `${ADMIN_V1_BASE}/vehicles`,

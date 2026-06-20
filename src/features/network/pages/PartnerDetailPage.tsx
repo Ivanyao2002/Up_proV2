@@ -25,6 +25,7 @@ import {
   useSuspendPartner,
 } from "../api/partners.queries";
 import { PartnerCommissionRulesPanel } from "@/features/finance/components/PartnerCommissionRulesPanel";
+import { PartnerDocumentsPanel } from "../components/PartnerDocumentsPanel";
 import { formatPartnerTypeLabel } from "../lib/partnerType";
 
 interface PartnerDetailPageProps {
@@ -38,7 +39,8 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
   const [tab, setTab] = useState(
     initialTab === "drivers" ||
       initialTab === "trips" ||
-      initialTab === "commission"
+      initialTab === "commission" ||
+      initialTab === "documents"
       ? initialTab
       : "overview"
   );
@@ -195,6 +197,7 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
           <Tabs
             tabs={[
               { id: "overview", label: "Aperçu" },
+              { id: "documents", label: "Documents" },
               { id: "drivers", label: "Chauffeurs" },
               { id: "trips", label: "Courses" },
               { id: "commission", label: "Commission" },
@@ -278,6 +281,14 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
                   }
                 />
               </div>
+            )}
+
+            {tab === "documents" && (
+              <PartnerDocumentsPanel
+                partnerId={partnerId}
+                canUpload
+                canReview
+              />
             )}
 
             {tab === "drivers" && (

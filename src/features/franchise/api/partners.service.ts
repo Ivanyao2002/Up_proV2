@@ -13,6 +13,10 @@ import {
   mapAdminPartnerItemToPartner,
   mapAdminPartnersToPaginated,
 } from "@/features/network/api/adminPartners.mapper";
+import {
+  uploadPartnerCreateDocuments,
+  type PartnerCreateDocumentUpload,
+} from "@/features/network/api/partnerCreateDocuments.v1";
 import type { Driver, Paginated, Partner, Trip } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import {
@@ -251,6 +255,17 @@ export const franchisePartnersService = {
       tax_id: null,
       portal_login_email: portalLoginEmail,
     };
+  },
+
+  createWithDocuments: async (
+    payload: CreatePartnerPayload,
+    documents: PartnerCreateDocumentUpload[] = []
+  ): Promise<FranchisePartnerCreateResult> => {
+    const partner = await franchisePartnersService.create(payload);
+    if (!useLegacyPortalApi() && documents.length > 0) {
+      await uploadPartnerCreateDocuments(String(partner.id), documents);
+    }
+    return partner;
   },
 
   getDrivers: async (partnerId: string, params?: ListParams): Promise<Paginated<Driver>> => {

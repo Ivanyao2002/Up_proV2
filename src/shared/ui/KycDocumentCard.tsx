@@ -43,7 +43,10 @@ export function KycDocumentCard({
 }: KycDocumentCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const hasUpload = Boolean(document.uploaded_at);
-  const needsUpload = canUpload && (document.status === "rejected" || !hasUpload);
+  const canReplace =
+    Boolean(canUpload && onUpload && hasUpload) &&
+    (document.status === "pending" || document.status === "rejected");
+  const needsUpload = canUpload && !hasUpload && document.status !== "approved";
   const previewUrl = resolveKycPreviewUrl(document);
   const isPdf = isPdfPreviewUrl(previewUrl);
   const fallbackSrc = resolveKycPreviewUrl({
@@ -100,13 +103,38 @@ export function KycDocumentCard({
             <p className="mt-2 text-[10px] text-muted">{uploadHint}</p>
           </div>
         ) : hasUpload ? (
-          <DocumentPreviewThumbnail
-            src={previewUrl}
-            alt={document.label}
-            isPdf={isPdf}
-            fallbackSrc={fallbackSrc}
-            subtitle={`Soumis le ${formatDateTime(document.uploaded_at)}`}
-          />
+          <>
+            <DocumentPreviewThumbnail
+              src={previewUrl}
+              alt={document.label}
+              isPdf={isPdf}
+              fallbackSrc={fallbackSrc}
+              subtitle={`Soumis le ${formatDateTime(document.uploaded_at)}`}
+            />
+            {canReplace ? (
+              <>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && onUpload) onUpload(file);
+                    e.target.value = "";
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="mt-3 w-full !py-2 !text-xs"
+                  onClick={() => inputRef.current?.click()}
+                >
+                  Remplacer le fichier
+                </Button>
+              </>
+            ) : null}
+          </>
         ) : (
           <div className="flex min-h-[7rem] items-center justify-center rounded-lg border border-dashed border-border bg-canvas p-4">
             <svg
@@ -131,7 +159,7 @@ export function KycDocumentCard({
         <p className="mt-3 text-sm text-red-600">{document.status_note}</p>
       )}
 
-      {document.status === "pending" && hasUpload && !canReview && (
+      {document.status === "pending" && hasUpload && !canReview && !canReplace && (
         <p className="mt-3 text-sm text-amber-700">
           En cours de vérification par UpJunoo. Vous serez notifié par email.
         </p>
