@@ -9,11 +9,9 @@ function fmt(n: number) {
   return new Intl.NumberFormat("fr-FR").format(n);
 }
 
-function changeBadge(pct: number | null) {
-  if (pct === null) return null;
-  const sign = pct >= 0 ? "+" : "";
-  const color = pct >= 0 ? "text-emerald-600" : "text-red-500";
-  return <span className={`text-xs font-medium ${color}`}>{sign}{pct.toFixed(1)} %</span>;
+function formatTrend(pct: number | null) {
+  if (pct === null) return undefined;
+  return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)} %`;
 }
 
 const SERVICE_LABEL: Record<string, string> = {
@@ -56,7 +54,13 @@ export function ReportingDashboardPage() {
             <KpiCard
               label="Demandes créées"
               value={fmt(data.kpis.total_activity.value)}
-              hint={changeBadge(data.kpis.total_activity.change_pct) ? `vs mois préc.` : undefined}
+              trend={formatTrend(data.kpis.total_activity.change_pct)}
+              trendTone={
+                (data.kpis.total_activity.change_pct ?? 0) >= 0
+                  ? "positive"
+                  : "negative"
+              }
+              hint="vs mois précédent"
               index={0}
             />
             <KpiCard
@@ -65,36 +69,35 @@ export function ReportingDashboardPage() {
                 data.kpis.gmv.value,
                 data.kpis.gmv.currency
               )}
-              hint="vs mois préc."
+              trend={formatTrend(data.kpis.gmv.change_pct)}
+              trendTone="neutral"
+              hint="vs mois précédent"
               index={1}
             />
             <KpiCard
-              label="Chauffeurs actifs"
-              value={fmt(data.kpis.active_drivers.value)}
-              hint="au moins 1 mission"
+              label="Clients actifs"
+              value={fmt(data.kpis.active_clients.value)}
+              trend={formatTrend(data.kpis.active_clients.change_pct)}
+              trendTone={
+                (data.kpis.active_clients.change_pct ?? 0) >= 0
+                  ? "positive"
+                  : "negative"
+              }
+              hint="vs mois précédent"
               index={2}
             />
             <KpiCard
-              label="Taux d'annulation"
-              value={`${data.kpis.cancellation_rate.value} %`}
-              hint="annulées / (terminées + annulées)"
+              label="Taux de réclamation"
+              value={`${data.kpis.complaint_rate.value} %`}
+              trend={formatTrend(data.kpis.complaint_rate.change_pct)}
+              trendTone={
+                (data.kpis.complaint_rate.change_pct ?? 0) <= 0
+                  ? "positive"
+                  : "negative"
+              }
+              hint="vs mois précédent"
               index={3}
             />
-          </div>
-
-          {/* Variation vs période précédente */}
-          <div className="mb-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {[
-              { label: "Demandes créées", kpi: data.kpis.total_activity },
-              { label: "Montant brut (GMV)", kpi: data.kpis.gmv },
-              { label: "Clients actifs", kpi: data.kpis.active_clients },
-              { label: "Taux de réclamation", kpi: data.kpis.complaint_rate },
-            ].map(({ label, kpi }, i) => (
-              <div key={i} className="flex items-center justify-between rounded-card border border-border bg-surface px-4 py-3 shadow-card">
-                <span className="text-sm text-muted">{label}</span>
-                {changeBadge(kpi.change_pct)}
-              </div>
-            ))}
           </div>
 
           {/* Répartition par service */}
