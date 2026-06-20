@@ -1,19 +1,19 @@
-import type { TicketPriority } from "../api/support.api.contract";
+import type { AgentTicketPriority } from "../api/agentTicket.types";
 
-const STYLES: Record<TicketPriority, string> = {
+const STYLES: Record<AgentTicketPriority, string> = {
   high  : "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300",
   normal: "bg-canvas text-foreground",
   low   : "bg-canvas text-muted",
 };
 
-const LABELS: Record<TicketPriority, string> = {
+const LABELS: Record<AgentTicketPriority, string> = {
   high  : "Haute",
   normal: "Normale",
   low   : "Basse",
 };
 
 interface Props {
-  priority : TicketPriority;
+  priority : AgentTicketPriority;
   className?: string;
 }
 

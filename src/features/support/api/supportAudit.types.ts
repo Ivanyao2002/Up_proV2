@@ -1,12 +1,26 @@
-import type {
-  AuditSeverity,
-  AuditCategory,
-  SupportAuditAction,
-} from "./support.api.contract";
+export type SupportAuditSeverity = "info" | "warning" | "critical";
 
-export type SupportAuditSeverity = AuditSeverity;
-export type SupportAuditCategory = AuditCategory;
-export type { SupportAuditAction };
+export type SupportAuditCategory =
+  | "ticket"
+  | "compensation"
+  | "sanction"
+  | "escalation"
+  | "chat"
+  | "auth";
+
+export type SupportAuditAction =
+  | "ticket.assigned"
+  | "ticket.message_sent"
+  | "ticket.note_added"
+  | "ticket.justification_requested"
+  | "ticket.resolved"
+  | "ticket.closed"
+  | "ticket.escalated"
+  | "sanction.applied"
+  | "compensation.applied"
+  | "chat.message_sent"
+  | "auth.login"
+  | "auth.logout";
 
 export interface SupportAuditMetadata {
   sanction_type?: "warning" | "surveillance" | "quality_points" | "suspension";

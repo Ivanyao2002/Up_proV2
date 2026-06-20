@@ -34,9 +34,9 @@ import {
 } from "../api/agentTicket.queries";
 import { useChatSocketStore } from "../hooks/useSupportChatSocket";
 import type {
-  AgentSanctionType,
-  CompensationType,
-} from "../api/support.api.contract";
+  AgentApplicableSanctionType,
+  AgentCompensationType,
+} from "../api/agentTicket.types";
 
 const TERMINAL_STATUSES = new Set(["resolved", "closed", "escalated"]);
 
@@ -277,7 +277,7 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
             sanctions={data.sanctions}
             readOnly={!canAct}
             isPending={applySanc.isPending}
-            onApply={(type: AgentSanctionType, reason: string) =>
+            onApply={(type: AgentApplicableSanctionType, reason: string) =>
               applySanc.mutate({ type, reason })
             }
           />
@@ -287,7 +287,7 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
             compensations={data.compensations}
             readOnly={!canAct}
             isPending={applyComp.isPending}
-            onApply={(type: CompensationType, discount_value?: number) =>
+            onApply={(type: AgentCompensationType, discount_value?: number) =>
               applyComp.mutate({ type, discount_value })
             }
           />

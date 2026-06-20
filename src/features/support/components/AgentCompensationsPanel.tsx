@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/shared/ui/Button";
 import { formatDateTime } from "@/shared/lib/format";
-import type { TicketCompensation, CompensationType } from "../api/support.api.contract";
+import type {
+  AgentCompensation,
+  AgentCompensationType,
+} from "../api/agentTicket.types";
 
 const TYPE_OPTIONS: {
-  value: CompensationType;
+  value: AgentCompensationType;
   label: string;
   description: string;
   needsValue: boolean;
@@ -35,7 +38,7 @@ const TYPE_OPTIONS: {
   },
 ];
 
-function compensationLabel(c: TicketCompensation): string {
+function compensationLabel(c: AgentCompensation): string {
   if (c.type === "percentage_discount")
     return `Réduction ${c.discount_value}% — prochaine commande`;
   if (c.type === "fixed_discount")
@@ -44,15 +47,15 @@ function compensationLabel(c: TicketCompensation): string {
 }
 
 interface Props {
-  compensations: TicketCompensation[];
+  compensations: AgentCompensation[];
   readOnly     : boolean;
   isPending    : boolean;
-  onApply      : (type: CompensationType, discount_value?: number) => void;
+  onApply      : (type: AgentCompensationType, discount_value?: number) => void;
 }
 
 export function AgentCompensationsPanel({ compensations, readOnly, isPending, onApply }: Props) {
   const [open, setOpen]   = useState(false);
-  const [type, setType]   = useState<CompensationType>("percentage_discount");
+  const [type, setType]   = useState<AgentCompensationType>("percentage_discount");
   const [value, setValue] = useState("");
 
   const selected = TYPE_OPTIONS.find((o) => o.value === type)!;
@@ -68,7 +71,7 @@ export function AgentCompensationsPanel({ compensations, readOnly, isPending, on
     setOpen(false);
   }
 
-  function handleTypeChange(next: CompensationType) {
+  function handleTypeChange(next: AgentCompensationType) {
     setType(next);
     setValue("");
   }

@@ -1,6 +1,6 @@
-import type { TicketStatus } from "../api/support.api.contract";
+import type { AgentTicketStatus } from "../api/agentTicket.types";
 
-const STYLES: Record<TicketStatus, string> = {
+const STYLES: Record<AgentTicketStatus, string> = {
   open       : "bg-navy/10 text-foreground",
   in_progress: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300",
   resolved   : "bg-teal/15 text-teal-dark",
@@ -8,7 +8,7 @@ const STYLES: Record<TicketStatus, string> = {
   escalated  : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-300",
 };
 
-const LABELS: Record<TicketStatus, string> = {
+const LABELS: Record<AgentTicketStatus, string> = {
   open       : "Ouvert",
   in_progress: "En cours",
   resolved   : "Résolu",
@@ -17,7 +17,7 @@ const LABELS: Record<TicketStatus, string> = {
 };
 
 interface Props {
-  status   : TicketStatus;
+  status   : AgentTicketStatus;
   className?: string;
 }
 

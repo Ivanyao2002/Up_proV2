@@ -1,8 +1,8 @@
 import { formatDateTime } from "@/shared/lib/format";
-import type { TicketMessage } from "../api/support.api.contract";
+import type { AgentTicketMessage } from "../api/agentTicket.types";
 
 interface Props {
-  message: TicketMessage;
+  message: AgentTicketMessage;
 }
 
 const NOTE_STYLE   = "bg-amber-50 border border-amber-200 dark:bg-amber-950/30 dark:border-amber-900/40";

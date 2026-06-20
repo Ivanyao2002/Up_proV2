@@ -4,33 +4,33 @@ import { useState } from "react";
 import { Button } from "@/shared/ui/Button";
 import { formatDateTime } from "@/shared/lib/format";
 import type {
+  AgentApplicableSanctionType,
+  AgentSanction,
   AgentSanctionType,
-  TicketSanction,
-  SanctionType,
-} from "../api/support.api.contract";
+} from "../api/agentTicket.types";
 
-const SANCTION_LABELS: Record<SanctionType, string> = {
+const SANCTION_LABELS: Record<AgentSanctionType, string> = {
   warning       : "Avertissement",
   surveillance  : "Mise sous surveillance",
   quality_points: "Retrait de points qualité",
   suspension    : "Suspension temporaire",
 };
 
-const AGENT_SANCTION_OPTIONS: AgentSanctionType[] = [
+const AGENT_SANCTION_OPTIONS: AgentApplicableSanctionType[] = [
   "warning",
   "surveillance",
 ];
 
 interface Props {
-  sanctions : TicketSanction[];
+  sanctions : AgentSanction[];
   readOnly  : boolean;
   isPending : boolean;
-  onApply   : (type: AgentSanctionType, reason: string) => void;
+  onApply   : (type: AgentApplicableSanctionType, reason: string) => void;
 }
 
 export function AgentSanctionsPanel({ sanctions, readOnly, isPending, onApply }: Props) {
   const [open, setOpen]     = useState(false);
-  const [type, setType]     = useState<AgentSanctionType>("warning");
+  const [type, setType]     = useState<AgentApplicableSanctionType>("warning");
   const [reason, setReason] = useState("");
 
   function handleSubmit() {
@@ -80,7 +80,7 @@ export function AgentSanctionsPanel({ sanctions, readOnly, isPending, onApply }:
             <span className="text-xs font-medium text-foreground">Type</span>
             <select
               value={type}
-              onChange={(e) => setType(e.target.value as AgentSanctionType)}
+              onChange={(e) => setType(e.target.value as AgentApplicableSanctionType)}
               className="mt-1 w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm outline-none ring-teal/30 focus:ring-2"
             >
               {AGENT_SANCTION_OPTIONS.map((k) => (
