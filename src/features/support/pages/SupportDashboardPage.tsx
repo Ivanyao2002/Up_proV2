@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
+import { SupportDashboardSkeleton } from "@/shared/ui/skeletons";
 import { formatDateTime } from "@/shared/lib/format";
 import { TicketStatusBadge } from "../components/TicketStatusBadge";
 import { TicketPriorityBadge } from "../components/TicketPriorityBadge";
@@ -21,8 +22,12 @@ const SEVERITY_DOT: Record<SupportAuditSeverity, string> = {
 
 export function SupportDashboardPage() {
   const paths = useSupportPaths();
-  const { data: stats }  = useSupportDashboardStats();
-  const { data: recent } = useSupportDashboardRecent();
+  const { data: stats,  isLoading: statsLoading  } = useSupportDashboardStats();
+  const { data: recent, isLoading: recentLoading } = useSupportDashboardRecent();
+
+  if (statsLoading || recentLoading) {
+    return <SupportDashboardSkeleton />;
+  }
 
   return (
     <div className="animate-fade-up">

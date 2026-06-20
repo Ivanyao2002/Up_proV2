@@ -1,12 +1,3 @@
-/**
- * Support Audit & Dashboard service
- *
- * MOCK / REAL API TOGGLE — aucun changement de code requis :
- *   NEXT_PUBLIC_USE_MOCKS=true  → MSW intercepte /v1/support/* (données JSON locales)
- *   NEXT_PUBLIC_USE_MOCKS=false → requêtes dirigées vers NEXT_PUBLIC_API_URL/v1/support/*
- *
- * Contrat backend complet : src/features/support/api/support.api.contract.ts
- */
 import { apiClient } from "@/core/http/apiClient";
 import { LINKS } from "@/core/api/links";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";

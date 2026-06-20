@@ -5,7 +5,6 @@
  * Authentification: Bearer token
  * Rôles autorisés : support, admin
  * Format          : application/json
- * Dates           : ISO 8601 UTC, par exemple 2026-06-20T10:45:00Z
  *
  * Les noms de champs et les valeurs d'enum doivent être renvoyés exactement
  * comme définis ici. Les listes utilisent toujours Paginated<T>.
@@ -108,8 +107,9 @@ export interface TicketListItem {
 }
 
 /**
- * Compteurs par statut sur l'ensemble filtré (search + reporter_type + category
- * appliqués, MAIS pas le filtre status lui-même). Alimente les onglets de la liste.
+ * Compteurs par statut calculés sur l'ensemble filtré par `search`, `reporter_type`
+ * et `category`, MAIS **sans appliquer le filtre `status`** lui-même — sinon
+ * l'onglet actif afficherait toujours son propre total. Alimente les onglets de la liste.
  */
 export interface TicketStatusFacets {
   all: number;
@@ -308,7 +308,6 @@ export interface SupportAuditMetadata {
  * - sanction    : sanction appliquée ;
  * - escalation  : escalade vers Administration/Central ;
  * - chat        : message d'une conversation support ;
- * - auth        : connexion ou déconnexion d'un agent.
  *
  * Le frontend et l'utilisateur ne fournissent jamais cette valeur lors de la
  * création d'un événement d'audit.
@@ -818,6 +817,8 @@ export const SUPPORT_AUDIT_ACTIONS = [
   "sanction.applied",
   "compensation.applied",
   "chat.message_sent",
+  "auth.login",
+  "auth.logout",
 ] as const;
 
 export type SupportAuditAction = (typeof SUPPORT_AUDIT_ACTIONS)[number];

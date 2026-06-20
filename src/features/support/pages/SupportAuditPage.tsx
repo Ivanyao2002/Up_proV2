@@ -320,10 +320,9 @@ export function SupportAuditPage() {
 
   const { data, isLoading, isError } = useSupportAuditLog({
     ...table.listParams,
-    severity:      severityFilter !== "all" ? severityFilter : undefined,
-    action:        actionFilter   !== "all" ? actionFilter   : undefined,
-    category:      categoryFilter !== "all" ? categoryFilter : undefined,
-    resource_type: "ticket",
+    severity: severityFilter !== "all" ? severityFilter : undefined,
+    action:   actionFilter   !== "all" ? actionFilter   : undefined,
+    category: categoryFilter !== "all" ? categoryFilter : undefined,
   });
   const rows: SupportAuditEvent[] = data?.data ?? [];
   const meta = data?.meta;

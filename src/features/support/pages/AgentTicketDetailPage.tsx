@@ -40,6 +40,13 @@ import type {
 
 const TERMINAL_STATUSES = new Set(["resolved", "closed", "escalated"]);
 
+const REPORTER_TYPE_LABELS: Record<string, string> = {
+  client   : "Client",
+  driver   : "Chauffeur",
+  partner  : "Partenaire",
+  deliverer: "Livreur",
+};
+
 interface Props {
   ticketId: string;
 }
@@ -107,14 +114,6 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
 
   const composePending = sendMsg.isPending || addNote.isPending || requestDoc.isPending;
   const modalPending   = resolve.isPending || close.isPending || escalate.isPending;
-
-  // ── Reporter type label ──────────────────────────────────────────
-  const REPORTER_TYPE_LABELS: Record<string, string> = {
-    client   : "Client",
-    driver   : "Chauffeur",
-    partner  : "Partenaire",
-    deliverer: "Livreur",
-  };
 
   return (
     <div className="animate-fade-up">

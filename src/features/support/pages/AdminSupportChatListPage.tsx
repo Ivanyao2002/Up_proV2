@@ -113,7 +113,7 @@ export function AdminSupportChatListPage() {
         <FilterChips
           options={STATUS_FILTERS}
           value={statusFilter}
-          onChange={setStatusFilter}
+          onChange={(v) => setStatusFilter(v)}
         />
       </TableFiltersBar>
 
