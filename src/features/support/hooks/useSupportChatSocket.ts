@@ -8,24 +8,32 @@ import { env } from "@/core/config/env";
 import { normalizeSocketIoUrl } from "@/features/ops/api/liveMap.realtime";
 import {
   CHAT_SOCKET_EVENT,
+  TICKET_SOCKET_EVENT,
   parseChatSocketPayload,
+  parseTicketSocketPayload,
   type ChatSocketMessagePayload,
   type ChatSocketStatus,
+  type TicketSocketUpdatedPayload,
 } from "../api/chatSocket.realtime";
 
 interface ChatSocketStore {
   connected: boolean;
+  status: ChatSocketStatus;
   setConnected: (connected: boolean) => void;
+  setStatus: (status: ChatSocketStatus) => void;
 }
 
 export const useChatSocketStore = create<ChatSocketStore>((set) => ({
   connected: false,
+  status: "idle",
   setConnected: (connected) => set({ connected }),
+  setStatus: (status) => set({ status }),
 }));
 
 interface UseSupportChatSocketOptions {
   enabled?: boolean;
   onMessage?: (payload: ChatSocketMessagePayload) => void;
+  onTicketUpdated?: (payload: TicketSocketUpdatedPayload) => void;
 }
 
 function resolveSocketUserId(userId: string | number | undefined): string | null {
@@ -36,26 +44,36 @@ function resolveSocketUserId(userId: string | number | undefined): string | null
 export function useSupportChatSocket({
   enabled = true,
   onMessage,
+  onTicketUpdated,
 }: UseSupportChatSocketOptions = {}) {
   const token = useAuthStore((s) => s.token);
   const userId = useAuthStore((s) => s.user?.id);
   const setConnected = useChatSocketStore((s) => s.setConnected);
-  const [status, setStatus] = useState<ChatSocketStatus>("idle");
+  const globalStatus = useChatSocketStore((s) => s.status);
+  const setGlobalStatus = useChatSocketStore((s) => s.setStatus);
+  const [status, setStatus] = useState<ChatSocketStatus>(globalStatus);
   const onMessageRef = useRef(onMessage);
   onMessageRef.current = onMessage;
+  const onTicketUpdatedRef = useRef(onTicketUpdated);
+  onTicketUpdatedRef.current = onTicketUpdated;
+
+  const updateStatus = (next: ChatSocketStatus) => {
+    setStatus(next);
+    setGlobalStatus(next);
+  };
 
   useEffect(() => {
     const active =
       enabled && env.useRealAuth && Boolean(token) && Boolean(userId);
     if (!active) {
-      setStatus("idle");
+      updateStatus("idle");
       setConnected(false);
       return;
     }
 
     const joinUserId = resolveSocketUserId(userId);
     if (!joinUserId) {
-      setStatus("idle");
+      updateStatus("idle");
       setConnected(false);
       return;
     }
@@ -70,26 +88,26 @@ export function useSupportChatSocket({
       auth: { token },
     });
 
-    setStatus("connecting");
+    updateStatus("connecting");
 
     const onConnect = () => {
-      setStatus("connected");
+      updateStatus("connected");
       setConnected(true);
       socket.emit("join", joinUserId);
     };
 
     const onDisconnect = () => {
-      setStatus("disconnected");
+      updateStatus("disconnected");
       setConnected(false);
     };
 
     const onConnectError = () => {
-      setStatus("error");
+      updateStatus("error");
       setConnected(false);
     };
 
     const onJoinDenied = () => {
-      setStatus("error");
+      updateStatus("error");
       setConnected(false);
     };
 
@@ -98,12 +116,18 @@ export function useSupportChatSocket({
       if (!payload) return;
       onMessageRef.current?.(payload);
     };
+    const onTicketUpdatedEvent = (raw: unknown) => {
+      const payload = parseTicketSocketPayload(raw);
+      if (!payload) return;
+      onTicketUpdatedRef.current?.(payload);
+    };
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("connect_error", onConnectError);
     socket.on("join_denied", onJoinDenied);
     socket.on(CHAT_SOCKET_EVENT, onChatMessage);
+    socket.on(TICKET_SOCKET_EVENT, onTicketUpdatedEvent);
 
     return () => {
       socket.off("connect", onConnect);
@@ -111,11 +135,12 @@ export function useSupportChatSocket({
       socket.off("connect_error", onConnectError);
       socket.off("join_denied", onJoinDenied);
       socket.off(CHAT_SOCKET_EVENT, onChatMessage);
+      socket.off(TICKET_SOCKET_EVENT, onTicketUpdatedEvent);
       socket.disconnect();
-      setStatus("idle");
+      updateStatus("idle");
       setConnected(false);
     };
-  }, [enabled, token, userId, setConnected]);
+  }, [enabled, token, userId, setConnected, setGlobalStatus]);
 
   return { status };
 }

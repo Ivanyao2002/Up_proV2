@@ -13,12 +13,11 @@ export function buildSupportPaths(base: SupportBasePath) {
     base,
     dashboard: base === "/support" ? "/support" : "/admin/dashboard",
     tickets: `${base}/tickets`,
+    ticketDetail: (id: string) => `${base}/tickets/${id}`,
     chat: `${base}/chat`,
     chatDetail: (id: string) => `${base}/chat/${id}`,
-    disputeDetail: (id: string) => `${base}/disputes/${id}`,
     anomalies: `${base}/anomalies`,
     anomaliesAudit: `${base}/anomalies/audit`,
-    tripForensic: (orderId: string) => `/admin/ops/trips/${orderId}/forensic`,
   };
 }
 

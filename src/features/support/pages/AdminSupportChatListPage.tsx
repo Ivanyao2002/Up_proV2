@@ -99,7 +99,7 @@ export function AdminSupportChatListPage() {
   }
 
   return (
-    <div className="animate-fade-up">
+    <div className="min-h-0 animate-fade-up">
       <PageHeader title="Chat franchises" breadcrumb={["Admin", "Support", "Chat"]} />
 
       <TableFiltersBar
@@ -124,7 +124,7 @@ export function AdminSupportChatListPage() {
         isLoading={isLoading}
         exportFileName="chat-support-admin"
         emptyTitle="Aucune conversation avec les franchises"
-        pagination={false}
+        maxHeight="clamp(320px, calc(100dvh - 330px), 680px)"
         serverPagination={serverPaginationFromMeta(
           meta,
           table.setPage,

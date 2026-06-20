@@ -7,20 +7,9 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-BACKOFFICE_VISION_DESIGN.md
-DESIGN_SYSTEM_UPJUNOO.md
-REACT_REFONTE_KICKSTART.md
-CONTEXTE.md
-RAPPORT-API-MANQUANTE-PARTENAIRE.md
-rapport-activite/
-Module finance/
-AUDIT-ENDPOINTS-PARTENAIRE.md
-scripts/audit-results/
-guide-pdf/
 
 # testing
 /coverage
-docs/
 
 # next.js
 /.next/
@@ -45,8 +34,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# msw
-public/mockServiceWorker.js
 
 .vercel
 .env*
+
+# msw
+public/mockServiceWorker.js
+
+# Claude Code
+CLAUDE.md
+.claude/
+skills-lock.json
+

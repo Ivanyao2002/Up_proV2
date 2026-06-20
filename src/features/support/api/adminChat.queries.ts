@@ -39,12 +39,29 @@ export function useAdminSupportChat(chatId: string) {
 
 export function useReplyAdminChat(chatId: string) {
   const qc = useQueryClient();
-
   return useMutation({
-    mutationFn: (body: string) => adminChatService.replyChat(chatId, body),
+    mutationFn: ({ body, attachmentId }: { body: string; attachmentId?: string }) =>
+      adminChatService.replyChat(chatId, body, attachmentId),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminChatKeys.detail(chatId) });
       void qc.invalidateQueries({ queryKey: adminChatKeys.all });
     },
+  });
+}
+
+export function useCloseAdminChat(chatId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => adminChatService.closeChat(chatId),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminChatKeys.detail(chatId) });
+      void qc.invalidateQueries({ queryKey: adminChatKeys.all });
+    },
+  });
+}
+
+export function useUploadChatAttachment(chatId: string) {
+  return useMutation({
+    mutationFn: (file: File) => adminChatService.uploadAttachment(chatId, file),
   });
 }

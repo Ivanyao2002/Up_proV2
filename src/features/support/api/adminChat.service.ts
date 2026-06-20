@@ -16,6 +16,7 @@ import {
   mapConversationsToPaginated,
 } from "./adminChat.mapper";
 import type {
+  AdminSupportAttachment,
   AdminSupportChat,
   AdminSupportChatDetail,
   AdminSupportMessage,
@@ -78,16 +79,30 @@ export const adminChatService = {
     return mapChatDetail(chat, extractMessages(messagesResponse));
   },
 
-  replyChat: (chatId: string, body: string) => {
+  replyChat: (chatId: string, body: string, attachmentId?: string) => {
+    const payload = attachmentId ? { body, attachment_id: attachmentId } : { body };
     if (useLegacyAdminApi()) {
-      return apiClient.post<AdminSupportMessage>(`${LEGACY_LIST}/${chatId}/messages`, {
-        body,
-      });
+      return apiClient.post<AdminSupportMessage>(`${LEGACY_LIST}/${chatId}/messages`, payload);
     }
-
     return apiClient.post<AdminSupportMessage>(
       LINKS.admin.v1.chatMessages(chatId),
-      { body, content: body, text: body }
+      { ...payload, content: body, text: body }
     );
+  },
+
+  closeChat: (chatId: string): Promise<{ ok: true }> => {
+    if (useLegacyAdminApi()) {
+      return apiClient.patch(`${LEGACY_LIST}/${chatId}/close`, {});
+    }
+    return apiClient.patch(LINKS.support.chat.close(chatId), {});
+  },
+
+  uploadAttachment: async (chatId: string, file: File): Promise<AdminSupportAttachment> => {
+    const form = new FormData();
+    form.append("file", file);
+    if (useLegacyAdminApi()) {
+      return apiClient.post(`${LEGACY_LIST}/${chatId}/attachments`, form);
+    }
+    return apiClient.post(LINKS.support.chat.attachments(chatId), form);
   },
 };

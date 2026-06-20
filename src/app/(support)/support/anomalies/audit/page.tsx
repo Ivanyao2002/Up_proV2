@@ -1,5 +1,5 @@
-import { SettingsAuditPage } from "@/features/settings/pages/SettingsAuditPage";
+import { SupportAuditPage } from "@/features/support/pages/SupportAuditPage";
 
 export default function Page() {
-  return <SettingsAuditPage />;
+  return <SupportAuditPage />;
 }

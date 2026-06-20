@@ -3,117 +3,174 @@
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
-import { NavIcon, type NavIconName } from "@/portals/shared/NavIcon";
+import { formatDateTime } from "@/shared/lib/format";
+import { TicketStatusBadge } from "../components/TicketStatusBadge";
+import { TicketPriorityBadge } from "../components/TicketPriorityBadge";
+import {
+  useSupportDashboardStats,
+  useSupportDashboardRecent,
+} from "../api/supportAudit.queries";
+import { useSupportPaths } from "../lib/supportPaths";
+import type { SupportAuditSeverity } from "../api/supportAudit.types";
 
-const QUICK_ACCESS: {
-  href: string;
-  label: string;
-  description: string;
-  icon: NavIconName;
-}[] = [
-  {
-    href: "/support/tickets",
-    label: "Tickets",
-    description: "Réclamations, litiges et suivi de résolution",
-    icon: "support",
-  },
-  {
-    href: "/support/chat",
-    label: "Chat franchises",
-    description: "Conversations en direct avec les franchises",
-    icon: "chat",
-  },
-  {
-    href: "/support/anomalies",
-    label: "Centre anomalies",
-    description: "Incidents, audit et forensic courses",
-    icon: "crisis",
-  },
-  {
-    href: "/support/anomalies/audit",
-    label: "Journal d'audit",
-    description: "Traçabilité des actions sensibles plateforme",
-    icon: "reports",
-  },
-];
+const SEVERITY_DOT: Record<SupportAuditSeverity, string> = {
+  info    : "bg-blue-400",
+  warning : "bg-amber-400",
+  critical: "bg-red-500",
+};
 
 export function SupportDashboardPage() {
+  const paths = useSupportPaths();
+  const { data: stats }  = useSupportDashboardStats();
+  const { data: recent } = useSupportDashboardRecent();
+
   return (
     <div className="animate-fade-up">
-      <PageHeader
-        title="Tableau de bord support"
-        breadcrumb={["Support"]}
-      />
-      <p className="-mt-2 mb-6 text-sm text-muted">
-        Traitez les réclamations, répondez aux franchises et surveillez les anomalies
-        opérationnelles.
-      </p>
+      <PageHeader title="Tableau de bord" breadcrumb={["Support"]} />
 
-      <section className="hero-grain kpi-card--midnight relative mb-6 overflow-hidden rounded-hero border border-white/[0.06] bg-gradient-to-br from-[#0c1018] via-[#141b28] to-[#1a2436] p-8 text-white shadow-[0_8px_32px_rgba(8,12,20,0.65)] md:p-10">
-        <div
-          className="kpi-card__pattern kpi-card__pattern--rings absolute inset-0 opacity-40"
-          aria-hidden
+      {/* ── KPI strip ─────────────────────────────────────────────── */}
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          label="Tickets ouverts"
+          value={stats ? String(stats.open_tickets) : "—"}
+          hint={`${stats?.in_progress_tickets ?? "—"} en cours de traitement`}
+          index={0}
         />
-        <div
-          className="kpi-card__pattern kpi-card__pattern--mesh absolute inset-0 opacity-30"
-          aria-hidden
+        <KpiCard
+          label="Escaladés"
+          value={stats ? String(stats.escalated_tickets) : "—"}
+          hint="En attente de Central"
+          index={1}
         />
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-teal/10 blur-3xl"
-          aria-hidden
+        <KpiCard
+          label="Anomalies du jour"
+          value={stats ? String(stats.anomalies_today) : "—"}
+          hint="Niveaux warning et critique"
+          index={2}
         />
-        <div
-          className="pointer-events-none absolute -bottom-20 left-0 h-36 w-36 rounded-full bg-black/40 blur-3xl"
-          aria-hidden
+        <KpiCard
+          label="Chats actifs"
+          value={stats ? String(stats.active_chat_conversations) : "—"}
+          hint={`${stats?.resolved_today ?? "—"} tickets résolus aujourd'hui`}
+          index={3}
         />
-
-        <div className="relative z-[1]">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/55">
-            Périmètre agent support
-          </p>
-          <h2 className="mt-3 text-2xl font-bold tracking-tight text-white md:text-[1.65rem]">
-            Réclamations &amp; conformité
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/70">
-            Accès dédié aux tickets, au chat franchises et au registre d&apos;anomalies —
-            sans exposition des modules finance ou paramétrage.
-          </p>
-        </div>
-      </section>
-
-      <div className="animate-stagger mb-8 grid gap-4 sm:grid-cols-3">
-        <KpiCard label="Tickets ouverts" value="—" hint="Vue temps réel" index={0} />
-        <KpiCard label="Conversations actives" value="—" hint="Chat franchises" index={1} />
-        <KpiCard label="Anomalies du jour" value="—" hint="Audit & forensic" index={2} />
       </div>
 
-      <section>
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-heading">Accès rapides</h2>
-          <p className="mt-0.5 text-xs text-muted">Modules du portail support</p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {QUICK_ACCESS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group flex gap-3 rounded-card border border-border bg-surface p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/35 hover:shadow-lg"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal/10 text-teal-dark transition-colors group-hover:bg-teal/15">
-                <NavIcon name={item.icon} className="h-5 w-5" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="text-sm font-semibold text-foreground group-hover:text-teal-dark">
-                  {item.label}
-                </span>
-                <span className="mt-1 block text-xs leading-relaxed text-muted">
-                  {item.description}
-                </span>
-              </span>
+      {/* ── Main layout ───────────────────────────────────────────── */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+
+        {/* Tickets en attente */}
+        <div className="rounded-card border border-border bg-surface shadow-card">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+            <h2 className="text-sm font-semibold text-heading">Tickets en attente</h2>
+            <Link href={paths.tickets} className="text-xs text-teal hover:underline">
+              Voir tous →
             </Link>
-          ))}
+          </div>
+
+          <div className="divide-y divide-border">
+            {!recent?.recent_tickets.length ? (
+              <p className="px-5 py-6 text-center text-sm text-muted">
+                Aucun ticket en attente.
+              </p>
+            ) : (
+              recent.recent_tickets.map((t) => (
+                <Link
+                  key={t.id}
+                  href={paths.ticketDetail(t.id)}
+                  className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-hover"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-foreground group-hover:text-teal-dark">
+                      {t.subject}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {t.reporter_name} · {t.franchise_name}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <TicketPriorityBadge priority={t.priority} />
+                    <TicketStatusBadge status={t.status} />
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
         </div>
-      </section>
+
+        {/* Colonne droite */}
+        <div className="space-y-4">
+
+          {/* Anomalies récentes */}
+          <div className="rounded-card border border-border bg-surface shadow-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <h2 className="text-sm font-semibold text-heading">Anomalies récentes</h2>
+              <Link href={paths.anomaliesAudit} className="text-xs text-teal hover:underline">
+                Journal →
+              </Link>
+            </div>
+
+            <div className="divide-y divide-border">
+              {!recent?.recent_anomalies.length ? (
+                <p className="px-5 py-4 text-center text-sm text-muted">
+                  Aucune anomalie récente.
+                </p>
+              ) : (
+                recent.recent_anomalies.map((a) => (
+                  <div key={a.id} className="flex items-start gap-3 px-4 py-3">
+                    <span
+                      className={`mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full ${
+                        SEVERITY_DOT[a.severity]
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-foreground">
+                        {a.resource_label ?? a.action}
+                      </p>
+                      <p className="mt-0.5 truncate text-xs text-muted">{a.detail}</p>
+                      <p className="mt-0.5 text-xs text-muted">{formatDateTime(a.at)}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Chat franchises */}
+          <Link
+            href={paths.chat}
+            className="group flex items-center justify-between rounded-card border border-border bg-surface px-5 py-4 shadow-card transition-all hover:border-teal/35"
+          >
+            <div>
+              <p className="text-sm font-semibold text-heading group-hover:text-teal-dark">
+                Chat franchises
+              </p>
+              <p className="mt-0.5 text-xs text-muted">
+                {stats
+                  ? `${stats.active_chat_conversations} conversation${stats.active_chat_conversations !== 1 ? "s" : ""} active${stats.active_chat_conversations !== 1 ? "s" : ""}`
+                  : "Chargement…"}
+              </p>
+            </div>
+            <span className="text-teal transition-transform group-hover:translate-x-0.5">→</span>
+          </Link>
+
+          {/* Historique des réclamations */}
+          <Link
+            href={paths.anomaliesAudit}
+            className="group flex items-center justify-between rounded-card border border-border bg-surface px-5 py-4 shadow-card transition-all hover:border-teal/35"
+          >
+            <div>
+              <p className="text-sm font-semibold text-heading group-hover:text-teal-dark">
+                Historique des réclamations
+              </p>
+              <p className="mt-0.5 text-xs text-muted">
+                Actions réalisées sur les tickets
+              </p>
+            </div>
+            <span className="text-teal transition-transform group-hover:translate-x-0.5">→</span>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
