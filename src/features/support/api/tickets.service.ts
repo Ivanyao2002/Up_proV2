@@ -7,7 +7,7 @@ import type { AgentReporterType, AgentTicketCategory } from "./agentTicket.types
 export interface AdminSupportTicket {
   id: string;
   subject: string;
-  category?: AgentTicketCategory;
+  category?: AgentTicketCategory | null;
   priority: "low" | "normal" | "high";
   status: "open" | "in_progress" | "resolved";
   reporter_name: string;

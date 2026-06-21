@@ -178,15 +178,20 @@ export function SupportTicketsListPage() {
     {
       id: "category",
       header: "Catégorie",
-      cell: (t) =>
-        t.category ? (
-          <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${CATEGORY_CONFIG[t.category].className}`}>
-            {CATEGORY_CONFIG[t.category].label}
+      cell: (t) => {
+        const cfg = t.category ? CATEGORY_CONFIG[t.category as AgentTicketCategory] : undefined;
+        return cfg ? (
+          <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${cfg.className}`}>
+            {cfg.label}
           </span>
         ) : (
-          <span className="text-xs text-muted">—</span>
-        ),
-      exportValue: (t) => (t.category ? CATEGORY_CONFIG[t.category].label : ""),
+          <span className="text-xs text-muted">{t.category ?? "—"}</span>
+        );
+      },
+      exportValue: (t) => {
+        const cfg = t.category ? CATEGORY_CONFIG[t.category as AgentTicketCategory] : undefined;
+        return cfg ? cfg.label : (t.category ?? "");
+      },
     },
     {
       id: "reporter_type",

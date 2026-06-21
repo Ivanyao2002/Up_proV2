@@ -49,7 +49,7 @@ export interface AgentCompensation {
 export interface AgentTicketDetail {
   id: string;
   subject: string;
-  category: AgentTicketCategory;
+  category: AgentTicketCategory | null;
   priority: AgentTicketPriority;
   status: AgentTicketStatus;
   reporter_name: string;
