@@ -10,17 +10,34 @@ import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
 import type { VehiclePieceFile } from "../components/VehicleCreatePiecesSection";
 import { partnerDriversKeys } from "./drivers.queries";
 import type { ListParams } from "@/shared/types/listParams";
+import type { VehicleApprovalStatus } from "@/shared/types";
 
 export const partnerVehiclesKeys = {
   all: ["partner", "vehicles"] as const,
-  list: (filters?: ListParams) => [...partnerVehiclesKeys.all, "list", filters] as const,
+  list: (
+    status?: VehicleApprovalStatus | "all",
+    filters?: ListParams
+  ) => [...partnerVehiclesKeys.all, "list", status ?? "all", filters] as const,
   detail: (id: string) => [...partnerVehiclesKeys.all, "detail", id] as const,
 };
 
-export function usePartnerVehiclesList(params?: ListParams) {
+export function usePartnerVehiclesList(
+  statusFilter: VehicleApprovalStatus | "all" = "all",
+  params?: ListParams
+) {
+  const listParams: ListParams = {
+    ...params,
+    status:
+      statusFilter !== "all"
+        ? statusFilter
+        : params?.status && params.status !== "all"
+          ? params.status
+          : undefined,
+  };
+
   return useQuery({
-    queryKey: partnerVehiclesKeys.list(params),
-    queryFn: () => partnerVehiclesService.list(params),
+    queryKey: partnerVehiclesKeys.list(statusFilter, listParams),
+    queryFn: () => partnerVehiclesService.list(listParams),
   });
 }
 
@@ -64,10 +81,10 @@ export function useCreateVehicle() {
 export function useUploadVehicleRegistration(vehicleId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => partnerVehiclesService.uploadRegistration(vehicleId),
+    mutationFn: (file: File) => partnerVehiclesService.uploadRegistration(vehicleId, file),
     onSuccess: (data) => {
       qc.setQueryData(partnerVehiclesKeys.detail(vehicleId), data);
-      void qc.invalidateQueries({ queryKey: partnerVehiclesKeys.list() });
+      void qc.invalidateQueries({ queryKey: partnerVehiclesKeys.all });
     },
   });
 }

@@ -192,6 +192,20 @@ export async function attachPartnerVehicleDocument(
   );
 }
 
+export async function attachPartnerVehicleRegistration(
+  partnerId: string,
+  vehicleId: string,
+  file: File
+): Promise<void> {
+  const documentTypeCode = mapVehicleDocumentTypeToApiCode("registration");
+  const reference = await uploadKycFile(file, documentTypeCode);
+  await registerPartnerDocument(
+    LINKS.partner.vehicles.registration(partnerId, vehicleId),
+    reference,
+    documentTypeCode
+  );
+}
+
 export async function uploadDriverDocumentsForPartner(
   partnerId: string,
   driverId: string,

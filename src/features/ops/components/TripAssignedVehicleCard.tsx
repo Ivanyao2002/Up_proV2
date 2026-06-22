@@ -12,19 +12,25 @@ interface TripAssignedVehicleCardProps {
   trip: TripDetail;
   driverLocation?: TripDetail["driver_location"];
   driverLive?: boolean;
+  vehicleDetailHref?: string | null;
+  ignoreStatusCheck?: boolean;
 }
 
 export function TripAssignedVehicleCard({
   trip,
   driverLocation,
   driverLive,
+  vehicleDetailHref: vehicleDetailHrefProp,
+  ignoreStatusCheck = false,
 }: TripAssignedVehicleCardProps) {
-  if (!isTripWithAssignedDriver(trip.status)) return null;
+  if (!ignoreStatusCheck && !isTripWithAssignedDriver(trip.status)) return null;
   if (!trip.vehicle_label && !trip.vehicle_plate && !trip.vehicle_id) return null;
 
-  const vehicleDetailHref = trip.vehicle_id
-    ? buildAdminVehicleDetailPath(trip.vehicle_id, trip.partner_id)
-    : null;
+  const vehicleDetailHref =
+    vehicleDetailHrefProp ??
+    (trip.vehicle_id
+      ? buildAdminVehicleDetailPath(trip.vehicle_id, trip.partner_id)
+      : null);
   const displayLabel =
     trip.vehicle_label ?? trip.vehicle_plate ?? "Véhicule assigné";
 

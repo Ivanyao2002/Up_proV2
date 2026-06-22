@@ -4,8 +4,10 @@ import type {
   LiveMapOrderMarker,
   LiveMapTripRoute,
   LiveMapActiveTrip,
+  LiveMapRealtimeConfig,
 } from "@/shared/types";
 import { liveMapOrderStatusLabel } from "@/features/ops/api/liveMap.labels";
+import { resolvePartnerLiveMapRealtime } from "../lib/partnerLiveMapRealtime";
 
 /** Réponse brute de GET /v1/partners/{id}/ops/map */
 export interface ApiPartnerLiveMapDriver {
@@ -14,9 +16,42 @@ export interface ApiPartnerLiveMapDriver {
   partner_id?: string;
   city_id?: string;
   driver_code?: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  display_name?: string;
+  profile?: {
+    first_name?: string;
+    last_name?: string;
+    display_name?: string;
+    phone?: string;
+  } | null;
   availability_status?: string;
   last_online_at?: string;
   current_vehicle_id?: string;
+  vehicle_label?: string;
+  vehicle_color?: string | null;
+  vehicle?: {
+    id?: string;
+    brand?: string;
+    model?: string;
+    plate_number?: string;
+    label?: string;
+    display_name?: string;
+  } | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  heading?: number | null;
+  speed_kmh?: number | null;
+  location?: {
+    lat?: number | null;
+    lng?: number | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    heading?: number | null;
+    speedKmh?: number | null;
+    recordedAt?: string | null;
+  } | null;
   metadata?: {
     zoneId?: string;
     citySlug?: string;
@@ -50,6 +85,9 @@ export interface ApiPartnerLiveMapResponse {
   generatedAt?: string;
   drivers?: ApiPartnerLiveMapDriver[];
   orders?: ApiPartnerLiveMapOrder[];
+  meta?: {
+    realtime?: LiveMapRealtimeConfig | null;
+  };
 }
 
 const ABIDJAN_CENTER = { lat: 5.35, lng: -4.02 };
@@ -215,9 +253,27 @@ function computeBounds(points: { lat: number; lng: number }[]): LiveMapData["bou
   };
 }
 
+function readDriverCoords(
+  driver: ApiPartnerLiveMapDriver
+): { lat: number; lng: number } | null {
+  const fromLocation = driver.location;
+  const lat =
+    driver.latitude ??
+    fromLocation?.lat ??
+    fromLocation?.latitude ??
+    null;
+  const lng =
+    driver.longitude ??
+    fromLocation?.lng ??
+    fromLocation?.longitude ??
+    null;
+  return readCoord(lat, lng);
+}
+
 /** Mappe la réponse brute partner /ops/map vers LiveMapData. */
 export function mapApiPartnerLiveMapToData(
-  response: ApiPartnerLiveMapResponse
+  response: ApiPartnerLiveMapResponse,
+  partnerId: string
 ): LiveMapData {
   const rawDrivers = response.drivers ?? [];
   const rawOrders = response.orders ?? [];
@@ -248,10 +304,10 @@ export function mapApiPartnerLiveMapToData(
     const d = rawDrivers[i];
     const activeOrder = activeOrdersByDriver.get(d.id);
 
-    // Essayer de trouver une coordonnée : pickup de la course active, sinon centre Abidjan avec offset
-    let coords = activeOrder
-      ? readCoord(activeOrder.pickup_latitude, activeOrder.pickup_longitude)
-      : null;
+    let coords = readDriverCoords(d);
+    if (!coords && activeOrder) {
+      coords = readCoord(activeOrder.pickup_latitude, activeOrder.pickup_longitude);
+    }
 
     if (!coords) {
       // Petit offset aléatoire basé sur l'index pour éviter la superposition totale
@@ -264,13 +320,47 @@ export function mapApiPartnerLiveMapToData(
 
     const active_trip = activeOrder ? mapActiveTrip(activeOrder) : undefined;
 
+    const firstName = d.first_name ?? d.profile?.first_name;
+    const lastName = d.last_name ?? d.profile?.last_name;
+    const displayName = d.display_name ?? d.profile?.display_name;
+    const driverName =
+      d.name ??
+      displayName ??
+      (firstName && lastName ? `${firstName} ${lastName}` : null) ??
+      (firstName ?? lastName ?? null) ??
+      d.driver_code ??
+      `Chauffeur ${String(d.id).slice(0, 6)}`;
+
+    const v = d.vehicle;
+    const vehicleLabel =
+      d.vehicle_label ??
+      (v
+        ? v.label ??
+          v.display_name ??
+          [v.brand, v.model].filter(Boolean).join(" ") ??
+          null
+        : null);
+    const vehiclePlate = v?.plate_number ?? null;
+    const vehicleDisplay = vehicleLabel
+      ? vehiclePlate && !vehicleLabel.includes(vehiclePlate)
+        ? `${vehicleLabel} · ${vehiclePlate}`
+        : vehicleLabel
+      : d.current_vehicle_id
+        ? `Véh. ${d.current_vehicle_id.slice(0, 8)}`
+        : "—";
+    const vehicleColor = d.vehicle_color ?? null;
+
     drivers.push({
       id: d.id,
-      name: d.driver_code ?? `Chauffeur ${String(d.id).slice(0, 6)}`,
+      name: driverName,
       lat: coords.lat,
       lng: coords.lng,
+      heading: d.heading ?? d.location?.heading ?? undefined,
+      speed_kmh: d.speed_kmh ?? d.location?.speedKmh ?? undefined,
       availability: mapAvailability(d.availability_status),
-      vehicle: d.current_vehicle_id ? `Véh. ${d.current_vehicle_id.slice(0, 8)}` : "—",
+      vehicle: vehicleDisplay,
+      vehicle_color: vehicleColor,
+      vehicle_color_hex: vehicleColor,
       zone_name: d.metadata?.zoneLabel,
       active_trip,
     });
@@ -312,6 +402,6 @@ export function mapApiPartnerLiveMapToData(
     filter_options: undefined,
     active_filter: { franchise_id: null, partner_id: null },
     franchise_summary: undefined,
-    realtime: null,
+    realtime: resolvePartnerLiveMapRealtime(response.meta?.realtime, partnerId),
   };
 }

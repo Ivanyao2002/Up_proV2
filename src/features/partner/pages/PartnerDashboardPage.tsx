@@ -9,6 +9,7 @@ import { formatFCFA } from "@/shared/lib/format";
 import { usePartnerDashboard } from "../api/dashboard.queries";
 import { LiveRefreshIndicator } from "@/shared/ui/LiveRefreshIndicator";
 import { PortalDashboardSkeleton } from "@/shared/ui/skeletons";
+import { WeeklyRevenueChart } from "@/shared/ui/WeeklyRevenueChart";
 
 export function PartnerDashboardPage() {
   const { data, isLoading, isError, isFetching, dataUpdatedAt } =
@@ -86,63 +87,57 @@ export function PartnerDashboardPage() {
           </Link>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-2">
-          <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">Flux 7 jours</h2>
-              {(data.chart_flux ?? []).some(d => d.revenue > 0) && (
-                <span className="text-xs text-muted">
-                  Max: {formatFCFA(Math.max(...(data.chart_flux ?? []).map(x => x.revenue)))}
-                </span>
-              )}
-            </div>
-            <div className="mt-4 flex h-36 justify-between gap-1">
-              {(data.chart_flux ?? []).length === 0 ? (
-                <div className="flex h-full w-full items-center justify-center text-xs text-muted">
-                  Aucune donnée disponible
-                </div>
-              ) : (
-                (data.chart_flux ?? []).map((p) => {
-                  const max = Math.max(...(data.chart_flux ?? []).map((x) => x.revenue), 1);
-                  const hasRevenue = p.revenue > 0;
-                  return (
-                    <div key={p.day} className="flex flex-1 flex-col items-center justify-end gap-1 h-full">
-                      <div
-                        className={`w-full max-w-[20px] rounded-t transition-all ${hasRevenue ? 'bg-teal' : 'bg-slate-200 dark:bg-slate-700'}`}
-                        style={{
-                          height: hasRevenue ? `${Math.max((p.revenue / max) * 100, 8)}%` : '4px',
-                        }}
-                        title={`${p.day}: ${formatFCFA(p.revenue)}`}
-                      />
-                      <span className="text-[10px] text-muted leading-none">{p.day}</span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
+        <div className="grid items-stretch gap-5 lg:grid-cols-2">
+          <WeeklyRevenueChart data={data.chart_flux ?? []} />
 
-          <div className="rounded-card border border-border bg-surface shadow-card overflow-hidden">
+          <div className="rounded-card border border-border bg-surface shadow-card overflow-hidden flex flex-col">
             <div className="border-b border-border px-6 py-4">
               <h2 className="text-sm font-semibold">Courses récentes</h2>
             </div>
-            <ul className="divide-y divide-border/50">
-              {(data.recent_trips ?? []).map((trip) => (
-                <li key={trip.id} className="flex items-center justify-between gap-3 px-6 py-3">
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground">{trip.ref}</p>
-                    <p className="truncate text-xs text-muted">
-                      {trip.from_label} → {trip.to_label}
-                    </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-sm font-medium tabular-nums">
-                      {formatFCFA(trip.amount_fcfa)}
-                    </p>
-                    <StatusPill status={trip.status} />
-                  </div>
+            <ul className="divide-y divide-border/50 flex-1">
+              {(data.recent_trips ?? []).length === 0 ? (
+                <li className="flex flex-col items-center justify-center px-6 py-8 h-full">
+                  <p className="text-sm font-medium text-foreground">Aucune course récente</p>
+                  <p className="mt-1 text-xs text-muted">Les dernières courses de votre flotte apparaîtront ici.</p>
                 </li>
-              ))}
+              ) : (
+                (data.recent_trips ?? []).map((trip) => (
+                  <li key={trip.id} className="flex items-center justify-between gap-3 px-6 py-3">
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/partner/orders/${trip.id}`}
+                        className="font-medium text-foreground hover:text-teal transition-colors"
+                      >
+                        {trip.ref}
+                      </Link>
+                      <div className="mt-1 space-y-0.5">
+                        <p className="truncate text-xs" title={trip.from_label}>
+                          <span className="text-muted">Départ · </span>
+                          <span className="text-foreground/90">{trip.from_label}</span>
+                        </p>
+                        <p className="truncate text-xs" title={trip.to_label}>
+                          <span className="text-muted">Arrivée · </span>
+                          <span className="text-foreground/90">{trip.to_label}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1.5">
+                      <p className="text-sm font-medium tabular-nums">
+                        {formatFCFA(trip.amount_fcfa)}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <StatusPill status={trip.status} />
+                        <Link
+                          href={`/partner/orders/${trip.id}`}
+                          className="text-xs font-medium text-teal hover:text-teal-dark hover:underline"
+                        >
+                          Détails
+                        </Link>
+                      </div>
+                    </div>
+                  </li>
+                ))
+              )}
             </ul>
             <div className="border-t border-border bg-slate-50/50 px-6 py-3">
               <div className="flex items-center justify-between">

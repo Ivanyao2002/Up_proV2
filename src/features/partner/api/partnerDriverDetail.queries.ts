@@ -47,12 +47,13 @@ export function usePartnerDriverLive(id: string, enabled = true) {
   });
 }
 
-export function usePartnerLiveMap() {
+export function usePartnerLiveMap(options?: { pollSnapshot?: boolean }) {
   const { ownerId } = useScope();
+  const pollSnapshot = options?.pollSnapshot ?? true;
   return useQuery({
     queryKey: partnerLiveMapKeys.all,
     queryFn: () => partnerLiveMapService.get(ownerId!),
     enabled: ownerId != null,
-    refetchInterval: 30_000,
+    refetchInterval: pollSnapshot ? 30_000 : false,
   });
 }

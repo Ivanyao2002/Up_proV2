@@ -87,6 +87,7 @@ export const partnerDriversService = {
       };
       wallet?: {
         balance_fcfa?: number;
+        balance_cached_xof?: number;
         balanceCachedXof?: number;
         withdrawableBalanceXof?: number;
         withdrawable_balance_xof?: number;
@@ -120,26 +121,27 @@ export const partnerDriversService = {
     const d = raw.driver ?? {};
     // Le profil peut être imbriqué dans driver.profile ou au niveau racine
     const p = (d.profile as typeof raw.profile) ?? raw.profile ?? {};
-    const w = raw.wallet;
+    const w = (d.wallet as typeof raw.wallet) ?? raw.wallet;
     const perf = raw.performance ?? {};
 
     const walletBalance =
       (d.wallet_balance_xof as number | null) ??
       w?.balance_fcfa ??
+      w?.balance_cached_xof ??
       w?.balanceCachedXof ??
-      (w?.withdrawableBalanceXof != null && w?.nonWithdrawableBalanceXof != null
-        ? (w.withdrawableBalanceXof + w.nonWithdrawableBalanceXof)
+      (w?.withdrawable_balance_xof != null && w?.non_withdrawable_balance_xof != null
+        ? (w.withdrawable_balance_xof + w.non_withdrawable_balance_xof)
         : undefined) ??
       0;
 
     const walletWithdrawable =
-      w?.withdrawableBalanceXof ??
       w?.withdrawable_balance_xof ??
+      w?.withdrawableBalanceXof ??
       null;
 
     const walletNonWithdrawable =
-      w?.nonWithdrawableBalanceXof ??
       w?.non_withdrawable_balance_xof ??
+      w?.nonWithdrawableBalanceXof ??
       null;
 
     const ratingAvg =
@@ -202,6 +204,10 @@ export const partnerDriversService = {
       accepts_cash: (d.accepts_cash as boolean) ?? true,
       accepts_wallet: (d.accepts_wallet as boolean) ?? true,
       last_online_at: (d.last_online_at as string | null) ?? null,
+      vehicle_id:
+        (d.current_vehicle_id as string | null) ??
+        (d.vehicle as Record<string, unknown>)?.id as string | null ??
+        null,
       current_vehicle_id:
         (d.current_vehicle_id as string | null) ?? null,
       vehicle_label:
@@ -209,10 +215,10 @@ export const partnerDriversService = {
         (() => {
           const v = d.vehicle as Record<string, unknown> | null | undefined;
           if (!v) return null;
-          const brand = (v.brand as Record<string, unknown>)?.name ?? "";
-          const model = (v.model as Record<string, unknown>)?.name ?? "";
+          const brand = (v.brand as string) ?? (v.brand as Record<string, unknown>)?.name ?? (v.brandLabel as string) ?? "";
+          const model = (v.model as string) ?? (v.model as Record<string, unknown>)?.name ?? (v.modelLabel as string) ?? "";
           const plate = (v.plate_number as string) ?? "";
-          return [brand, model, plate].filter(Boolean).join(" ") || plate || null;
+          return [brand, model].filter(Boolean).join(" ") || plate || null;
         })() ??
         null,
       zone: raw.zoneName ?? null,
@@ -324,6 +330,58 @@ export const partnerDriversService = {
       partnerId: context?.partnerId ?? resolvePartnerIdForDrivers(),
       rideCategoryCode: context?.rideCategoryCode,
       phoneVerified: context?.phoneVerified,
+    });
+  },
+
+  update: async (
+    driverId: string,
+    data: Partial<CreateDriverPayload>
+  ): Promise<DriverDetail> => {
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable.");
+    }
+
+    const body: Record<string, string | undefined> = {
+      firstName: data.first_name?.trim(),
+      lastName: data.last_name?.trim(),
+      phone: data.phone ? normalizePhoneE164(data.phone) : undefined,
+      email: data.email?.trim(),
+      zone: data.zone?.trim(),
+    };
+
+    await apiClient.patch(
+      LINKS.partner.drivers.getById(partnerId, driverId),
+      body
+    );
+
+    return partnerDriversService.getById(driverId);
+  },
+
+  setAvailability: async (
+    driverId: string,
+    availability: "online" | "offline"
+  ): Promise<void> => {
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable.");
+    }
+
+    await apiClient.patch(LINKS.partner.drivers.getById(partnerId, driverId), {
+      availability_status: availability,
+      availability,
+    });
+  },
+
+  suspend: async (driverId: string): Promise<void> => {
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable.");
+    }
+
+    await apiClient.patch(LINKS.partner.drivers.getById(partnerId, driverId), {
+      account_status: "suspended",
+      approval_status: "suspended",
     });
   },
 };

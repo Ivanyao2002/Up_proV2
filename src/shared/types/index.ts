@@ -11,6 +11,8 @@ export type PortalRole =
 
 export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
 
+export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
+
 export interface User {
   id: string | number;
   name: string;
@@ -793,6 +795,7 @@ export interface VehicleDetail extends Vehicle {
   owner_id: number | string;
   registration_document: KycDocument;
   approved_at?: string | null;
+  driver_id?: string | null;
 }
 
 /** Fiche véhicule admin — GET /v1/partners/{partnerId}/vehicles/{vehicleId} */

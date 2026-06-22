@@ -46,6 +46,19 @@ export function usePartnerWalletWithdraw() {
   });
 }
 
+export function usePartnerWalletTopUp() {
+  const qc = useQueryClient();
+  const { ownerId } = useScope();
+  return useMutation({
+    mutationFn: (payload: { amount_fcfa: number; method: "mobile_money" | "card" }) =>
+      partnerWalletService.topUp(ownerId!, payload.amount_fcfa, payload.method),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: ["partner", "wallet"] });
+      notificationService.success(data.message);
+    },
+  });
+}
+
 export function usePartnerDriverRecharge() {
   const qc = useQueryClient();
   const { ownerId } = useScope();
