@@ -9,11 +9,17 @@ import { normalizeSocketIoUrl } from "@/features/ops/api/liveMap.realtime";
 import {
   CHAT_SOCKET_EVENT,
   TICKET_SOCKET_EVENT,
+  DISPUTE_MESSAGE_EVENT,
+  DISPUTE_UPDATED_EVENT,
   parseChatSocketPayload,
   parseTicketSocketPayload,
+  parseDisputeSocketMessagePayload,
+  parseDisputeSocketUpdatedPayload,
   type ChatSocketMessagePayload,
   type ChatSocketStatus,
   type TicketSocketUpdatedPayload,
+  type DisputeSocketMessagePayload,
+  type DisputeSocketUpdatedPayload,
 } from "../api/chatSocket.realtime";
 
 interface ChatSocketStore {
@@ -34,6 +40,8 @@ interface UseSupportChatSocketOptions {
   enabled?: boolean;
   onMessage?: (payload: ChatSocketMessagePayload) => void;
   onTicketUpdated?: (payload: TicketSocketUpdatedPayload) => void;
+  onDisputeMessage?: (payload: DisputeSocketMessagePayload) => void;
+  onDisputeUpdated?: (payload: DisputeSocketUpdatedPayload) => void;
 }
 
 function resolveSocketUserId(userId: string | number | undefined): string | null {
@@ -45,6 +53,8 @@ export function useSupportChatSocket({
   enabled = true,
   onMessage,
   onTicketUpdated,
+  onDisputeMessage,
+  onDisputeUpdated,
 }: UseSupportChatSocketOptions = {}) {
   const token = useAuthStore((s) => s.token);
   const userId = useAuthStore((s) => s.user?.id);
@@ -56,6 +66,10 @@ export function useSupportChatSocket({
   onMessageRef.current = onMessage;
   const onTicketUpdatedRef = useRef(onTicketUpdated);
   onTicketUpdatedRef.current = onTicketUpdated;
+  const onDisputeMessageRef = useRef(onDisputeMessage);
+  onDisputeMessageRef.current = onDisputeMessage;
+  const onDisputeUpdatedRef = useRef(onDisputeUpdated);
+  onDisputeUpdatedRef.current = onDisputeUpdated;
 
   const updateStatus = (next: ChatSocketStatus) => {
     setStatus(next);
@@ -121,6 +135,16 @@ export function useSupportChatSocket({
       if (!payload) return;
       onTicketUpdatedRef.current?.(payload);
     };
+    const onDisputeMessageEvent = (raw: unknown) => {
+      const payload = parseDisputeSocketMessagePayload(raw);
+      if (!payload) return;
+      onDisputeMessageRef.current?.(payload);
+    };
+    const onDisputeUpdatedEvent = (raw: unknown) => {
+      const payload = parseDisputeSocketUpdatedPayload(raw);
+      if (!payload) return;
+      onDisputeUpdatedRef.current?.(payload);
+    };
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
@@ -128,6 +152,8 @@ export function useSupportChatSocket({
     socket.on("join_denied", onJoinDenied);
     socket.on(CHAT_SOCKET_EVENT, onChatMessage);
     socket.on(TICKET_SOCKET_EVENT, onTicketUpdatedEvent);
+    socket.on(DISPUTE_MESSAGE_EVENT, onDisputeMessageEvent);
+    socket.on(DISPUTE_UPDATED_EVENT, onDisputeUpdatedEvent);
 
     return () => {
       socket.off("connect", onConnect);
@@ -136,6 +162,8 @@ export function useSupportChatSocket({
       socket.off("join_denied", onJoinDenied);
       socket.off(CHAT_SOCKET_EVENT, onChatMessage);
       socket.off(TICKET_SOCKET_EVENT, onTicketUpdatedEvent);
+      socket.off(DISPUTE_MESSAGE_EVENT, onDisputeMessageEvent);
+      socket.off(DISPUTE_UPDATED_EVENT, onDisputeUpdatedEvent);
       socket.disconnect();
       updateStatus("idle");
       setConnected(false);

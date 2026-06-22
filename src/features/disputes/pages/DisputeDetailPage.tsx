@@ -102,9 +102,15 @@ export function DisputeDetailPage({ disputeId }: Props) {
               className="flex flex-col gap-3 overflow-y-auto p-5"
               style={{ maxHeight: "420px" }}
             >
-              {data.messages.map((msg) => (
-                <MessageBubble key={msg.id} msg={msg} />
-              ))}
+              {data.messages.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted">
+                  Aucun message pour le moment.
+                </p>
+              ) : (
+                data.messages.map((msg) => (
+                  <MessageBubble key={msg.id} msg={msg} />
+                ))
+              )}
             </div>
 
             {/* Composer */}
@@ -203,8 +209,8 @@ export function DisputeDetailPage({ disputeId }: Props) {
           {/* Prise en charge */}
           <div className="rounded-card border border-border bg-surface p-5 shadow-card">
             <h3 className="text-sm font-semibold text-heading">Prise en charge</h3>
-            {data.assigned_to ? (
-              <p className="mt-2 text-sm text-foreground">{data.assigned_to}</p>
+            {isAssigned ? (
+              <p className="mt-2 text-sm text-foreground">{data.assigned_to ?? "Agent assigné"}</p>
             ) : (
               <>
                 <p className="mt-2 text-xs text-muted">Aucun agent assigné.</p>
