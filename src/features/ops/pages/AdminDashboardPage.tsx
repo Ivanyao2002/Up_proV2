@@ -89,13 +89,14 @@ export function AdminDashboardPage() {
               value={`${data.trips_in_progress_today} en cours`}
               hint={`${data.trips_completed_today} terminées · ${data.trips_cancelled_today} annulées · ${data.trips_today} au total`}
             />
-            <AdminNetworkActivityPanel
-              activeZone={data.active_zone}
-              franchiseActivity={data.franchise_activity ?? []}
-              scopedToFranchise={franchiseId !== null}
-            />
           </div>
         </div>
+
+        <AdminNetworkActivityPanel
+          activeZone={data.active_zone}
+          franchiseActivity={data.franchise_activity ?? []}
+          scopedToFranchise={franchiseId !== null}
+        />
 
         <div className="grid gap-5 md:grid-cols-3">
           <KpiCard

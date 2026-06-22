@@ -107,6 +107,79 @@ function readCoord(
   return { lat, lng };
 }
 
+function readRideField(
+  ride: ApiLiveMapOrderBase & Record<string, unknown>,
+  snake: string,
+  camel: string
+): string | undefined {
+  const snakeVal = ride[snake];
+  if (typeof snakeVal === "string" && snakeVal.trim()) return snakeVal.trim();
+  const camelVal = ride[camel];
+  if (typeof camelVal === "string" && camelVal.trim()) return camelVal.trim();
+  return undefined;
+}
+
+function readRideNumber(
+  ride: ApiLiveMapOrderBase & Record<string, unknown>,
+  ...keys: string[]
+): number | null | undefined {
+  for (const key of keys) {
+    const v = ride[key];
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+  }
+  return undefined;
+}
+
+function resolveTripRouteFields(
+  ride: ApiLiveMapOrderBase,
+  tracking?: Record<string, unknown> | null
+) {
+  const r = ride as ApiLiveMapOrderBase & Record<string, unknown>;
+  const t = tracking ?? {};
+
+  const from_label =
+    readRideField(r, "pickup_address", "pickupAddress") ??
+    (typeof t.pickup_address === "string" && t.pickup_address.trim()
+      ? t.pickup_address.trim()
+      : undefined) ??
+    (typeof t.pickupAddress === "string" && t.pickupAddress.trim()
+      ? t.pickupAddress.trim()
+      : undefined) ??
+    "Prise en charge";
+
+  const to_label =
+    readRideField(r, "dropoff_address", "dropoffAddress") ??
+    (typeof t.dropoff_address === "string" && t.dropoff_address.trim()
+      ? t.dropoff_address.trim()
+      : undefined) ??
+    (typeof t.dropoffAddress === "string" && t.dropoffAddress.trim()
+      ? t.dropoffAddress.trim()
+      : undefined) ??
+    "Destination";
+
+  const from_coords =
+    readCoord(
+      readRideNumber(r, "pickup_latitude", "pickupLatitude") ??
+        (typeof t.pickup_latitude === "number" ? t.pickup_latitude : undefined) ??
+        (typeof t.pickupLatitude === "number" ? t.pickupLatitude : undefined),
+      readRideNumber(r, "pickup_longitude", "pickupLongitude") ??
+        (typeof t.pickup_longitude === "number" ? t.pickup_longitude : undefined) ??
+        (typeof t.pickupLongitude === "number" ? t.pickupLongitude : undefined)
+    ) ?? undefined;
+
+  const to_coords =
+    readCoord(
+      readRideNumber(r, "dropoff_latitude", "dropoffLatitude") ??
+        (typeof t.dropoff_latitude === "number" ? t.dropoff_latitude : undefined) ??
+        (typeof t.dropoffLatitude === "number" ? t.dropoffLatitude : undefined),
+      readRideNumber(r, "dropoff_longitude", "dropoffLongitude") ??
+        (typeof t.dropoff_longitude === "number" ? t.dropoff_longitude : undefined) ??
+        (typeof t.dropoffLongitude === "number" ? t.dropoffLongitude : undefined)
+    ) ?? undefined;
+
+  return { from_label, to_label, from_coords, to_coords };
+}
+
 function mapOfferOutcome(status?: string): TripMatchingOutcome {
   const key = String(status ?? "").toLowerCase();
   if (key === "accepted") return "accepted";
@@ -364,15 +437,16 @@ export function mapAdminOrderDetailToTripDetail(
     payload.timeline?.current ?? ride.status
   );
   const vehicleFields = extractTripVehicleFields(payload);
+  const route = resolveTripRouteFields(ride, payload.tracking);
 
   return {
     id: ride.id,
     ref: payload.ref ?? orderRef(ride),
     service: mapApiServiceType(ride.service_type ?? payload.serviceType),
-    from_label: ride.pickup_address ?? "Prise en charge",
-    to_label: ride.dropoff_address ?? "Destination",
-    from_coords: readCoord(ride.pickup_latitude, ride.pickup_longitude),
-    to_coords: readCoord(ride.dropoff_latitude, ride.dropoff_longitude),
+    from_label: route.from_label,
+    to_label: route.to_label,
+    from_coords: route.from_coords,
+    to_coords: route.to_coords,
     client_name: payload.clientName ?? ride.client?.displayName ?? "Client",
     client_id: resolveOrderClientId(ride),
     client_phone: payload.clientPhone ?? ride.client?.phone ?? undefined,
