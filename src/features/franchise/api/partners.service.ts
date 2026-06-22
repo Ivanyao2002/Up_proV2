@@ -17,6 +17,7 @@ import {
   uploadPartnerCreateDocuments,
   type PartnerCreateDocumentUpload,
 } from "@/features/network/api/partnerCreateDocuments.v1";
+import type { PartnerLegalForm } from "@/features/network/lib/partnerLegalForm";
 import type { Driver, Paginated, Partner, Trip } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import {
@@ -50,6 +51,11 @@ export interface CreatePartnerPayload {
   contact_phone: string;
   city: string;
   address?: string;
+  /** Forme juridique du partenaire. */
+  legal_form?: PartnerLegalForm;
+  /** Gérant (personne morale uniquement). */
+  manager_first_name?: string;
+  manager_last_name?: string;
 }
 
 export interface FranchisePartnerCreateResult extends FranchisePartnerDetail {
@@ -225,6 +231,13 @@ export const franchisePartnersService = {
               contactPhone: payload.contact_phone.trim(),
               phone: payload.contact_phone.trim(),
             }
+          : {}),
+        ...(payload.legal_form ? { legalForm: payload.legal_form } : {}),
+        ...(payload.legal_form === "COMPANY" && payload.manager_first_name?.trim()
+          ? { managerFirstName: payload.manager_first_name.trim() }
+          : {}),
+        ...(payload.legal_form === "COMPANY" && payload.manager_last_name?.trim()
+          ? { managerLastName: payload.manager_last_name.trim() }
           : {}),
         ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
       }

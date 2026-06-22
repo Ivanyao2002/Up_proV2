@@ -167,6 +167,13 @@ export interface Partner {
   /** FLEET | FREIGHT | RENTAL | MIXED — `GET /v1/partners/{id}` */
   partner_type?: string | null;
   commission_rate?: number | null;
+  /** Forme juridique — INDIVIDUAL (personne physique) | COMPANY (personne morale). */
+  legal_form?: "INDIVIDUAL" | "COMPANY" | null;
+  /** Gérant / représentant légal (renseigné uniquement pour une personne morale). */
+  manager_first_name?: string | null;
+  manager_last_name?: string | null;
+  /** « Prénom Nom » du gérant, calculé côté API. */
+  manager_display_name?: string | null;
 }
 
 export type TransactionType =

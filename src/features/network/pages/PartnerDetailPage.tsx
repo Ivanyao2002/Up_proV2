@@ -27,6 +27,7 @@ import {
 import { PartnerCommissionRulesPanel } from "@/features/finance/components/PartnerCommissionRulesPanel";
 import { PartnerDocumentsPanel } from "../components/PartnerDocumentsPanel";
 import { formatPartnerTypeLabel } from "../lib/partnerType";
+import { formatPartnerLegalFormLabel } from "../lib/partnerLegalForm";
 
 interface PartnerDetailPageProps {
   partnerId: string;
@@ -358,6 +359,14 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
                   {formatPartnerTypeLabel(data.partner_type)}
                 </dd>
               </div>
+              {data.legal_form ? (
+                <div className="flex justify-between gap-2">
+                  <dt>Forme juridique</dt>
+                  <dd className="text-foreground">
+                    {formatPartnerLegalFormLabel(data.legal_form)}
+                  </dd>
+                </div>
+              ) : null}
               <div className="flex justify-between gap-2">
                 <dt>Commission</dt>
                 <dd className="text-foreground">
@@ -366,6 +375,38 @@ export function PartnerDetailPage({ partnerId }: PartnerDetailPageProps) {
               </div>
             </dl>
           </div>
+
+          {data.legal_form === "COMPANY" ? (
+            <div className="rounded-card border border-border bg-surface p-5 text-sm shadow-card">
+              <h3 className="font-semibold">Gérant</h3>
+              {data.manager_display_name ? (
+                <dl className="mt-3 space-y-2 text-muted">
+                  <div className="flex justify-between gap-2">
+                    <dt>Nom complet</dt>
+                    <dd className="text-right text-foreground">
+                      {data.manager_display_name}
+                    </dd>
+                  </div>
+                  {data.manager_first_name ? (
+                    <div className="flex justify-between gap-2">
+                      <dt>Prénom</dt>
+                      <dd className="text-foreground">{data.manager_first_name}</dd>
+                    </div>
+                  ) : null}
+                  {data.manager_last_name ? (
+                    <div className="flex justify-between gap-2">
+                      <dt>Nom</dt>
+                      <dd className="text-foreground">{data.manager_last_name}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+              ) : (
+                <p className="mt-2 text-muted">
+                  Aucun gérant renseigné pour cette personne morale.
+                </p>
+              )}
+            </div>
+          ) : null}
 
           <div className="rounded-card border border-border bg-surface p-5 text-sm shadow-card">
             <h3 className="font-semibold">Coordonnées</h3>

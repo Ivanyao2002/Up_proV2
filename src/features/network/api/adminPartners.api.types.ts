@@ -21,6 +21,10 @@ export interface ApiAdminPartnerItem {
   cityLabel?: string | null;
   driversCount?: number | null;
   partner_type?: string | null;
+  legal_form?: string | null;
+  manager_first_name?: string | null;
+  manager_last_name?: string | null;
+  manager_display_name?: string | null;
   city_id?: string | null;
   contact_phone?: string | null;
   contact_email?: string | null;
@@ -63,6 +67,11 @@ export interface ApiPartnerCreateBody {
   phone?: string;
   firstName?: string;
   lastName?: string;
+  /** Forme juridique : `INDIVIDUAL` | `COMPANY` (défaut API : INDIVIDUAL). */
+  legalForm?: string;
+  /** Gérant (personne morale uniquement) — ignoré côté API si INDIVIDUAL. */
+  managerFirstName?: string;
+  managerLastName?: string;
   partnerType?: string;
   commissionRate?: number;
   address?: string;

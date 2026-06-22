@@ -23,6 +23,7 @@ import {
 
 import type { PartnerType } from "@/features/network/lib/partnerType";
 import { DEFAULT_PARTNER_TYPE } from "@/features/network/lib/partnerType";
+import type { PartnerLegalForm } from "@/features/network/lib/partnerLegalForm";
 import {
   uploadPartnerCreateDocuments,
   type PartnerCreateDocumentUpload,
@@ -46,6 +47,11 @@ export type PartnerCreatePayload = {
   status?: Partner["status"];
   partner_type?: PartnerType;
   commission_rate?: number;
+  /** Forme juridique du partenaire. */
+  legal_form?: PartnerLegalForm;
+  /** Gérant (personne morale uniquement). */
+  manager_first_name?: string;
+  manager_last_name?: string;
 };
 
 export type PartnerCreateResult = Partner & {
@@ -115,6 +121,13 @@ export const partnersService = {
         : {}),
       ...(payload.first_name?.trim() ? { firstName: payload.first_name.trim() } : {}),
       ...(payload.last_name?.trim() ? { lastName: payload.last_name.trim() } : {}),
+      ...(payload.legal_form ? { legalForm: payload.legal_form } : {}),
+      ...(payload.legal_form === "COMPANY" && payload.manager_first_name?.trim()
+        ? { managerFirstName: payload.manager_first_name.trim() }
+        : {}),
+      ...(payload.legal_form === "COMPANY" && payload.manager_last_name?.trim()
+        ? { managerLastName: payload.manager_last_name.trim() }
+        : {}),
       ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
       ...(payload.status ? { status: payload.status } : {}),
       ...(payload.commission_rate != null && !Number.isNaN(payload.commission_rate)
