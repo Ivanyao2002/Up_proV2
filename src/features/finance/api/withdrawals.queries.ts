@@ -1,24 +1,21 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useComptaApiScope } from "@/features/compta/api/useComptaApiScope";
 import { withdrawalsKeys } from "./withdrawals.keys";
 import { withdrawalsService } from "./withdrawals.service";
 import type { ListParams } from "@/shared/types/listParams";
 
 export function useWithdrawalsList(params?: ListParams) {
-  const scope = useComptaApiScope();
   return useQuery({
-    queryKey: [...withdrawalsKeys.list(params), scope],
-    queryFn: () => withdrawalsService.list(scope, params),
+    queryKey: withdrawalsKeys.list(params),
+    queryFn: () => withdrawalsService.listAdmin(params),
   });
 }
 
 export function useWithdrawalDetail(id: string) {
-  const scope = useComptaApiScope();
   return useQuery({
-    queryKey: [...withdrawalsKeys.detail(id), scope],
-    queryFn: () => withdrawalsService.getById(scope, id),
+    queryKey: withdrawalsKeys.detail(id),
+    queryFn: () => withdrawalsService.getById(id),
     enabled: Boolean(id),
   });
 }

@@ -10,12 +10,14 @@ import { Timeline, type TimelineItem } from "@/shared/ui/Timeline";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import type { ResolveDisputePayload } from "../api/disputes.service";
 import { useDisputeDetail, useResolveDispute } from "../api/disputes.queries";
+import { useSupportPaths } from "../lib/supportPaths";
 
 interface SupportDisputeDetailPageProps {
   disputeId: string;
 }
 
 export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPageProps) {
+  const paths = useSupportPaths();
   const [showResolve, setShowResolve] = useState(false);
   const [outcome, setOutcome] = useState<ResolveDisputePayload["outcome"]>("partial_refund");
   const [refundFcfa, setRefundFcfa] = useState("");
@@ -32,7 +34,7 @@ export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPage
     return (
       <p className="text-sm text-red-600">
         Litige introuvable.{" "}
-        <Link href="/admin/support/tickets" className="text-teal underline">
+        <Link href={paths.tickets} className="text-teal underline">
           Retour aux tickets
         </Link>
       </p>
@@ -84,7 +86,7 @@ export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPage
       />
 
       <p className="mb-6 text-sm">
-        <Link href="/admin/support/tickets" className="text-teal hover:underline">
+        <Link href={paths.tickets} className="text-teal hover:underline">
           ← Retour aux tickets
         </Link>
         {" · "}
@@ -154,7 +156,7 @@ export function SupportDisputeDetailPage({ disputeId }: SupportDisputeDetailPage
             </dl>
           </div>
 
-          <Link href={`/admin/ops/trips/${data.trip_id}/forensic`}>
+          <Link href={paths.tripForensic(data.trip_id)}>
             <Button variant="secondary" className="w-full !text-xs">
               Voir forensic GPS
             </Button>

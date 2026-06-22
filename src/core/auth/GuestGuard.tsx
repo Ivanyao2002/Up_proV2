@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "./authStore";
-import { DASHBOARD_BY_PORTAL } from "./authRoutes";
+import { DASHBOARD_BY_PORTAL, canAccessPortal } from "./authRoutes";
 import { readReturnUrlFromLocation } from "./returnUrl";
 import { useAuthHydrated } from "./useAuthHydrated";
 import type { PortalRole } from "@/shared/types";
@@ -37,12 +37,12 @@ export function GuestGuard({ portal, children }: GuestGuardProps) {
     if (!hydrated || !isAuthenticated || !user) return;
 
     const fallback =
-      portal && user.role === portal
+      portal && canAccessPortal(user.role, portal)
         ? DASHBOARD_BY_PORTAL[portal]
         : DASHBOARD_BY_PORTAL[user.role];
     const target = readReturnUrlFromLocation(
       fallback,
-      portal && user.role === portal ? portal : user.role
+      portal && canAccessPortal(user.role, portal) ? portal : user.role
     );
 
     router.replace(target);

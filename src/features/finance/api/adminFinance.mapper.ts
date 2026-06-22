@@ -77,6 +77,15 @@ function mapCommissionStatus(value?: string | null): CommissionRow["status"] {
   return key === "posted" || key === "paid" ? "paid" : "pending";
 }
 
+function mapCommissionStatusQuery(
+  status?: ListParams["status"]
+): string | undefined {
+  if (!status || status === "all") return undefined;
+  if (status === "paid") return "posted";
+  if (status === "pending") return "calculated";
+  return status;
+}
+
 function mapReconciliationStatus(
   value?: string | null
 ): ReconciliationRow["status"] {
@@ -100,7 +109,8 @@ function mapListResponse<TItem, TUi>(
   params: ListParams | undefined,
   mapItem: (item: TItem) => TUi
 ): Paginated<TUi> {
-  const mapped = (response.items ?? []).map(mapItem);
+  const source = response.items ?? response.commissions ?? [];
+  const mapped = source.map(mapItem);
   if (response.pagination) {
     return {
       data: mapped,
@@ -220,19 +230,24 @@ function resolveFranchiseName(item: ApiFinanceTransactionItem): string {
 function resolveTransactionDriverId(
   item: ApiFinanceTransactionItem
 ): string | undefined {
-  const driverFromPayload = (item as ApiFinanceTransactionItem & {
-    driver?: { id?: string | null } | null;
-  }).driver?.id;
-  if (typeof driverFromPayload === "string" && driverFromPayload.trim()) {
-    return driverFromPayload.trim();
-  }
-
   const ownerId = item.wallet?.owner?.id?.trim();
   if (!ownerId) return undefined;
+
   const ownerType = String(item.wallet?.ownerType ?? "").toLowerCase();
-  if (ownerType === "driver") {
+  if (ownerType === "driver" || ownerType.includes("driver")) {
     return ownerId;
   }
+
+  const entryType = String(item.entry_type ?? item.type ?? "").toLowerCase();
+  if (entryType.includes("driver")) {
+    return ownerId;
+  }
+
+  const entityType = String(item.entity_type ?? "").toLowerCase();
+  if (entityType === "driver" || entityType.includes("driver")) {
+    return ownerId;
+  }
+
   return undefined;
 }
 
@@ -332,14 +347,21 @@ export function mapFinanceWalletItem(item: ApiFinanceWalletItem): PlatformWallet
 }
 
 export function mapFinanceCommissionItem(item: ApiFinanceCommissionItem): CommissionRow {
+  const totalCommission =
+    item.commission_fcfa ??
+    (item.platform_amount_xof ?? 0) +
+      (item.franchise_amount_xof ?? 0) +
+      (item.partner_amount_xof ?? 0) +
+      (item.fiscality_amount_xof ?? 0);
+
   return {
     id: item.id,
     period_label: item.period_label ?? "—",
-    franchise_id: item.franchise_id as unknown as number,
+    franchise_id: (item.franchise_id ?? "") as unknown as number,
     franchise_name: item.franchise_name?.trim() || "—",
     trips_count: item.trips_count ?? 0,
     gross_fcfa: item.gross_fcfa ?? item.gross_amount_xof ?? 0,
-    commission_fcfa: item.commission_fcfa ?? item.platform_amount_xof ?? 0,
+    commission_fcfa: totalCommission,
     rate_pct: item.rate_pct ?? 0,
     status: mapCommissionStatus(item.status),
   };
@@ -400,8 +422,17 @@ export function mapFinanceCommissionsResponse(
   filterOptions: TripsScopeFilterOptions
 ) {
   const page = mapListResponse(response, params, mapFinanceCommissionItem);
-  return { ...page, filter_options: filterOptions };
+  const embedded = mapOrdersFilterOptions(
+    response.filterOptions ?? response.filter_options
+  );
+  return {
+    ...page,
+    filter_options:
+      embedded.franchises.length > 0 ? embedded : filterOptions,
+  };
 }
+
+export { mapCommissionStatusQuery };
 
 export {
   mapListResponse as mapFinanceListResponse,

@@ -14,7 +14,9 @@ import {
 } from "./mapboxMarkerElement";
 import {
   HOT_ZONES_CORE,
+  HOT_ZONES_FILL,
   HOT_ZONES_GLOW,
+  HOT_ZONES_OUTLINE,
   hotZonePopupHtml,
   syncHotZonesLayers,
 } from "./mapboxHotZones";
@@ -27,6 +29,7 @@ import {
   type DriverMotionMarker,
 } from "./mapboxDriverMotion";
 import type { MapboxPointFeature } from "./mapboxMarkers";
+import { shouldSmoothDriverMotion } from "./mapboxMarkers";
 
 mapboxgl.accessToken = env.mapboxToken;
 
@@ -151,7 +154,7 @@ export function MapboxMap({
 
   useEffect(() => {
     if (!ready || !env.mapboxToken || tripRoutes.length === 0) {
-      setRouteCoords(new Map());
+      setRouteCoords((prev) => (prev.size === 0 ? prev : new Map()));
       return;
     }
 
@@ -250,18 +253,31 @@ export function MapboxMap({
       map.getCanvas().style.cursor = "";
     };
 
+    map.on("click", HOT_ZONES_FILL, onHotZoneClick);
+    map.on("click", HOT_ZONES_OUTLINE, onHotZoneClick);
     map.on("click", HOT_ZONES_GLOW, onHotZoneClick);
     map.on("click", HOT_ZONES_CORE, onHotZoneClick);
+
+    map.on("mouseenter", HOT_ZONES_FILL, setPointer);
+    map.on("mouseenter", HOT_ZONES_OUTLINE, setPointer);
     map.on("mouseenter", HOT_ZONES_GLOW, setPointer);
     map.on("mouseenter", HOT_ZONES_CORE, setPointer);
+    map.on("mouseleave", HOT_ZONES_FILL, resetPointer);
+    map.on("mouseleave", HOT_ZONES_OUTLINE, resetPointer);
     map.on("mouseleave", HOT_ZONES_GLOW, resetPointer);
     map.on("mouseleave", HOT_ZONES_CORE, resetPointer);
 
     return () => {
+      map.off("click", HOT_ZONES_FILL, onHotZoneClick);
+      map.off("click", HOT_ZONES_OUTLINE, onHotZoneClick);
       map.off("click", HOT_ZONES_GLOW, onHotZoneClick);
       map.off("click", HOT_ZONES_CORE, onHotZoneClick);
+      map.off("mouseenter", HOT_ZONES_FILL, setPointer);
+      map.off("mouseenter", HOT_ZONES_OUTLINE, setPointer);
       map.off("mouseenter", HOT_ZONES_GLOW, setPointer);
       map.off("mouseenter", HOT_ZONES_CORE, setPointer);
+      map.off("mouseleave", HOT_ZONES_FILL, resetPointer);
+      map.off("mouseleave", HOT_ZONES_OUTLINE, resetPointer);
       map.off("mouseleave", HOT_ZONES_GLOW, resetPointer);
       map.off("mouseleave", HOT_ZONES_CORE, resetPointer);
       popup.remove();
@@ -289,7 +305,9 @@ export function MapboxMap({
       const target: [number, number] = [feature.lng, feature.lat];
       const existing = markersById.get(feature.id);
       const smoothDriver =
-        animateDriverMoves && feature.kind === "driver";
+        animateDriverMoves &&
+        feature.kind === "driver" &&
+        shouldSmoothDriverMotion(feature);
 
       if (existing) {
         updateLiveMapMarkerElement(existing.root, feature);

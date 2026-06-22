@@ -38,9 +38,11 @@ import {
   useActivateFranchisePartner,
   useSuspendFranchisePartner,
 } from "../api/partners.queries";
+import { PartnerDocumentsPanel } from "@/features/network/components/PartnerDocumentsPanel";
 
 const TABS = [
   { id: "overview", label: "Aperçu" },
+  { id: "documents", label: "Documents" },
   { id: "drivers", label: "Chauffeurs" },
   { id: "vehicles", label: "Véhicules" },
   { id: "trips", label: "Courses" },
@@ -600,6 +602,11 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
               </div>
             </aside>
           </div>
+        )}
+
+        {/* ── Documents ── */}
+        {tab === "documents" && (
+          <PartnerDocumentsPanel partnerId={partnerId} canUpload canReview />
         )}
 
         {/* ── Chauffeurs ── */}

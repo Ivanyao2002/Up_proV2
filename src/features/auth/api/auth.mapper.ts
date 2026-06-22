@@ -1,19 +1,17 @@
-import type { AuthSession, PortalRole, Scope, User } from "@/shared/types";
+import type { AuthSession, PartnerType, PortalRole, Scope, User } from "@/shared/types";
 import type {
   ApiAuthLoginResponse,
   ApiAuthMeResponse,
   ApiUserType,
 } from "./auth.types";
-import {
-  ADMIN_BACKOFFICE_PERMISSIONS,
-  COMPTA_BACKOFFICE_PERMISSIONS,
-  FRANCHISE_BACKOFFICE_PERMISSIONS,
-  PARTNER_BACKOFFICE_PERMISSIONS,
-} from "./auth.permissions";
+import { ADMIN_BACKOFFICE_PERMISSIONS, COMPTA_PORTAL_PERMISSIONS, REPORTING_PORTAL_PERMISSIONS, SUPPORT_PORTAL_PERMISSIONS } from "./auth.permissions";
 
 const PORTAL_BY_USER_TYPE: Record<string, PortalRole> = {
   ADMIN: "admin",
   ACCOUNTANT: "compta",
+  COMPTA: "compta",
+  SUPPORT: "support",
+  REPORTING: "reporting",
   PARTNER: "partner",
   FRANCHISE: "franchise",
   DRIVER: "dispatch",
@@ -22,31 +20,46 @@ const PORTAL_BY_USER_TYPE: Record<string, PortalRole> = {
 
 const SCOPE_BY_PORTAL: Record<PortalRole, Scope> = {
   admin: "platform",
-  compta: "accountant",
+  compta: "platform",
+  support: "platform",
+  reporting: "platform",
   franchise: "franchise",
   partner: "owner",
   dispatch: "platform",
 };
 
-function resolvePortal(
-  expectedPortal: PortalRole,
-  userType?: ApiUserType
-): PortalRole {
-  if (!userType) return expectedPortal;
-  const mapped = PORTAL_BY_USER_TYPE[String(userType).toUpperCase()];
-  return mapped ?? expectedPortal;
-}
+/** Portails siège : l'API peut renvoyer ADMIN pour un login dédié. */
+const ADMIN_ALLOWED_LOGIN_PORTALS: PortalRole[] = ["compta", "support", "reporting"];
 
 function defaultPermissions(portal: PortalRole): string[] {
   switch (portal) {
     case "admin":
       return ADMIN_BACKOFFICE_PERMISSIONS;
     case "compta":
-      return COMPTA_BACKOFFICE_PERMISSIONS;
+      return COMPTA_PORTAL_PERMISSIONS;
+    case "support":
+      return SUPPORT_PORTAL_PERMISSIONS;
+    case "reporting":
+      return REPORTING_PORTAL_PERMISSIONS;
     case "partner":
-      return PARTNER_BACKOFFICE_PERMISSIONS;
+      return [
+        "ops.dashboard.view",
+        "ops.trips.view",
+        "ops.map.view",
+        "fleet.drivers.view",
+        "finance.wallets.view",
+      ];
     case "franchise":
-      return FRANCHISE_BACKOFFICE_PERMISSIONS;
+      return [
+        "ops.dashboard.view",
+        "ops.map.view",
+        "ops.trips.view",
+        "ops.dispatch.view",
+        "network.partners.view",
+        "fleet.drivers.view",
+        "fleet.kyc.approve",
+        "finance.wallets.view",
+      ];
     case "dispatch":
       return ["ops.dispatch.view", "ops.trips.view", "ops.map.view"];
     default:
@@ -75,8 +88,8 @@ function extractRefreshToken(data: ApiAuthLoginResponse): string | null {
 
 type ApiAuthUserPayload = Pick<
   ApiAuthLoginResponse,
-  "profile" | "user" | "userType" | "role" | "franchiseMember" | "partner" | "franchise" | "permissions"
-> & { scope?: string };
+  "profile" | "user" | "userType" | "role" | "franchiseMember" | "partner" | "franchise"
+>;
 
 function readScopedId(
   payload: Record<string, unknown> | undefined,
@@ -93,11 +106,9 @@ function readScopedId(
 function extractFranchiseId(data: ApiAuthUserPayload): string | undefined {
   const member = data.franchiseMember as Record<string, unknown> | undefined;
   const franchise = data.franchise as Record<string, unknown> | undefined;
-  const access = (data as { access?: Record<string, unknown> }).access;
   return (
     readScopedId(member, ["franchise_id", "franchiseId", "id"]) ??
-    readScopedId(franchise, ["id"]) ??
-    readScopedId(access, ["franchiseId", "franchise_id"])
+    readScopedId(franchise, ["id"])
   );
 }
 
@@ -110,18 +121,36 @@ function extractOwnerId(data: ApiAuthUserPayload): string | undefined {
   );
 }
 
-function resolveScope(portal: PortalRole, apiScope?: string): Scope {
-  if (apiScope === "accountant") return "accountant";
-  return SCOPE_BY_PORTAL[portal];
+function extractPartnerType(data: ApiAuthUserPayload): PartnerType | undefined {
+  const partner = data.partner as Record<string, unknown> | undefined;
+  const raw = partner?.["partner_type"] ?? partner?.["type"] ?? partner?.["partnerType"];
+  if (!raw) return undefined;
+  const upper = String(raw).toUpperCase();
+  if (upper === "FLEET" || upper === "RENTAL" || upper === "FREIGHT" || upper === "MIXED") {
+    return upper as PartnerType;
+  }
+  return undefined;
 }
 
-function resolvePermissions(portal: PortalRole, apiPermissions: string[]): string[] {
-  const defaults = defaultPermissions(portal);
-  // Catalogue nav front toujours garanti ; l'API peut ajouter des droits ou utiliser
-  // un vocabulaire différent — ne jamais remplacer entièrement les defaults.
-  if (portal === "admin") return defaults;
-  if (apiPermissions.length === 0) return defaults;
-  return [...new Set([...defaults, ...apiPermissions])];
+function partnerPermissions(type: PartnerType | undefined): string[] {
+  const base = [
+    "ops.dashboard.view",
+    "ops.trips.view",
+    "ops.map.view",
+    "fleet.drivers.view",
+    "finance.wallets.view",
+  ];
+  switch (type) {
+    case "FREIGHT":
+      return [...base, "partner.freight.view"];
+    case "RENTAL":
+      return [...base, "partner.rental.view"];
+    case "MIXED":
+      return [...base, "partner.freight.view", "partner.rental.view"];
+    case "FLEET":
+    default:
+      return base;
+  }
 }
 
 function buildUserFromApi(
@@ -129,15 +158,24 @@ function buildUserFromApi(
   expectedPortal: PortalRole
 ): User {
   const userType = data.userType ?? data.profile?.user_type ?? data.role;
-  const portal = resolvePortal(expectedPortal, userType);
+  const mappedType = userType
+    ? PORTAL_BY_USER_TYPE[String(userType).toUpperCase()]
+    : undefined;
 
-  if (userType) {
-    const mapped = PORTAL_BY_USER_TYPE[String(userType).toUpperCase()];
-    if (mapped && mapped !== expectedPortal) {
-      throw new Error(
-        "Ce compte n'est pas autorisé sur ce portail. Utilisez le portail correspondant."
-      );
-    }
+  let portal: PortalRole;
+  if (mappedType && mappedType === expectedPortal) {
+    portal = mappedType;
+  } else if (
+    mappedType === "admin" &&
+    ADMIN_ALLOWED_LOGIN_PORTALS.includes(expectedPortal)
+  ) {
+    portal = "admin";
+  } else if (mappedType) {
+    throw new Error(
+      "Ce compte n'est pas autorisé sur ce portail. Utilisez le portail correspondant."
+    );
+  } else {
+    portal = expectedPortal;
   }
 
   const profile = data.profile;
@@ -153,17 +191,18 @@ function buildUserFromApi(
 
   const franchiseId = extractFranchiseId(data);
   const ownerId = extractOwnerId(data);
-  const apiPermissions = Array.isArray(data.permissions) ? data.permissions : [];
+  const partnerType = portal === "partner" ? extractPartnerType(data) : undefined;
 
   return {
     id: profile?.id ?? "unknown",
     name,
     email,
     role: portal,
-    scope: resolveScope(portal, data.scope),
+    scope: SCOPE_BY_PORTAL[portal],
     franchise_id: franchiseId as unknown as number | undefined,
     owner_id: ownerId as unknown as number | undefined,
-    permissions: resolvePermissions(portal, apiPermissions),
+    partner_type: partnerType,
+    permissions: portal === "partner" ? partnerPermissions(partnerType) : defaultPermissions(portal),
   };
 }
 

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { refreshListCachesAfterDelete } from "@/core/api/queryListCache";
 import { notificationService } from "@/core/http/notificationService";
 import {
-  fetchCatalogCountries,
+  fetchBootstrapCountries,
   fetchCitiesByCountryCode,
 } from "@/core/api/catalogLookup.service";
 import { franchisesKeys } from "./franchises.keys";
@@ -16,17 +16,14 @@ import {
 } from "./franchises.service";
 import type { ListParams } from "@/shared/types/listParams";
 
-export function useCatalogCountries(enabled = true) {
+export function useBootstrapCountries(enabled = true) {
   return useQuery({
-    queryKey: franchisesKeys.catalogCountries,
-    queryFn: fetchCatalogCountries,
+    queryKey: franchisesKeys.bootstrapCountries,
+    queryFn: fetchBootstrapCountries,
     enabled,
     staleTime: 10 * 60_000,
   });
 }
-
-/** @deprecated Utiliser `useCatalogCountries`. */
-export const useBootstrapCountries = useCatalogCountries;
 
 export function useCountryCities(countryCode: string, enabled = true) {
   return useQuery({

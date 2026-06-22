@@ -36,17 +36,7 @@ function ownerHref(w: PlatformWallet): string | null {
   return null;
 }
 
-interface WalletsListPageProps {
-  title?: string;
-  breadcrumb?: string[];
-  ledgerHref?: string;
-}
-
-export function WalletsListPage({
-  title = "Portefeuilles",
-  breadcrumb = ["Admin", "Finance"],
-  ledgerHref,
-}: WalletsListPageProps = {}) {
+export function WalletsListPage() {
   const [typeFilter, setTypeFilter] = useState<PlatformWallet["owner_type"] | "all">("all");
 
   const table = useServerTableState([typeFilter], {
@@ -181,17 +171,7 @@ export function WalletsListPage({
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title={title} breadcrumb={breadcrumb} />
-
-      {ledgerHref ? (
-        <p className="mb-4 text-sm text-muted">
-          Consultez le{" "}
-          <Link href={ledgerHref} className="text-teal underline">
-            journal comptable
-          </Link>{" "}
-          filtré par wallet pour le rapprochement détaillé.
-        </p>
-      ) : null}
+      <PageHeader title="Portefeuilles" breadcrumb={["Admin", "Finance"]} />
 
       <TableFiltersBar
         search={table.search}

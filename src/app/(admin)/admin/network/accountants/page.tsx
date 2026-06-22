@@ -1,5 +1,5 @@
-import { AccountantsListPage } from "@/features/network/pages/AccountantsListPage";
+import { StaffListPage } from "@/features/network/pages/StaffListPage";
 
 export default function Page() {
-  return <AccountantsListPage />;
+  return <StaffListPage kind="accountant" />;
 }

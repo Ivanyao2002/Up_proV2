@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
 import { PasswordInput } from "@/shared/ui/PasswordInput";
 import { PasswordMatchIndicator } from "@/shared/ui/PasswordMatchIndicator";
-import { DEFAULT_PARTNER_COMMISSION_RATE_PERCENT } from "@/features/network/lib/partnerType";
 import {
-  useCatalogCountries,
+  useBootstrapCountries,
   useCountryCities,
 } from "@/features/network/api/franchises.queries";
 import { notificationService } from "@/core/http/notificationService";
@@ -20,6 +19,9 @@ import {
   PARTNER_COMPANY_DOCUMENT_TYPES,
   type PartnerDocumentUpload
 } from "../api/partnerDocuments.service";
+
+/** Taux commission partenaire par défaut (cahier finance — part partenaire 4 %). */
+const DEFAULT_PARTNER_COMMISSION_RATE_PERCENT = 4;
 
 const EMPTY_FORM: CreatePartnerPayload = {
   name: "",
@@ -133,7 +135,7 @@ export function FranchisePartnerNewPage() {
   // Pays + ville depuis le catalogue → city_id (UUID) requis par POST /v1/partners.
   const [countryCode, setCountryCode] = useState("");
   const [cityId, setCityId] = useState("");
-  const { data: countries = [], isLoading: countriesLoading } = useCatalogCountries();
+  const { data: countries = [], isLoading: countriesLoading } = useBootstrapCountries();
   const { data: cities = [], isLoading: citiesLoading } = useCountryCities(countryCode);
   const selectedCity = useMemo(
     () => cities.find((c) => c.id === cityId) ?? null,
@@ -294,17 +296,16 @@ export function FranchisePartnerNewPage() {
 
   return (
     <div className="animate-fade-up">
-      {/* Header sticky */}
       <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
         <PageHeader
           title="Nouveau partenaire"
           breadcrumb={["Franchise", "Partenaires", "Nouveau"]}
         />
-        <Link href="/franchise/partners" className="mt-1 inline-flex items-center gap-1 text-sm text-teal hover:underline">
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-          Retour
+        <Link
+          href="/franchise/partners"
+          className="mt-1 inline-flex items-center gap-1 text-sm text-teal hover:underline"
+        >
+          ← Retour
         </Link>
       </div>
 

@@ -192,6 +192,20 @@ export async function attachPartnerVehicleDocument(
   );
 }
 
+export async function attachPartnerVehicleRegistration(
+  partnerId: string,
+  vehicleId: string,
+  file: File
+): Promise<void> {
+  const documentTypeCode = mapVehicleDocumentTypeToApiCode("registration");
+  const reference = await uploadKycFile(file, documentTypeCode);
+  await registerPartnerDocument(
+    LINKS.partner.vehicles.registration(partnerId, vehicleId),
+    reference,
+    documentTypeCode
+  );
+}
+
 export async function uploadDriverDocumentsForPartner(
   partnerId: string,
   driverId: string,
@@ -217,4 +231,25 @@ export async function uploadVehiclePiecesForPartner(
       code
     );
   }
+}
+
+/**
+ * Rattache un document au profil partenaire (POST /v1/partners/{id}/documents).
+ *
+ * PATCH /v1/kyc/documents/{id} renvoie 404 (KYC_DOCUMENT_NOT_FOUND) pour les documents
+ * PARTNER — route réservée au flux chauffeur. Le « remplacement » côté UI repose sur une
+ * nouvelle création ; l'affichage conserve la version la plus récente par type.
+ */
+export async function attachPartnerProfileDocument(
+  partnerId: string,
+  file: File,
+  documentTypeCode: string,
+  _options?: { replaceDocumentId?: string }
+): Promise<void> {
+  const reference = await uploadKycFile(file, documentTypeCode);
+  await registerPartnerDocument(
+    LINKS.partner.profile.documents.create(partnerId),
+    reference,
+    documentTypeCode
+  );
 }

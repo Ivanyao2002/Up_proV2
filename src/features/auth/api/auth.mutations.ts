@@ -6,10 +6,9 @@ import { useAuthStore } from "@/core/auth/authStore";
 import { clearAuthCookie, setAuthCookie } from "@/core/auth/authCookie";
 import { AppError, resolveUserFacingMessage } from "@/core/http/errorHandler";
 import { notificationService } from "@/core/http/notificationService";
-import { DASHBOARD_BY_PORTAL } from "@/core/auth/authRoutes";
+import { DASHBOARD_BY_PORTAL, canAccessPortal } from "@/core/auth/authRoutes";
 import { readReturnUrlFromLocation } from "@/core/auth/returnUrl";
 import { authService, type LoginPayload } from "./auth.service";
-import type { PortalRole } from "@/shared/types";
 
 export function useLogoutMutation(loginPath: string) {
   const clearSession = useAuthStore((s) => s.clearSession);
@@ -24,10 +23,7 @@ export function useLogoutMutation(loginPath: string) {
   });
 }
 
-export function useLoginMutation(
-  portal: LoginPayload["portal"],
-  options?: { fallbackPath?: string; returnPortal?: PortalRole }
-) {
+export function useLoginMutation(portal: LoginPayload["portal"]) {
   const router = useRouter();
   const setSession = useAuthStore((s) => s.setSession);
 
@@ -35,7 +31,7 @@ export function useLoginMutation(
     mutationFn: (payload: Omit<LoginPayload, "portal">) =>
       authService.login({ ...payload, portal }),
     onSuccess: (data) => {
-      if (data.user.role !== portal) {
+      if (!canAccessPortal(data.user.role, portal)) {
         notificationService.error(
           "Ce compte n'est pas autorisé sur ce portail. Utilisez le portail correspondant."
         );
@@ -44,11 +40,9 @@ export function useLoginMutation(
       setSession(data.token, data.user, data.refreshToken);
       setAuthCookie();
       notificationService.success("Connexion réussie");
-      const returnPortal = options?.returnPortal ?? portal;
-      const fallback = options?.fallbackPath ?? DASHBOARD_BY_PORTAL[portal];
       const destination = readReturnUrlFromLocation(
-        fallback,
-        returnPortal
+        DASHBOARD_BY_PORTAL[portal],
+        portal
       );
       router.push(destination);
     },

@@ -62,17 +62,9 @@ export const LINKS = {
   v1: {
     drivers: {
       me: "/v1/drivers/me",
-      preferences: "/v1/drivers/me/preferences",
-      home: "/v1/drivers/me/home",
-      zoneFilterActivate: "/v1/drivers/me/zone-filter/activate",
-      zoneFilterDeactivate: "/v1/drivers/me/zone-filter/deactivate",
-      headingHomeActivate: "/v1/drivers/me/heading-home/activate",
-      headingHomeDeactivate: "/v1/drivers/me/heading-home/deactivate",
       getById: (id: string) => `${DRIVERS_V1_BASE}/${id}`,
       wallet: (id: string) => `${DRIVERS_V1_BASE}/${id}/wallet`,
       ledger: (id: string) => `${DRIVERS_V1_BASE}/${id}/ledger`,
-      dispatchEligibility: (id: string) =>
-        `${DRIVERS_V1_BASE}/${id}/dispatch-eligibility`,
       onboardingStart: `${DRIVERS_V1_BASE}/onboarding/start`,
     },
     files: {
@@ -124,9 +116,10 @@ export const LINKS = {
     },
     kyc: {
       documents: "/v1/kyc/documents",
+      documentById: (id: string | number) => `/v1/kyc/documents/${id}`,
     },
     catalog: {
-      countries: "/v1/catalog/countries",
+      bootstrap: "/v1/catalog/bootstrap",
       documentTypes: "/v1/catalog/document-types",
       countryCities: (countryCode: string) =>
         `/v1/catalog/countries/${countryCode}/cities`,
@@ -135,7 +128,6 @@ export const LINKS = {
       vehicleBrandModels: (brandCode: string) =>
         `/v1/catalog/vehicle-brands/${brandCode}/models`,
       vehicleColors: "/v1/catalog/vehicle-colors",
-      zones: "/v1/catalog/zones",
     },
   },
 
@@ -236,6 +228,8 @@ export const LINKS = {
       userActivate: (id: string) => `${ADMIN_V1_BASE}/users/${id}/activate`,
       filterOptions: `${ADMIN_V1_BASE}/filter-options`,
       driverById: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}`,
+      driverBonusSettings: (id: string) =>
+        `${ADMIN_V1_BASE}/drivers/${id}/bonus/settings`,
       driverApprove: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/approve`,
       driverReject: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/reject`,
       vehicles: `${ADMIN_V1_BASE}/vehicles`,
@@ -244,11 +238,19 @@ export const LINKS = {
       paydunyaConfig: `${ADMIN_V1_BASE}/paydunya-config`,
       weatherConfig: `${ADMIN_V1_BASE}/weather-config`,
       dispatchConfig: `${ADMIN_V1_BASE}/dispatch-config`,
+      dispatchConfigCountry: (code: string) =>
+        `${ADMIN_V1_BASE}/dispatch-config/countries/${code}`,
+      dispatchCapacity: `${ADMIN_V1_BASE}/dispatch-capacity`,
       weatherRefresh: `${ADMIN_V1_BASE}/weather/refresh`,
       paymentReconcile: (id: string) => `${ADMIN_V1_BASE}/payments/${id}/reconcile`,
       paymentsReconcileBatch: `${ADMIN_V1_BASE}/payments/reconcile-batch`,
       pricingRules: `${ADMIN_V1_BASE}/pricing-rules`,
       pricingRuleById: (id: string) => `${ADMIN_V1_BASE}/pricing-rules/${id}`,
+      pricingConfig: `${ADMIN_V1_BASE}/pricing-config`,
+      pricingConfigCountry: (code: string) =>
+        `${ADMIN_V1_BASE}/pricing-config/countries/${code}`,
+      holidays: `${ADMIN_V1_BASE}/holidays`,
+      holidayById: (id: string) => `${ADMIN_V1_BASE}/holidays/${id}`,
       commissionRules: `${ADMIN_V1_BASE}/commission-rules`,
       commissionRuleById: (id: string) => `${ADMIN_V1_BASE}/commission-rules/${id}`,
       franchiseDelete: (id: string) => `${ADMIN_V1_BASE}/franchises/${id}`,
@@ -280,6 +282,20 @@ export const LINKS = {
         getById: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}`,
         suspend: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/suspend`,
         activate: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/activate`,
+      },
+      supportAgents: {
+        list: `${ADMIN_V1_BASE}/support-agents`,
+        create: `${ADMIN_V1_BASE}/support-agents`,
+        getById: (id: string) => `${ADMIN_V1_BASE}/support-agents/${id}`,
+        suspend: (id: string) => `${ADMIN_V1_BASE}/support-agents/${id}/suspend`,
+        activate: (id: string) => `${ADMIN_V1_BASE}/support-agents/${id}/activate`,
+      },
+      reportingUsers: {
+        list: `${ADMIN_V1_BASE}/reporting-users`,
+        create: `${ADMIN_V1_BASE}/reporting-users`,
+        getById: (id: string) => `${ADMIN_V1_BASE}/reporting-users/${id}`,
+        suspend: (id: string) => `${ADMIN_V1_BASE}/reporting-users/${id}/suspend`,
+        activate: (id: string) => `${ADMIN_V1_BASE}/reporting-users/${id}/activate`,
       },
       reportsExport: `${ADMIN_V1_BASE}/reports/export`,
       bonusRules: `${ADMIN_V1_BASE}/bonus-rules`,
@@ -710,6 +726,7 @@ export const LINKS = {
         `/v1/partners/${id}/cash-reconciliations`,
       revenue: (id: string | number) => `/v1/partners/${id}/revenue`,
       withdraw: (id: string | number) => `/v1/partners/${id}/wallet/withdraw`,
+      topUp: (id: string | number) => `/v1/partners/${id}/wallet/top-up`,
       driverTransfers: {
         stats: (id: string | number) =>
           `/v1/partners/${id}/wallet/driver-transfers/stats`,
@@ -728,6 +745,15 @@ export const LINKS = {
         `/v1/partners/${id}/freight-offers/${offerId}`,
     },
 
+    rental: {
+      list: (id: string | number) => `/v1/partners/${id}/rental-offers`,
+      create: (id: string | number) => `/v1/partners/${id}/rental-offers`,
+      update: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}`,
+      delete: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}`,
+    },
+
     safety: {
       sos: {
         list: (id: string | number) => `/v1/partners/${id}/safety/sos`,
@@ -735,6 +761,8 @@ export const LINKS = {
           `/v1/partners/${id}/safety/sos/${sosId}`,
         acknowledge: (id: string | number, sosId: string | number) =>
           `/v1/partners/${id}/safety/sos/${sosId}/acknowledge`,
+        resolve: (id: string | number, sosId: string | number) =>
+          `/v1/partners/${id}/safety/sos/${sosId}/resolve`,
         dashboard: (id: string | number) => `/v1/partners/${id}/safety/sos/dashboard`,
       },
     },

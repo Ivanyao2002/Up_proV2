@@ -24,8 +24,7 @@ interface ApiFinanceCapsResponse {
 }
 
 function mapCapsResponse(body: ApiFinanceCapsResponse): FinanceCapsConfig {
-  const raw = (body.caps ?? body.settings ?? body) as Partial<FinanceCapsConfig> &
-    Record<string, unknown>;
+  const raw = (body.caps ?? body.settings ?? body) as Record<string, unknown>;
   return {
     driver_withdrawal_daily_cap_xof:
       Number(

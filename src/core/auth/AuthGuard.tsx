@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "./authStore";
 import { clearAuthCookie, hasAuthCookie, setAuthCookie } from "./authCookie";
-import { LOGIN_BY_PORTAL } from "./authRoutes";
+import { LOGIN_BY_PORTAL, canAccessPortal } from "./authRoutes";
 import { buildLoginUrlWithReturn } from "./returnUrl";
 import { useAuthHydrated } from "./useAuthHydrated";
 import { useAuthMeQuery } from "@/features/auth/api/auth.queries";
@@ -12,8 +12,6 @@ import type { PortalRole } from "@/shared/types";
 
 interface AuthGuardProps {
   portal: PortalRole;
-  /** Rôles additionnels autorisés (ex. admin sur le portail compta). */
-  alsoAllow?: PortalRole[];
   children: ReactNode;
 }
 
@@ -25,17 +23,15 @@ function AuthLoading() {
   );
 }
 
-export function AuthGuard({ portal, alsoAllow = [], children }: AuthGuardProps) {
+export function AuthGuard({ portal, children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const hydrated = useAuthHydrated();
   const token = useAuthStore((s) => s.token);
   const user = useAuthStore((s) => s.user);
   const { isError: meFailed } = useAuthMeQuery();
-  const allowedRoles = useMemo(
-    () => new Set<PortalRole>([portal, ...alsoAllow]),
-    [portal, alsoAllow]
-  );
+
+  const hasAccess = user ? canAccessPortal(user.role, portal) : false;
 
   useEffect(() => {
     if (!meFailed) return;
@@ -54,16 +50,16 @@ export function AuthGuard({ portal, alsoAllow = [], children }: AuthGuardProps) 
       router.replace(buildLoginUrlWithReturn(LOGIN_BY_PORTAL[portal], pathname));
       return;
     }
-    if (!allowedRoles.has(user.role)) {
+    if (!hasAccess) {
       router.replace(LOGIN_BY_PORTAL[user.role] ?? "/login");
     }
-  }, [hydrated, token, user, portal, router, pathname, allowedRoles]);
+  }, [hydrated, token, user, portal, router, pathname, hasAccess]);
 
   if (!hydrated || !token || !user) {
     return <AuthLoading />;
   }
 
-  if (!allowedRoles.has(user.role)) {
+  if (!hasAccess) {
     return <AuthLoading />;
   }
 

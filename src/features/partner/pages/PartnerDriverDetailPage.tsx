@@ -19,6 +19,7 @@ import type { KycDocument } from "@/shared/types";
 import type { DriverKycDocumentType } from "@/shared/types/driverDocuments";
 import {
   usePartnerDriverDetail,
+  useUpdatePartnerDriver,
   useUploadPartnerDriverDocument,
 } from "../api/drivers.queries";
 import {
@@ -30,34 +31,35 @@ import type {
   PartnerDriverWalletTransaction,
 } from "../api/partnerDriverDetail.service";
 import { PartnerDriverLiveMap } from "../components/PartnerDriverLiveMap";
+import { PartnerDriverEditModal } from "../components/PartnerDriverEditModal";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
+import type { CreateDriverPayload } from "../api/drivers.service";
 
 interface PartnerDriverDetailPageProps {
   driverId: string;
 }
 
-function isDriverKycDocumentType(
+function isDriverKycUploadType(
   type: KycDocument["type"]
 ): type is DriverKycDocumentType {
   return type === "cni" || type === "license" || type === "selfie";
 }
 
 function canUploadDoc(doc: KycDocument): boolean {
-  return (
-    isDriverKycDocumentType(doc.type) &&
-    (doc.status === "rejected" || !doc.uploaded_at)
-  );
+  return doc.status === "rejected" || !doc.uploaded_at;
 }
 
 export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPageProps) {
   const [tab, setTab] = useState("overview");
   const [showWallet, setShowWallet] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data: driver, isLoading, isError } = usePartnerDriverDetail(driverId);
   const { data: tripsData, isLoading: tripsLoading } = usePartnerDriverTrips(driverId);
   const { data: walletData, isLoading: walletLoading } =
     usePartnerDriverWalletTransactions(driverId, showWallet);
   const uploadDoc = useUploadPartnerDriverDocument(driverId);
+  const updateDriver = useUpdatePartnerDriver(driverId);
 
   const stats = driver?.stats ?? {
     trips_total: 0,
@@ -82,8 +84,12 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
     );
   }
 
-  const fullName = `${driver.first_name} ${driver.last_name}`;
-  const showLiveMap = driver.account_status === "approved";
+  const fullName = driver.first_name || driver.last_name
+    ? `${driver.first_name ?? ""} ${driver.last_name ?? ""}`.trim()
+    : driver.driver_code ?? driver.phone ?? "Chauffeur";
+  const showLiveMap = !["suspended", "banned"].includes(
+    (driver.account_status as string) ?? ""
+  );
   const kycDisplayItems = organizeDriverKycDocuments(driver.kyc_documents);
 
   const tripColumns: Column<PartnerDriverTripRow>[] = [
@@ -172,6 +178,9 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
         breadcrumb={["Partenaire", "Chauffeurs", fullName]}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <Button variant="secondary" onClick={() => setShowEditModal(true)}>
+              Modifier
+            </Button>
             <AccountStatusPill status={driver.account_status} />
             <AvailabilityPill status={driver.availability} />
             {showLiveMap && (
@@ -181,6 +190,21 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             )}
           </div>
         }
+      />
+      <PartnerDriverEditModal
+        open={showEditModal}
+        driver={driver}
+        isSaving={updateDriver.isPending}
+        onClose={() => setShowEditModal(false)}
+        onSave={(data: CreateDriverPayload) => {
+          updateDriver.mutate(data, {
+            onSuccess: () => {
+              notificationService.success("Chauffeur mis à jour");
+              setShowEditModal(false);
+            },
+            onError: () => notificationService.error("Impossible de modifier le chauffeur"),
+          });
+        }}
       />
       <p className="-mt-4 mb-6 text-sm text-muted">
         {driver.phone}
@@ -211,7 +235,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
                   <KpiCard
                     index={1}
                     label="Taux d'acceptation"
-                    value={`${stats.acceptance_rate_pct} %`}
+                    value={stats.acceptance_rate_pct != null ? `${stats.acceptance_rate_pct} %` : "—"}
                   />
                   <KpiCard
                     index={2}
@@ -254,35 +278,41 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
 
             {tab === "kyc" && (
               <div className="grid gap-4 sm:grid-cols-2">
-                {kycDisplayItems.map((item) =>
-                  item.kind === "group" ? (
-                    <div key={item.groupId} className="sm:col-span-2">
-                      <KycDocumentGroupCard
-                        label={item.label}
-                        documents={item.documents}
+                {kycDisplayItems.length === 0 ? (
+                  <div className="sm:col-span-2 rounded-card border border-border bg-surface p-8 text-center">
+                    <p className="text-sm font-medium text-muted">Aucun document soumis</p>
+                    <p className="mt-1 text-xs text-muted">Ce chauffeur n&apos;a pas encore envoyé de pièces justificatives.</p>
+                  </div>
+                ) : (
+                  kycDisplayItems.map((item) =>
+                    item.kind === "group" ? (
+                      <div key={item.groupId} className="sm:col-span-2">
+                        <KycDocumentGroupCard
+                          label={item.label}
+                          documents={item.documents}
+                        />
+                      </div>
+                    ) : (
+                      <KycDocumentCard
+                        key={item.document.id}
+                        document={item.document}
+                        canUpload={canUploadDoc(item.document)}
+                        uploadHint="PDF ou image · max 5 Mo"
+                        onUpload={(file) => {
+                          uploadDoc.mutate(
+                            { type: item.document.type as DriverKycDocumentType, file },
+                            {
+                              onSuccess: () =>
+                                notificationService.success(
+                                  "Document envoyé — validation en cours"
+                                ),
+                              onError: () =>
+                                notificationService.error("Échec de l'envoi"),
+                            }
+                          );
+                        }}
                       />
-                    </div>
-                  ) : (
-                    <KycDocumentCard
-                      key={item.document.id}
-                      document={item.document}
-                      canUpload={canUploadDoc(item.document)}
-                      uploadHint="PDF ou image · max 5 Mo"
-                      onUpload={(file) => {
-                        if (!isDriverKycDocumentType(item.document.type)) return;
-                        uploadDoc.mutate(
-                          { type: item.document.type, file },
-                          {
-                            onSuccess: () =>
-                              notificationService.success(
-                                "Document envoyé — validation en cours"
-                              ),
-                            onError: () =>
-                              notificationService.error("Échec de l'envoi"),
-                          }
-                        );
-                      }}
-                    />
+                    )
                   )
                 )}
               </div>
@@ -298,6 +328,10 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
               {formatFCFA(stats.wallet_balance_fcfa)}
             </p>
+            <div className="mt-2 flex gap-3 text-xs text-muted">
+              <span>Retirable : <strong className="text-teal-dark">{formatFCFA(stats.wallet_withdrawable_fcfa ?? 0)}</strong></span>
+              <span>Service : <strong className="text-foreground">{formatFCFA(stats.wallet_non_withdrawable_fcfa ?? 0)}</strong></span>
+            </div>
             <p className="mt-1 text-xs text-muted">
               Solde app chauffeur · rechargeable depuis votre portefeuille
             </p>
@@ -347,7 +381,18 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
               <div className="flex justify-between gap-2">
                 <dt>Véhicule</dt>
                 <dd className="text-right text-foreground">
-                  {driver.vehicle_label ?? "—"}
+                  {driver.vehicle_label && driver.vehicle_id ? (
+                    <Link
+                      href={`/partner/fleet/${driver.vehicle_id}`}
+                      className="text-teal hover:text-teal-dark hover:underline"
+                    >
+                      {driver.vehicle_label}
+                    </Link>
+                  ) : driver.vehicle_label ? (
+                    driver.vehicle_label
+                  ) : (
+                    "—"
+                  )}
                 </dd>
               </div>
             </dl>

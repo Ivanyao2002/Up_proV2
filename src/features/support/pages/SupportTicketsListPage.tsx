@@ -14,6 +14,7 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { AdminSupportTicket } from "../api/tickets.service";
 import { useSupportTicketsList } from "../api/tickets.queries";
+import { useSupportPaths } from "../lib/supportPaths";
 
 const STATUS_FILTERS = [
   { value: "all" as const, label: "Tous" },
@@ -35,6 +36,7 @@ const PRIORITY_LABELS: Record<AdminSupportTicket["priority"], string> = {
 };
 
 export function SupportTicketsListPage() {
+  const paths = useSupportPaths();
   const [statusFilter, setStatusFilter] = useState<
     AdminSupportTicket["status"] | "all"
   >("all");
@@ -126,7 +128,7 @@ export function SupportTicketsListPage() {
       cell: (t) =>
         t.category === "dispute" && t.dispute_id ? (
           <Link
-            href={`/admin/support/disputes/${t.dispute_id}`}
+            href={paths.disputeDetail(t.dispute_id)}
             className="text-sm text-teal hover:underline"
           >
             Voir litige

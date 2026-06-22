@@ -137,8 +137,6 @@ function emptyProvenance(): FieldProvenance {
 
 export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   const requirePhoneOtp = !props.legacyPhone;
-  const adminBrands = props.variant === "admin" ? props.brands : null;
-  const adminColors = props.variant === "admin" ? props.colors : null;
   const [stepId, setStepId] = useState<WizardStepId>("mode");
   const [driverPhoneVerified, setDriverPhoneVerified] = useState(!requirePhoneOtp);
   const [creationMode, setCreationMode] = useState<CreationMode | null>(null);
@@ -190,13 +188,17 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
   useEffect(() => {
     if (props.variant !== "admin" || !pendingBrandLabel) return;
-    const match = matchBrandCatalogCode(adminBrands ?? [], pendingBrandLabel);
+    const match = matchBrandCatalogCode(props.brands, pendingBrandLabel);
     if (match) {
       setBrandCode((b) => b || match);
       setProvenance((p) => ({ ...p, brand: "ai" }));
       setPendingBrandLabel(null);
     }
-  }, [pendingBrandLabel, adminBrands, props.variant]);
+  }, [
+    pendingBrandLabel,
+    props.variant,
+    props.variant === "admin" ? props.brands : null,
+  ]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !pendingModelLabel) return;
@@ -210,13 +212,17 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
   useEffect(() => {
     if (props.variant !== "admin" || !pendingColorLabel) return;
-    const match = matchColorCatalogCode(adminColors ?? [], pendingColorLabel);
+    const match = matchColorCatalogCode(props.colors, pendingColorLabel);
     if (match) {
       setColorCode(match);
       setProvenance((p) => ({ ...p, color: "ai" }));
       setPendingColorLabel(null);
     }
-  }, [pendingColorLabel, adminColors, props.variant]);
+  }, [
+    pendingColorLabel,
+    props.variant,
+    props.variant === "admin" ? props.colors : null,
+  ]);
 
   useEffect(() => {
     if (props.variant !== "admin" || !adminLocked) return;

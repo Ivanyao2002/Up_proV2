@@ -40,6 +40,7 @@ import {
 import { canSetDriverAvailability } from "../api/driverAdminActions.service";
 import { canReviewKycDocument } from "@/shared/lib/kycReview";
 import { DriverTransferModal } from "../components/DriverTransferModal";
+import { DriverBonusWeekStartPanel } from "../components/DriverBonusWeekStartPanel";
 import { useTransferDriverToPartner } from "../api/driverTransfer.queries";
 import { resolveDriverSourcePartnerId } from "../api/driverTransfer.service";
 
@@ -110,6 +111,7 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
   const tabs = [
     { id: "kyc", label: "KYC & documents" },
     { id: "overview", label: "Aperçu" },
+    { id: "bonus", label: "Bonus" },
     { id: "activity", label: "Activité" },
   ];
 
@@ -431,6 +433,10 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                 emptyTitle="Aucune course"
                 emptyDescription="Ce chauffeur n'a pas encore effectué de course."
               />
+            )}
+
+            {tab === "bonus" && (
+              <DriverBonusWeekStartPanel driverId={driverId} driverName={fullName} />
             )}
           </div>
         </div>

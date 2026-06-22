@@ -1,15 +1,16 @@
 "use client";
 
-import { ComptaLedgerPage } from "@/features/compta/pages/ComptaLedgerPage";
+import { TransactionsListPage } from "./TransactionsListPage";
 
-/** Ledger comptable admin — source GET /v1/admin/ledger */
+/** Ledger comptable admin — réutilise la liste transactions (entrées immuables). */
 export function LedgerListPage() {
   return (
-    <ComptaLedgerPage
+    <TransactionsListPage
       title="Ledger comptable"
+      subtitle="Journal des écritures financières (crédits, débits, commissions). Source : GET /v1/admin/ledger ou transactions."
       breadcrumb={["Admin", "Finance", "Ledger"]}
-      transactionsHref="/admin/finance/transactions"
-      showReverse
+      defaultTypeFilter="all"
+      hideSummary
     />
   );
 }

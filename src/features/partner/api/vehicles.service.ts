@@ -2,6 +2,7 @@ import { apiClient, apiWithNotify } from "@/core/http/apiClient";
 import { useAuthStore } from "@/core/auth/authStore";
 import { LINKS } from "@/core/api/links";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
+import { notificationService } from "@/core/http/notificationService";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import type { VehicleDocumentType } from "@/shared/types/vehicleDocuments";
 import type { Paginated, Vehicle, VehicleDetail } from "@/shared/types";
@@ -22,6 +23,7 @@ import {
   assignDriverV1,
   legacyPartnerDocumentsPath,
 } from "@/features/fleet/api/vehicleCreateFlow";
+import { attachPartnerVehicleRegistration } from "@/features/fleet/api/kycDocumentUpload.v1.service";
 import { partnerDriversService, type CreateDriverPayload } from "./drivers.service";
 import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
 import type { VehiclePieceFile } from "../components/VehicleCreatePiecesSection";
@@ -158,9 +160,11 @@ function buildSummary(items: Vehicle[]): VehiclesListResponse["summary"] {
 
 async function listV1(params?: ListParams): Promise<VehiclesListResponse> {
   const partnerId = resolvePartnerId();
-  const response = await apiClient.get<ApiAdminVehiclesListResponse>(
-    `${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery(params)}`
-  );
+  const response = await apiClient.get<
+    ApiAdminVehiclesListResponse & {
+      summary?: VehiclesListResponse["summary"];
+    }
+  >(`${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery(params)}`);
   const items = response.items ?? [];
   const lookups = await fetchVehicleCatalogLookupsForItems(items);
   const paginated = mapAdminVehiclesToPaginated(
@@ -171,46 +175,134 @@ async function listV1(params?: ListParams): Promise<VehiclesListResponse> {
   );
   return {
     ...paginated,
-    summary: buildSummary(paginated.data),
+    summary: response.summary ?? buildSummary(paginated.data),
   };
 }
 
 async function getByIdV1(id: string): Promise<VehicleDetail> {
+  const partnerId = resolvePartnerId();
+
   try {
-    const response = await apiClient.get<{ vehicle?: unknown }>(
-      LINKS.v1.vehicles.getById(id)
-    );
-    if (response.vehicle && typeof response.vehicle === "object") {
-      const vehicle = response.vehicle as Parameters<typeof mapApiVehicleToVehicleDetail>[0];
-      const lookups = await fetchVehicleCatalogLookupsForItems([vehicle]);
-      return mapApiVehicleToVehicleDetail(vehicle, lookups);
-    }
+    // Utilise l'endpoint partenaire spécifique /v1/partners/{partnerId}/vehicles/{vehicleId}
+    const raw = await apiClient.get<{
+      status?: string;
+      vehicle?: Record<string, unknown>;
+      registration?: Record<string, unknown>;
+      driver?: Record<string, unknown>;
+    }>(LINKS.partner.vehicles.getById(partnerId, id));
+
+    const v = raw.vehicle ?? {};
+
+    // Extraction des données du véhicule (API retourne des objets imbriqués)
+    const brand = (v.brand as { label?: string })?.label ?? (v.brandLabel as string) ?? "";
+    const model = (v.model as { label?: string })?.label ?? (v.modelLabel as string) ?? "";
+    const colorObj = v.color as { label?: string; hex?: string } | null;
+    const color = colorObj?.label ?? (v.color_name as string) ?? "—";
+    const categoryObj = v.category as { code?: string; label?: string } | null;
+    const categoryCode = categoryObj?.code ?? (v.categoryCode as string) ?? "";
+    const categoryLabel = categoryObj?.label ?? categoryCode;
+
+    // Mapping category vers VehicleCategory
+    const categoryMap: Record<string, Vehicle["category"]> = {
+      "taxi": "taxi",
+      "ECO": "taxi",
+      "standard": "taxi",
+    };
+    const category = categoryMap[categoryCode] || (categoryCode as Vehicle["category"]) || "taxi";
+
+    // Driver peut être dans raw.driver ou v.driver
+    const driver = (raw.driver ?? v.driver) as {
+      id?: string;
+      displayName?: string;
+      profile?: { firstName?: string; lastName?: string };
+    } | null;
+    const driverName = driver
+      ? (driver.displayName ??
+        `${driver.profile?.firstName ?? ""} ${driver.profile?.lastName ?? ""}`.trim())
+      : null;
+
+    // Document d'enregistrement (carte grise) dans documents[]
+    const docs = (v.documents ?? []) as Array<{
+      id?: string;
+      document_type_code?: string;
+      document_type_label?: string;
+      status?: string;
+      uploaded_at?: string;
+      submitted_at?: string;
+      created_at?: string;
+      reviewed_at?: string | null;
+      file_url?: string;
+    }>;
+    const reg = docs.find((d) => d.document_type_code === "REGISTRATION_CARD");
+    const registrationDoc = reg
+      ? {
+          id: (reg.id as string) ?? "registration",
+          type: "registration" as const,
+          label: (reg.document_type_label as string) ?? "Carte grise",
+          status: ((reg.status as string) ?? "pending") as "pending" | "approved" | "rejected",
+          uploaded_at:
+            (reg.uploaded_at as string) ??
+            (reg.submitted_at as string) ??
+            (reg.created_at as string) ??
+            "",
+          reviewed_at: (reg.reviewed_at as string | null) ?? null,
+          preview_url: (reg.file_url as string) ?? undefined,
+        }
+      : {
+          id: "pending",
+          type: "registration" as const,
+          label: "Carte grise",
+          status: "pending" as const,
+          uploaded_at: "",
+          reviewed_at: null,
+        };
+
+    return {
+      id: Number((v.id as string) ?? id),
+      label: (v.label as string) ?? (brand || model ? `${brand} ${model}`.trim() : `Véhicule ${String(id).slice(0, 8)}`),
+      brand: brand || "—",
+      model: model || "—",
+      category,
+      category_code: categoryCode,
+      category_label: categoryLabel,
+      year: (v.manufacture_year as number) ?? (v.year as number) ?? new Date().getFullYear(),
+      color,
+      plate: (v.plate_number as string) ?? (v.plate as string) ?? "",
+      seats: (v.seats_count as number) ?? (v.seats as number) ?? 0,
+      approval_status: ((v.status as string) ?? "pending") as Vehicle["approval_status"],
+      driver_id: (v.driver_id as string | null) ?? driver?.id ?? null,
+      driver_name: driverName,
+      registration_document: registrationDoc,
+      owner_id: partnerId,
+      partner_id: (v.partner_id as string) ?? partnerId,
+      created_at: (v.created_at as string) ?? new Date().toISOString(),
+      approved_at: (v.approved_at as string | null) ?? null,
+    };
   } catch {
-    // Fallback liste partenaire — GET /v1/vehicles/:id indisponible côté API
-  }
+    // Fallback: recherche dans la liste
+    const list = await listV1({ per_page: 200 });
+    const match = list.data.find((item) => String(item.id) === id);
+    if (!match) {
+      throw new Error("Véhicule introuvable.");
+    }
 
-  const list = await listV1({ per_page: 200 });
-  const match = list.data.find((item) => String(item.id) === id);
-  if (!match) {
-    throw new Error("Véhicule introuvable.");
+    return {
+      ...match,
+      brand: match.label.split(" ")[0] ?? "—",
+      model: match.label.split(" ").slice(1).join(" ") || "—",
+      seats: 0,
+      owner_id: match.partner_id ?? partnerId,
+      registration_document: {
+        id: "pending",
+        type: "registration",
+        label: "Carte grise",
+        status: "pending",
+        uploaded_at: match.created_at,
+        reviewed_at: null,
+      },
+      approved_at: null,
+    };
   }
-
-  return {
-    ...match,
-    brand: match.label.split(" ")[0] ?? "—",
-    model: match.label.split(" ").slice(1).join(" ") || "—",
-    seats: 0,
-    owner_id: match.partner_id ?? resolvePartnerId(),
-    registration_document: {
-      id: "pending",
-      type: "registration",
-      label: "Carte grise",
-      status: "pending",
-      uploaded_at: match.created_at,
-      reviewed_at: null,
-    },
-    approved_at: null,
-  };
 }
 
 async function createV1(data: CreateVehiclePayload): Promise<VehicleDetail> {
@@ -273,22 +365,31 @@ export const partnerVehiclesService = {
     return createV1(data);
   },
 
-  uploadRegistration: (id: string) =>
-    apiWithNotify.post<VehicleDetail>(
-      useLegacyPortalApi()
-        ? `/partner/vehicles/${id}/registration`
-        : LINKS.v1.vehicles.getById(id),
-      {},
-      "Carte grise envoyée — validation en cours"
-    ),
+  uploadRegistration: async (id: string, file: File) => {
+    const partnerId = resolvePartnerId();
+    if (useLegacyPortalApi()) {
+      return apiWithNotify.post<VehicleDetail>(
+        `/partner/vehicles/${id}/registration`,
+        { filename: file.name },
+        "Carte grise envoyée — validation en cours"
+      );
+    }
 
-  uploadDocument: (id: string, type: VehicleDocumentType) =>
-    apiClient.post<VehicleDetail>(
+    await attachPartnerVehicleRegistration(partnerId, id, file);
+    const detail = await getByIdV1(id);
+    notificationService.success("Carte grise envoyée — validation en cours");
+    return detail;
+  },
+
+  uploadDocument: (id: string, type: VehicleDocumentType) => {
+    const partnerId = resolvePartnerId();
+    return apiClient.post<VehicleDetail>(
       useLegacyPortalApi()
         ? `/partner/vehicles/${id}/documents`
-        : LINKS.v1.vehicles.getById(id),
+        : LINKS.partner.vehicles.documents(partnerId, id),
       { type }
-    ),
+    );
+  },
 
   assignDriver: async (
     vehicleId: number | string,

@@ -46,6 +46,19 @@ export function usePartnerWalletWithdraw() {
   });
 }
 
+export function usePartnerWalletTopUp() {
+  const qc = useQueryClient();
+  const { ownerId } = useScope();
+  return useMutation({
+    mutationFn: (payload: { amount_fcfa: number; method: "mobile_money" | "card" }) =>
+      partnerWalletService.topUp(ownerId!, payload.amount_fcfa, payload.method),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: ["partner", "wallet"] });
+      notificationService.success(data.message);
+    },
+  });
+}
+
 export function usePartnerDriverRecharge() {
   const qc = useQueryClient();
   const { ownerId } = useScope();
@@ -72,6 +85,53 @@ export function usePartnerLedger(params?: ListParams) {
   return useQuery({
     queryKey: partnerLedgerKeys.list(params),
     queryFn: () => partnerWalletService.ledger(ownerId!, params),
+    enabled: ownerId != null,
+  });
+}
+
+export const partnerSettlementsKeys = {
+  all: ["partner", "settlements"] as const,
+  list: (filters?: ListParams) => [...partnerSettlementsKeys.all, "list", filters] as const,
+};
+
+export function usePartnerSettlements(params?: ListParams) {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: partnerSettlementsKeys.list(params),
+    queryFn: () => partnerWalletService.settlements(ownerId!, params),
+    enabled: ownerId != null,
+  });
+}
+
+export function usePartnerRevenue() {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: ["partner", "revenue", ownerId],
+    queryFn: () => partnerWalletService.revenue(ownerId!),
+    enabled: ownerId != null,
+  });
+}
+
+export const partnerCashReconciliationsKeys = {
+  all: ["partner", "cash-reconciliations"] as const,
+  list: (filters?: ListParams) =>
+    [...partnerCashReconciliationsKeys.all, "list", filters] as const,
+};
+
+export function usePartnerCashReconciliations(params?: ListParams) {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: partnerCashReconciliationsKeys.list(params),
+    queryFn: () => partnerWalletService.cashReconciliations(ownerId!, params),
+    enabled: ownerId != null,
+  });
+}
+
+export function usePartnerRevenuePaginated(params?: ListParams) {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: ["partner", "revenue", "paginated", ownerId, params],
+    queryFn: () => partnerWalletService.revenue(ownerId!),
     enabled: ownerId != null,
   });
 }

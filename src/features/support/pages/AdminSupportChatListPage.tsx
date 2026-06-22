@@ -14,6 +14,7 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { AdminSupportChat } from "../api/adminChat.types";
 import { useAdminSupportChats } from "../api/adminChat.queries";
+import { useSupportPaths } from "../lib/supportPaths";
 
 const STATUS_FILTERS = [
   { value: "all" as const, label: "Tous" },
@@ -22,6 +23,7 @@ const STATUS_FILTERS = [
 ];
 
 export function AdminSupportChatListPage() {
+  const paths = useSupportPaths();
   const [statusFilter, setStatusFilter] = useState<AdminSupportChat["status"] | "all">(
     "all"
   );
@@ -48,7 +50,7 @@ export function AdminSupportChatListPage() {
       id: "participant",
       header: "Franchise",
       cell: (c) => (
-        <Link href={`/admin/support/chat/${c.id}`} className="block hover:opacity-90">
+        <Link href={paths.chatDetail(c.id)} className="block hover:opacity-90">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <p className="font-medium text-foreground">{c.participant_name}</p>

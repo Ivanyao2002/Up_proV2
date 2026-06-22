@@ -20,6 +20,10 @@ import {
 } from "@/features/network/api/adminPartners.mapper";
 import type { ApiAdminVehiclesListResponse } from "@/features/fleet/api/adminVehicles.api.types";
 import { mapAdminVehiclesToPaginated } from "@/features/fleet/api/adminVehicles.mapper";
+import {
+  uploadPartnerCreateDocuments,
+  type PartnerCreateDocumentUpload,
+} from "@/features/network/api/partnerCreateDocuments.v1";
 import type { Driver, Paginated, Partner, Trip, Vehicle } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import {
@@ -260,6 +264,17 @@ export const franchisePartnersService = {
       registration_number: p.registration_number ?? null,
       tax_id: p.tax_id ?? null,
     };
+  },
+
+  createWithDocuments: async (
+    payload: CreatePartnerPayload,
+    documents: PartnerCreateDocumentUpload[] = []
+  ): Promise<FranchisePartnerCreateResult> => {
+    const partner = await franchisePartnersService.create(payload);
+    if (!useLegacyPortalApi() && documents.length > 0) {
+      await uploadPartnerCreateDocuments(String(partner.id), documents);
+    }
+    return partner;
   },
 
   getDrivers: async (partnerId: string, params?: ListParams): Promise<Paginated<Driver>> => {

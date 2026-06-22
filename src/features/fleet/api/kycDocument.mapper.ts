@@ -27,6 +27,8 @@ const DOCUMENT_TYPE_MAP: Record<
   DRIVER_SELFIE: { type: "selfie", label: "Photo selfie" },
   PROFILE_PHOTO: { type: "selfie", label: "Photo profil chauffeur" },
   INSURANCE: { type: "registration", label: "Assurance véhicule" },
+  BUSINESS_REGISTRATION: { type: "registration", label: "Registre de commerce (RCC)" },
+  RCCM: { type: "registration", label: "RCCM" },
 };
 
 const GROUP_LABELS: Record<string, string> = {
@@ -173,11 +175,52 @@ export function dedupeApiKycItems(
   });
 }
 
+/** Clé métier : un seul document actif par type (recto, verso, RCC…). */
+export function resolveKycDocumentSlotKey(doc: KycDocument): string {
+  const code = doc.document_type_code?.trim().toUpperCase();
+  if (code) return code;
+  const group = doc.document_group?.trim().toUpperCase();
+  const side = doc.document_side?.trim().toUpperCase();
+  if (group && side) return `${group}_${side}`;
+  if (group) return group;
+  return `${doc.type}_${doc.id}`;
+}
+
+function kycDocumentRecency(doc: KycDocument): number {
+  const uploaded = new Date(doc.uploaded_at || 0).getTime();
+  if (uploaded > 0) return uploaded;
+  const reviewed = doc.reviewed_at ? new Date(doc.reviewed_at).getTime() : 0;
+  return reviewed;
+}
+
+/** Conserve la version la plus récente par emplacement (évite les doublons après remplacement). */
+export function dedupeKycDocumentsBySlot(documents: KycDocument[]): KycDocument[] {
+  const bySlot = new Map<string, KycDocument>();
+
+  for (const doc of documents) {
+    const key = resolveKycDocumentSlotKey(doc);
+    const existing = bySlot.get(key);
+    if (!existing || kycDocumentRecency(doc) >= kycDocumentRecency(existing)) {
+      bySlot.set(key, doc);
+    }
+  }
+
+  return [...bySlot.values()].sort((a, b) => {
+    const groupDiff =
+      groupSortIndex(a.document_group) - groupSortIndex(b.document_group);
+    if (groupDiff !== 0) return groupDiff;
+    const sideDiff =
+      sideSortOrder(a.document_side) - sideSortOrder(b.document_side);
+    if (sideDiff !== 0) return sideDiff;
+    return kycDocumentRecency(b) - kycDocumentRecency(a);
+  });
+}
+
 export function mapApiKycItemsForDriver(
   items: ApiAdminKycDocumentItem[],
   driverId: string
 ): KycDocument[] {
-  return dedupeApiKycItems(items)
+  const mapped = dedupeApiKycItems(items)
     .filter(
       (item) =>
         String(item.subject_type ?? "").toUpperCase() === "DRIVER" &&
@@ -196,12 +239,45 @@ export function mapApiKycItemsForDriver(
         new Date(a.uploaded_at || 0).getTime()
       );
     });
+  return dedupeKycDocumentsBySlot(mapped);
+}
+
+export function mapApiKycItemsForPartner(
+  items: ApiAdminKycDocumentItem[],
+  partnerId: string
+): KycDocument[] {
+  const mapped = dedupeApiKycItems(items)
+    .filter((item) => {
+      const subjectType = String(item.subject_type ?? "").toUpperCase();
+      return (
+        (subjectType === "PARTNER" || subjectType === "PARTNER_PROFILE") &&
+        item.subject_id === partnerId
+      );
+    })
+    .map(mapApiKycItemToKycDocument)
+    .sort((a, b) => {
+      const groupDiff =
+        groupSortIndex(a.document_group) - groupSortIndex(b.document_group);
+      if (groupDiff !== 0) return groupDiff;
+      const sideDiff =
+        sideSortOrder(a.document_side) - sideSortOrder(b.document_side);
+      if (sideDiff !== 0) return sideDiff;
+      return (
+        new Date(b.uploaded_at || 0).getTime() -
+        new Date(a.uploaded_at || 0).getTime()
+      );
+    });
+  return dedupeKycDocumentsBySlot(mapped);
 }
 
 /** Regroupe recto/verso (CNI, permis) pour l'affichage fiche chauffeur. */
 export function organizeDriverKycDocuments(
-  documents: KycDocument[]
+  documents: KycDocument[] | null | undefined
 ): KycDocumentDisplayItem[] {
+  if (!documents || !Array.isArray(documents)) {
+    return [];
+  }
+
   const grouped = new Map<string, KycDocument[]>();
   const singles: KycDocument[] = [];
 

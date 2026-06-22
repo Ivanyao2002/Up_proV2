@@ -24,6 +24,28 @@ const VEHICLE_COLOR_HEX_FALLBACK: Record<string, string> = {
   brown: "#78350f",
 };
 
+const HEX_TO_COLOR_LABEL: Record<string, string> = {
+  "#ffffff": "Blanc",
+  "#f5f5f5": "Blanc",
+  "#1a1a1a": "Noir",
+  "#000000": "Noir",
+  "#9ca3af": "Gris",
+  "#808080": "Gris",
+  "#c0c0c0": "Argent",
+  "#dc2626": "Rouge",
+  "#ff0000": "Rouge",
+  "#1e5aa8": "Bleu",
+  "#0000ff": "Bleu",
+  "#16a34a": "Vert",
+  "#008000": "Vert",
+  "#eab308": "Jaune",
+  "#ffff00": "Jaune",
+  "#ea580c": "Orange",
+  "#ffa500": "Orange",
+  "#78350f": "Marron",
+  "#800000": "Marron",
+};
+
 function normalizeColorToken(raw: string): string {
   return raw
     .trim()
@@ -51,8 +73,13 @@ export function resolveLiveMapVehicleColorHex(
 export function getLiveMapVehicleColorLabel(
   driver: Pick<LiveMapDriver, "vehicle_color" | "vehicle_color_label">
 ): string | undefined {
-  const label = driver.vehicle_color_label ?? driver.vehicle_color;
-  return label?.trim() || undefined;
+  if (driver.vehicle_color_label?.trim()) return driver.vehicle_color_label.trim();
+  const raw = driver.vehicle_color?.trim();
+  if (!raw) return undefined;
+  if (/^#[0-9A-Fa-f]{3,8}$/.test(raw)) {
+    return HEX_TO_COLOR_LABEL[raw.toLowerCase()] ?? raw;
+  }
+  return raw;
 }
 
 /** Ligne véhicule (modèle · plaque) sans la couleur. */

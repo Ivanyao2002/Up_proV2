@@ -231,6 +231,7 @@ export function buildHotZonesFromMapItems(items: ZoneMapItem[]): LiveMapHotZone[
       heatLevel,
       surge: zone.surge_multiplier,
       city: zone.city,
+      polygon_geojson: zone.polygon_geojson,
     });
   }
 

@@ -48,6 +48,8 @@ export interface ApiV1DriverRecord {
   accepts_wallet?: boolean;
   last_online_at?: string | null;
   metadata?: Record<string, unknown>;
+  bonus_week_start_dow?: number | null;
+  bonusWeekStartDow?: number | null;
   created_at?: string;
   updated_at?: string;
 }

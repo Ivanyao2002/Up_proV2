@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
-  fetchCatalogFoundation,
+  fetchBootstrapFoundation,
   resolveCatalogCountryForPartner,
   type CatalogCountry,
 } from "@/core/api/catalogLookup.service";
@@ -27,7 +27,7 @@ export function useCatalogCountryForPartner(options: {
       cityLabel,
     ],
     queryFn: async () => {
-      const foundation = await fetchCatalogFoundation();
+      const foundation = await fetchBootstrapFoundation();
       return resolveCatalogCountryForPartner(foundation, {
         franchiseCountryId,
         cityId,

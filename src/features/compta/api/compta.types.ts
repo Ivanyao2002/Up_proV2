@@ -4,6 +4,13 @@ import type { TripsScopeFilterOptions } from "@/shared/types";
 export type LedgerDirection = "debit" | "credit";
 export type LedgerBalanceBucket = "WITHDRAWABLE" | "NON_WITHDRAWABLE" | string;
 
+export interface LedgerBreakdownItem {
+  label: string;
+  value: string;
+  /** Montant financier — affiché en tabular-nums */
+  isAmount?: boolean;
+}
+
 export interface LedgerEntry {
   id: string;
   txn_id?: string;
@@ -16,9 +23,12 @@ export interface LedgerEntry {
   franchise_name?: string;
   source_type?: string;
   source_id?: string;
+  order_id?: string;
   order_ref?: string;
+  service_type?: string;
   status: string;
   description?: string;
+  metadata?: Record<string, unknown>;
   posted_at: string;
 }
 

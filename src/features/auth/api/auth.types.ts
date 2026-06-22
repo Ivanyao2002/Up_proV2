@@ -2,7 +2,6 @@
 
 export type ApiUserType =
   | "ADMIN"
-  | "ACCOUNTANT"
   | "PARTNER"
   | "FRANCHISE"
   | "DRIVER"
@@ -43,7 +42,6 @@ export interface ApiAuthLoginResponse {
   role?: string;
   userType?: ApiUserType;
   permissions?: string[];
-  scope?: string;
   session?: ApiAuthSessionPayload;
   user?: Record<string, unknown>;
   accessToken?: string;
@@ -65,6 +63,8 @@ export interface ApiAuthLoginBody {
   email: string;
   password: string;
   role?: ApiUserType;
+  /** Gating portail siège — `compta` | `support` | `reporting` */
+  portal?: string;
 }
 
 /** GET /v1/auth/me — même enveloppe que le login (sans tokens). */

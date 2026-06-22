@@ -23,6 +23,10 @@ import {
 
 import type { PartnerType } from "@/features/network/lib/partnerType";
 import { DEFAULT_PARTNER_TYPE } from "@/features/network/lib/partnerType";
+import {
+  uploadPartnerCreateDocuments,
+  type PartnerCreateDocumentUpload,
+} from "./partnerCreateDocuments.v1";
 
 export type PartnerCreatePayload = {
   name: string;
@@ -137,6 +141,17 @@ export const partnersService = {
       email;
 
     return { ...partner, portal_login_email: portalLoginEmail };
+  },
+
+  createWithDocuments: async (
+    payload: PartnerCreatePayload,
+    documents: PartnerCreateDocumentUpload[] = []
+  ): Promise<PartnerCreateResult> => {
+    const partner = await partnersService.create(payload);
+    if (!useLegacyAdminApi() && documents.length > 0) {
+      await uploadPartnerCreateDocuments(String(partner.id), documents);
+    }
+    return partner;
   },
 
   update: async (id: string, payload: PartnerUpdatePayload): Promise<Partner> => {

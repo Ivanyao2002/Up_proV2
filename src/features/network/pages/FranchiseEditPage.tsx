@@ -16,7 +16,7 @@ import { useCatalogCountryForPartner } from "@/shared/hooks/useCatalogCountryFor
 import type { Franchise } from "@/shared/types";
 import { useFranchiseDetail } from "../api/franchiseDetail.queries";
 import {
-  useCatalogCountries,
+  useBootstrapCountries,
   useCountryCities,
   useUpdateFranchise,
 } from "../api/franchises.queries";
@@ -31,7 +31,7 @@ export function FranchiseEditPage({ franchiseId }: FranchiseEditPageProps) {
   const { data, isLoading, isError } = useFranchiseDetail(franchiseId);
   const update = useUpdateFranchise(franchiseId);
   const { data: countries = [], isLoading: countriesLoading } =
-    useCatalogCountries(!legacy);
+    useBootstrapCountries(!legacy);
   const { data: catalogCountry } = useCatalogCountryForPartner({
     franchiseCountryId: data?.country_id,
     cityLabel: data?.city,

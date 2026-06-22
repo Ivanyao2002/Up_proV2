@@ -182,14 +182,28 @@ export function isNavItemActive(pathname: string, itemPath: string): boolean {
       /^\/admin\/settings\/dispatchers\/\d+$/.test(pathname)
     );
   }
-  if (itemPath === "/admin/support/tickets") {
+  if (itemPath === "/admin/support/tickets" || itemPath === "/support/tickets") {
+    const base = itemPath.replace(/\/tickets$/, "");
     return (
-      pathname === "/admin/support/tickets" ||
-      pathname.startsWith("/admin/support/disputes")
+      pathname === `${base}/tickets` ||
+      pathname.startsWith(`${base}/disputes`)
     );
   }
-  if (itemPath === "/admin/support/chat") {
-    return pathname.startsWith("/admin/support/chat");
+  if (itemPath === "/admin/support/chat" || itemPath === "/support/chat") {
+    const base = itemPath.replace(/\/chat$/, "");
+    return pathname.startsWith(`${base}/chat`);
+  }
+
+  // ——— Portails racine (dashboard) : correspondance exacte uniquement ———
+  if (
+    itemPath === "/support" ||
+    itemPath === "/reporting" ||
+    itemPath === "/compta"
+  ) {
+    return pathname === itemPath || pathname === `${itemPath}/`;
+  }
+  if (itemPath === "/support/anomalies") {
+    return pathname === "/support/anomalies" || pathname === "/support/anomalies/";
   }
 
   if (

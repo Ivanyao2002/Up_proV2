@@ -11,6 +11,7 @@ import {
   type DriverAvailabilityAction,
 } from "./driverAdminActions.service";
 import { driversKeys } from "./drivers.keys";
+import { liveMapKeys } from "@/features/ops/api/liveMap.keys";
 import { driversService, type DriversListParams } from "./drivers.service";
 
 export function useDriversList(params?: DriversListParams) {
@@ -37,6 +38,7 @@ export function useBulkDriverAvailability() {
     }) => runBulkDriverAvailability(drivers, ids, availability),
     onSuccess: (result) => {
       void qc.invalidateQueries({ queryKey: driversKeys.all(scopeKey) });
+      void qc.invalidateQueries({ queryKey: liveMapKeys.all });
       if (result.count === 0) {
         notificationService.warning(
           "Aucun chauffeur éligible (compte approuvé requis)."

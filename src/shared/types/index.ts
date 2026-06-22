@@ -1,6 +1,15 @@
-export type Scope = "platform" | "franchise" | "owner" | "accountant";
+export type Scope = "platform" | "franchise" | "owner";
 
-export type PortalRole = "admin" | "compta" | "partner" | "franchise" | "dispatch";
+export type PortalRole =
+  | "admin"
+  | "compta"
+  | "support"
+  | "reporting"
+  | "partner"
+  | "franchise"
+  | "dispatch";
+
+export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
 
 export interface User {
   id: string | number;
@@ -9,7 +18,10 @@ export interface User {
   role: PortalRole;
   scope: Scope;
   franchise_id?: number | string;
+  franchise_name?: string;
   owner_id?: number | string;
+  /** Type de partenaire — détermine l'accès aux modules fret/location */
+  partner_type?: PartnerType;
   /** Comptes dispatch — zones autorisées */
   zone_ids?: number[];
   zone_names?: string[];
@@ -552,6 +564,8 @@ export interface LiveMapDriver {
   /** Cap véhicule (degrés) — temps réel socket */
   heading?: number;
   speed_kmh?: number;
+  /** Âge du dernier point GPS (secondes) — snapshot HTTP ou delta socket */
+  location_age_seconds?: number;
   availability: Driver["availability"];
   vehicle: string;
   /** Code ou libellé couleur véhicule (catalogue) */
@@ -726,6 +740,8 @@ export interface LiveMapHotZone {
   surge?: number;
   franchise_id?: string | null;
   city?: string;
+  /** Contour OSM / buffer — prioritaire sur le point centre pour l’affichage carte */
+  polygon_geojson?: ZonePolygonGeoJson;
 }
 
 /** meta.realtime — GET /v1/admin/live-map */
@@ -795,6 +811,7 @@ export interface VehicleDetail extends Vehicle {
   owner_id: number | string;
   registration_document: KycDocument;
   approved_at?: string | null;
+  driver_id?: string | null;
 }
 
 /** Fiche véhicule admin — GET /v1/partners/{partnerId}/vehicles/{vehicleId} */
@@ -833,6 +850,10 @@ export interface PartnerWallet {
   non_withdrawable_fcfa?: number;
   pending_withdrawal_fcfa: number;
   available_fcfa: number;
+  /** Plafond de retrait journalier (défaut 30 000 XOF) */
+  daily_cap_fcfa?: number;
+  /** Montant déjà retiré aujourd'hui */
+  today_withdrawn_fcfa?: number;
   last_withdrawal?: {
     id: string;
     amount_fcfa: number;

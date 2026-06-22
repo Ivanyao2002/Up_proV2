@@ -25,13 +25,7 @@ const STATUS_FILTERS = [
   { value: "pending" as const, label: "En attente" },
 ];
 
-export function CommissionsListPage({
-  title = "Commissions",
-  breadcrumb = ["Admin", "Finance"],
-}: {
-  title?: string;
-  breadcrumb?: string[];
-} = {}) {
+export function CommissionsListPage() {
   const [statusFilter, setStatusFilter] = useState<CommissionRow["status"] | "all">("all");
   const [scope, setScope] = useState<AdminFranchiseScopeValue>({ franchiseId: null });
 
@@ -75,14 +69,17 @@ export function CommissionsListPage({
           {
             id: "franchise",
             header: "Franchise",
-            cell: (c: CommissionRow) => (
-              <Link
-                href={`/admin/network/franchises/${c.franchise_id}`}
-                className="text-sm font-medium text-foreground hover:text-teal"
-              >
-                {c.franchise_name}
-              </Link>
-            ),
+            cell: (c: CommissionRow) =>
+              c.franchise_id ? (
+                <Link
+                  href={`/admin/network/franchises/${c.franchise_id}`}
+                  className="text-sm font-medium text-foreground hover:text-teal"
+                >
+                  {c.franchise_name}
+                </Link>
+              ) : (
+                <span className="text-sm text-muted">{c.franchise_name}</span>
+              ),
             exportValue: (c: CommissionRow) => c.franchise_name,
           } satisfies Column<CommissionRow>,
         ]
@@ -137,17 +134,15 @@ export function CommissionsListPage({
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title={title}
-        breadcrumb={breadcrumb}
+        title="Commissions"
+        breadcrumb={["Admin", "Finance"]}
         actions={
-          breadcrumb[0] === "Comptabilité" ? undefined : (
-            <Link
-              href="/admin/finance/commission-rules"
-              className="text-sm text-teal hover:underline"
-            >
-              Règles de commission →
-            </Link>
-          )
+          <Link
+            href="/admin/finance/commission-rules"
+            className="text-sm text-teal hover:underline"
+          >
+            Règles de commission →
+          </Link>
         }
       />
 

@@ -24,10 +24,14 @@ export function buildV1ListQuery(params?: ListParams): string {
   qs.set("limit", String(limit));
 
   if (params.search?.trim()) qs.set("search", params.search.trim());
-  if (params.status && params.status !== "all") qs.set("status", params.status);
+  if (params.status && params.status !== "all") {
+    qs.set("status", params.status);
+    qs.set("approvalStatus", params.status);
+  }
   if (params.zone && params.zone !== "all") qs.set("zone", params.zone);
   if (params.availability && params.availability !== "all") {
     qs.set("availability", params.availability);
+    qs.set("availabilityStatus", params.availability);
   }
   if (params.account_status && params.account_status !== "all") {
     qs.set("account_status", params.account_status);
@@ -41,15 +45,6 @@ export function buildV1ListQuery(params?: ListParams): string {
   if (params.partner_id != null) qs.set("partner_id", String(params.partner_id));
   if (params.date_from?.trim()) qs.set("dateFrom", params.date_from.trim());
   if (params.date_to?.trim()) qs.set("dateTo", params.date_to.trim());
-  if (params.direction && params.direction !== "all") {
-    qs.set("direction", params.direction);
-  }
-  if (params.balance_bucket && params.balance_bucket !== "all") {
-    qs.set("balance_bucket", params.balance_bucket);
-  }
-  if (params.entry_type && params.entry_type !== "all") {
-    qs.set("entry_type", params.entry_type);
-  }
 
   const s = qs.toString();
   return s ? `?${s}` : "";

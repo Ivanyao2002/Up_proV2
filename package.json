@@ -12,7 +12,10 @@
     "vercel:login": "vercel login",
     "vercel:link": "vercel link",
     "deploy:vercel": "vercel --prod --yes",
-    "guide:report": "node scripts/generate-user-guide-report.mjs"
+    "guide:capture": "node scripts/capture-partner-screenshots.mjs",
+    "guide:build": "node scripts/build-partner-guide.mjs",
+    "guide:pdf": "node scripts/html-to-pdf.mjs guide-pdf/guide-utilisateur.html guide-pdf/Guide_Utilisateur_UpJunoo.pdf",
+    "guide:all": "node scripts/capture-partner-screenshots.mjs && node scripts/build-partner-guide.mjs && node scripts/html-to-pdf.mjs guide-pdf/guide-utilisateur.html guide-pdf/Guide_Utilisateur_UpJunoo.pdf"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",
