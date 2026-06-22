@@ -75,6 +75,10 @@ export function useCreateFranchisePartner() {
           : "Partenaire créé avec succès"
       );
     },
+    onError: (error: Error) =>
+      notificationService.error(
+        error.message || "Création du partenaire impossible"
+      ),
   });
 }
 
@@ -98,5 +102,29 @@ export function useDeleteFranchisePartner() {
       void qc.invalidateQueries({ queryKey: franchisePartnersKeys.all });
       notificationService.success("Partenaire supprimé");
     },
+  });
+}
+
+export function useActivateFranchisePartner() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => franchisePartnersService.activate(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: franchisePartnersKeys.all });
+      notificationService.success("Partenaire approuvé");
+    },
+    onError: () => notificationService.error("Impossible d'approuver le partenaire"),
+  });
+}
+
+export function useSuspendFranchisePartner() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => franchisePartnersService.suspend(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: franchisePartnersKeys.all });
+      notificationService.success("Partenaire suspendu");
+    },
+    onError: () => notificationService.error("Impossible de suspendre le partenaire"),
   });
 }

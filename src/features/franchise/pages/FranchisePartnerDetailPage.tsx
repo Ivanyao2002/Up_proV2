@@ -35,6 +35,8 @@ import {
   useFranchisePartnerVehicles,
   useUpdateFranchisePartner,
   useDeleteFranchisePartner,
+  useActivateFranchisePartner,
+  useSuspendFranchisePartner,
 } from "../api/partners.queries";
 
 const TABS = [
@@ -467,6 +469,8 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
   const [showEdit, setShowEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const deletePartner = useDeleteFranchisePartner();
+  const activatePartner = useActivateFranchisePartner();
+  const suspendPartner = useSuspendFranchisePartner();
   const { data, isLoading, isError } = useFranchisePartnerDetail(partnerId);
 
   if (isLoading) {
@@ -616,7 +620,11 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
         title={data.status === "suspended" ? "Réactiver ce partenaire ?" : "Approuver ce partenaire ?"}
         message="Le partenaire pourra à nouveau recevoir des courses et gérer ses chauffeurs."
         confirmLabel={data.status === "suspended" ? "Réactiver" : "Approuver"}
-        onConfirm={() => setConfirmActivate(false)}
+        onConfirm={() => {
+          activatePartner.mutate(partnerId, {
+            onSuccess: () => setConfirmActivate(false),
+          });
+        }}
         onCancel={() => setConfirmActivate(false)}
       />
 
@@ -626,7 +634,11 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
         message="Le partenaire ne pourra plus recevoir de courses tant que le compte est suspendu."
         confirmLabel="Suspendre"
         variant="danger"
-        onConfirm={() => setConfirmSuspend(false)}
+        onConfirm={() => {
+          suspendPartner.mutate(partnerId, {
+            onSuccess: () => setConfirmSuspend(false),
+          });
+        }}
         onCancel={() => setConfirmSuspend(false)}
       />
 

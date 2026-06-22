@@ -15,6 +15,7 @@ import { TripFinancePanel } from "@/shared/finance/TripFinancePanel";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { useFranchiseTripDetail } from "../api/trips.queries";
 import { useTripDriverLiveLocation } from "@/features/ops/hooks/useTripDriverLiveLocation";
+import { FreightCargoCard } from "../components/FreightCargoCard";
 
 interface FranchiseTripDetailPageProps {
   tripId: string;
@@ -91,6 +92,13 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
               <Timeline items={timelineItems} />
             </div>
           </div>
+
+          {trip.service === "freight" && trip.freight_cargo && (
+            <FreightCargoCard
+              cargo={trip.freight_cargo}
+              estimatedPriceXof={trip.amount_fcfa}
+            />
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-card border border-border bg-surface p-5 shadow-card">

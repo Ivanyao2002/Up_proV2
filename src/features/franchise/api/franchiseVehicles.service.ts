@@ -84,4 +84,9 @@ export const franchiseVehiclesService = {
   delete: async (id: string | number): Promise<void> => {
     await apiClient.delete(LINKS.franchise.fleet.vehicles.byId(id));
   },
+
+  create: async (payload: any): Promise<any> => {
+    const franchiseId = await resolveFranchiseId();
+    return apiClient.post(LINKS.franchise.fleet.vehicles.listV1(franchiseId), payload);
+  },
 };

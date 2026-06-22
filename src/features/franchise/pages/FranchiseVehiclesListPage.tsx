@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
+import { Button } from "@/shared/ui/Button";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { FilterChips } from "@/shared/ui/FilterChips";
@@ -119,6 +121,11 @@ export function FranchiseVehiclesListPage() {
       <PageHeader
         title="Véhicules"
         breadcrumb={["Franchise", "Flotte", "Véhicules"]}
+        actions={
+          <Link href="/franchise/fleet/drivers-vehicles/new">
+            <Button>Nouveau chauffeur + véhicule</Button>
+          </Link>
+        }
       />
 
       <TableFiltersBar

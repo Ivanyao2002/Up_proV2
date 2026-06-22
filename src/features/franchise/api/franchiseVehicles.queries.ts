@@ -73,3 +73,15 @@ export function useFranchiseVehicleDelete() {
     onError: () => notificationService.error("Suppression impossible"),
   });
 }
+
+export function useCreateFranchiseVehicle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: any) => franchiseVehiclesService.create(payload),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: franchiseVehiclesKeys.all });
+      notificationService.success("Chauffeur et véhicule créés avec succès");
+    },
+    onError: () => notificationService.error("Impossible de créer le chauffeur et le véhicule"),
+  });
+}

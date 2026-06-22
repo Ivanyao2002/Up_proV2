@@ -135,6 +135,18 @@ export interface TripDetail extends Trip {
   timeline: TripTimelineEvent[];
   /** Type service API (`RIDE`, `DELIVERY_CARGO`, …) pour routes dispatch. */
   api_service_type?: string;
+  /** Données spécifiques aux courses FREIGHT */
+  freight_cargo?: {
+    description?: string;
+    weight_kg?: number;
+    volume_m3?: number;
+    vehicle_type_code?: string;
+    package_type_code?: string;
+    customs_required?: boolean;
+    distance_km?: number;
+    payment_status?: string;
+    order_reference?: string;
+  };
 }
 
 export interface Franchise {

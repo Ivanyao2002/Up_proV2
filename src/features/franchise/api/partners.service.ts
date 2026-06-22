@@ -10,7 +10,10 @@ import { useLegacyPortalApi } from "@/core/api/portalApiMode";
 import type { ApiAdminDriverItem } from "@/features/fleet/api/adminDrivers.api.types";
 import { mapAdminDriverItemToListDriver } from "@/features/fleet/api/adminDrivers.mapper";
 import type { ApiV1FranchisePartnersResponse } from "@/features/network/api/adminFranchises.api.types";
-import type { ApiPartnerCreateResponse } from "@/features/network/api/adminPartners.api.types";
+import type {
+  ApiPartnerCreateBody,
+  ApiPartnerCreateResponse,
+} from "@/features/network/api/adminPartners.api.types";
 import {
   mapAdminPartnerItemToPartner,
   mapAdminPartnersToPaginated,
@@ -49,8 +52,14 @@ export interface CreatePartnerPayload {
   password: string;
   contact_phone: string;
   city: string;
+  /** UUID ville catalogue — prioritaire sur `city` (libellé). Requis par POST /v1/partners. */
+  city_id?: string;
   address?: string;
   commission_rate?: number;
+  legal_form?: "INDIVIDUAL" | "COMPANY";
+  manager_first_name?: string;
+  manager_last_name?: string;
+  partner_type?: "FLEET" | "FREIGHT" | "RENTAL";
 }
 
 export interface FranchisePartnerCreateResult extends FranchisePartnerDetail {
@@ -180,86 +189,76 @@ export const franchisePartnersService = {
   },
 
   create: async (payload: CreatePartnerPayload): Promise<FranchisePartnerCreateResult> => {
-    if (useLegacyPortalApi()) {
-      const franchiseId = await resolveFranchiseId();
-      const response = await apiClient.post<{
-        status: string;
-        partner: Parameters<typeof mapAdminPartnerItemToPartner>[0];
-      }>(LINKS.franchise.v1.createPartner(franchiseId), payload);
-      const p = response.partner;
-      const base = mapAdminPartnerItemToPartner(p);
-      return {
-        ...base,
-        legal_name: payload.legal_name?.trim() || payload.name,
-        address: payload.address?.trim() || null,
-        created_at: p.created_at ?? new Date().toISOString(),
-        vehicles_count: 0,
-        trips_count: 0,
-        wallet_balance_fcfa: 0,
-        commission_rate: null,
-        partner_type: null,
-        registration_number: null,
-        tax_id: null,
-      };
-    }
-
+    // Contrat backend (PARTENAIRE-PERSONNE-PHYSIQUE-MORALE.md §5/§7) : la création passe par
+    // POST /v1/partners (crée le partenaire + son compte de connexion de façon atomique et renvoie
+    // { partner, account }). La route /v1/franchises/:id/partners n'est PAS ouverte à la création
+    // (provision du compte en échec → 500 PARTNER_USER_PROVISION_FAILED). Cette route reste
+    // accessible à la franchise propriétaire (§7).
     const franchiseId = await resolveFranchiseId();
-    const cityId = await resolveCityIdByLabel(payload.city);
+
+    const cityId =
+      payload.city_id?.trim() || (await resolveCityIdByLabel(payload.city));
     if (!cityId) {
       throw new Error("Sélectionnez une ville du catalogue.");
     }
 
-    const legalName = (payload.legal_name?.trim() || payload.name).trim();
-    const tradeName = (payload.trade_name?.trim() || payload.name).trim();
     const email = payload.contact_email.trim();
+    const legalForm = payload.legal_form ?? "INDIVIDUAL";
+    const phone = payload.contact_phone?.trim();
+    const managerFirstName = payload.manager_first_name?.trim();
+    const managerLastName = payload.manager_last_name?.trim();
+
+    const body: ApiPartnerCreateBody = {
+      franchiseId: String(franchiseId),
+      legalName: payload.legal_name?.trim() || payload.name.trim(),
+      tradeName: payload.trade_name?.trim() || payload.name.trim(),
+      cityId,
+      email,
+      password: payload.password,
+      contactEmail: email,
+      partnerType: payload.partner_type ?? "FLEET",
+      legalForm,
+      ...(phone ? { contactPhone: phone, phone } : {}),
+      ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
+      ...(payload.commission_rate != null && !Number.isNaN(payload.commission_rate)
+        ? { commissionRate: payload.commission_rate }
+        : {}),
+      // Gérant — persisté uniquement si COMPANY (ignoré silencieusement sinon côté API).
+      ...(legalForm === "COMPANY" && managerFirstName ? { managerFirstName } : {}),
+      ...(legalForm === "COMPANY" && managerLastName ? { managerLastName } : {}),
+    };
 
     const response = await apiClient.post<ApiPartnerCreateResponse>(
       LINKS.v1.partners.create,
-      {
-        franchiseId,
-        legalName,
-        tradeName,
-        cityId,
-        email,
-        password: payload.password,
-        contactEmail: email,
-        ...(payload.contact_phone.trim()
-          ? {
-              contactPhone: payload.contact_phone.trim(),
-              phone: payload.contact_phone.trim(),
-            }
-          : {}),
-        ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
-        ...(payload.commission_rate != null && !Number.isNaN(payload.commission_rate)
-          ? { commissionRate: payload.commission_rate }
-          : {}),
-      }
+      body
     );
 
-    if (!response.partner?.id) {
+    const p = response.partner;
+    if (!p?.id) {
       throw new Error(
-        response.error?.message ?? "Création partenaire sans identifiant en réponse."
+        response.error?.message ??
+          "Création partenaire sans identifiant en réponse."
       );
     }
 
-    const p = response.partner;
     const base = mapAdminPartnerItemToPartner(p);
     const portalLoginEmail =
       response.account?.loginEmail ?? response.account?.login_email ?? email;
 
     return {
       ...base,
-      legal_name: legalName,
-      address: payload.address?.trim() || null,
+      portal_login_email: portalLoginEmail,
+      legal_name:
+        p.legal_name?.trim() || payload.legal_name?.trim() || payload.name.trim(),
+      address: p.address?.trim() || payload.address?.trim() || null,
       created_at: p.created_at ?? new Date().toISOString(),
-      vehicles_count: 0,
+      vehicles_count: p.vehicles_count ?? p.vehiclesCount ?? 0,
       trips_count: 0,
       wallet_balance_fcfa: 0,
-      commission_rate: null,
-      partner_type: null,
-      registration_number: null,
-      tax_id: null,
-      portal_login_email: portalLoginEmail,
+      commission_rate: p.commission_rate ?? payload.commission_rate ?? null,
+      partner_type: p.partner_type ?? payload.partner_type ?? null,
+      registration_number: p.registration_number ?? null,
+      tax_id: p.tax_id ?? null,
     };
   },
 
@@ -320,5 +319,15 @@ export const franchisePartnersService = {
       },
       stats: res.stats ? { ...res.stats, avg_rate_pct: avgRatePct } : undefined,
     };
+  },
+
+  activate: async (partnerId: string): Promise<void> => {
+    const franchiseId = await resolveFranchiseId();
+    await apiClient.post(LINKS.franchise.v1.partnerActivate(franchiseId, partnerId));
+  },
+
+  suspend: async (partnerId: string): Promise<void> => {
+    const franchiseId = await resolveFranchiseId();
+    await apiClient.post(LINKS.franchise.v1.partnerSuspend(franchiseId, partnerId));
   },
 };

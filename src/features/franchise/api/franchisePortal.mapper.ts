@@ -175,7 +175,9 @@ export function mapFranchiseOrderToTripDetail(
   const rideAny = ride as any;
   const payAny = payload as any;
 
-  const baseTrip = mapFranchiseOrderToTrip({ ...ride, ...payAny } as ApiLiveMapOrderBase);
+  // Normalise service_type: la réponse freight utilise `serviceType` (camelCase) ou `service` (flat)
+  const serviceTypeNormalized = payAny.service_type ?? payAny.serviceType ?? payAny.service ?? ride.service_type;
+  const baseTrip = mapFranchiseOrderToTrip({ ...ride, ...payAny, service_type: serviceTypeNormalized } as ApiLiveMapOrderBase);
   const amount = payload.amountXof ?? ride.final_price_xof ?? ride.estimated_price_xof ?? 0;
 
   // Coordonnées : d'abord tracking, puis champs directs du ride
@@ -209,6 +211,22 @@ export function mapFranchiseOrderToTripDetail(
     if (matchingEvent) matchingEvent.matching_drivers = matchingDrivers;
   }
 
+  // Données fret — champ `cargo` (normalisé) ou `freight` (raw)
+  const cargoRaw = payAny.cargo ?? payAny.freight ?? null;
+  const metaEstimate = payAny.freight?.metadata?.estimate ?? payAny.metadata?.estimate ?? null;
+  const isFreight = (payAny.serviceType ?? payAny.service_type ?? payAny.service ?? "").toLowerCase() === "freight";
+  const freightCargo = isFreight && cargoRaw ? {
+    description: cargoRaw.description ?? cargoRaw.cargo_description ?? undefined,
+    weight_kg: cargoRaw.weightKg ?? cargoRaw.cargo_weight_kg ?? undefined,
+    volume_m3: cargoRaw.volumeM3 ?? cargoRaw.cargo_volume_m3 ?? undefined,
+    vehicle_type_code: cargoRaw.vehicleTypeCode ?? cargoRaw.freight_vehicle_type_code ?? cargoRaw.vehicle_type_code ?? undefined,
+    package_type_code: cargoRaw.packageTypeCode ?? cargoRaw.freight_package_type_code ?? undefined,
+    customs_required: cargoRaw.customsRequired ?? cargoRaw.customs_required ?? false,
+    distance_km: metaEstimate?.distanceKm ?? undefined,
+    payment_status: payAny.freight?.payment_status ?? payAny.pricing?.paymentStatus ?? undefined,
+    order_reference: payAny.freight?.order_reference ?? undefined,
+  } : undefined;
+
   return {
     ...baseTrip,
     from_coords: fromCoords,
@@ -226,5 +244,6 @@ export function mapFranchiseOrderToTripDetail(
     franchise_name: payload.franchiseName ?? rideAny.franchiseName ?? undefined,
     estimated_arrival_at: rideAny.estimated_arrival_at ?? undefined,
     timeline,
+    freight_cargo: freightCargo,
   };
 }
