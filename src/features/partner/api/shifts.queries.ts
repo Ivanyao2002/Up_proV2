@@ -1,11 +1,12 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useScope } from "@/core/auth/useScope";
 import {
   partnerRecurringService,
   partnerReportsService,
   partnerShiftsService,
+  type CreateShiftPayload,
 } from "./shifts.service";
 import type { ListParams } from "@/shared/types/listParams";
 
@@ -30,6 +31,20 @@ export function usePartnerShifts(params?: ListParams) {
     queryKey: partnerShiftsKeys.list(params),
     queryFn: () => partnerShiftsService.list(ownerId!, params),
     enabled: ownerId != null,
+  });
+}
+
+export function useCreatePartnerShift() {
+  const qc = useQueryClient();
+  const { ownerId } = useScope();
+  return useMutation({
+    mutationFn: (data: CreateShiftPayload) => {
+      if (!ownerId) throw new Error("Partner ID non disponible");
+      return partnerShiftsService.create(ownerId, data);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: partnerShiftsKeys.all });
+    },
   });
 }
 

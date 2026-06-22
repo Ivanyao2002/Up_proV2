@@ -61,3 +61,27 @@ export function useFranchiseVehicleReject() {
     onError: () => notificationService.error("Impossible de rejeter le véhicule"),
   });
 }
+
+export function useFranchiseVehicleDelete() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string | number) => franchiseVehiclesService.delete(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: franchiseVehiclesKeys.all });
+      notificationService.success("Véhicule supprimé");
+    },
+    onError: () => notificationService.error("Suppression impossible"),
+  });
+}
+
+export function useCreateFranchiseVehicle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: any) => franchiseVehiclesService.create(payload),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: franchiseVehiclesKeys.all });
+      notificationService.success("Chauffeur et véhicule créés avec succès");
+    },
+    onError: () => notificationService.error("Impossible de créer le chauffeur et le véhicule"),
+  });
+}

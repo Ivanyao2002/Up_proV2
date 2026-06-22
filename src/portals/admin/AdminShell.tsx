@@ -1,4 +1,5 @@
 import { PortalShellLayout } from "@/portals/shared/PortalShellLayout";
+import { AdminSosSoundListener } from "@/features/safety/components/AdminSosSoundListener";
 import { AdminChatSoundListener } from "@/features/support/components/AdminChatSoundListener";
 import { AdminAssistantProvider } from "@/features/assistant/components/AdminAssistantProvider";
 import { Topbar } from "./Topbar";
@@ -10,7 +11,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <PortalShellLayout
         nav={ADMIN_NAV}
         subtitle="Administrateur"
-        headerSlot={<AdminChatSoundListener />}
+        headerSlot={
+          <>
+            <AdminChatSoundListener />
+            <AdminSosSoundListener />
+          </>
+        }
         topbar={(props) => <Topbar {...props} />}
       >
         {children}

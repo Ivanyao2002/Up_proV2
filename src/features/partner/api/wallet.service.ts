@@ -113,6 +113,78 @@ export interface CashReconciliation {
   note?: string;
 }
 
+interface CashReconciliationApiItem {
+  id: string;
+  driver_id: string;
+  partner_id: string;
+  franchise_id?: string | null;
+  period_start: string;
+  period_end: string;
+  expected_amount_xof: number;
+  declared_amount_xof: number;
+  difference_xof: number;
+  status: string;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  country_id?: string | null;
+}
+
+interface CashReconciliationApiResponse {
+  status?: string;
+  items?: CashReconciliationApiItem[];
+  data?: CashReconciliationApiItem[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    hasMore: boolean;
+  };
+  meta?: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
+}
+
+function mapCashReconciliationItem(item: CashReconciliationApiItem): CashReconciliation {
+  const status = item.status as CashReconciliation["status"];
+  return {
+    id: item.id,
+    driver_id: item.driver_id,
+    amount_fcfa: item.expected_amount_xof ?? item.declared_amount_xof ?? 0,
+    status: ["pending", "submitted", "validated", "rejected"].includes(status) ? status : "pending",
+    collected_at: item.period_end ?? item.created_at,
+    submitted_at: item.status === "submitted" ? item.reviewed_at ?? item.updated_at : undefined,
+    validated_at: item.status === "validated" ? item.reviewed_at ?? item.updated_at : undefined,
+    note: undefined,
+  };
+}
+
+function mapCashReconciliationResponse(
+  response: CashReconciliationApiResponse
+): Paginated<CashReconciliation> {
+  const items = response.items ?? response.data ?? [];
+  const p = response.pagination;
+  const m = response.meta;
+  const meta = p
+    ? {
+        current_page: p.page,
+        per_page: p.limit,
+        total: p.total,
+        last_page: p.hasMore ? p.page + 1 : p.page,
+      }
+    : m ?? { current_page: 1, per_page: 20, total: items.length, last_page: 1 };
+
+  return {
+    data: items.map(mapCashReconciliationItem),
+    meta,
+  };
+}
+
 export interface DriverRechargePayload {
   driver_id: string | number;
   amount_fcfa: number;
@@ -364,6 +436,16 @@ export const partnerWalletService = {
       wallet: PartnerWallet;
     }>(LINKS.partner.wallet.withdraw(partnerId), { amount_fcfa }),
 
+  // NOTE: l'endpoint POST /v1/partners/{id}/wallet/top-up n'existe pas encore côté backend.
+  // Ce service est prêt à l'emploi dès que l'API d'alimentation wallet (Mobile Money / CB) sera disponible.
+  // Pour la recette du 21/06, une procédure de crédit manuel backend est nécessaire en l'absence de l'API.
+  topUp: (partnerId: string | number, amount_fcfa: number, method: "mobile_money" | "card" = "mobile_money") =>
+    apiClient.post<{
+      ok: boolean;
+      message: string;
+      wallet: PartnerWallet;
+    }>(LINKS.partner.wallet.topUp(partnerId), { amount_fcfa, method }),
+
   getDriverRechargeStats: async (partnerId: string | number) => {
     const response = await apiClient.get<{
       status?: string;
@@ -425,10 +507,12 @@ export const partnerWalletService = {
       driver_id: String(payload.driver_id),
     }),
 
-  cashReconciliations: (partnerId: string | number, params?: ListParams) =>
-    apiClient.get<Paginated<CashReconciliation>>(
+  cashReconciliations: async (partnerId: string | number, params?: ListParams) => {
+    const response = await apiClient.get<CashReconciliationApiResponse>(
       `${LINKS.partner.wallet.cashReconciliations(partnerId)}${buildListQuery(params)}`
-    ),
+    );
+    return mapCashReconciliationResponse(response);
+  },
 
   rechargeDrivers: async (
     partnerId: string | number,

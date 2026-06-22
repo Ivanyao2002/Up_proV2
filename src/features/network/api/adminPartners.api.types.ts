@@ -17,6 +17,13 @@ export interface ApiAdminPartnerItem {
   legal_name?: string | null;
   trade_name?: string | null;
   name?: string | null;
+  /** Forme juridique — INDIVIDUAL (personne physique) ou COMPANY (personne morale). */
+  legal_form?: "INDIVIDUAL" | "COMPANY" | string | null;
+  /** Gérant / représentant légal (personne morale uniquement). */
+  manager_first_name?: string | null;
+  manager_last_name?: string | null;
+  /** Champ calculé côté API (« Prénom Nom »). */
+  manager_display_name?: string | null;
   franchiseName?: string | null;
   cityLabel?: string | null;
   driversCount?: number | null;
@@ -73,6 +80,11 @@ export interface ApiPartnerCreateBody {
   managerFirstName?: string;
   managerLastName?: string;
   partnerType?: string;
+  /** Forme juridique — INDIVIDUAL (défaut) ou COMPANY. */
+  legalForm?: "INDIVIDUAL" | "COMPANY";
+  /** Gérant / représentant légal — pris en compte uniquement si COMPANY. */
+  managerFirstName?: string;
+  managerLastName?: string;
   commissionRate?: number;
   address?: string;
   status?: string;

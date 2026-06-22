@@ -19,6 +19,7 @@ import type { KycDocument } from "@/shared/types";
 import type { DriverKycDocumentType } from "@/shared/types/driverDocuments";
 import {
   usePartnerDriverDetail,
+  useUpdatePartnerDriver,
   useUploadPartnerDriverDocument,
 } from "../api/drivers.queries";
 import {
@@ -30,7 +31,9 @@ import type {
   PartnerDriverWalletTransaction,
 } from "../api/partnerDriverDetail.service";
 import { PartnerDriverLiveMap } from "../components/PartnerDriverLiveMap";
+import { PartnerDriverEditModal } from "../components/PartnerDriverEditModal";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
+import type { CreateDriverPayload } from "../api/drivers.service";
 
 interface PartnerDriverDetailPageProps {
   driverId: string;
@@ -49,12 +52,14 @@ function canUploadDoc(doc: KycDocument): boolean {
 export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPageProps) {
   const [tab, setTab] = useState("overview");
   const [showWallet, setShowWallet] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data: driver, isLoading, isError } = usePartnerDriverDetail(driverId);
   const { data: tripsData, isLoading: tripsLoading } = usePartnerDriverTrips(driverId);
   const { data: walletData, isLoading: walletLoading } =
     usePartnerDriverWalletTransactions(driverId, showWallet);
   const uploadDoc = useUploadPartnerDriverDocument(driverId);
+  const updateDriver = useUpdatePartnerDriver(driverId);
 
   const stats = driver?.stats ?? {
     trips_total: 0,
@@ -173,6 +178,9 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
         breadcrumb={["Partenaire", "Chauffeurs", fullName]}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            <Button variant="secondary" onClick={() => setShowEditModal(true)}>
+              Modifier
+            </Button>
             <AccountStatusPill status={driver.account_status} />
             <AvailabilityPill status={driver.availability} />
             {showLiveMap && (
@@ -182,6 +190,21 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             )}
           </div>
         }
+      />
+      <PartnerDriverEditModal
+        open={showEditModal}
+        driver={driver}
+        isSaving={updateDriver.isPending}
+        onClose={() => setShowEditModal(false)}
+        onSave={(data: CreateDriverPayload) => {
+          updateDriver.mutate(data, {
+            onSuccess: () => {
+              notificationService.success("Chauffeur mis à jour");
+              setShowEditModal(false);
+            },
+            onError: () => notificationService.error("Impossible de modifier le chauffeur"),
+          });
+        }}
       />
       <p className="-mt-4 mb-6 text-sm text-muted">
         {driver.phone}
@@ -276,10 +299,8 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
                         canUpload={canUploadDoc(item.document)}
                         uploadHint="PDF ou image · max 5 Mo"
                         onUpload={(file) => {
-                          const docType = item.document.type;
-                          if (!isDriverKycUploadType(docType)) return;
                           uploadDoc.mutate(
-                            { type: docType, file },
+                            { type: item.document.type as DriverKycDocumentType, file },
                             {
                               onSuccess: () =>
                                 notificationService.success(
@@ -307,12 +328,10 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
               {formatFCFA(stats.wallet_balance_fcfa)}
             </p>
-            {(stats.wallet_withdrawable_fcfa != null || stats.wallet_non_withdrawable_fcfa != null) && (
-              <div className="mt-2 flex gap-3 text-xs text-muted">
-                <span>Retirable : <strong className="text-teal-dark">{formatFCFA(stats.wallet_withdrawable_fcfa ?? 0)}</strong></span>
-                <span>Service : <strong className="text-foreground">{formatFCFA(stats.wallet_non_withdrawable_fcfa ?? 0)}</strong></span>
-              </div>
-            )}
+            <div className="mt-2 flex gap-3 text-xs text-muted">
+              <span>Retirable : <strong className="text-teal-dark">{formatFCFA(stats.wallet_withdrawable_fcfa ?? 0)}</strong></span>
+              <span>Service : <strong className="text-foreground">{formatFCFA(stats.wallet_non_withdrawable_fcfa ?? 0)}</strong></span>
+            </div>
             <p className="mt-1 text-xs text-muted">
               Solde app chauffeur · rechargeable depuis votre portefeuille
             </p>
@@ -362,7 +381,18 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
               <div className="flex justify-between gap-2">
                 <dt>Véhicule</dt>
                 <dd className="text-right text-foreground">
-                  {driver.vehicle_label ?? "—"}
+                  {driver.vehicle_label && driver.vehicle_id ? (
+                    <Link
+                      href={`/partner/fleet/${driver.vehicle_id}`}
+                      className="text-teal hover:text-teal-dark hover:underline"
+                    >
+                      {driver.vehicle_label}
+                    </Link>
+                  ) : driver.vehicle_label ? (
+                    driver.vehicle_label
+                  ) : (
+                    "—"
+                  )}
                 </dd>
               </div>
             </dl>

@@ -11,8 +11,8 @@ import {
   mapFranchiseOrdersToTripsList,
   mapFranchiseOrderToTripDetail,
   type ApiFranchiseOrdersResponse,
-  type ApiFranchiseOrderDetailResponse,
 } from "./franchisePortal.mapper";
+import type { ApiAdminOrderDetailResponse } from "@/features/ops/api/adminOrderDetail.api.types";
 
 /**
  * Helper to handle API errors gracefully
@@ -65,7 +65,7 @@ export const franchiseTripsService = {
     }
 
     const franchiseId = await resolveFranchiseId();
-    const response = await apiClient.get<ApiFranchiseOrderDetailResponse>(
+    const response = await apiClient.get<ApiAdminOrderDetailResponse>(
       LINKS.franchise.v1.orderById(franchiseId, id)
     );
     return mapFranchiseOrderToTripDetail(response);

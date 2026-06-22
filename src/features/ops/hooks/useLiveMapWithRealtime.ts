@@ -1,10 +1,14 @@
 "use client";
 
-import { useMemo, useEffect, useRef, useState } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { env } from "@/core/config/env";
-import { useLiveMap } from "../api/liveMap.queries";
+import {
+  LIVE_MAP_HTTP_POLL_MS,
+  useLiveMap,
+} from "../api/liveMap.queries";
 import {
   collectUnknownLiveMapDriverIds,
+  LIVE_MAP_ROSTER_SYNC_MS,
   LIVE_MAP_UNKNOWN_DRIVER_REFETCH_COOLDOWN_MS,
   mergeLiveMapPositionDeltas,
 } from "../api/liveMap.realtime";
@@ -19,30 +23,42 @@ function useLegacyLiveMap(): boolean {
 export function useLiveMapWithRealtime(filters?: LiveMapScopeFiltersValue) {
   const legacy = useLegacyLiveMap();
   const socketEnabled = !legacy && env.useRealAuth;
-  const [httpPollActive, setHttpPollActive] = useState(true);
   const lastUnknownRefetchAtRef = useRef(0);
 
-  const query = useLiveMap(filters, { pollSnapshot: httpPollActive });
+  const query = useLiveMap(filters, {
+    pollSnapshot: legacy || !socketEnabled,
+    refetchIntervalMs: LIVE_MAP_HTTP_POLL_MS,
+  });
 
-  const { deltas, status, clearDeltas } = useAdminLiveMapSocket(
+  const { deltas, status, clearDeltas, pruneDeltas } = useAdminLiveMapSocket(
     query.data?.realtime,
     socketEnabled && Boolean(query.data)
   );
 
+  const socketConnected = socketEnabled && status === "connected";
+
+  /** Socket actif : resync roster via GET (le socket ne gère que le GPS). */
   useEffect(() => {
-    const connected = socketEnabled && status === "connected";
-    setHttpPollActive(!connected);
-  }, [socketEnabled, status]);
+    if (!socketConnected) return;
+    const id = window.setInterval(() => {
+      void query.refetch();
+    }, LIVE_MAP_ROSTER_SYNC_MS);
+    return () => window.clearInterval(id);
+  }, [socketConnected, query.refetch]);
 
   useEffect(() => {
-    setHttpPollActive(true);
     lastUnknownRefetchAtRef.current = 0;
     clearDeltas();
   }, [filters?.franchiseId, filters?.partnerId, clearDeltas]);
 
-  /** Option A — id socket inconnu → refetch snapshot (profil + couleur véhicule). */
   useEffect(() => {
-    if (!socketEnabled || status !== "connected" || !query.data) return;
+    if (!query.data) return;
+    const rosterIds = new Set(query.data.drivers.map((driver) => String(driver.id)));
+    pruneDeltas(rosterIds);
+  }, [query.data, query.dataUpdatedAt, pruneDeltas]);
+
+  useEffect(() => {
+    if (!socketConnected || !query.data) return;
 
     const unknownIds = collectUnknownLiveMapDriverIds(query.data.drivers, deltas);
     if (unknownIds.length === 0) return;
@@ -57,21 +73,19 @@ export function useLiveMapWithRealtime(filters?: LiveMapScopeFiltersValue) {
 
     lastUnknownRefetchAtRef.current = now;
     void query.refetch();
-  }, [deltas, query.data, query.refetch, socketEnabled, status]);
+  }, [deltas, query.data, query.refetch, socketConnected]);
 
   const data = useMemo(() => {
     if (!query.data) return undefined;
     return mergeLiveMapPositionDeltas(query.data, deltas);
   }, [query.data, deltas]);
 
-  const realtimeActive = socketEnabled && status === "connected";
-
   return {
     ...query,
     data,
     socketStatus: status as LiveMapSocketStatus,
-    realtimeActive,
-    httpPollingActive: httpPollActive,
+    realtimeActive: socketConnected,
+    httpPollingActive: legacy || !socketEnabled || !socketConnected,
     clearRealtimeDeltas: clearDeltas,
   };
 }

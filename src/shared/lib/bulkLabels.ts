@@ -24,3 +24,11 @@ export function driverBulkStatusMessage(
     `${count} chauffeurs marqués hors ligne`
   );
 }
+
+export function driverBulkSuspendMessage(count: number): string {
+  return pluralLabel(
+    count,
+    "1 chauffeur suspendu",
+    `${count} chauffeurs suspendus`
+  );
+}

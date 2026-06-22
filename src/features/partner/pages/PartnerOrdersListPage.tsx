@@ -4,21 +4,21 @@ import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
-import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
-import { FilterChips } from "@/shared/ui/FilterChips";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getTripStatusLabel, STATUS_FILTER_OPTIONS } from "@/shared/lib/tripLabels";
+import { getPaymentLabel } from "@/shared/lib/paymentLabels";
 import { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
   serverPaginationFromMeta,
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
-import { DateRangeFilter } from "@/shared/ui/DateRangeFilter";
+import { KpiCard } from "@/shared/ui/KpiCard";
 import type { TripStatus } from "@/shared/types";
 import type { PartnerBooking } from "../api/bookings.service";
 import { usePartnerOrdersList } from "../api/orders.queries";
+import { PartnerListFiltersPanel } from "../components/PartnerListFiltersPanel";
 
 export function PartnerOrdersListPage() {
   const [statusFilter, setStatusFilter] = useState<TripStatus | "all">("all");
@@ -83,6 +83,7 @@ export function PartnerOrdersListPage() {
       header: "Chauffeur",
       cell: (b) => b.driver_name ?? "—",
       exportValue: (b) => b.driver_name ?? "",
+      sortKey: (b) => b.driver_name ?? "",
     },
     {
       id: "payment_status",
@@ -91,10 +92,17 @@ export function PartnerOrdersListPage() {
       exportValue: (b) => b.payment_status ?? "",
     },
     {
+      id: "payment_method",
+      header: "Mode",
+      cell: (b) => (b.payment_method ? getPaymentLabel(b.payment_method) : "—"),
+      exportValue: (b) => (b.payment_method ? getPaymentLabel(b.payment_method) : ""),
+    },
+    {
       id: "amount",
       header: "Montant",
       cell: (b) => (b.amount_fcfa != null ? formatFCFA(b.amount_fcfa) : "—"),
       exportValue: (b) => (b.amount_fcfa != null ? String(b.amount_fcfa) : ""),
+      sortKey: (b) => b.amount_fcfa ?? 0,
     },
     {
       id: "status",
@@ -111,8 +119,16 @@ export function PartnerOrdersListPage() {
         </span>
       ),
       exportValue: (b) => formatDateTime(b.created_at),
+      sortKey: (b) => b.created_at ?? "",
     },
   ];
+
+  const allRows = data?.data ?? [];
+  const counters = data?.counters;
+  const kpiCompleted = counters?.completed ?? allRows.filter((b) => b.status === "completed").length;
+  const kpiInProgress = counters?.in_progress ?? allRows.filter((b) => b.status === "in_progress").length;
+  const kpiCancelled = counters?.cancelled ?? allRows.filter((b) => b.status === "cancelled").length;
+  const kpiTotal = counters?.total ?? meta?.total ?? 0;
 
   if (isError) {
     return <p className="text-sm text-red-600">Impossible de charger les courses.</p>;
@@ -125,29 +141,29 @@ export function PartnerOrdersListPage() {
         breadcrumb={["Partenaire", "Courses"]}
       />
 
-      <TableFiltersBar
+      {(meta || isLoading) && (
+        <div className="mb-5 grid gap-3 grid-cols-2 sm:grid-cols-4">
+          <KpiCard index={0} label="Total courses" value={String(kpiTotal)} isLoading={isLoading} />
+          <KpiCard index={1} label="En cours" value={String(kpiInProgress)} isLoading={isLoading} />
+          <KpiCard index={2} label="Complétées" value={String(kpiCompleted)} isLoading={isLoading} />
+          <KpiCard index={3} label="Annulées" value={String(kpiCancelled)} isLoading={isLoading} />
+        </div>
+      )}
+
+      <PartnerListFiltersPanel
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        statusOptions={STATUS_FILTER_OPTIONS}
+        allStatusValue="all"
+        dateRange={dateRange}
         search={table.search}
         onSearchChange={table.setSearch}
         searchPlaceholder="Réf., client, adresse, chauffeur…"
         totalLabel={meta ? `${meta.total} courses enregistrées` : undefined}
         hasActiveFilters={hasActiveFilters}
-        onReset={resetAll}
-      >
-        <FilterChips
-          options={STATUS_FILTER_OPTIONS}
-          value={statusFilter}
-          onChange={setStatusFilter}
-        />
-        <DateRangeFilter
-          preset={dateRange.preset}
-          onPresetChange={dateRange.setPreset}
-          customFrom={dateRange.customFrom}
-          customTo={dateRange.customTo}
-          onCustomFromChange={dateRange.setCustomFrom}
-          onCustomToChange={dateRange.setCustomTo}
-          rangeLabel={dateRange.rangeLabel}
-        />
-      </TableFiltersBar>
+        onResetAll={resetAll}
+        showAllDatePreset={false}
+      />
 
       <DataTable
         columns={columns}

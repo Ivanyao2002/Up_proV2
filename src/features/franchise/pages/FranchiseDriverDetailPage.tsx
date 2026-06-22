@@ -11,15 +11,22 @@ import { KycDocumentCard } from "@/shared/ui/KycDocumentCard";
 import { KycDocumentGroupCard } from "@/shared/ui/KycDocumentGroupCard";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
+import { AccountStatusPill, AvailabilityPill } from "@/shared/ui/DriverPills";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { RejectReasonModal } from "@/shared/ui/RejectReasonModal";
+import { DataTable, type Column } from "@/shared/ui/DataTable";
+import { StatusPill } from "@/shared/ui/StatusPill";
+import { WalletBalancesCard } from "@/shared/finance/WalletBalancesCard";
 import { usePermission } from "@/core/auth/usePermission";
 import { canReviewKycDocument } from "@/shared/lib/kycReview";
 import { useScope } from "@/core/auth/useScope";
 import { DriverTransferModal } from "@/features/fleet/components/DriverTransferModal";
 import { useTransferDriverToPartner } from "@/features/fleet/api/driverTransfer.queries";
 import { resolveDriverSourcePartnerId } from "@/features/fleet/api/driverTransfer.service";
+import type { DriverTripRow, DriverWalletTransaction } from "@/features/fleet/api/driverDetail.service";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { getTripStatusLabel } from "@/shared/lib/tripLabels";
+import type { TripMatchingOutcome } from "@/shared/types";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { useRouter } from "next/navigation";
@@ -33,6 +40,8 @@ import {
   useSuspendFranchiseDriver,
   useUnsuspendFranchiseDriver,
   useUpdateFranchiseDriver,
+  useFranchiseDriverWalletTransactions,
+  useFranchiseDriverTrips,
 } from "../api/drivers.queries";
 
 interface FranchiseDriverDetailPageProps {
@@ -49,12 +58,13 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [suspendReason, setSuspendReason] = useState("");
   const [rejectDocTarget, setRejectDocTarget] = useState<string | null>(null);
   const canModerate = usePermission("fleet.kyc.approve");
   const { franchiseId } = useScope();
 
   const { data: driver, isLoading, isError } = useFranchiseDriverDetail(driverId);
+  const { data: tripsData, isLoading: tripsLoading } = useFranchiseDriverTrips(driverId);
+  const { data: walletData, isLoading: walletLoading } = useFranchiseDriverWalletTransactions(driverId);
   const approveKyc = useApproveFranchiseDriverKyc();
   const rejectKyc = useRejectFranchiseDriverKyc();
   const approveDoc = useApproveFranchiseDocument(driverId);
@@ -67,7 +77,7 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
 
   if (isLoading) {
     return (
-      <DetailPageSkeleton title="Chauffeur" breadcrumb={["Franchise", "Chauffeurs"]} />
+      <DetailPageSkeleton title="Chauffeur" breadcrumb={["Franchise", "Flotte", "Chauffeurs"]} />
     );
   }
 
@@ -85,6 +95,10 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
   const fullName = `${driver.first_name} ${driver.last_name}`;
   const isPending = driver.account_status === "pending";
   const isSuspended = driver.account_status === "suspended";
+  const canManageAvailability = driver.account_status === "approved";
+  const isOffline = driver.availability === "offline" || driver.availability === "paused";
+  const actionBusy = suspendDriver.isPending || unsuspendDriver.isPending || transferDriver.isPending || deleteDriver.isPending;
+  const setAvailabilityOffline = () => suspendDriver.mutate({ id: driverId, reason: undefined });
   const timelineItems = driverTimelineToItems(driver.timeline || []);
   const kycDisplayItems = organizeDriverKycDocuments(driver.kyc_documents || []);
   const sourcePartnerId = resolveDriverSourcePartnerId(driver);
@@ -93,15 +107,109 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
   const tabs = [
     { id: "kyc", label: "KYC & documents" },
     { id: "overview", label: "Aperçu" },
+    { id: "activity", label: "Activité" },
+    { id: "wallet", label: "Portefeuille" },
+  ];
+
+  const offerOutcomeLabel: Record<TripMatchingOutcome, string> = {
+    declined: "Proposition refusée",
+    no_response: "Sans réponse",
+    accepted: "Acceptée",
+  };
+
+  const tripColumns: Column<DriverTripRow>[] = [
+    {
+      id: "ref",
+      header: "Réf.",
+      cell: (t) => {
+        const tripId = t.id.startsWith("offer-")
+          ? t.id.replace(/^offer-(\d+)-.*/, "$1")
+          : t.id;
+        return (
+          <Link href={`/franchise/ops/trips/${tripId}`} className="font-medium text-foreground hover:text-teal">
+            {t.ref}
+          </Link>
+        );
+      },
+      exportValue: (t) => t.ref,
+    },
+    {
+      id: "route",
+      header: "Trajet",
+      cell: (t) => <span className="text-sm">{t.from_label} → {t.to_label}</span>,
+      exportValue: (t) => `${t.from_label} → ${t.to_label}`,
+    },
+    {
+      id: "amount",
+      header: "Montant",
+      className: "tabular-nums",
+      cell: (t) => formatFCFA(t.amount_fcfa),
+      exportValue: (t) => t.amount_fcfa,
+    },
+    {
+      id: "status",
+      header: "Statut",
+      cell: (t) =>
+        t.offer_outcome && t.offer_outcome !== "accepted" ? (
+          <span className="inline-flex rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
+            {offerOutcomeLabel[t.offer_outcome]}
+          </span>
+        ) : (
+          <StatusPill status={t.status} />
+        ),
+      exportValue: (t) =>
+        t.offer_outcome && t.offer_outcome !== "accepted"
+          ? offerOutcomeLabel[t.offer_outcome]
+          : getTripStatusLabel(t.status),
+    },
+    {
+      id: "date",
+      header: "Date",
+      cell: (t) => formatDateTime(t.created_at),
+      exportValue: (t) => t.created_at,
+    },
+  ];
+
+  const walletColumns: Column<DriverWalletTransaction>[] = [
+    {
+      id: "label",
+      header: "Libellé",
+      cell: (tx) => <span className="text-sm">{tx.label}</span>,
+      exportValue: (tx) => tx.label,
+    },
+    {
+      id: "amount",
+      header: "Montant",
+      className: "tabular-nums",
+      cell: (tx) => (
+        <span className={tx.type === "credit" ? "text-teal-dark" : "text-red-600"}>
+          {tx.type === "credit" ? "+" : "−"}
+          {formatFCFA(tx.amount_fcfa)}
+        </span>
+      ),
+      exportValue: (tx) => (tx.type === "credit" ? tx.amount_fcfa : -tx.amount_fcfa),
+    },
+    {
+      id: "balance",
+      header: "Solde après",
+      className: "tabular-nums",
+      cell: (tx) => formatFCFA(tx.balance_after_fcfa),
+      exportValue: (tx) => tx.balance_after_fcfa,
+    },
+    {
+      id: "date",
+      header: "Date",
+      cell: (tx) => formatDateTime(tx.created_at),
+      exportValue: (tx) => tx.created_at,
+    },
   ];
 
   return (
     <div className="animate-fade-up">
-      {/* Header sticky résumé */}
-      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+      <div className="page-sticky-header">
         <PageHeader
           title={fullName}
-          breadcrumb={["Franchise", "Chauffeurs", fullName]}
+          breadcrumb={["Franchise", "Flotte", "Chauffeurs", fullName]}
           actions={
             <div className="flex flex-wrap items-center gap-2">
               {isPending && canModerate && (
@@ -110,35 +218,52 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                   <Button variant="secondary" onClick={() => setConfirmReject(true)}>Rejeter</Button>
                 </>
               )}
+              {isSuspended && (
+                <Button disabled={actionBusy} onClick={() => setConfirmUnsuspend(true)}>
+                  Réactiver
+                </Button>
+              )}
+              {canManageAvailability && (
+                <>
+                  {isOffline ? (
+                    <Button disabled={actionBusy} onClick={() => unsuspendDriver.mutate(driverId)}>
+                      Mettre en ligne
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" disabled={actionBusy} onClick={() => setAvailabilityOffline()}>
+                      Hors ligne
+                    </Button>
+                  )}
+                  <Button
+                    variant="secondary"
+                    className="!text-xs"
+                    disabled={actionBusy}
+                    onClick={() => setConfirmSuspend(true)}
+                  >
+                    Suspendre
+                  </Button>
+                </>
+              )}
               <Button variant="secondary" onClick={() => setShowEditModal(true)}>Modifier</Button>
               {canTransferDriver && (
-                <Button
-                  variant="secondary"
-                  disabled={transferDriver.isPending}
-                  onClick={() => setShowTransferModal(true)}
-                >
+                <Button variant="secondary" disabled={actionBusy} onClick={() => setShowTransferModal(true)}>
                   Transférer vers un partenaire
                 </Button>
               )}
-              {isSuspended ? (
-                <Button variant="secondary" onClick={() => setConfirmUnsuspend(true)}
-                  className="border-teal text-teal hover:bg-teal/10">
-                  Réactiver
-                </Button>
-              ) : (
-                <Button variant="secondary" onClick={() => setConfirmSuspend(true)}
-                  className="border-amber-500 text-amber-600 hover:bg-amber-50">
-                  Suspendre
-                </Button>
-              )}
-              <Button variant="secondary" onClick={() => setConfirmDelete(true)}
-                className="border-red-300 text-red-600 hover:bg-red-50">
+              <Button
+                variant="secondary"
+                disabled={actionBusy}
+                onClick={() => setConfirmDelete(true)}
+                className="border-red-300 text-red-600 hover:bg-red-50"
+              >
                 Supprimer
               </Button>
+              <AccountStatusPill status={driver.account_status} />
+              {canManageAvailability && <AvailabilityPill status={driver.availability} />}
             </div>
           }
         />
-        <p className="mt-1 text-sm text-muted">
+        <p className="text-sm text-muted break-words">
           {driver.driver_code ? (
             <span className="font-medium text-foreground">{driver.driver_code}</span>
           ) : null}
@@ -149,14 +274,13 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-        {/* Contenu onglets */}
+      <div className="detail-page-grid">
         <div className="min-w-0">
           <Tabs tabs={tabs} active={tab} onChange={setTab} />
 
           <div className="mt-6">
             {tab === "kyc" && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {driver.kyc_documents?.length === 0 ? (
                   <div className="rounded-card border border-dashed border-border bg-surface p-8 text-center">
                     <p className="font-medium text-foreground">Aucun document KYC</p>
@@ -182,9 +306,7 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                         <KycDocumentCard
                           key={item.document.id}
                           document={item.document}
-                          canReview={
-                            canModerate && canReviewKycDocument(item.document)
-                          }
+                          canReview={canModerate && canReviewKycDocument(item.document)}
                           onApprove={() => approveDoc.mutate(item.document.id)}
                           onReject={() => setRejectDocTarget(item.document.id)}
                         />
@@ -192,34 +314,29 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                     )}
                   </div>
                 )}
+
               </div>
             )}
 
             {tab === "overview" && (
               <div className="space-y-6">
-                {/* KPIs stats */}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <KpiCard label="Courses terminées" value={String(driver.stats?.trips_completed ?? driver.total_completed_orders ?? 0)} variant="navy" />
-                  <KpiCard label="Courses totales" value={String(driver.stats?.trips_total ?? driver.trips_count ?? 0)} variant="teal" />
-                  <KpiCard label="Annulations" value={String(driver.stats?.trips_cancelled ?? 0)} variant="navy" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <KpiCard label="Courses totales" value={String(driver.stats?.trips_total ?? driver.trips_count ?? 0)} />
+                  <KpiCard label="Taux d'acceptation" value={driver.stats?.acceptance_rate_pct != null ? `${driver.stats.acceptance_rate_pct} %` : "—"} />
                   <KpiCard
                     label="Note moyenne"
-                    value={(driver.rating_avg ?? driver.rating) > 0 ? `${(driver.rating_avg ?? driver.rating).toFixed(1)} / 5` : "—"}
-                    variant="teal"
+                    value={(driver.rating_avg ?? driver.rating) > 0 ? `${(driver.rating_avg ?? driver.rating).toFixed(2)} / 5` : "—"}
                   />
-                  <KpiCard
-                    label="Taux d'acceptation"
-                    value={driver.stats?.acceptance_rate_pct != null ? `${driver.stats.acceptance_rate_pct} %` : "—"}
-                    variant="navy"
-                  />
-                  <KpiCard
-                    label="Score de fiabilité"
-                    value={driver.reliability_score != null ? `${driver.reliability_score} / 100` : "—"}
-                    variant="teal"
-                  />
+                  <KpiCard label="Véhicule" value={driver.vehicle_label ?? "Non renseigné"} />
                 </div>
 
-                {/* Infos conducteur */}
+                <div className="rounded-card border border-border bg-surface p-6 shadow-card">
+                  <h3 className="text-sm font-semibold text-foreground">Historique</h3>
+                  <div className="mt-4">
+                    <Timeline items={timelineItems} />
+                  </div>
+                </div>
+
                 <div className="rounded-card border border-border bg-surface p-5 shadow-card">
                   <h3 className="mb-3 text-sm font-semibold text-foreground">Profil conducteur</h3>
                   <dl className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
@@ -228,12 +345,8 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                       <dd className="font-medium text-foreground">{driver.ride_category_code ?? "—"}</dd>
                     </div>
                     <div className="flex justify-between gap-2">
-                      <dt className="text-muted">Taux d'annulation</dt>
+                      <dt className="text-muted">Taux d&apos;annulation</dt>
                       <dd className="font-medium text-foreground">{driver.cancellation_rate != null ? `${driver.cancellation_rate} %` : "—"}</dd>
-                    </div>
-                    <div className="flex justify-between gap-2">
-                      <dt className="text-muted">Nombre d'avis</dt>
-                      <dd className="font-medium text-foreground">{driver.rating_count ?? "—"}</dd>
                     </div>
                     <div className="flex justify-between gap-2">
                       <dt className="text-muted">Paiement cash</dt>
@@ -244,80 +357,77 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                       <dd className={`font-medium ${driver.accepts_wallet ? "text-teal" : "text-muted"}`}>{driver.accepts_wallet ? "Oui" : "Non"}</dd>
                     </div>
                     <div className="flex justify-between gap-2">
-                      <dt className="text-muted">Dernière connexion</dt>
-                      <dd className="font-medium text-foreground">{driver.last_online_at ? formatDateTime(driver.last_online_at) : "—"}</dd>
-                    </div>
-                    <div className="flex justify-between gap-2">
                       <dt className="text-muted">Statut KYC</dt>
                       <dd className="font-medium text-foreground">{driver.kyc_status ?? driver.approval_status ?? "—"}</dd>
-                    </div>
-                    <div className="flex justify-between gap-2">
-                      <dt className="text-muted">Onboarding</dt>
-                      <dd className="font-medium text-foreground">{driver.onboarding_status ?? "—"}</dd>
                     </div>
                   </dl>
                 </div>
 
-                {/* Timeline */}
-                {timelineItems.length > 0 && (
-                  <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-                    <h3 className="text-sm font-semibold text-foreground">Historique</h3>
-                    <div className="mt-4">
-                      <Timeline items={timelineItems} />
-                    </div>
+              </div>
+            )}
+
+            {tab === "activity" && (
+              <DataTable
+                columns={tripColumns}
+                data={tripsData?.data ?? []}
+                rowKey={(t) => t.id}
+                isLoading={tripsLoading}
+                exportFileName={`chauffeur-${driverId}-courses`}
+                emptyTitle="Aucune course"
+                emptyDescription="Ce chauffeur n'a pas encore effectué de course."
+              />
+            )}
+
+            {tab === "wallet" && (
+              <div className="space-y-6">
+                <div className="rounded-card border border-border bg-surface p-5 shadow-card">
+                  <h3 className="text-sm font-semibold text-foreground">Transactions portefeuille</h3>
+                  <p className="mt-1 text-xs text-muted">Mouvements récents du portefeuille chauffeur.</p>
+                  <div className="mt-4">
+                    {walletLoading ? (
+                      <div className="h-24 animate-pulse rounded bg-navy/10" />
+                    ) : (
+                      <DataTable
+                        columns={walletColumns}
+                        data={walletData?.data ?? []}
+                        rowKey={(tx) => tx.id}
+                        exportFileName={`chauffeur-${driverId}-wallet`}
+                        emptyTitle="Aucune transaction"
+                      />
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Panneau latéral */}
         <aside className="space-y-4">
-          {/* Statut en ligne + wallet */}
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted">Portefeuille</p>
-              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${driver.is_online ? "bg-teal/10 text-teal" : "bg-muted/10 text-muted"}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${driver.is_online ? "bg-teal" : "bg-muted"}`} />
-                {driver.is_online ? "En ligne" : "Hors ligne"}
-              </span>
-            </div>
-            <p className="mt-2 text-2xl font-semibold tabular-nums text-heading">
-              {formatFCFA(driver.stats?.wallet_balance_fcfa ?? driver.wallet_balance_xof ?? 0)}
-            </p>
-          </div>
+          <WalletBalancesCard
+            balances={{
+              balance_fcfa: driver.stats?.wallet_balance_fcfa ?? driver.wallet_balance_xof ?? 0,
+              withdrawable_balance_xof: driver.stats?.wallet_withdrawable_fcfa,
+              non_withdrawable_balance_xof: driver.stats?.wallet_non_withdrawable_fcfa,
+            }}
+            actions={
+              <Link
+                href="/franchise/finance/driver-transfers"
+                className="inline-flex w-full items-center justify-center rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-navy/5"
+              >
+                Recharger un chauffeur
+              </Link>
+            }
+          />
 
-          {/* Véhicule */}
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
             <h3 className="font-semibold text-foreground">Véhicule assigné</h3>
-            <p className="mt-3 text-muted">
-              {driver.vehicle_label ?? "Aucun véhicule assigné."}
-            </p>
+            {driver.vehicle_label ? (
+              <p className="mt-3 font-medium text-foreground">{driver.vehicle_label}</p>
+            ) : (
+              <p className="mt-3 text-muted">Aucun véhicule assigné.</p>
+            )}
           </div>
 
-          {/* Contacts */}
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-foreground">Contact</h3>
-            <dl className="mt-3 space-y-2">
-              <div className="flex justify-between gap-2">
-                <dt className="text-muted">Téléphone</dt>
-                <dd className="text-foreground">{driver.phone ?? "—"}</dd>
-              </div>
-              {driver.email && (
-                <div className="flex justify-between gap-2">
-                  <dt className="text-muted">Email</dt>
-                  <dd className="truncate text-foreground">{driver.email}</dd>
-                </div>
-              )}
-              <div className="flex justify-between gap-2">
-                <dt className="text-muted">Zone</dt>
-                <dd className="text-foreground">{driver.zone ?? "—"}</dd>
-              </div>
-            </dl>
-          </div>
-
-          {/* Infos administratives */}
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
             <h3 className="font-semibold text-foreground">Informations</h3>
             <dl className="mt-3 space-y-2 text-muted">
@@ -328,9 +438,15 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                 </div>
               )}
               <div className="flex justify-between gap-2">
-                <dt>Inscrit le</dt>
+                <dt>Inscription</dt>
                 <dd className="text-foreground">
                   {driver.registered_at ? formatDateTime(driver.registered_at) : "—"}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt>Dernière connexion</dt>
+                <dd className="text-foreground">
+                  {driver.last_online_at ? formatDateTime(driver.last_online_at) : "—"}
                 </dd>
               </div>
               {driver.approved_at && (
@@ -343,11 +459,15 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
                 <dt>Partenaire</dt>
                 <dd className="text-right text-foreground">
                   {driver.owner_id ? (
-                    <Link href={`/franchise/partners/${driver.owner_id}`} className="text-teal hover:underline">
+                    <Link href={`/franchise/partners/${driver.owner_id}`} className="font-medium text-teal hover:underline">
                       {driver.owner_name ?? "—"}
                     </Link>
                   ) : (driver.owner_name ?? "—")}
                 </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt>Zone</dt>
+                <dd className="text-foreground">{driver.zone ?? "—"}</dd>
               </div>
             </dl>
           </div>
@@ -393,46 +513,17 @@ export function FranchiseDriverDetailPage({ driverId }: FranchiseDriverDetailPag
         onCancel={() => setRejectDocTarget(null)}
       />
 
-      {/* Modal Suspendre */}
-      {confirmSuspend && (
-        <ModalPortal>
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-card border border-border bg-surface shadow-xl">
-            <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <h2 className="text-base font-semibold text-foreground">Suspendre ce chauffeur ?</h2>
-            </div>
-            <div className="space-y-4 px-6 py-5">
-              <p className="text-sm text-muted">
-                Le chauffeur ne pourra plus recevoir de courses pendant la suspension.
-              </p>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-muted">Motif (optionnel)</label>
-                <input
-                  type="text"
-                  placeholder="Ex : comportement signalé"
-                  className="w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal/40"
-                  value={suspendReason}
-                  onChange={(e) => setSuspendReason(e.target.value)}
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-1">
-                <Button variant="secondary" onClick={() => setConfirmSuspend(false)}>Annuler</Button>
-                <Button
-                  className="bg-amber-600 text-white hover:bg-amber-700"
-                  onClick={() => {
-                    suspendDriver.mutate({ id: driverId, reason: suspendReason || undefined });
-                    setConfirmSuspend(false);
-                    setSuspendReason("");
-                  }}
-                >
-                  Confirmer la suspension
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-        </ModalPortal>
-      )}
+      <ConfirmModal
+        open={confirmSuspend}
+        title="Suspendre ce chauffeur ?"
+        message="Il ne pourra plus recevoir de courses tant que le compte est suspendu."
+        confirmLabel="Suspendre"
+        variant="danger"
+        onConfirm={() => {
+          suspendDriver.mutate({ id: driverId, reason: undefined }, { onSuccess: () => setConfirmSuspend(false) });
+        }}
+        onCancel={() => setConfirmSuspend(false)}
+      />
 
       <ConfirmModal
         open={confirmUnsuspend}

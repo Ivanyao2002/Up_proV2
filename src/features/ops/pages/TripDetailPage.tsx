@@ -9,6 +9,7 @@ import { Timeline } from "@/shared/ui/Timeline";
 import { tripTimelineToItems } from "@/shared/lib/tripTimeline";
 import { Button } from "@/shared/ui/Button";
 import { TripRoutePreview } from "../components/TripRoutePreview";
+import { TripRouteAddressesPanel } from "../components/TripRouteAddressesPanel";
 import { TripAssignedVehicleCard } from "../components/TripAssignedVehicleCard";
 import { TripReassignModal } from "../components/TripReassignModal";
 import { isTripLiveOnMap } from "@/shared/lib/tripDriver";
@@ -81,10 +82,22 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
             </div>
           }
         />
+        <p className="-mt-2 mb-4 text-sm text-muted">
+          <span className="font-medium text-foreground">{trip.client_name}</span>
+          {" · "}
+          <span className="text-foreground">{trip.from_label}</span>
+          <span className="mx-1.5 text-muted">→</span>
+          <span className="text-foreground">{trip.to_label}</span>
+        </p>
       </div>
 
       <div className="detail-page-grid">
         <div className="space-y-6">
+          <TripRouteAddressesPanel
+            fromLabel={trip.from_label}
+            toLabel={trip.to_label}
+          />
+
           <TripRoutePreview
             fromLabel={trip.from_label}
             toLabel={trip.to_label}

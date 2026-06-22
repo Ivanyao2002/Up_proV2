@@ -1,4 +1,4 @@
-import type { ApiV1Pagination } from "@/core/api/v1Pagination";
+  import type { ApiV1Pagination } from "@/core/api/v1Pagination";
 import type { ApiLiveMapOrderBase } from "@/features/ops/api/liveMap.api.types";
 import type { ApiAdminPartnerItem } from "./adminPartners.api.types";
 
@@ -50,10 +50,19 @@ export interface ApiV1FranchisePartnersResponse {
   pagination?: ApiV1Pagination;
 }
 
+export interface ApiV1DriverFilterOptions {
+  franchises?: { id: string; name: string; city?: string; cityLabel?: string }[];
+  partners?: { id: string; name: string; franchiseId?: string }[];
+  cities?: { id: string; name: string; slug: string; countryId: string }[];
+  complianceStatuses?: { value: string; label: string }[];
+  documentTypes?: { code: string; label: string }[];
+}
+
 export interface ApiV1FranchiseDriversResponse {
   status: string;
   items?: { id: string }[];
   pagination?: ApiV1Pagination;
+  filterOptions?: ApiV1DriverFilterOptions;
 }
 
 export interface ApiV1FranchiseRevenueResponse {

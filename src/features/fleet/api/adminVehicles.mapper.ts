@@ -27,35 +27,39 @@ function mapCategoryCode(code?: string): VehicleCategory {
 }
 
 function resolveDriverName(item: ApiV1VehicleItem): string | null {
-  const d = (item as unknown as { driver?: { name?: string | null; first_name?: string | null; last_name?: string | null; profile?: { displayName?: string | null } | null } | null }).driver;
-  if (!d) return null;
-  return d.name ?? d.first_name ?? d.profile?.displayName ?? null;
+  if (item.driver) {
+    const d = item.driver;
+    const profileName = d.profile?.displayName ?? [d.profile?.firstName, d.profile?.lastName].filter(Boolean).join(" ").trim();
+    return profileName || d.displayName || null;
+  }
+  if (item.driverSummary?.hasAssignedDriver) return "Assigné";
+  return null;
 }
 
 function readLabelParts(
   item: ApiV1VehicleItem,
   lookups?: VehicleCatalogLookups
 ): { brand: string; model: string; color: string; categoryLabel: string; categoryCode?: string } {
-  const brand = item.brand_id
-    ? lookups?.brandById.get(item.brand_id)?.label ?? ""
-    : "";
-  const model = item.model_id
-    ? lookups?.modelById.get(item.model_id)?.label ?? ""
-    : "";
-  const color = item.color_id
-    ? lookups?.colorById.get(item.color_id)?.label ?? ""
-    : "";
-  const category = item.category_id
-    ? lookups?.categoryById.get(item.category_id)
-    : undefined;
+  const brand =
+    item.brand?.label ??
+    item.brandLabel ??
+    (item.brand_id ? lookups?.brandById.get(item.brand_id)?.label ?? "" : "");
+  const model =
+    item.model?.label ??
+    item.modelLabel ??
+    (item.model_id ? lookups?.modelById.get(item.model_id)?.label ?? "" : "");
+  const color =
+    item.color?.label ??
+    (item.color_id ? lookups?.colorById.get(item.color_id)?.label ?? "" : "");
+  const categoryCode =
+    item.category?.code ??
+    item.categoryCode ??
+    (item.category_id ? lookups?.categoryById.get(item.category_id)?.code : undefined);
+  const categoryLabel =
+    item.category?.label ??
+    (item.category_id ? lookups?.categoryById.get(item.category_id)?.label ?? "—" : "—");
 
-  return {
-    brand,
-    model,
-    color,
-    categoryLabel: category?.label ?? "—",
-    categoryCode: category?.code,
-  };
+  return { brand, model, color, categoryLabel, categoryCode };
 }
 
 export function mapApiVehicleToVehicle(
@@ -63,9 +67,10 @@ export function mapApiVehicleToVehicle(
   lookups?: VehicleCatalogLookups
 ): Vehicle {
   const parts = readLabelParts(item, lookups);
+  const brandModelLabel = [parts.brand, parts.model].filter(Boolean).join(" ").trim();
   const label =
-    [parts.brand, parts.model].filter(Boolean).join(" ").trim() ||
-    (item.plate_number?.trim() ? `Véhicule ${item.plate_number}` : `Véhicule ${String(item.id).slice(0, 8)}`);
+    brandModelLabel ||
+    (item.plate_number?.trim() ? item.plate_number.trim() : `Véhicule ${String(item.id).slice(0, 8)}`);
 
   return {
     id: item.id,
@@ -82,9 +87,12 @@ export function mapApiVehicleToVehicle(
     approval_status: mapApiVehicleStatus(item.status),
     created_at: item.created_at ?? new Date().toISOString(),
     partner_id: item.partner_id ?? null,
-    partner_name: item.partner_id
-      ? lookups?.partnerNameById.get(item.partner_id) ?? null
-      : null,
+    partner_name:
+      item.partner?.tradeName ??
+      item.partner?.trade_name ??
+      item.partnerName ??
+      item.partner_name ??
+      (item.partner_id ? lookups?.partnerNameById.get(item.partner_id) ?? null : null),
   };
 }
 

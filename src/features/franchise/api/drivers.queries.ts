@@ -28,10 +28,36 @@ export function useFranchiseDriversList(params?: ListParams) {
   });
 }
 
+export function useFranchiseDriverFilterOptions() {
+  return useQuery({
+    queryKey: [...franchiseDriversKeys.all, "filter-options"] as const,
+    queryFn: () => franchiseDriversService.getFilterOptions(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useFranchiseKycQueue(params?: ListParams) {
   return useQuery({
     queryKey: franchiseDriversKeys.kycQueue(params),
     queryFn: () => franchiseDriversService.kycQueue(params),
+  });
+}
+
+export function useFranchiseDriverTrips(id: string) {
+  return useQuery({
+    queryKey: [...franchiseDriversKeys.detail(id), "trips"] as const,
+    queryFn: () => franchiseDriversService.getDriverTrips(id),
+    enabled: Boolean(id),
+    staleTime: 0,
+  });
+}
+
+export function useFranchiseDriverWalletTransactions(id: string) {
+  return useQuery({
+    queryKey: [...franchiseDriversKeys.detail(id), "wallet"] as const,
+    queryFn: () => franchiseDriversService.getWalletTransactions(id),
+    enabled: Boolean(id),
+    staleTime: 0,
   });
 }
 
@@ -40,6 +66,7 @@ export function useFranchiseDriverDetail(id: string) {
     queryKey: franchiseDriversKeys.detail(id),
     queryFn: () => franchiseDriversService.getById(id),
     enabled: Boolean(id),
+    staleTime: 0,
   });
 }
 
@@ -157,6 +184,19 @@ export function useDeleteFranchiseDriver() {
       notificationService.success("Chauffeur supprimé");
     },
     onError: () => notificationService.error("Suppression impossible"),
+  });
+}
+
+export function useTransferFranchiseDriver() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, targetPartnerId }: { id: string; targetPartnerId: string }) =>
+      franchiseDriversService.transfer(id, targetPartnerId),
+    onSuccess: () => {
+      invalidateFranchiseDriverQueries(qc);
+      notificationService.success("Chauffeur transféré");
+    },
+    onError: () => notificationService.error("Transfert impossible"),
   });
 }
 

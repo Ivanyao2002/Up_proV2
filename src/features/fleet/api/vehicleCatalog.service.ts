@@ -1,5 +1,6 @@
 import { apiClient } from "@/core/http/apiClient";
 import { LINKS } from "@/core/api/links";
+import { useAuthStore } from "@/core/auth/authStore";
 import type { ApiAdminPartnersResponse } from "@/features/network/api/adminPartners.api.types";
 import type {
   ApiCatalogBrandModelsResponse,
@@ -63,6 +64,8 @@ export async function fetchVehicleColors(): Promise<ApiCatalogVehicleColor[]> {
 }
 
 async function fetchPartnerNameById(): Promise<Map<string, string>> {
+  const scope = useAuthStore.getState().user?.scope ?? "partner";
+  if (scope !== "platform") return new Map();
   try {
     const response = await apiClient.get<ApiAdminPartnersResponse>(
       `${LINKS.admin.v1.partners}?limit=200`

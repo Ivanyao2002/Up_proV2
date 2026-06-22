@@ -5,6 +5,7 @@ import { useScopeQueryKey } from "@/core/auth/scopeQueryKey";
 import { driverDetailKeys } from "./driverDetail.keys";
 import { driverDetailService } from "./driverDetail.service";
 import { driversKeys } from "./drivers.keys";
+import { liveMapKeys } from "@/features/ops/api/liveMap.keys";
 import { kycKeys } from "./kyc.keys";
 import { kycService } from "./kyc.service";
 import { notificationService } from "@/core/http/notificationService";
@@ -120,6 +121,7 @@ export function useSetDriverAvailability(id: string) {
     onSuccess: (data) => {
       void qc.invalidateQueries({ queryKey: driverDetailKeys.detail(id) });
       void qc.invalidateQueries({ queryKey: driversKeys.all(scopeKey) });
+      void qc.invalidateQueries({ queryKey: liveMapKeys.all });
       notificationService.success(data.message);
     },
   });

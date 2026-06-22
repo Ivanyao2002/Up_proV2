@@ -4,11 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
-import { FilterChips } from "@/shared/ui/FilterChips";
-import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
-import { SelectFilter } from "@/shared/ui/SelectFilter";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { ServicePill } from "@/shared/ui/ServicePill";
+import { KpiCard } from "@/shared/ui/KpiCard";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import {
   getServiceLabel,
@@ -21,11 +19,12 @@ import {
   serverPaginationFromMeta,
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
-import { DateRangeFilter } from "@/shared/ui/DateRangeFilter";
 import type { Trip, TripStatus } from "@/shared/types";
-import { FranchiseLiveMapPartnerFilter } from "../components/FranchiseLiveMapPartnerFilter";
 import type { FranchiseLiveMapFiltersValue } from "../api/liveMap.types";
 import { useFranchiseTripsList } from "../api/trips.queries";
+import { useFranchiseDashboard } from "../api/dashboard.queries";
+import { AdminTripsListHero } from "@/features/ops/components/AdminTripsListHero";
+import { FranchiseTripsFiltersPanel } from "../components/FranchiseTripsFiltersPanel";
 
 const SERVICE_OPTIONS = [
   { value: "all" as const, label: "Tous services" },
@@ -72,6 +71,7 @@ export function FranchiseTripsListPage() {
     statusFilter,
     table.listParams
   );
+  const { data: dashboard } = useFranchiseDashboard();
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
@@ -176,73 +176,90 @@ export function FranchiseTripsListPage() {
     );
   }
 
+  const filteredTotal = meta?.total ?? rows.length;
+  const tripsToday = dashboard?.trips_today ?? 0;
+
   return (
     <div className="animate-fade-up">
-      {/* Header sticky */}
-      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
-        <PageHeader title="Courses" breadcrumb={["Franchise", "Courses"]} />
-        {meta && (
-          <p className="mt-1 text-sm text-muted">
-            {meta.total.toLocaleString("fr-CI")} courses sur le territoire
-          </p>
-        )}
+      <PageHeader title="Courses" breadcrumb={["Franchise", "Courses"]} />
+      <p className="-mt-2 mb-6 text-sm text-muted">
+        Consultez et filtrez l&apos;ensemble des courses de votre territoire — par statut, service et partenaire.
+      </p>
+
+      <div className="animate-stagger space-y-6">
+        <AdminTripsListHero
+          filteredTotal={filteredTotal}
+          rangeLabel={dateRange.rangeLabel ?? "Période sélectionnée"}
+          tripsToday={tripsToday}
+          trendPct={dashboard?.trips_today_trend_pct}
+        />
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KpiCard
+            index={0}
+            label="En cours aujourd'hui"
+            value={String(dashboard?.trips_in_progress_today ?? "—")}
+            hint={
+              dashboard
+                ? `${dashboard.trips_completed_today} terminées · ${dashboard.trips_cancelled_today} annulées`
+                : "Chargement des indicateurs…"
+            }
+            trend={
+              dashboard && dashboard.trips_in_progress_today > 0 ? "Live" : undefined
+            }
+          />
+          <KpiCard
+            index={1}
+            label="Terminées aujourd'hui"
+            value={String(dashboard?.trips_completed_today ?? "—")}
+            hint="Courses clôturées sur la journée"
+          />
+          <KpiCard
+            index={2}
+            label="Annulées aujourd'hui"
+            value={String(dashboard?.trips_cancelled_today ?? "—")}
+            hint="Courses annulées ou expirées"
+          />
+        </div>
+
+        <FranchiseTripsFiltersPanel
+          filterOptions={filterOptions}
+          scope={scope}
+          onScopeChange={setScope}
+          serviceFilter={serviceFilter}
+          onServiceFilterChange={(v) => setServiceFilter(v as (typeof SERVICE_OPTIONS)[number]["value"])}
+          serviceOptions={SERVICE_OPTIONS}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          statusOptions={STATUS_FILTER_OPTIONS}
+          dateRange={dateRange}
+          search={table.search}
+          onSearchChange={table.setSearch}
+          totalLabel={meta ? `${meta.total.toLocaleString("fr-CI")} courses` : undefined}
+          hasActiveFilters={hasActiveFilters}
+          onResetAll={resetAll}
+        />
+
+        <section className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
+          <div className="px-2 pb-2">
+            <DataTable
+              columns={columns}
+              data={rows}
+              rowKey={(t) => t.id}
+              isLoading={isLoading}
+              exportFileName="courses-franchise"
+              emptyTitle="Aucune course"
+              emptyDescription="Aucun résultat pour ces filtres."
+              pagination={false}
+              serverPagination={serverPaginationFromMeta(
+                meta,
+                table.setPage,
+                table.setPageSize
+              )}
+            />
+          </div>
+        </section>
       </div>
-
-      {filterOptions && (
-        <FranchiseLiveMapPartnerFilter
-          options={filterOptions}
-          value={scope}
-          onChange={setScope}
-        />
-      )}
-
-      <TableFiltersBar
-        search={table.search}
-        onSearchChange={table.setSearch}
-        searchPlaceholder="Réf., client, chauffeur, adresse…"
-        totalLabel={
-          meta ? `${meta.total.toLocaleString("fr-CI")} courses` : undefined
-        }
-        hasActiveFilters={hasActiveFilters}
-        onReset={resetAll}
-      >
-        <FilterChips
-          options={STATUS_FILTER_OPTIONS}
-          value={statusFilter}
-          onChange={setStatusFilter}
-        />
-        <SelectFilter
-          label="Service"
-          value={serviceFilter}
-          onChange={setServiceFilter}
-          options={SERVICE_OPTIONS}
-        />
-        <DateRangeFilter
-          preset={dateRange.preset}
-          onPresetChange={dateRange.setPreset}
-          customFrom={dateRange.customFrom}
-          customTo={dateRange.customTo}
-          onCustomFromChange={dateRange.setCustomFrom}
-          onCustomToChange={dateRange.setCustomTo}
-          rangeLabel={dateRange.rangeLabel}
-        />
-      </TableFiltersBar>
-
-      <DataTable
-        columns={columns}
-        data={rows}
-        rowKey={(t) => t.id}
-        isLoading={isLoading}
-        exportFileName="courses-franchise"
-        emptyTitle="Aucune course"
-        emptyDescription="Aucun résultat pour ces filtres."
-        pagination={false}
-        serverPagination={serverPaginationFromMeta(
-          meta,
-          table.setPage,
-          table.setPageSize
-        )}
-      />
     </div>
   );
 }

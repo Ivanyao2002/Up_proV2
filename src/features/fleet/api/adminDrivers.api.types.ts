@@ -56,6 +56,11 @@ export interface ApiAdminDriverItem {
   complianceStatus?: string | null;
   created_at?: string;
   updated_at?: string;
+  /** Format /v1/franchises/{id}/partners/{id}/drivers */
+  fullName?: string | null;
+  account_status?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   /** Format /v1/partners/{id}/drivers */
   user?: {
     first_name?: string | null;
