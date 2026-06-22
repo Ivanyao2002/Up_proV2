@@ -640,6 +640,7 @@ export const LINKS = {
         `/v1/partners/${id}/cash-reconciliations`,
       revenue: (id: string | number) => `/v1/partners/${id}/revenue`,
       withdraw: (id: string | number) => `/v1/partners/${id}/wallet/withdraw`,
+      topUp: (id: string | number) => `/v1/partners/${id}/wallet/top-up`,
       driverTransfers: {
         stats: (id: string | number) =>
           `/v1/partners/${id}/wallet/driver-transfers/stats`,

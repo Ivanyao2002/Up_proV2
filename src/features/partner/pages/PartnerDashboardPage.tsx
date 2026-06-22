@@ -90,47 +90,54 @@ export function PartnerDashboardPage() {
         <div className="grid items-stretch gap-5 lg:grid-cols-2">
           <WeeklyRevenueChart data={data.chart_flux ?? []} />
 
-          <div className="rounded-card border border-border bg-surface shadow-card overflow-hidden">
+          <div className="rounded-card border border-border bg-surface shadow-card overflow-hidden flex flex-col">
             <div className="border-b border-border px-6 py-4">
               <h2 className="text-sm font-semibold">Courses récentes</h2>
             </div>
-            <ul className="divide-y divide-border/50">
-              {(data.recent_trips ?? []).map((trip) => (
-                <li key={trip.id} className="flex items-center justify-between gap-3 px-6 py-3">
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/partner/orders/${trip.id}`}
-                      className="font-medium text-foreground hover:text-teal transition-colors"
-                    >
-                      {trip.ref}
-                    </Link>
-                    <div className="mt-1 space-y-0.5">
-                      <p className="truncate text-xs" title={trip.from_label}>
-                        <span className="text-muted">Départ · </span>
-                        <span className="text-foreground/90">{trip.from_label}</span>
-                      </p>
-                      <p className="truncate text-xs" title={trip.to_label}>
-                        <span className="text-muted">Arrivée · </span>
-                        <span className="text-foreground/90">{trip.to_label}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end gap-1.5">
-                    <p className="text-sm font-medium tabular-nums">
-                      {formatFCFA(trip.amount_fcfa)}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <StatusPill status={trip.status} />
+            <ul className="divide-y divide-border/50 flex-1">
+              {(data.recent_trips ?? []).length === 0 ? (
+                <li className="flex flex-col items-center justify-center px-6 py-8 h-full">
+                  <p className="text-sm font-medium text-foreground">Aucune course récente</p>
+                  <p className="mt-1 text-xs text-muted">Les dernières courses de votre flotte apparaîtront ici.</p>
+                </li>
+              ) : (
+                (data.recent_trips ?? []).map((trip) => (
+                  <li key={trip.id} className="flex items-center justify-between gap-3 px-6 py-3">
+                    <div className="min-w-0 flex-1">
                       <Link
                         href={`/partner/orders/${trip.id}`}
-                        className="text-xs font-medium text-teal hover:text-teal-dark hover:underline"
+                        className="font-medium text-foreground hover:text-teal transition-colors"
                       >
-                        Détails
+                        {trip.ref}
                       </Link>
+                      <div className="mt-1 space-y-0.5">
+                        <p className="truncate text-xs" title={trip.from_label}>
+                          <span className="text-muted">Départ · </span>
+                          <span className="text-foreground/90">{trip.from_label}</span>
+                        </p>
+                        <p className="truncate text-xs" title={trip.to_label}>
+                          <span className="text-muted">Arrivée · </span>
+                          <span className="text-foreground/90">{trip.to_label}</span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
+                    <div className="flex shrink-0 flex-col items-end gap-1.5">
+                      <p className="text-sm font-medium tabular-nums">
+                        {formatFCFA(trip.amount_fcfa)}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <StatusPill status={trip.status} />
+                        <Link
+                          href={`/partner/orders/${trip.id}`}
+                          className="text-xs font-medium text-teal hover:text-teal-dark hover:underline"
+                        >
+                          Détails
+                        </Link>
+                      </div>
+                    </div>
+                  </li>
+                ))
+              )}
             </ul>
             <div className="border-t border-border bg-slate-50/50 px-6 py-3">
               <div className="flex items-center justify-between">

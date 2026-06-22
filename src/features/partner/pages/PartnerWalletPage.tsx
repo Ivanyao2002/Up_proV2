@@ -13,9 +13,11 @@ import {
   usePartnerDriverRechargeStats,
   usePartnerWallet,
   usePartnerCashReconciliations,
+  usePartnerLedger,
 } from "../api/wallet.queries";
-import type { CashReconciliation } from "../api/wallet.service";
+import type { CashReconciliation, LedgerEntry } from "../api/wallet.service";
 import { PartnerWalletWithdrawModal } from "../components/PartnerWalletWithdrawModal";
+import { PartnerWalletTopUpModal } from "../components/PartnerWalletTopUpModal";
 import { PartnerDriverRechargeModal } from "../components/PartnerDriverRechargeModal";
 
 const cashStatusConfig: Record<CashReconciliation["status"], { label: string; color: string }> = {
@@ -63,11 +65,23 @@ const cashColumns: Column<CashReconciliation>[] = [
 
 export function PartnerWalletPage() {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const { data, isLoading, isError } = usePartnerWallet();
   const { data: rechargeStats } = usePartnerDriverRechargeStats();
   const { data: cashData, isLoading: cashLoading } = usePartnerCashReconciliations();
+  const { data: ledgerData } = usePartnerLedger({ per_page: 10 });
   const cashRows = cashData?.data ?? [];
+  const recentMovements =
+    data?.recent_movements?.length
+      ? data.recent_movements
+      : (ledgerData?.data ?? []).slice(0, 10).map((entry: LedgerEntry) => ({
+          id: entry.id,
+          label: entry.label,
+          amount_fcfa: entry.amount_fcfa,
+          direction: entry.direction,
+          created_at: entry.created_at,
+        }));
 
   if (isLoading) {
     return <SimplePageSkeleton />;
@@ -87,6 +101,9 @@ export function PartnerWalletPage() {
             <Link href="/partner/wallet/driver-transfers">
               <Button variant="secondary">Historique recharges</Button>
             </Link>
+            <Button variant="primary" onClick={() => setTopUpOpen(true)}>
+              Alimenter mon compte
+            </Button>
             <Button
               variant="primary"
               disabled={(data.withdrawable_fcfa ?? data.available_fcfa) <= 0}
@@ -164,7 +181,7 @@ export function PartnerWalletPage() {
           <h2 className="text-sm font-semibold">Mouvements récents</h2>
         </div>
         <ul className="divide-y divide-border/50">
-          {(data.recent_movements ?? []).map((m) => (
+          {(recentMovements ?? []).map((m) => (
             <li
               key={m.id}
               className="flex items-center justify-between gap-4 px-6 py-4"
@@ -208,6 +225,11 @@ export function PartnerWalletPage() {
         open={rechargeOpen}
         availableFcfa={data.withdrawable_fcfa ?? data.available_fcfa}
         onClose={() => setRechargeOpen(false)}
+      />
+
+      <PartnerWalletTopUpModal
+        open={topUpOpen}
+        onClose={() => setTopUpOpen(false)}
       />
 
       <PartnerWalletWithdrawModal
