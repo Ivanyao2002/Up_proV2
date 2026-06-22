@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "@/core/auth/authStore";
 import { env } from "@/core/config/env";
-import { normalizeSocketIoUrl } from "@/features/ops/api/liveMap.realtime";
+import { normalizeSocketIoUrl, pruneLiveMapDeltaMap } from "@/features/ops/api/liveMap.realtime";
 import type {
   AdminLiveMapLocationDelta,
   AdminLiveMapLocationsPayload,
@@ -45,6 +45,10 @@ export function useFranchiseLiveMapSocket(
 
   const clearDeltas = useCallback(() => {
     setDeltas(new Map());
+  }, []);
+
+  const pruneDeltas = useCallback((keepIds: Set<string>) => {
+    setDeltas((prev) => pruneLiveMapDeltaMap(prev, keepIds));
   }, []);
 
   useEffect(() => {
@@ -123,5 +127,5 @@ export function useFranchiseLiveMapSocket(
     };
   }, [enabled, token, config?.url, config?.event, config?.room]);
 
-  return { deltas, status, clearDeltas };
+  return { deltas, status, clearDeltas, pruneDeltas };
 }
