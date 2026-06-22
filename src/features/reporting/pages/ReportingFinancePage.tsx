@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
@@ -7,9 +8,19 @@ import { Button } from "@/shared/ui/Button";
 import { useReportingFinance } from "@/features/reporting/api/reporting.queries";
 import { fmt, formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
 import { PAYMENT_LABEL, STATUS_LABEL, STATUS_COLOR } from "@/features/reporting/lib/financeConstants";
+import { ReportingPeriodFilter, defaultPeriod } from "@/features/reporting/components/ReportingPeriodFilter";
+import type { ReportingPeriod } from "@/features/reporting/api/reporting.types";
 
 export function ReportingFinancePage() {
-  const { data, isLoading, isError } = useReportingFinance();
+  const [period, setPeriod] = useState<ReportingPeriod>(defaultPeriod);
+
+  const { data, isLoading, isError } = useReportingFinance({
+    date_from: period.date_from,
+    date_to: period.date_to,
+    timezone: period.timezone,
+    comparison_date_from: period.comparison_date_from,
+    comparison_date_to: period.comparison_date_to,
+  });
 
   if (isError) {
     return (
@@ -28,9 +39,12 @@ export function ReportingFinancePage() {
         title="Finance analytique"
         breadcrumb={["Reporting", "Finance"]}
         actions={
-          <Link href="/reporting/exports">
-            <Button variant="secondary">Exporter</Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <ReportingPeriodFilter value={period} onChange={setPeriod} />
+            <Link href="/reporting/exports">
+              <Button variant="secondary">Exporter</Button>
+            </Link>
+          </div>
         }
       />
       <p className="-mt-2 mb-6 text-sm text-muted">

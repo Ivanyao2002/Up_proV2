@@ -24,11 +24,12 @@ const AGENT_SANCTION_OPTIONS: AgentApplicableSanctionType[] = [
 interface Props {
   sanctions : AgentSanction[];
   readOnly  : boolean;
+  noTrip    : boolean;
   isPending : boolean;
   onApply   : (type: AgentApplicableSanctionType, reason: string) => void;
 }
 
-export function AgentSanctionsPanel({ sanctions, readOnly, isPending, onApply }: Props) {
+export function AgentSanctionsPanel({ sanctions, readOnly, noTrip, isPending, onApply }: Props) {
   const [open, setOpen]     = useState(false);
   const [type, setType]     = useState<AgentApplicableSanctionType>("warning");
   const [reason, setReason] = useState("");
@@ -45,19 +46,36 @@ export function AgentSanctionsPanel({ sanctions, readOnly, isPending, onApply }:
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-heading">Sanctions</h3>
         {!readOnly && !open && (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="text-xs text-teal hover:underline"
-          >
-            + Appliquer
-          </button>
+          noTrip ? (
+            <span className="text-xs italic text-muted" title="Escaladez vers l'admin avec les infos véhicule fournies par le client">
+              Escalader vers admin
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="text-xs text-teal hover:underline"
+            >
+              + Appliquer
+            </button>
+          )
         )}
       </div>
 
       {/* Applied list */}
       {sanctions.length === 0 && !open && (
-        <p className="mt-3 text-xs text-muted">Aucune sanction appliquée.</p>
+        noTrip ? (
+          <div className="mt-3 rounded-lg bg-amber-500/8 border border-amber-500/20 px-3 py-2.5">
+            <p className="text-xs font-medium text-amber-700 dark:text-amber-400">
+              Aucune course liée à cette réclamation
+            </p>
+            <p className="mt-1 text-xs text-muted">
+              Si le client vous fournit les infos du véhicule (plaque, nom du chauffeur, référence de course), escaladez le ticket vers l'admin en indiquant ces informations dans le motif. L'admin appliquera la sanction.
+            </p>
+          </div>
+        ) : (
+          <p className="mt-3 text-xs text-muted">Aucune sanction appliquée.</p>
+        )
       )}
       {sanctions.length > 0 && (
         <ul className="mt-3 space-y-2">
@@ -98,9 +116,12 @@ export function AgentSanctionsPanel({ sanctions, readOnly, isPending, onApply }:
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={2}
-              placeholder="Motif de la sanction (min. 10 caractères)…"
+              placeholder="Motif de la sanction…"
               className="mt-1 w-full resize-none rounded-lg border border-border bg-canvas px-3 py-2 text-sm outline-none ring-teal/30 focus:ring-2"
             />
+            <p className={`mt-1 text-xs ${reason.trim().length < 10 ? "text-amber-500" : "text-teal"}`}>
+              {reason.trim().length}/10 caractères minimum
+            </p>
           </label>
 
           <div className="flex justify-end gap-2">

@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { Button } from "@/shared/ui/Button";
-import { formatDateTime } from "@/shared/lib/format";
+import { formatDate, formatDateTime } from "@/shared/lib/format";
 import type {
   AgentCompensation,
   AgentCompensationType,
+  ApplyCompensationPayload,
 } from "../api/agentTicket.types";
 
 const TYPE_OPTIONS: {
@@ -46,28 +47,51 @@ function compensationLabel(c: AgentCompensation): string {
   return "Prochain service offert";
 }
 
+// Date min = demain
+function minExpiryDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split("T")[0];
+}
+
 interface Props {
   compensations: AgentCompensation[];
   readOnly     : boolean;
   isPending    : boolean;
-  onApply      : (type: AgentCompensationType, discount_value?: number) => void;
+  onApply      : (payload: ApplyCompensationPayload) => void;
+  onCancel     : (compId: string) => void;
+  isCancelling : boolean;
 }
 
-export function AgentCompensationsPanel({ compensations, readOnly, isPending, onApply }: Props) {
-  const [open, setOpen]   = useState(false);
-  const [type, setType]   = useState<AgentCompensationType>("percentage_discount");
-  const [value, setValue] = useState("");
+export function AgentCompensationsPanel({
+  compensations,
+  readOnly,
+  isPending,
+  onApply,
+  onCancel,
+  isCancelling,
+}: Props) {
+  const [open, setOpen]         = useState(false);
+  const [type, setType]         = useState<AgentCompensationType>("percentage_discount");
+  const [value, setValue]       = useState("");
+  const [expiresAt, setExpires] = useState("");
+  const [cancelId, setCancelId] = useState<string | null>(null);
 
-  const selected = TYPE_OPTIONS.find((o) => o.value === type)!;
-  const numValue = Number(value);
+  const selected    = TYPE_OPTIONS.find((o) => o.value === type)!;
+  const numValue    = Number(value);
   const valueInvalid =
     selected.needsValue &&
     (!value || numValue <= 0 || (type === "percentage_discount" && numValue > 100));
 
   function handleSubmit() {
     if (valueInvalid) return;
-    onApply(type, selected.needsValue ? numValue : undefined);
+    onApply({
+      type,
+      discount_value: selected.needsValue ? numValue : undefined,
+      expires_at: expiresAt || undefined,
+    });
     setValue("");
+    setExpires("");
     setOpen(false);
   }
 
@@ -91,25 +115,83 @@ export function AgentCompensationsPanel({ compensations, readOnly, isPending, on
         )}
       </div>
 
-      {/* Applied list */}
+      {/* Liste des gestes appliqués */}
       {compensations.length === 0 && !open && (
         <p className="mt-3 text-xs text-muted">Aucun geste commercial appliqué.</p>
       )}
       {compensations.length > 0 && (
         <ul className="mt-3 space-y-2">
-          {compensations.map((c) => (
-            <li key={c.id} className="rounded-lg bg-teal/5 px-3 py-2.5 text-xs">
-              <p className="font-medium text-teal-dark">{compensationLabel(c)}</p>
-              <p className="mt-1 font-mono tracking-widest text-foreground">{c.promo_code}</p>
-              <p className="mt-0.5 text-muted">
-                {c.created_by} · {formatDateTime(c.created_at)}
-              </p>
-            </li>
-          ))}
+          {compensations.map((c) => {
+            const isCancelled = !!c.cancelled_at;
+            return (
+              <li
+                key={c.id}
+                className={`rounded-lg px-3 py-2.5 text-xs ${
+                  isCancelled ? "bg-canvas opacity-60" : "bg-teal/5"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className={`font-medium ${isCancelled ? "line-through text-muted" : "text-teal-dark"}`}>
+                      {compensationLabel(c)}
+                    </p>
+                    <p className="mt-1 font-mono tracking-widest text-foreground">{c.promo_code}</p>
+                    {c.expires_at && (
+                      <p className={`mt-0.5 ${isCancelled ? "text-muted" : "text-amber-600 dark:text-amber-400"}`}>
+                        Expire le {formatDate(c.expires_at)}
+                      </p>
+                    )}
+                    {isCancelled && (
+                      <p className="mt-0.5 text-red-500">
+                        Annulé le {formatDateTime(c.cancelled_at!)}
+                      </p>
+                    )}
+                    <p className="mt-0.5 text-muted">
+                      {c.created_by} · {formatDateTime(c.created_at)}
+                    </p>
+                  </div>
+
+                  {/* Bouton annuler — uniquement si actif et agent peut agir */}
+                  {!readOnly && !isCancelled && (
+                    cancelId === c.id ? (
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        <p className="text-[11px] text-muted">Confirmer ?</p>
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setCancelId(null)}
+                            className="rounded px-2 py-0.5 text-[11px] text-muted hover:bg-canvas"
+                          >
+                            Non
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isCancelling}
+                            onClick={() => { onCancel(c.id); setCancelId(null); }}
+                            className="rounded bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-600 hover:bg-red-500/20 disabled:opacity-50"
+                          >
+                            {isCancelling ? "…" : "Oui"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setCancelId(c.id)}
+                        className="shrink-0 text-[11px] text-muted hover:text-red-500"
+                      >
+                        Annuler
+                      </button>
+                    )
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      {/* Inline form */}
+      {/* Formulaire */}
       {open && (
         <div className="mt-4 space-y-3">
           <fieldset>
@@ -140,7 +222,7 @@ export function AgentCompensationsPanel({ compensations, readOnly, isPending, on
           {selected.needsValue && (
             <label className="block">
               <span className="text-xs font-medium text-foreground">
-                Valeur ({selected.unit})
+                Valeur ({selected.unit}) <span className="text-red-500">*</span>
               </span>
               <div className="relative mt-1">
                 <input
@@ -156,17 +238,39 @@ export function AgentCompensationsPanel({ compensations, readOnly, isPending, on
                   {selected.unit}
                 </span>
               </div>
+              {!value && (
+                <p className="mt-1 text-xs text-amber-500">Valeur obligatoire</p>
+              )}
               {type === "percentage_discount" && numValue > 100 && (
                 <p className="mt-1 text-xs text-red-500">Maximum 100%</p>
               )}
             </label>
           )}
 
+          {/* Date limite */}
+          <label className="block">
+            <span className="text-xs font-medium text-foreground">
+              Date limite d'utilisation <span className="text-muted">(optionnel)</span>
+            </span>
+            <input
+              type="date"
+              min={minExpiryDate()}
+              value={expiresAt}
+              onChange={(e) => setExpires(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-canvas px-3 py-2 text-sm outline-none ring-teal/30 focus:ring-2"
+            />
+            {expiresAt && (
+              <p className="mt-1 text-xs text-muted">
+                Le code expirera le {formatDate(expiresAt)}.
+              </p>
+            )}
+          </label>
+
           <div className="flex justify-end gap-2">
             <Button
               variant="ghost"
               className="!text-xs"
-              onClick={() => { setOpen(false); setValue(""); }}
+              onClick={() => { setOpen(false); setValue(""); setExpires(""); }}
             >
               Annuler
             </Button>

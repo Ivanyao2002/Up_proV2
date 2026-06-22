@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
@@ -7,9 +8,19 @@ import { Button } from "@/shared/ui/Button";
 import { useReportingQuality } from "@/features/reporting/api/reporting.queries";
 import { fmt, fmtMin } from "@/features/reporting/utils/reportingFormatters";
 import { CATEGORY_LABEL, SEVERITY_COLOR } from "@/features/reporting/lib/qualityConstants";
+import { ReportingPeriodFilter, defaultPeriod } from "@/features/reporting/components/ReportingPeriodFilter";
+import type { ReportingPeriod } from "@/features/reporting/api/reporting.types";
 
 export function ReportingQualityPage() {
-  const { data, isLoading, isError } = useReportingQuality();
+  const [period, setPeriod] = useState<ReportingPeriod>(defaultPeriod);
+
+  const { data, isLoading, isError } = useReportingQuality({
+    date_from: period.date_from,
+    date_to: period.date_to,
+    timezone: period.timezone,
+    comparison_date_from: period.comparison_date_from,
+    comparison_date_to: period.comparison_date_to,
+  });
 
   if (isError) {
     return (
@@ -28,9 +39,12 @@ export function ReportingQualityPage() {
         title="Qualité & incidents"
         breadcrumb={["Reporting", "Qualité"]}
         actions={
-          <Link href="/reporting/exports">
-            <Button variant="secondary">Exporter</Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <ReportingPeriodFilter value={period} onChange={setPeriod} />
+            <Link href="/reporting/exports">
+              <Button variant="secondary">Exporter</Button>
+            </Link>
+          </div>
         }
       />
       <p className="-mt-2 mb-6 text-sm text-muted">

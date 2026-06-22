@@ -1,0 +1,80 @@
+{
+  "DSP-001": {
+    "id": "DSP-001",
+    "subject": "Double débit sur ma course TR-88421",
+    "description": "J'ai été prélevé deux fois pour la même course. Le montant de 4 200 FCFA a été débité deux fois de mon portefeuille.",
+    "category": "payment",
+    "status": "open",
+    "reporter_name": "Kouamé Koffi",
+    "reporter_phone": "+225 07 12 34 56",
+    "trip_id": "TRIP-3001",
+    "trip_ref": "TR-88421",
+    "assigned_to": null,
+    "assigned_to_id": null,
+    "created_at": "2026-06-20T09:12:00Z",
+    "updated_at": "2026-06-20T09:12:00Z",
+    "messages": [
+      {
+        "id": "DSP-001-m1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Litige ouvert par le client via l'application mobile.",
+        "created_at": "2026-06-20T09:12:00Z"
+      },
+      {
+        "id": "DSP-001-m2",
+        "sender": "user",
+        "sender_name": "Kouamé Koffi",
+        "content": "Bonjour, j'ai été débité deux fois pour la course TR-88421 le 20 juin. Pouvez-vous me rembourser ?",
+        "created_at": "2026-06-20T09:15:00Z"
+      },
+      {
+        "id": "DSP-001-m3",
+        "sender": "ai",
+        "sender_name": "Assistant IA",
+        "content": "Bonjour Monsieur Koffi, je suis l'assistant Up Junoo. En attendant qu'un agent prenne en charge votre litige, j'ai vérifié la course TR-88421 : un double prélèvement de 4 200 FCFA est effectivement visible. Les remboursements pour double débit sont traités sous 48 à 72h ouvrées après vérification par un agent. Un conseiller va confirmer et lancer le remboursement.",
+        "ai_confidence": 0.84,
+        "ai_sources": ["kb_double_debit", "kb_delais_remboursement", "trip_TR-88421"],
+        "created_at": "2026-06-20T09:15:30Z"
+      }
+    ]
+  },
+  "DSP-002": {
+    "id": "DSP-002",
+    "subject": "Chauffeur impoli et conduite agressive",
+    "description": "Le chauffeur a insulté ma femme et conduit de manière très dangereuse.",
+    "category": "behavior",
+    "status": "in_progress",
+    "reporter_name": "Awa Traoré",
+    "reporter_phone": "+225 05 67 89 01",
+    "trip_id": "TRIP-3002",
+    "trip_ref": "TR-77345",
+    "assigned_to": "Aya Koné Support",
+    "assigned_to_id": "10",
+    "created_at": "2026-06-19T15:45:00Z",
+    "updated_at": "2026-06-20T08:30:00Z",
+    "messages": [
+      {
+        "id": "DSP-002-m1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Litige ouvert par le client via l'application mobile.",
+        "created_at": "2026-06-19T15:45:00Z"
+      },
+      {
+        "id": "DSP-002-m2",
+        "sender": "user",
+        "sender_name": "Awa Traoré",
+        "content": "Ce chauffeur a été très impoli et a conduit très vite malgré mes demandes de ralentir.",
+        "created_at": "2026-06-19T15:48:00Z"
+      },
+      {
+        "id": "DSP-002-m3",
+        "sender": "agent",
+        "sender_name": "Aya Koné Support",
+        "content": "Bonjour Madame Traoré, nous avons bien reçu votre signalement. Nous allons examiner le comportement de ce chauffeur.",
+        "created_at": "2026-06-20T08:30:00Z"
+      }
+    ]
+  }
+}

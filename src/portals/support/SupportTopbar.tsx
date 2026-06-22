@@ -5,6 +5,7 @@ import { useAuthStore } from "@/core/auth/authStore";
 import { env } from "@/core/config/env";
 import { LogoutButton } from "@/features/auth/components/LogoutButton";
 import { useChatSocketStore } from "@/features/support/hooks/useSupportChatSocket";
+import { TicketNotificationBell } from "@/features/support/components/TicketNotificationBell";
 import { MobileNavToggle } from "@/portals/shared/MobileNavToggle";
 import type { PortalShellTopbarProps } from "@/portals/shared/PortalShellLayout";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
@@ -110,6 +111,8 @@ export function SupportTopbar({
           <span className={`h-2 w-2 rounded-full ${realtime.dot}`} />
           {realtime.label}
         </div>
+
+        <TicketNotificationBell />
 
         <ThemeToggle />
 

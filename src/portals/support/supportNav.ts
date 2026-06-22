@@ -17,6 +17,12 @@ export const SUPPORT_NAV: NavGroup[] = [
         permission: "support.tickets.view",
       },
       {
+        label: "Litiges",
+        path: "/support/disputes",
+        icon: "reports",
+        permission: "support.tickets.view",
+      },
+      {
         label: "Chat franchises",
         path: "/support/chat",
         icon: "chat",

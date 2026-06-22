@@ -15,6 +15,8 @@ export interface ReportingFilters {
   date_from?: string;
   date_to?: string;
   timezone?: string;
+  comparison_date_from?: string;
+  comparison_date_to?: string;
   service?: ReportingService;
   country_code?: string;
   zone_id?: string;

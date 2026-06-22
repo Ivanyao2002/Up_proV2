@@ -16,6 +16,7 @@ import {
 import type { AdminSupportTicket } from "../api/tickets.service";
 import { useSupportTicketsList } from "../api/tickets.queries";
 import { useSupportPaths } from "../lib/supportPaths";
+import { TicketStatusBadge } from "../components/TicketStatusBadge";
 import type { AgentReporterType, AgentTicketCategory } from "../api/agentTicket.types";
 import {
   STATUS_FILTERS,
@@ -142,15 +143,7 @@ export function SupportTicketsListPage() {
     {
       id: "status",
       header: "Statut",
-      cell: (t) => (
-        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-          t.status === "resolved"    ? "bg-teal/15 text-teal-dark dark:text-teal"                 :
-          t.status === "in_progress" ? "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300" :
-                                       "bg-navy/10 text-foreground"
-        }`}>
-          {STATUS_LABELS[t.status]}
-        </span>
-      ),
+      cell: (t) => <TicketStatusBadge status={t.status} />,
       exportValue: (t) => STATUS_LABELS[t.status],
     },
     {

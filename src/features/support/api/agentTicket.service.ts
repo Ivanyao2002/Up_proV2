@@ -35,6 +35,9 @@ export const agentTicketService = {
   applyCompensation: (id: string, payload: ApplyCompensationPayload): Promise<AgentCompensation> =>
     apiClient.post(T.compensations(id), payload),
 
+  cancelCompensation: (id: string, compId: string): Promise<{ ok: boolean }> =>
+    apiClient.post(T.cancelCompensation(id, compId)),
+
   resolve: (id: string, note?: string): Promise<{ ok: boolean }> =>
     apiClient.patch(T.resolve(id), { note }),
 

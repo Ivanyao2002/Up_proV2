@@ -21,7 +21,7 @@ import type { ActionModalKind }    from "../components/AgentActionModal";
 import type { ComposeTab }         from "../components/AgentComposeArea";
 
 import { useSupportPaths } from "../lib/supportPaths";
-import { TERMINAL_STATUSES, REPORTER_LABELS } from "../lib/ticketConstants";
+import { TERMINAL_STATUSES, REPORTER_LABELS, CATEGORY_CONFIG } from "../lib/ticketConstants";
 import {
   useAgentTicketDetail,
   useAssignTicket,
@@ -30,6 +30,7 @@ import {
   useRequestJustification,
   useApplySanction,
   useApplyCompensation,
+  useCancelCompensation,
   useResolveTicket,
   useCloseTicket,
   useEscalateTicket,
@@ -37,7 +38,6 @@ import {
 import { useChatSocketStore } from "../hooks/useSupportChatSocket";
 import type {
   AgentApplicableSanctionType,
-  AgentCompensationType,
 } from "../api/agentTicket.types";
 
 
@@ -63,6 +63,7 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
   const requestDoc  = useRequestJustification(ticketId);
   const applySanc   = useApplySanction(ticketId);
   const applyComp   = useApplyCompensation(ticketId);
+  const cancelComp  = useCancelCompensation(ticketId);
   const resolve     = useResolveTicket(ticketId);
   const close       = useCloseTicket(ticketId);
   const escalate    = useEscalateTicket(ticketId);
@@ -245,7 +246,10 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
                 </span>
               </TicketDetailRow>
               <TicketDetailRow label="Catégorie">
-                <span className="text-foreground capitalize">{data.category}</span>
+                {data.category
+                  ? <span className="text-foreground">{CATEGORY_CONFIG[data.category]?.label ?? data.category}</span>
+                  : <span className="italic text-muted">Non catégorisé</span>
+                }
               </TicketDetailRow>
               <TicketDetailRow label="Franchise">
                 <span className="text-right text-foreground">{data.franchise_name}</span>
@@ -270,6 +274,7 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
           <AgentSanctionsPanel
             sanctions={data.sanctions}
             readOnly={!canAct}
+            noTrip={!data.trip_id}
             isPending={applySanc.isPending}
             onApply={(type: AgentApplicableSanctionType, reason: string) =>
               applySanc.mutate({ type, reason })
@@ -281,9 +286,9 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
             compensations={data.compensations}
             readOnly={!canAct}
             isPending={applyComp.isPending}
-            onApply={(type: AgentCompensationType, discount_value?: number) =>
-              applyComp.mutate({ type, discount_value })
-            }
+            isCancelling={cancelComp.isPending}
+            onApply={(payload) => applyComp.mutate(payload)}
+            onCancel={(compId) => cancelComp.mutate(compId)}
           />
         </aside>
       </div>

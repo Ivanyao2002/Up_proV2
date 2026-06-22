@@ -18,6 +18,9 @@ export function SupportDashboardPage() {
   const paths = useSupportPaths();
   const { data: stats,  isLoading: statsLoading  } = useSupportDashboardStats();
   const { data: recent, isLoading: recentLoading } = useSupportDashboardRecent();
+  const recentAnomalies = [...(recent?.recent_anomalies ?? [])]
+    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+    .slice(0, 2);
 
   if (statsLoading || recentLoading) {
     return <SupportDashboardSkeleton />;
@@ -110,12 +113,12 @@ export function SupportDashboardPage() {
             </div>
 
             <div className="divide-y divide-border">
-              {!recent?.recent_anomalies.length ? (
+              {!recentAnomalies.length ? (
                 <p className="px-5 py-4 text-center text-sm text-muted">
                   Aucune anomalie récente.
                 </p>
               ) : (
-                recent.recent_anomalies.map((a) => (
+                recentAnomalies.map((a) => (
                   <div key={a.id} className="flex items-start gap-3 px-4 py-3">
                     <span
                       className={`mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full ${

@@ -61,7 +61,21 @@ export const DRIVERS_V1_BASE = "/v1/drivers" as const;
 /** Support agent — base `/v1/support` */
 export const SUPPORT_V1_BASE = "/v1/support" as const;
 
+/** Litiges mobiles — base `/v1/disputes` */
+export const DISPUTES_V1_BASE = "/v1/disputes" as const;
+
 export const LINKS = {
+  /** Litiges soumis depuis l'app mobile client */
+  disputes: {
+    list:     DISPUTES_V1_BASE,
+    getById:  (id: string) => `${DISPUTES_V1_BASE}/${id}`,
+    assign:   (id: string) => `${DISPUTES_V1_BASE}/${id}/assign`,
+    messages: (id: string) => `${DISPUTES_V1_BASE}/${id}/messages`,
+    resolve:  (id: string) => `${DISPUTES_V1_BASE}/${id}/resolve`,
+    close:    (id: string) => `${DISPUTES_V1_BASE}/${id}/close`,
+    escalate: (id: string) => `${DISPUTES_V1_BASE}/${id}/escalate`,
+  },
+
   /** Support agent — /v1/support/... (Swagger § support) */
   support: {
     tickets: {
@@ -70,7 +84,8 @@ export const LINKS = {
       assign:        (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/assign`,
       messages:      (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/messages`,
       sanctions:     (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/sanctions`,
-      compensations: (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/compensations`,
+      compensations:       (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/compensations`,
+      cancelCompensation:  (id: string, compId: string) => `${SUPPORT_V1_BASE}/tickets/${id}/compensations/${compId}/cancel`,
       resolve:       (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/resolve`,
       close:         (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/close`,
       escalate:      (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/escalate`,
@@ -177,6 +192,7 @@ export const LINKS = {
       logout: `${AUTH_V1_BASE}/logout`,
       refresh: `${AUTH_V1_BASE}/refresh`,
       forgotPassword: `${AUTH_V1_BASE}/forgot-password`,
+      resetPassword: `${AUTH_V1_BASE}/reset-password`,
       otpSend: `${AUTH_V1_BASE}/otp/send`,
       otpVerify: `${AUTH_V1_BASE}/otp/verify`,
       driverResendOtp: `${AUTH_V1_BASE}/driver/resend-otp`,
@@ -188,6 +204,7 @@ export const LINKS = {
       login: "/auth/login",
       logout: "/auth/logout",
       forgotPassword: "/auth/forgot-password",
+      resetPassword: "/auth/reset-password",
       me: "/me",
     },
   },

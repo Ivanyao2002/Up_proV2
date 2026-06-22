@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
@@ -7,9 +8,19 @@ import { KpiCard } from "@/shared/ui/KpiCard";
 import { useReportingGovernance } from "@/features/reporting/api/reporting.queries";
 import { fmt, fmtPct } from "@/features/reporting/utils/reportingFormatters";
 import { ENTITY_LABEL, CATEGORY_LABEL } from "@/features/reporting/lib/governanceConstants";
+import { ReportingPeriodFilter, defaultPeriod } from "@/features/reporting/components/ReportingPeriodFilter";
+import type { ReportingPeriod } from "@/features/reporting/api/reporting.types";
 
 export function ReportingGovernancePage() {
-  const { data, isLoading, isError } = useReportingGovernance();
+  const [period, setPeriod] = useState<ReportingPeriod>(defaultPeriod);
+
+  const { data, isLoading, isError } = useReportingGovernance({
+    date_from: period.date_from,
+    date_to: period.date_to,
+    timezone: period.timezone,
+    comparison_date_from: period.comparison_date_from,
+    comparison_date_to: period.comparison_date_to,
+  });
 
   if (isError) {
     return (
@@ -28,9 +39,12 @@ export function ReportingGovernancePage() {
         title="Audit & conformité"
         breadcrumb={["Reporting", "Gouvernance"]}
         actions={
-          <Link href="/reporting/exports?report=audit_summary">
-            <Button variant="secondary">Exporter le rapport</Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <ReportingPeriodFilter value={period} onChange={setPeriod} />
+            <Link href="/reporting/exports?report=audit_summary">
+              <Button variant="secondary">Exporter le rapport</Button>
+            </Link>
+          </div>
         }
       />
       <p className="-mt-2 mb-6 text-sm text-muted">

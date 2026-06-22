@@ -180,7 +180,24 @@ export const supportHandlers = [
 
   /* ── Dashboard recent (tickets en attente + anomalies récentes) ── */
   http.get("*/v1/support/dashboard/recent", () => {
-    return HttpResponse.json(dashboardRecentSeed);
+    // recent_anomalies vient du store live (trié desc, 5 dernières)
+    const recentAnomalies = [...auditLogState]
+      .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
+      .slice(0, 5)
+      .map((e) => ({
+        id: e.id,
+        at: e.at,
+        action: e.action,
+        category: e.category,
+        severity: e.severity,
+        resource_id: e.resource_id,
+        resource_label: e.resource_label,
+        detail: e.detail,
+      }));
+    return HttpResponse.json({
+      ...dashboardRecentSeed,
+      recent_anomalies: recentAnomalies,
+    });
   }),
 
   /* ── Support audit log (inclut toutes les actions agents de la session) ── */

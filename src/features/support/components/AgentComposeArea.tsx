@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/shared/ui/Button";
+import { QUICK_REPLIES } from "../lib/quickReplies";
 
 export type ComposeTab = "reply" | "note" | "justification";
 
@@ -11,42 +12,49 @@ interface Props {
 }
 
 const TABS: { id: ComposeTab; label: string }[] = [
-  { id: "reply",         label: "Répondre" },
-  { id: "note",          label: "Note interne" },
-  { id: "justification", label: "Justificatifs" },
+  { id: "reply", label: "Répondre" },
+  { id: "note",  label: "Note interne" },
 ];
-
-const HINTS: Record<ComposeTab, string | null> = {
-  reply        : null,
-  note         : "Visible uniquement par les agents support.",
-  justification: "L'utilisateur recevra une demande de pièce justificative.",
-};
-
-const HINT_STYLES: Record<ComposeTab, string> = {
-  reply        : "",
-  note         : "text-amber-700 dark:text-amber-300",
-  justification: "text-indigo-700 dark:text-indigo-300",
-};
 
 const PLACEHOLDERS: Record<ComposeTab, string> = {
   reply        : "Répondre à l'utilisateur…",
-  note         : "Ajouter une note interne…",
+  note         : "Ajouter une note interne (visible par les agents uniquement)…",
   justification: "Décrire les justificatifs demandés…",
 };
 
 export function AgentComposeArea({ isPending, onSend }: Props) {
-  const [activeTab, setActiveTab]   = useState<ComposeTab>("reply");
-  const [content, setContent]       = useState("");
+  const [activeTab, setActiveTab] = useState<ComposeTab>("reply");
+  const [content, setContent]     = useState("");
+  // Marque une réponse comme demande de justificatif (déclenchée par un quick reply).
+  const [asJustification, setAsJustification] = useState(false);
+
+  const isNote = activeTab === "note";
 
   function handleSend() {
     const trimmed = content.trim();
     if (!trimmed) return;
-    onSend(trimmed, activeTab);
+    const effectiveTab: ComposeTab = isNote
+      ? "note"
+      : asJustification
+        ? "justification"
+        : "reply";
+    onSend(trimmed, effectiveTab);
     setContent("");
+    setAsJustification(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSend();
+  }
+
+  function applyQuickReply(text: string, tab?: ComposeTab) {
+    setContent(text);
+    setAsJustification(tab === "justification");
+  }
+
+  function selectTab(id: ComposeTab) {
+    setActiveTab(id);
+    if (id === "note") setAsJustification(false);
   }
 
   return (
@@ -57,7 +65,7 @@ export function AgentComposeArea({ isPending, onSend }: Props) {
           <button
             key={id}
             type="button"
-            onClick={() => setActiveTab(id)}
+            onClick={() => selectTab(id)}
             className={`rounded-t-md px-4 py-2 text-xs font-medium transition-colors ${
               activeTab === id
                 ? "bg-canvas text-teal-dark"
@@ -70,9 +78,31 @@ export function AgentComposeArea({ isPending, onSend }: Props) {
       </div>
 
       <div className="p-4">
-        {HINTS[activeTab] && (
-          <p className={`mb-2 text-xs ${HINT_STYLES[activeTab]}`}>
-            {HINTS[activeTab]}
+        {/* Réponses prédéfinies — uniquement en mode "Répondre" */}
+        {!isNote && (
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {QUICK_REPLIES.map((qr) => (
+              <button
+                key={qr.label}
+                type="button"
+                onClick={() => applyQuickReply(qr.text, qr.tab)}
+                className="rounded-full border border-border bg-canvas px-2.5 py-1 text-[11px] font-medium text-muted transition-colors hover:border-teal/40 hover:text-teal-dark"
+              >
+                {qr.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {isNote && (
+          <p className="mb-2 text-xs text-amber-700 dark:text-amber-300">
+            Visible uniquement par les agents support.
+          </p>
+        )}
+        {asJustification && !isNote && (
+          <p className="mb-2 flex items-center gap-1.5 text-xs text-indigo-700 dark:text-indigo-300">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500" />
+            Cette réponse sera envoyée comme demande de justificatif.
           </p>
         )}
 
@@ -81,7 +111,7 @@ export function AgentComposeArea({ isPending, onSend }: Props) {
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={3}
-          placeholder={PLACEHOLDERS[activeTab]}
+          placeholder={PLACEHOLDERS[isNote ? "note" : asJustification ? "justification" : "reply"]}
           className="w-full resize-none rounded-lg border border-border bg-canvas px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
         />
 

@@ -42,6 +42,8 @@ export interface AgentCompensation {
   type: AgentCompensationType;
   discount_value?: number;  // % pour percentage_discount, FCFA pour fixed_discount
   promo_code: string;       // code généré, appliqué sur la prochaine commande
+  expires_at?: string;      // date limite d'utilisation (ISO 8601)
+  cancelled_at?: string;    // présent si annulé
   created_at: string;
   created_by: string;
 }
@@ -92,4 +94,5 @@ export interface ApplySanctionPayload {
 export interface ApplyCompensationPayload {
   type: AgentCompensationType;
   discount_value?: number;  // requis pour percentage_discount et fixed_discount
+  expires_at?: string;      // ISO 8601 — date limite optionnelle
 }

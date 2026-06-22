@@ -15,6 +15,7 @@ import { pricingConfigHandlers } from "./pricingConfig.handlers";
 import { holidaysHandlers } from "./holidays.handlers";
 import { dispatchConfigHandlers } from "./dispatchConfig.handlers";
 import { reportingHandlers } from "./reporting.handlers";
+import { disputesHandlers } from "./disputes.handlers";
 
 export const handlers = [
   ...authHandlers,
@@ -34,4 +35,5 @@ export const handlers = [
   ...holidaysHandlers,
   ...dispatchConfigHandlers,
   ...reportingHandlers,
+  ...disputesHandlers,
 ];

@@ -1,17 +1,50 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { useReportingOverview } from "@/features/reporting/api/reporting.queries";
 import { fmt, formatTrend, formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
 import { SERVICE_LABEL, SEVERITY_COLOR, SEVERITY_DOT } from "@/features/reporting/lib/dashboardConstants";
+import { ReportingPeriodFilter, defaultPeriod } from "@/features/reporting/components/ReportingPeriodFilter";
+import type { ReportingPeriod } from "@/features/reporting/api/reporting.types";
+
+const FR_MONTHS_SHORT = [
+  "jan.", "fév.", "mar.", "avr.", "mai", "juin",
+  "juil.", "août", "sep.", "oct.", "nov.", "déc.",
+];
+
+function comparisonHint(period: ReportingPeriod): string {
+  if (period.comparison_date_from && period.comparison_date_to) {
+    const [, fromM, fromD] = period.comparison_date_from.split("-");
+    const [toY, toM, toD] = period.comparison_date_to.split("-");
+    const from = `${parseInt(fromD, 10)} ${FR_MONTHS_SHORT[parseInt(fromM, 10) - 1]}`;
+    const to = `${parseInt(toD, 10)} ${FR_MONTHS_SHORT[parseInt(toM, 10) - 1]} ${toY}`;
+    return `vs ${from} – ${to}`;
+  }
+  return "vs période précédente";
+}
 
 export function ReportingDashboardPage() {
-  const { data, isLoading } = useReportingOverview();
+  const [period, setPeriod] = useState<ReportingPeriod>(defaultPeriod);
+
+  const { data, isLoading } = useReportingOverview({
+    date_from: period.date_from,
+    date_to: period.date_to,
+    timezone: period.timezone,
+    comparison_date_from: period.comparison_date_from,
+    comparison_date_to: period.comparison_date_to,
+  });
+
+  const hint = comparisonHint(period);
 
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Tableau de bord reporting" breadcrumb={["Reporting"]} />
+      <PageHeader
+        title="Tableau de bord reporting"
+        breadcrumb={["Reporting"]}
+        actions={<ReportingPeriodFilter value={period} onChange={setPeriod} />}
+      />
       <p className="-mt-2 mb-6 text-sm text-muted">
         Synthèses multi-services, indicateurs de performance et alertes qualité.
       </p>
@@ -33,7 +66,7 @@ export function ReportingDashboardPage() {
                   ? "positive"
                   : "negative"
               }
-              hint="vs mois précédent"
+              hint={hint}
               index={0}
             />
             <KpiCard
@@ -44,7 +77,7 @@ export function ReportingDashboardPage() {
               )}
               trend={formatTrend(data.kpis.gmv.change_pct)}
               trendTone="neutral"
-              hint="vs mois précédent"
+              hint={hint}
               index={1}
             />
             <KpiCard
@@ -56,7 +89,7 @@ export function ReportingDashboardPage() {
                   ? "positive"
                   : "negative"
               }
-              hint="vs mois précédent"
+              hint={hint}
               index={2}
             />
             <KpiCard
@@ -68,7 +101,7 @@ export function ReportingDashboardPage() {
                   ? "positive"
                   : "negative"
               }
-              hint="vs mois précédent"
+              hint={hint}
               index={3}
             />
           </div>

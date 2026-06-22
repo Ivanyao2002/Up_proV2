@@ -9,7 +9,7 @@ export interface AdminSupportTicket {
   subject: string;
   category?: AgentTicketCategory | null;
   priority: "low" | "normal" | "high";
-  status: "open" | "in_progress" | "resolved";
+  status: "open" | "in_progress" | "resolved" | "closed" | "escalated";
   reporter_name: string;
   reporter_type: AgentReporterType;
   franchise_name: string;

@@ -7,13 +7,17 @@ export const STATUS_FILTERS: { value: AdminSupportTicket["status"] | "all"; labe
   { value: "all",         label: "Tous" },
   { value: "open",        label: "Non assignés" },
   { value: "in_progress", label: "En cours" },
+  { value: "escalated",   label: "Escaladés" },
   { value: "resolved",    label: "Résolus" },
+  { value: "closed",      label: "Clôturés" },
 ];
 
 export const STATUS_LABELS: Record<AdminSupportTicket["status"], string> = {
   open:        "Non assigné",
   in_progress: "En cours",
   resolved:    "Résolu",
+  closed:      "Clôturé",
+  escalated:   "Escaladé",
 };
 
 export const REPORTER_FILTERS: { value: AgentReporterType | "all"; label: string }[] = [
