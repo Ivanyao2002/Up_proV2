@@ -12,6 +12,7 @@ export const franchisePartnersKeys = {
   drivers: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "drivers", filters] as const,
   orders: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "orders", filters] as const,
   commissions: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "commissions", filters] as const,
+  vehicles: (id: string, filters?: ListParams) => [...franchisePartnersKeys.all, id, "vehicles", filters] as const,
 };
 
 export function useFranchisePartnersList(params?: ListParams) {
@@ -53,6 +54,14 @@ export function useFranchisePartnerCommissions(partnerId: string, params?: ListP
   });
 }
 
+export function useFranchisePartnerVehicles(partnerId: string, params?: ListParams) {
+  return useQuery({
+    queryKey: franchisePartnersKeys.vehicles(partnerId, params),
+    queryFn: () => franchisePartnersService.getVehicles(partnerId, params),
+    enabled: Boolean(partnerId),
+  });
+}
+
 export function useCreateFranchisePartner() {
   const qc = useQueryClient();
   return useMutation({
@@ -66,6 +75,10 @@ export function useCreateFranchisePartner() {
           : "Partenaire créé avec succès"
       );
     },
+    onError: (error: Error) =>
+      notificationService.error(
+        error.message || "Création du partenaire impossible"
+      ),
   });
 }
 
@@ -89,5 +102,29 @@ export function useDeleteFranchisePartner() {
       void qc.invalidateQueries({ queryKey: franchisePartnersKeys.all });
       notificationService.success("Partenaire supprimé");
     },
+  });
+}
+
+export function useActivateFranchisePartner() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => franchisePartnersService.activate(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: franchisePartnersKeys.all });
+      notificationService.success("Partenaire approuvé");
+    },
+    onError: () => notificationService.error("Impossible d'approuver le partenaire"),
+  });
+}
+
+export function useSuspendFranchisePartner() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => franchisePartnersService.suspend(id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: franchisePartnersKeys.all });
+      notificationService.success("Partenaire suspendu");
+    },
+    onError: () => notificationService.error("Impossible de suspendre le partenaire"),
   });
 }

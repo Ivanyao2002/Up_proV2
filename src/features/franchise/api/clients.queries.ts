@@ -19,11 +19,11 @@ export function useFranchiseClientsList(params?: ListParams) {
   });
 }
 
-export function useFranchiseClientDetail(id: string) {
+export function useFranchiseClientDetail(id: string, enabled = true) {
   return useQuery({
     queryKey: franchiseClientsKeys.detail(id),
     queryFn: () => franchiseClientsService.get(id),
-    enabled: Boolean(id),
+    enabled: enabled && Boolean(id),
   });
 }
 

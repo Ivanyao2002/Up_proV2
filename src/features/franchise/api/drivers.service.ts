@@ -6,10 +6,11 @@ import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
 import { fetchAdminKycDocuments } from "@/features/fleet/api/kyc.service";
 import type { ApiAdminDriverItem } from "@/features/fleet/api/adminDrivers.api.types";
-import type { Driver, DriverDetail, KycQueueItem, Paginated } from "@/shared/types";
+import type { Driver, DriverDetail, DriverTimelineEvent, KycQueueItem, Paginated } from "@/shared/types";
+import type { DriverTripRow, DriverWalletTransaction } from "@/features/fleet/api/driverDetail.service";
+import { mapFranchiseOrderToTrip, mapFranchiseDriversToPaginated, type ApiFranchiseOrdersResponse } from "./franchisePortal.mapper";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
-import type { ApiV1FranchiseDriversResponse } from "@/features/network/api/adminFranchises.api.types";
-import { mapFranchiseDriversToPaginated } from "./franchisePortal.mapper";
+import type { ApiV1FranchiseDriversResponse, ApiV1DriverFilterOptions } from "@/features/network/api/adminFranchises.api.types";
 
 export const franchiseDriversService = {
   list: async (params?: ListParams): Promise<Paginated<Driver>> => {
@@ -97,6 +98,52 @@ export const franchiseDriversService = {
     };
   },
 
+  getDriverTrips: async (id: string): Promise<Paginated<DriverTripRow>> => {
+    const franchiseId = await resolveFranchiseId();
+    try {
+      const response = await apiClient.get<ApiFranchiseOrdersResponse>(
+        `${LINKS.franchise.v1.orders(franchiseId)}?limit=200&page=1`
+      );
+      const orders = (response.orders ?? []).filter(
+        (o: any) => String(o.driver_id ?? "") === String(id)
+      );
+      const data: DriverTripRow[] = orders.map((o: any) => {
+        const trip = mapFranchiseOrderToTrip(o);
+        return {
+          id: trip.id,
+          ref: trip.ref,
+          from_label: trip.from_label,
+          to_label: trip.to_label,
+          status: trip.status,
+          amount_fcfa: trip.amount_fcfa,
+          created_at: trip.created_at,
+        };
+      });
+      return { data, meta: { total: data.length, current_page: 1, per_page: data.length || 50, last_page: 1 } };
+    } catch {
+      return { data: [], meta: { total: 0, current_page: 1, per_page: 50, last_page: 1 } };
+    }
+  },
+
+  getWalletTransactions: async (id: string): Promise<Paginated<DriverWalletTransaction>> => {
+    const franchiseId = await resolveFranchiseId();
+    try {
+      const response = await apiClient.get<Record<string, any>>(LINKS.franchise.v1.driverById(franchiseId, id));
+      const movements: any[] = response.wallet?.recentMovements ?? [];
+      const data: DriverWalletTransaction[] = movements.map((m: any) => ({
+        id: m.id,
+        type: (String(m.direction ?? "credit").toLowerCase() === "debit" ? "debit" : "credit") as "credit" | "debit",
+        label: m.label ?? m.description ?? "Mouvement",
+        amount_fcfa: m.amount_xof ?? m.amountXof ?? 0,
+        balance_after_fcfa: m.balance_after_xof ?? m.balanceAfterXof ?? 0,
+        created_at: m.posted_at ?? m.postedAt ?? m.created_at ?? new Date().toISOString(),
+      }));
+      return { data, meta: { total: data.length, current_page: 1, per_page: data.length, last_page: 1 } };
+    } catch {
+      return { data: [], meta: { total: 0, current_page: 1, per_page: 20, last_page: 1 } };
+    }
+  },
+
   getById: async (id: string): Promise<DriverDetail> => {
     if (useLegacyPortalApi()) {
       return apiClient.get<DriverDetail>(`${LINKS.franchise.drivers.getById(id)}`);
@@ -106,14 +153,92 @@ export const franchiseDriversService = {
     
     // Try V1 franchise endpoint first (if it exists)
     try {
-      const response = await apiClient.get<{ status: string; driver: DriverDetail }>(LINKS.franchise.v1.driverById(franchiseId, id));
-      console.log("V1 driver detail response:", response);
-      // Extract driver from response and ensure kyc_documents is always an array
-      const driver = response.driver;
+      const response = await apiClient.get<Record<string, any>>(LINKS.franchise.v1.driverById(franchiseId, id));
+      const d = response.driver ?? {};
+      const wallet = response.wallet ?? {};
+      const vehicle = response.vehicle ?? null;
+      const kycDocs: any[] = response.kycDocuments ?? d.kyc_documents ?? [];
+      const timeline: any[] = d.timeline ?? [];
+      const stats = d.stats ?? {};
+      const perf = response.performance ?? {};
+
       return {
-        ...driver,
-        kyc_documents: driver.kyc_documents || [],
-      };
+        id: d.id,
+        user_id: d.user_id ?? undefined,
+        partner_id: d.partner_id ?? null,
+        franchise_id: d.franchise_id ?? undefined,
+        first_name: d.first_name ?? "",
+        last_name: d.last_name ?? "",
+        phone: d.phone ?? "",
+        email: d.email ?? undefined,
+        driver_code: d.driver_code ?? undefined,
+        account_status: d.account_status ?? d.approval_status ?? "pending",
+        approval_status: d.approval_status ?? undefined,
+        kyc_status: d.kyc_status ?? undefined,
+        onboarding_status: d.onboarding_status ?? undefined,
+        availability: d.availability ?? d.availability_status ?? undefined,
+        ride_category_code: d.ride_category_code ?? undefined,
+        rating: d.rating_avg ?? 0,
+        rating_avg: d.rating_avg ?? null,
+        rating_count: d.rating_count ?? null,
+        cancellation_rate: d.cancellation_rate ?? null,
+        reliability_score: d.reliability_score ?? null,
+        total_completed_orders: d.total_completed_orders ?? null,
+        accepts_cash: d.accepts_cash ?? false,
+        accepts_wallet: d.accepts_wallet ?? false,
+        last_online_at: d.last_online_at ?? null,
+        is_online: d.is_online ?? false,
+        wallet_balance_xof: wallet.balance_fcfa ?? d.wallet_balance_xof ?? 0,
+        trips_count: d.total_completed_orders ?? d.trips_count ?? 0,
+        vehicle_label: vehicle?.label ?? d.vehicle_label ?? undefined,
+        vehicle_plate: vehicle?.plate_number ?? undefined,
+        vehicle_id: vehicle?.id ?? d.current_vehicle_id ?? undefined,
+        registered_at: d.created_at ?? new Date().toISOString(),
+        approved_at: d.approved_at ?? null,
+        suspended_at: d.suspended_at ?? undefined,
+        suspension_reason: d.suspension_reason ?? undefined,
+        zone: d.zone ?? undefined,
+        owner_id: d.owner_id ?? d.partner_id ?? undefined,
+        owner_name: d.owner_name ?? response.partner?.tradeName ?? undefined,
+        stats: {
+          trips_total: stats.trips_total ?? d.total_completed_orders ?? 0,
+          trips_completed: stats.trips_completed ?? d.total_completed_orders ?? 0,
+          trips_cancelled: stats.trips_cancelled ?? 0,
+          acceptance_rate_pct: stats.acceptance_rate_pct ?? null,
+          wallet_balance_fcfa: wallet.balance_fcfa ?? stats.wallet_balance_fcfa ?? 0,
+          wallet_withdrawable_fcfa: wallet.withdrawable_balance_xof ?? wallet.withdrawableBalanceXof ?? undefined,
+          wallet_non_withdrawable_fcfa: wallet.non_withdrawable_balance_xof ?? wallet.nonWithdrawableBalanceXof ?? undefined,
+        },
+        timeline: (() => {
+          const events: DriverTimelineEvent[] = [];
+          const meta = d.metadata ?? {};
+          // Date d'approbation KYC : reviewed_at du premier doc KYC approuvé
+          const kycApprovedAt = kycDocs.find((doc: any) => doc.status === "approved")?.reviewed_at ?? d.updated_at;
+          // Date d'approbation compte : metadata.approvedAt > approved_at > updated_at
+          const accountApprovedAt = meta.approvedAt ?? d.approved_at ?? d.updated_at ?? d.created_at;
+          if (d.created_at) {
+            events.push({ id: "registered", type: "registered", label: "Inscription", at: d.created_at });
+          }
+          if (String(d.kyc_status ?? "").toLowerCase() === "approved" && kycApprovedAt) {
+            events.push({ id: "kyc-approved", type: "kyc", label: "KYC validé", at: kycApprovedAt });
+          }
+          if (String(d.approval_status ?? "").toLowerCase() === "approved" && accountApprovedAt) {
+            events.push({ id: "approved", type: "approved", label: "Compte approuvé", at: accountApprovedAt });
+          }
+          if (d.last_online_at) {
+            events.push({ id: "last-online", type: "registered", label: "Dernière connexion", at: d.last_online_at });
+          }
+          return events.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+        })(),
+        kyc_documents: await (async () => {
+          try {
+            const { mapApiKycItemsForDriver } = await import("@/features/fleet/api/kycDocument.mapper");
+            return mapApiKycItemsForDriver(kycDocs, id);
+          } catch {
+            return [];
+          }
+        })(),
+      } as unknown as DriverDetail;
     } catch (err) {
       console.log("V1 endpoint failed:", err);
       // V1 endpoint doesn't exist, continue to fallback
@@ -227,42 +352,48 @@ export const franchiseDriversService = {
   },
 
   suspend: async (id: string, reason?: string): Promise<void> => {
-    const franchiseId = await resolveFranchiseId();
     await apiClient.post(
-      `${LINKS.franchise.v1.driverById(franchiseId, id)}/suspend`,
+      LINKS.franchise.v1.driverSuspendCtx(id),
       reason ? { reason } : undefined
     );
   },
 
   unsuspend: async (id: string): Promise<void> => {
-    const franchiseId = await resolveFranchiseId();
-    await apiClient.post(
-      `${LINKS.franchise.v1.driverById(franchiseId, id)}/activate`
-    );
+    await apiClient.post(LINKS.franchise.v1.driverActivateCtx(id));
   },
 
   update: async (
     id: string,
     payload: { first_name?: string; last_name?: string; phone?: string; email?: string; ride_category_code?: string; accepts_cash?: boolean; accepts_wallet?: boolean }
   ): Promise<DriverDetail> => {
-    const franchiseId = await resolveFranchiseId();
     const response = await apiClient.patch<{ status: string; driver: DriverDetail }>(
-      LINKS.franchise.v1.driverById(franchiseId, id),
+      LINKS.franchise.v1.driverCtx(id),
       payload
     );
     return { ...response.driver, kyc_documents: response.driver.kyc_documents ?? [] };
   },
 
   delete: async (id: string): Promise<void> => {
-    const franchiseId = await resolveFranchiseId();
-    await apiClient.delete(LINKS.franchise.v1.driverById(franchiseId, id));
+    await apiClient.delete(LINKS.franchise.v1.driverCtx(id));
   },
 
   setAvailability: async (id: string, availability: "online" | "offline"): Promise<void> => {
-    const franchiseId = await resolveFranchiseId();
-    await apiClient.patch(LINKS.franchise.v1.driverById(franchiseId, id), {
+    await apiClient.patch(LINKS.franchise.v1.driverAvailabilityCtx(id), {
       availability_status: availability,
       availability,
     });
+  },
+
+  transfer: async (id: string, targetPartnerId: string): Promise<void> => {
+    await apiClient.post(LINKS.franchise.v1.driverTransferCtx(id), {
+      partner_id: targetPartnerId,
+    });
+  },
+
+  getFilterOptions: async (): Promise<ApiV1DriverFilterOptions> => {
+    const response = await apiClient.get<ApiV1FranchiseDriversResponse>(
+      appendQuery(LINKS.franchise.v1.drivers, buildV1ListQuery({ per_page: 1 }))
+    );
+    return response.filterOptions ?? {};
   },
 };

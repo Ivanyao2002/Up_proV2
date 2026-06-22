@@ -11,8 +11,6 @@ export type PortalRole =
 
 export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
 
-export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
-
 export interface User {
   id: string | number;
   name: string;
@@ -96,6 +94,10 @@ export interface TripTimelineEvent {
   label: string;
   description?: string;
   at: string;
+  /** Étape non encore atteinte (pas de date) — affichée en muted */
+  pending?: boolean;
+  /** Étape courante (current: true côté backend) */
+  is_current?: boolean;
   /** Chauffeurs contactés pendant la recherche (détail par nom + issue) */
   matching_drivers?: TripMatchingDriver[];
 }
@@ -143,6 +145,20 @@ export interface TripDetail extends Trip {
   franchise_name?: string;
   estimated_arrival_at?: string;
   timeline: TripTimelineEvent[];
+  /** Type service API (`RIDE`, `DELIVERY_CARGO`, …) pour routes dispatch. */
+  api_service_type?: string;
+  /** Données spécifiques aux courses FREIGHT */
+  freight_cargo?: {
+    description?: string;
+    weight_kg?: number;
+    volume_m3?: number;
+    vehicle_type_code?: string;
+    package_type_code?: string;
+    customs_required?: boolean;
+    distance_km?: number;
+    payment_status?: string;
+    order_reference?: string;
+  };
 }
 
 export interface Franchise {

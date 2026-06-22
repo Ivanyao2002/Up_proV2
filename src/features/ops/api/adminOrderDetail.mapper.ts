@@ -205,7 +205,7 @@ function eventTypeToTripStatus(eventType: string): TripTimelineEvent["type"] {
   return "requested";
 }
 
-function mapDispatchOffers(
+export function mapDispatchOffers(
   offers: ApiAdminOrderDispatchOffer[] | undefined,
   driverName?: string,
   assignedDriverId?: string
@@ -230,7 +230,7 @@ function mapDispatchOffers(
   }));
 }
 
-function mapEventsToTimeline(
+export function mapEventsToTimeline(
   events: ApiAdminOrderEvent[] | undefined
 ): TripTimelineEvent[] {
   if (!events?.length) return [];
