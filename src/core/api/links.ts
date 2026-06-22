@@ -116,6 +116,7 @@ export const LINKS = {
     },
     kyc: {
       documents: "/v1/kyc/documents",
+      documentById: (id: string | number) => `/v1/kyc/documents/${id}`,
     },
     catalog: {
       bootstrap: "/v1/catalog/bootstrap",
@@ -159,6 +160,34 @@ export const LINKS = {
     },
   },
 
+  /** Portail comptable — `/v1/compta/*` (voir docs/comptables.md) */
+  compta: {
+    v1: {
+      me: "/v1/compta/me",
+      dashboard: "/v1/compta/dashboard",
+      ledger: "/v1/compta/ledger",
+      ledgerExport: "/v1/compta/ledger/export",
+      ledgerById: (id: string) => `/v1/compta/ledger/${id}`,
+      ledgerReverse: (id: string) => `/v1/compta/ledger/${id}/reverse`,
+      periods: "/v1/compta/periods",
+      closePeriod: "/v1/compta/periods/close",
+      periodById: (id: string) => `/v1/compta/periods/${id}`,
+      periodLock: (id: string) => `/v1/compta/periods/${id}/lock`,
+      commissions: "/v1/compta/commissions",
+      wallets: "/v1/compta/wallets",
+      transactions: "/v1/compta/transactions",
+      transactionById: (id: string) => `/v1/compta/transactions/${id}`,
+      reconciliation: "/v1/compta/reconciliation",
+      cashReconciliations: "/v1/compta/cash-reconciliations",
+      withdrawals: "/v1/compta/withdrawals",
+      withdrawalById: (id: string) => `/v1/compta/withdrawals/${id}`,
+      driverTransfers: "/v1/compta/driver-transfers",
+      driverTransferStats: "/v1/compta/driver-transfers/stats",
+      filterOptions: "/v1/compta/filter-options",
+      reportsExport: "/v1/compta/reports/export",
+    },
+  },
+
   admin: {
     dashboard: "/admin/dashboard",
     v1: {
@@ -185,6 +214,8 @@ export const LINKS = {
       franchises: `${ADMIN_V1_BASE}/franchises`,
       partners: `${ADMIN_V1_BASE}/partners`,
       partnerById: (id: string) => `${ADMIN_V1_BASE}/partners/${id}`,
+      partnerActivate: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/activate`,
+      partnerSuspend: (id: string) => `${ADMIN_V1_BASE}/partners/${id}/suspend`,
       withdrawals: `${ADMIN_V1_BASE}/withdrawals`,
       withdrawalById: (id: string) => `${ADMIN_V1_BASE}/withdrawals/${id}`,
       withdrawalApprove: (id: string) =>
@@ -197,6 +228,8 @@ export const LINKS = {
       userActivate: (id: string) => `${ADMIN_V1_BASE}/users/${id}/activate`,
       filterOptions: `${ADMIN_V1_BASE}/filter-options`,
       driverById: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}`,
+      driverBonusSettings: (id: string) =>
+        `${ADMIN_V1_BASE}/drivers/${id}/bonus/settings`,
       driverApprove: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/approve`,
       driverReject: (id: string) => `${ADMIN_V1_BASE}/drivers/${id}/reject`,
       vehicles: `${ADMIN_V1_BASE}/vehicles`,
@@ -205,11 +238,19 @@ export const LINKS = {
       paydunyaConfig: `${ADMIN_V1_BASE}/paydunya-config`,
       weatherConfig: `${ADMIN_V1_BASE}/weather-config`,
       dispatchConfig: `${ADMIN_V1_BASE}/dispatch-config`,
+      dispatchConfigCountry: (code: string) =>
+        `${ADMIN_V1_BASE}/dispatch-config/countries/${code}`,
+      dispatchCapacity: `${ADMIN_V1_BASE}/dispatch-capacity`,
       weatherRefresh: `${ADMIN_V1_BASE}/weather/refresh`,
       paymentReconcile: (id: string) => `${ADMIN_V1_BASE}/payments/${id}/reconcile`,
       paymentsReconcileBatch: `${ADMIN_V1_BASE}/payments/reconcile-batch`,
       pricingRules: `${ADMIN_V1_BASE}/pricing-rules`,
       pricingRuleById: (id: string) => `${ADMIN_V1_BASE}/pricing-rules/${id}`,
+      pricingConfig: `${ADMIN_V1_BASE}/pricing-config`,
+      pricingConfigCountry: (code: string) =>
+        `${ADMIN_V1_BASE}/pricing-config/countries/${code}`,
+      holidays: `${ADMIN_V1_BASE}/holidays`,
+      holidayById: (id: string) => `${ADMIN_V1_BASE}/holidays/${id}`,
       commissionRules: `${ADMIN_V1_BASE}/commission-rules`,
       commissionRuleById: (id: string) => `${ADMIN_V1_BASE}/commission-rules/${id}`,
       franchiseDelete: (id: string) => `${ADMIN_V1_BASE}/franchises/${id}`,
@@ -219,12 +260,44 @@ export const LINKS = {
         transactionById: (id: string) =>
           `${ADMIN_V1_BASE}/finance/transactions/${id}`,
         ledger: `${ADMIN_V1_BASE}/ledger`,
+        ledgerExport: `${ADMIN_V1_BASE}/ledger/export`,
+        ledgerReverse: (id: string) => `${ADMIN_V1_BASE}/ledger/${id}/reverse`,
         wallets: `${ADMIN_V1_BASE}/finance/wallets`,
         commissions: `${ADMIN_V1_BASE}/finance/commissions`,
         reconciliation: `${ADMIN_V1_BASE}/finance/reconciliation`,
         driverTransfers: `${ADMIN_V1_BASE}/finance/driver-transfers`,
         driverTransferStats: `${ADMIN_V1_BASE}/finance/driver-transfers/stats`,
       },
+      accounting: {
+        periods: `${ADMIN_V1_BASE}/accounting/periods`,
+        closePeriod: `${ADMIN_V1_BASE}/accounting/periods/close`,
+        periodLock: (id: string) => `${ADMIN_V1_BASE}/accounting/periods/${id}/lock`,
+        cashReconciliations: `${ADMIN_V1_BASE}/cash-reconciliations`,
+        cashReconciliationReview: (id: string) =>
+          `${ADMIN_V1_BASE}/cash-reconciliations/${id}/review`,
+      },
+      accountants: {
+        list: `${ADMIN_V1_BASE}/accountants`,
+        create: `${ADMIN_V1_BASE}/accountants`,
+        getById: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}`,
+        suspend: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/suspend`,
+        activate: (id: string) => `${ADMIN_V1_BASE}/accountants/${id}/activate`,
+      },
+      supportAgents: {
+        list: `${ADMIN_V1_BASE}/support-agents`,
+        create: `${ADMIN_V1_BASE}/support-agents`,
+        getById: (id: string) => `${ADMIN_V1_BASE}/support-agents/${id}`,
+        suspend: (id: string) => `${ADMIN_V1_BASE}/support-agents/${id}/suspend`,
+        activate: (id: string) => `${ADMIN_V1_BASE}/support-agents/${id}/activate`,
+      },
+      reportingUsers: {
+        list: `${ADMIN_V1_BASE}/reporting-users`,
+        create: `${ADMIN_V1_BASE}/reporting-users`,
+        getById: (id: string) => `${ADMIN_V1_BASE}/reporting-users/${id}`,
+        suspend: (id: string) => `${ADMIN_V1_BASE}/reporting-users/${id}/suspend`,
+        activate: (id: string) => `${ADMIN_V1_BASE}/reporting-users/${id}/activate`,
+      },
+      reportsExport: `${ADMIN_V1_BASE}/reports/export`,
       bonusRules: `${ADMIN_V1_BASE}/bonus-rules`,
       bonusRuleById: (id: string) => `${ADMIN_V1_BASE}/bonus-rules/${id}`,
       bonusAwards: `${ADMIN_V1_BASE}/bonus-awards`,

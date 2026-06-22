@@ -1,0 +1,61 @@
+---
+description: Rendu premium obligatoire pour toute nouvelle interface (pages, dashboards, formulaires)
+alwaysApply: true
+---
+
+# Interfaces — rendu premium UpJunoo
+
+Toute **nouvelle page**, **dashboard**, **liste** ou **formulaire** doit ressembler à un produit fini, pas à un écran de dev.
+
+## Références à copier (pas réinventer)
+
+| Type | Fichiers modèles |
+|------|------------------|
+| Dashboard | `AdminFinanceDashboardPage`, `ComptaDashboardPage` |
+| Hero KPI | `FinanceHeroKpi`, `ComptaHeroKpi`, `ComptaPeriodsHero` |
+| Listes | `DataTable` + `TableFiltersBar` + `KpiCard` |
+| Formulaires réseau | `admin-network-provisioning-forms.mdc` |
+| Vide / erreur | `EmptyState`, skeletons (`*DashboardSkeleton`) |
+
+## Structure page type
+
+```tsx
+<div className="animate-fade-up">
+  <PageHeader title="…" breadcrumb={[…]} />
+  <p className="-mt-2 mb-6 text-sm text-muted">…contexte métier…</p>
+  <div className="animate-stagger space-y-6">
+    {/* hero → KPIs → contenu → raccourcis */}
+  </div>
+</div>
+```
+
+## Obligatoire
+
+- **Hero ou bandeau** (`kpi-card`, gradient navy) pour les écrans d’accueil / synthèse.
+- **KpiCard** (variantes sombres) pour les chiffres clés — pas de texte brut « 0 FCFA ».
+- **Cartes** : `rounded-card border border-border bg-surface shadow-card`.
+- **Listes** : `DataTable` — jamais `<table>` HTML nu.
+- **Statuts** : pill dédiée (`EntityStatusPill`, `ComptaPeriodStatusPill`, etc.).
+- **Libellés français** métier (pas `pending`, `open` en anglais dans l’UI).
+- **États vides** : `EmptyState` avec message produit — pas « l’API ne renvoie rien ».
+- **Chargement** : skeleton ou spinner centré — pas « Chargement… » seul.
+
+## Interdit dans l’UI visible
+
+- Routes API (`GET /v1/…`, `POST /v1/…`) ou mentions « branché sur Swagger ».
+- Bandeaux amber « mode dev » / « auth temporaire » sans justification produit.
+- Listes plates de liens sans icônes ni hover (`ComptaQuickAccessGrid` comme modèle).
+- Placeholders « En attendant… » / « Phase 2 » sans alternative actionnable.
+- Confirmations techniques ; préférer libellés métier dans les `confirm()`.
+
+## Actions & formulaires
+
+- Boutons primaires/secondaires via `Button` ; actions groupées à droite.
+- Champs : bordure `border-border`, focus `ring-teal/30`.
+- Sections logiques : `<fieldset>` avec légende pour blocs portail / accès.
+
+## Avant de livrer
+
+- [ ] Hiérarchie visuelle claire (hero → KPIs → détail).
+- [ ] Cohérent avec les portails existants (admin, compta, franchise).
+- [ ] Aucun artefact « écran de développement ».

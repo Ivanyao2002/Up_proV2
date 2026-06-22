@@ -11,6 +11,9 @@ import { supportHandlers } from "./support.handlers";
 import { marketingHandlers } from "./marketing.handlers";
 import { dispatchHandlers } from "./dispatch.handlers";
 import { safetyHandlers } from "./safety.handlers";
+import { pricingConfigHandlers } from "./pricingConfig.handlers";
+import { holidaysHandlers } from "./holidays.handlers";
+import { dispatchConfigHandlers } from "./dispatchConfig.handlers";
 
 export const handlers = [
   ...authHandlers,
@@ -26,4 +29,7 @@ export const handlers = [
   ...marketingHandlers,
   ...dispatchHandlers,
   ...safetyHandlers,
+  ...pricingConfigHandlers,
+  ...holidaysHandlers,
+  ...dispatchConfigHandlers,
 ];

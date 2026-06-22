@@ -94,11 +94,7 @@ function resolveOrderDriverName(
     return fromSummary.trim();
   }
 
-  return (
-    ride.driver?.displayName ??
-    ride.driver?.name ??
-    undefined
-  );
+  return ride.driver?.displayName ?? undefined;
 }
 
 function readCoord(

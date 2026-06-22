@@ -10,7 +10,7 @@ import type {
 } from "./auth.types";
 import { mapApiLoginToAuthSession, mapApiMeToUser } from "./auth.mapper";
 
-export type LoginPortal = "admin" | "partner" | "franchise" | "dispatch";
+export type LoginPortal = PortalRole;
 
 export interface LoginPayload {
   portal: LoginPortal;
@@ -18,9 +18,12 @@ export interface LoginPayload {
   password: string;
 }
 
-const V1_LOGIN_BY_PORTAL: Record<LoginPortal, string> = {
+const V1_LOGIN_BY_PORTAL: Partial<Record<LoginPortal, string>> = {
   /** Route admin unique — rôle déduit via `profiles.user_type` (pas /auth/partner|franchise/login) */
   admin: LINKS.auth.v1.login,
+  compta: LINKS.auth.v1.login,
+  support: LINKS.auth.v1.login,
+  reporting: LINKS.auth.v1.login,
   partner: LINKS.auth.v1.login,
   franchise: LINKS.auth.v1.login,
   dispatch: LINKS.auth.v1.driverLogin,
@@ -30,11 +33,14 @@ function useLegacyAuth(): boolean {
   return env.useMocks && !env.useRealAuth;
 }
 
+const SIEGE_PORTAL_LOGIN = new Set<LoginPortal>(["compta", "support", "reporting"]);
+
 async function loginV1(payload: LoginPayload): Promise<AuthSession> {
-  const endpoint = V1_LOGIN_BY_PORTAL[payload.portal];
+  const endpoint = V1_LOGIN_BY_PORTAL[payload.portal] ?? LINKS.auth.v1.login;
   const body: ApiAuthLoginBody = {
     email: payload.email.trim(),
     password: payload.password,
+    ...(SIEGE_PORTAL_LOGIN.has(payload.portal) ? { portal: payload.portal } : {}),
   };
 
   const data = await apiClient.post<ApiAuthLoginResponse>(endpoint, body);

@@ -8,12 +8,14 @@ import {
   useAdminSupportChat,
   useReplyAdminChat,
 } from "../api/adminChat.queries";
+import { useSupportPaths } from "../lib/supportPaths";
 
 interface AdminSupportChatDetailPageProps {
   chatId: string;
 }
 
 export function AdminSupportChatDetailPage({ chatId }: AdminSupportChatDetailPageProps) {
+  const paths = useSupportPaths();
   const { data, isLoading, isError } = useAdminSupportChat(chatId);
   const reply = useReplyAdminChat(chatId);
 
@@ -25,7 +27,7 @@ export function AdminSupportChatDetailPage({ chatId }: AdminSupportChatDetailPag
     return (
       <p className="text-sm text-red-600">
         Conversation introuvable.{" "}
-        <Link href="/admin/support/chat" className="text-teal underline">
+        <Link href={paths.chat} className="text-teal underline">
           Retour
         </Link>
       </p>
@@ -55,7 +57,7 @@ export function AdminSupportChatDetailPage({ chatId }: AdminSupportChatDetailPag
       </p>
 
       <p className="mb-6 text-sm">
-        <Link href="/admin/support/chat" className="text-teal hover:underline">
+        <Link href={paths.chat} className="text-teal hover:underline">
           ← Retour aux conversations
         </Link>
       </p>

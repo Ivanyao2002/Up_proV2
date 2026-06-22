@@ -1,5 +1,7 @@
 import { apiClient } from "@/core/http/apiClient";
 import { LINKS } from "@/core/api/links";
+import type { ComptaApiScope } from "@/features/compta/api/comptaApiScope";
+import { comptaFinanceLinks } from "@/features/compta/api/comptaApiScope";
 import type { ApiAdminOrdersFilterOptions } from "@/features/ops/api/adminOrders.api.types";
 import { mapOrdersFilterOptions } from "@/features/ops/api/adminOrders.mapper";
 import type { TripsScopeFilterOptions } from "@/shared/types";
@@ -10,23 +12,33 @@ export interface ApiAdminFilterOptionsResponse {
   filterOptions?: ApiAdminOrdersFilterOptions;
 }
 
-let franchiseNameCache: Map<string, string> | null = null;
+const franchiseNameCache = new Map<ComptaApiScope, Map<string, string>>();
 
-/** GET /v1/admin/filter-options — franchises + partenaires pour filtres UI */
-export async function fetchAdminFilterOptions(): Promise<TripsScopeFilterOptions> {
+/** GET filter-options — admin ou portail comptable (scopé pays). */
+export async function fetchScopeFilterOptions(
+  scope: ComptaApiScope = "admin"
+): Promise<TripsScopeFilterOptions> {
   const response = await apiClient.get<ApiAdminFilterOptionsResponse>(
-    LINKS.admin.v1.filterOptions
+    comptaFinanceLinks(scope).filterOptions
   );
   return mapOrdersFilterOptions(response.filterOptions);
 }
 
-/** Lookup franchise id → name (WD-01 fallback retraits). */
-export async function fetchFranchiseNameMap(): Promise<Map<string, string>> {
-  if (franchiseNameCache) return franchiseNameCache;
+/** @deprecated Préférer `fetchScopeFilterOptions("admin")` */
+export async function fetchAdminFilterOptions(): Promise<TripsScopeFilterOptions> {
+  return fetchScopeFilterOptions("admin");
+}
+
+/** Lookup franchise id → name pour retraits / listes. */
+export async function fetchFranchiseNameMap(
+  scope: ComptaApiScope = "admin"
+): Promise<Map<string, string>> {
+  const cached = franchiseNameCache.get(scope);
+  if (cached) return cached;
 
   const map = new Map<string, string>();
   try {
-    const options = await fetchAdminFilterOptions();
+    const options = await fetchScopeFilterOptions(scope);
     for (const f of options.franchises) {
       map.set(String(f.id), f.name);
     }
@@ -34,10 +46,10 @@ export async function fetchFranchiseNameMap(): Promise<Map<string, string>> {
     // ignore
   }
 
-  franchiseNameCache = map;
+  franchiseNameCache.set(scope, map);
   return map;
 }
 
 export function clearFranchiseNameCache(): void {
-  franchiseNameCache = null;
+  franchiseNameCache.clear();
 }

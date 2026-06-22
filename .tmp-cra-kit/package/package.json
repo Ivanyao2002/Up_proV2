@@ -1,0 +1,26 @@
+{
+  "name": "create-react-vite-app-kit",
+  "version": "1.0.2",
+  "type": "module",
+  "bin": {
+    "create-react-vite-app-kit": "bin/index.js"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.5"
+  },
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "react",
+    "vite",
+    "starter",
+    "generator",
+    "frontend"
+  ],
+  "author": "Ange Armand KADIO",
+  "license": "MIT"
+}

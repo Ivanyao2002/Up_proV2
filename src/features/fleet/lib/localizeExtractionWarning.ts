@@ -22,6 +22,7 @@ export const YEAR_EXTRACTION_FIELD_HINT =
 const WARNING_NOISE_PATTERNS: RegExp[] = [
   /^Texte extrait via PaddleOCR/i,
   /année.*mise en circulation|first registration.*manufacturing/i,
+  /^Champ « .* » à vérifier \(confiance/i,
 ];
 
 /** Normalise les avertissements IA (souvent en anglais) vers le français. */

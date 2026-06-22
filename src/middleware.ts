@@ -3,6 +3,9 @@ import type { NextRequest } from "next/server";
 
 const PUBLIC_PATHS: Record<string, string[]> = {
   admin: ["/admin/login"],
+  compta: ["/compta/login"],
+  support: ["/support/login"],
+  reporting: ["/reporting/login"],
   partner: ["/partner/login"],
   franchise: ["/franchise/login"],
   dispatch: ["/dispatch/login"],
@@ -16,7 +19,14 @@ function withBasePath(path: string): string {
 
 function guardPortal(
   request: NextRequest,
-  prefix: "/admin" | "/partner" | "/franchise" | "/dispatch",
+  prefix:
+    | "/admin"
+    | "/compta"
+    | "/support"
+    | "/reporting"
+    | "/partner"
+    | "/franchise"
+    | "/dispatch",
   loginPath: string
 ) {
   const { pathname } = request.nextUrl;
@@ -39,6 +49,9 @@ function guardPortal(
 export function middleware(request: NextRequest) {
   return (
     guardPortal(request, "/admin", "/admin/login") ??
+    guardPortal(request, "/compta", "/compta/login") ??
+    guardPortal(request, "/support", "/support/login") ??
+    guardPortal(request, "/reporting", "/reporting/login") ??
     guardPortal(request, "/partner", "/partner/login") ??
     guardPortal(request, "/franchise", "/franchise/login") ??
     guardPortal(request, "/dispatch", "/dispatch/login") ??
@@ -49,6 +62,9 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/compta/:path*",
+    "/support/:path*",
+    "/reporting/:path*",
     "/partner/:path*",
     "/franchise/:path*",
     "/dispatch/:path*",

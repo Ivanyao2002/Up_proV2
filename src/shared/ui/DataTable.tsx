@@ -57,6 +57,8 @@ interface DataTableProps<T> {
   rowHeight?: DataTableRowHeight;
   /** Classes CSS additionnelles par ligne */
   getRowClassName?: (row: T) => string | undefined;
+  /** Clic sur une ligne (hors cases à cocher / boutons) */
+  onRowClick?: (row: T) => void;
 }
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -101,6 +103,7 @@ export function DataTable<T>({
   exportFileName,
   rowHeight = "default",
   getRowClassName,
+  onRowClick,
 }: DataTableProps<T>) {
   const serverMode = Boolean(serverPagination);
   const paginationEnabled = !serverMode && pagination !== false;
@@ -339,7 +342,20 @@ export function DataTable<T>({
                     key={key}
                     className={`${rowClass} border-t border-border/50 transition-colors duration-120 hover:bg-surface-hover/80 ${
                       selected ? "bg-teal/[0.04]" : ""
-                    } ${extraRowClass}`}
+                    } ${extraRowClass} ${onRowClick ? "cursor-pointer" : ""}`}
+                    onClick={
+                      onRowClick
+                        ? (e) => {
+                            const target = e.target as HTMLElement;
+                            if (
+                              target.closest("button, a, input, select, textarea, [data-row-action]")
+                            ) {
+                              return;
+                            }
+                            onRowClick(row);
+                          }
+                        : undefined
+                    }
                   >
                     {selectable && (
                       <td className="px-3 sm:px-6">

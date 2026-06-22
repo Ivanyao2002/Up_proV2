@@ -69,14 +69,17 @@ export function CommissionsListPage() {
           {
             id: "franchise",
             header: "Franchise",
-            cell: (c: CommissionRow) => (
-              <Link
-                href={`/admin/network/franchises/${c.franchise_id}`}
-                className="text-sm font-medium text-foreground hover:text-teal"
-              >
-                {c.franchise_name}
-              </Link>
-            ),
+            cell: (c: CommissionRow) =>
+              c.franchise_id ? (
+                <Link
+                  href={`/admin/network/franchises/${c.franchise_id}`}
+                  className="text-sm font-medium text-foreground hover:text-teal"
+                >
+                  {c.franchise_name}
+                </Link>
+              ) : (
+                <span className="text-sm text-muted">{c.franchise_name}</span>
+              ),
             exportValue: (c: CommissionRow) => c.franchise_name,
           } satisfies Column<CommissionRow>,
         ]

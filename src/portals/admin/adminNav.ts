@@ -65,6 +65,24 @@ export const ADMIN_NAV: NavGroup[] = [
         icon: "partners",
         permission: "network.partners.view",
       },
+      {
+        label: "Comptables",
+        path: "/admin/network/accountants",
+        icon: "finance",
+        permission: "network.partners.view",
+      },
+      {
+        label: "Agents support",
+        path: "/admin/network/support-agents",
+        icon: "support",
+        permission: "network.partners.view",
+      },
+      {
+        label: "Analystes reporting",
+        path: "/admin/network/reporting-users",
+        icon: "dashboard",
+        permission: "network.partners.view",
+      },
     ],
   },
   {
@@ -211,8 +229,8 @@ export const ADMIN_NAV: NavGroup[] = [
       //   permission: "settings.dispatchers.view",
       // },
       {
-        label: "Règles de dispatch",
-        path: "/admin/settings/dispatch-rules",
+        label: "Calibration dispatch",
+          path: "/admin/settings/dispatch-rules",
         icon: "trips",
         permission: "settings.dispatch_rules.view",
       },
@@ -229,23 +247,29 @@ export const ADMIN_NAV: NavGroup[] = [
         permission: "settings.pricing.view",
       },
       {
+        label: "Calibration prix",
+        path: "/admin/settings/pricing/calibration",
+        icon: "finance",
+        permission: "settings.pricing.view",
+      },
+      {
         label: "Plafonds finance",
         path: "/admin/settings/finance-caps",
         icon: "wallet",
         permission: "settings.pricing.view",
       },
-      {
-        label: "Intégrations",
-        path: "/admin/settings/integrations",
-        icon: "integrations",
-        permission: "settings.dispatchers.view",
-      },
-      {
-        label: "Météo",
-        path: "/admin/settings/weather",
-        icon: "map",
-        permission: "settings.dispatchers.view",
-      },
+      // {
+      //   label: "Intégrations",
+      //   path: "/admin/settings/integrations",
+      //   icon: "integrations",
+      //   permission: "settings.dispatchers.view",
+      // },
+      // {
+      //   label: "Météo",
+      //   path: "/admin/settings/weather",
+      //   icon: "map",
+      //   permission: "settings.dispatchers.view",
+      // },
       {
         label: "Audit",
         path: "/admin/settings/audit",

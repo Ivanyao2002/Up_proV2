@@ -4,7 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "./authStore";
 import { clearAuthCookie, hasAuthCookie, setAuthCookie } from "./authCookie";
-import { LOGIN_BY_PORTAL } from "./authRoutes";
+import { LOGIN_BY_PORTAL, canAccessPortal } from "./authRoutes";
 import { buildLoginUrlWithReturn } from "./returnUrl";
 import { useAuthHydrated } from "./useAuthHydrated";
 import { useAuthMeQuery } from "@/features/auth/api/auth.queries";
@@ -31,6 +31,8 @@ export function AuthGuard({ portal, children }: AuthGuardProps) {
   const user = useAuthStore((s) => s.user);
   const { isError: meFailed } = useAuthMeQuery();
 
+  const hasAccess = user ? canAccessPortal(user.role, portal) : false;
+
   useEffect(() => {
     if (!meFailed) return;
     useAuthStore.getState().clearSession();
@@ -48,16 +50,16 @@ export function AuthGuard({ portal, children }: AuthGuardProps) {
       router.replace(buildLoginUrlWithReturn(LOGIN_BY_PORTAL[portal], pathname));
       return;
     }
-    if (user.role !== portal) {
+    if (!hasAccess) {
       router.replace(LOGIN_BY_PORTAL[user.role] ?? "/login");
     }
-  }, [hydrated, token, user, portal, router, pathname]);
+  }, [hydrated, token, user, portal, router, pathname, hasAccess]);
 
   if (!hydrated || !token || !user) {
     return <AuthLoading />;
   }
 
-  if (user.role !== portal) {
+  if (!hasAccess) {
     return <AuthLoading />;
   }
 

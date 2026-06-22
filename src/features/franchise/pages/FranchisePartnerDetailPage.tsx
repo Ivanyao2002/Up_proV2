@@ -31,9 +31,11 @@ import {
   useUpdateFranchisePartner,
   useDeleteFranchisePartner,
 } from "../api/partners.queries";
+import { PartnerDocumentsPanel } from "@/features/network/components/PartnerDocumentsPanel";
 
 const TABS = [
   { id: "overview", label: "Aperçu" },
+  { id: "documents", label: "Documents" },
   { id: "drivers", label: "Chauffeurs" },
   { id: "trips", label: "Courses" },
   { id: "commissions", label: "Commissions" },
@@ -323,7 +325,7 @@ function EditPartnerModal({
     contact_email: data.contact_email ?? "",
     contact_phone: data.contact_phone ?? "",
     city: data.city,
-    address: data.address,
+    address: data.address ?? undefined,
   });
   const update = useUpdateFranchisePartner(String(data.id));
 
@@ -528,6 +530,11 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
               </div>
             </aside>
           </div>
+        )}
+
+        {/* ── Documents ── */}
+        {tab === "documents" && (
+          <PartnerDocumentsPanel partnerId={partnerId} canUpload canReview />
         )}
 
         {/* ── Chauffeurs ── */}

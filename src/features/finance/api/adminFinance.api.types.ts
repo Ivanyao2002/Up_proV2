@@ -5,9 +5,12 @@ export interface ApiFinanceListResponse<T> {
   status?: string;
   generatedAt?: string;
   items?: T[];
+  /** Alias API commissions */
+  commissions?: T[];
   pagination?: ApiV1Pagination;
   summary?: Record<string, unknown>;
   filterOptions?: ApiAdminOrdersFilterOptions;
+  filter_options?: ApiAdminOrdersFilterOptions;
 }
 
 export interface ApiFinanceDashboardResponse {
@@ -104,6 +107,9 @@ export interface ApiFinanceTransactionItem {
     ref?: string;
     serviceType?: string;
   } | null;
+  order_id?: string;
+  service_type?: string;
+  metadata?: Record<string, unknown>;
   commissionBreakdown?: {
     grossAmountXof?: number;
     driverAmountXof?: number;
@@ -149,8 +155,14 @@ export interface ApiFinanceCommissionItem {
   gross_amount_xof?: number;
   commission_fcfa?: number;
   platform_amount_xof?: number;
+  franchise_amount_xof?: number;
+  partner_amount_xof?: number;
+  fiscality_amount_xof?: number;
   rate_pct?: number;
   status?: string;
+  service_type?: string;
+  order_id?: string;
+  created_at?: string;
 }
 
 export interface ApiFinanceReconciliationItem {

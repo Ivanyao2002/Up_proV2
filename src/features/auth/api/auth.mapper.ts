@@ -4,10 +4,14 @@ import type {
   ApiAuthMeResponse,
   ApiUserType,
 } from "./auth.types";
-import { ADMIN_BACKOFFICE_PERMISSIONS } from "./auth.permissions";
+import { ADMIN_BACKOFFICE_PERMISSIONS, COMPTA_PORTAL_PERMISSIONS, REPORTING_PORTAL_PERMISSIONS, SUPPORT_PORTAL_PERMISSIONS } from "./auth.permissions";
 
 const PORTAL_BY_USER_TYPE: Record<string, PortalRole> = {
   ADMIN: "admin",
+  ACCOUNTANT: "compta",
+  COMPTA: "compta",
+  SUPPORT: "support",
+  REPORTING: "reporting",
   PARTNER: "partner",
   FRANCHISE: "franchise",
   DRIVER: "dispatch",
@@ -16,24 +20,27 @@ const PORTAL_BY_USER_TYPE: Record<string, PortalRole> = {
 
 const SCOPE_BY_PORTAL: Record<PortalRole, Scope> = {
   admin: "platform",
+  compta: "platform",
+  support: "platform",
+  reporting: "platform",
   franchise: "franchise",
   partner: "owner",
   dispatch: "platform",
 };
 
-function resolvePortal(
-  expectedPortal: PortalRole,
-  userType?: ApiUserType
-): PortalRole {
-  if (!userType) return expectedPortal;
-  const mapped = PORTAL_BY_USER_TYPE[String(userType).toUpperCase()];
-  return mapped ?? expectedPortal;
-}
+/** Portails siège : l'API peut renvoyer ADMIN pour un login dédié. */
+const ADMIN_ALLOWED_LOGIN_PORTALS: PortalRole[] = ["compta", "support", "reporting"];
 
 function defaultPermissions(portal: PortalRole): string[] {
   switch (portal) {
     case "admin":
       return ADMIN_BACKOFFICE_PERMISSIONS;
+    case "compta":
+      return COMPTA_PORTAL_PERMISSIONS;
+    case "support":
+      return SUPPORT_PORTAL_PERMISSIONS;
+    case "reporting":
+      return REPORTING_PORTAL_PERMISSIONS;
     case "partner":
       return [
         "ops.dashboard.view",
@@ -151,15 +158,24 @@ function buildUserFromApi(
   expectedPortal: PortalRole
 ): User {
   const userType = data.userType ?? data.profile?.user_type ?? data.role;
-  const portal = resolvePortal(expectedPortal, userType);
+  const mappedType = userType
+    ? PORTAL_BY_USER_TYPE[String(userType).toUpperCase()]
+    : undefined;
 
-  if (userType) {
-    const mapped = PORTAL_BY_USER_TYPE[String(userType).toUpperCase()];
-    if (mapped && mapped !== expectedPortal) {
-      throw new Error(
-        "Ce compte n'est pas autorisé sur ce portail. Utilisez le portail correspondant."
-      );
-    }
+  let portal: PortalRole;
+  if (mappedType && mappedType === expectedPortal) {
+    portal = mappedType;
+  } else if (
+    mappedType === "admin" &&
+    ADMIN_ALLOWED_LOGIN_PORTALS.includes(expectedPortal)
+  ) {
+    portal = "admin";
+  } else if (mappedType) {
+    throw new Error(
+      "Ce compte n'est pas autorisé sur ce portail. Utilisez le portail correspondant."
+    );
+  } else {
+    portal = expectedPortal;
   }
 
   const profile = data.profile;
