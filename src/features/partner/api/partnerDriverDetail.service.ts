@@ -52,7 +52,26 @@ interface TripsApiResponse {
 
 interface WalletTxApiResponse {
   status?: string;
-  items?: PartnerDriverWalletTransaction[];
+  items?: Array<{
+    id: string;
+    description?: string;
+    amount_xof?: number;
+    direction?: string;
+    entry_type?: string;
+    posted_at?: string;
+    created_at?: string;
+    balance_after_xof?: number | null;
+  }>;
+  transactions?: Array<{
+    id: string;
+    description?: string;
+    amount_xof?: number;
+    direction?: string;
+    entry_type?: string;
+    posted_at?: string;
+    created_at?: string;
+    balance_after_xof?: number | null;
+  }>;
   data?: PartnerDriverWalletTransaction[];
   pagination?: { page: number; limit: number; total: number; hasMore: boolean };
   meta?: { current_page: number; per_page: number; total: number; last_page: number };
@@ -93,8 +112,16 @@ export const partnerDriverDetailService = {
     );
     if (raw.status === "ok" && Array.isArray(raw.items)) {
       const p = raw.pagination;
+      const rows: PartnerDriverWalletTransaction[] = raw.items.map((t) => ({
+        id: t.id,
+        type: (t.direction === "credit" ? "credit" : "debit") as "credit" | "debit",
+        label: t.description ?? t.entry_type ?? "—",
+        amount_fcfa: t.amount_xof ?? 0,
+        balance_after_fcfa: t.balance_after_xof ?? 0,
+        created_at: t.posted_at ?? t.created_at ?? "",
+      }));
       return {
-        data: raw.items,
+        data: rows,
         meta: p
           ? { current_page: p.page, per_page: p.limit, total: p.total, last_page: p.hasMore ? p.page + 1 : p.page }
           : { current_page: 1, per_page: 20, total: raw.items.length, last_page: 1 },
@@ -153,6 +180,6 @@ export const partnerLiveMapService = {
     const response = await apiClient.get<ApiPartnerLiveMapResponse>(
       LINKS.partner.ops.map(partnerId)
     );
-    return mapApiPartnerLiveMapToData(response);
+    return mapApiPartnerLiveMapToData(response, String(partnerId));
   },
 };

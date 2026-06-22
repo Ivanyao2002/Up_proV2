@@ -2,6 +2,7 @@ import { apiClient, apiWithNotify } from "@/core/http/apiClient";
 import { useAuthStore } from "@/core/auth/authStore";
 import { LINKS } from "@/core/api/links";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
+import { notificationService } from "@/core/http/notificationService";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import type { VehicleDocumentType } from "@/shared/types/vehicleDocuments";
 import type { Paginated, Vehicle, VehicleDetail } from "@/shared/types";
@@ -22,6 +23,7 @@ import {
   assignDriverV1,
   legacyPartnerDocumentsPath,
 } from "@/features/fleet/api/vehicleCreateFlow";
+import { attachPartnerVehicleRegistration } from "@/features/fleet/api/kycDocumentUpload.v1.service";
 import { partnerDriversService, type CreateDriverPayload } from "./drivers.service";
 import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
 import type { VehiclePieceFile } from "../components/VehicleCreatePiecesSection";
@@ -158,9 +160,11 @@ function buildSummary(items: Vehicle[]): VehiclesListResponse["summary"] {
 
 async function listV1(params?: ListParams): Promise<VehiclesListResponse> {
   const partnerId = resolvePartnerId();
-  const response = await apiClient.get<ApiAdminVehiclesListResponse>(
-    `${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery(params)}`
-  );
+  const response = await apiClient.get<
+    ApiAdminVehiclesListResponse & {
+      summary?: VehiclesListResponse["summary"];
+    }
+  >(`${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery(params)}`);
   const items = response.items ?? [];
   const lookups = await fetchVehicleCatalogLookupsForItems(items);
   const paginated = mapAdminVehiclesToPaginated(
@@ -171,7 +175,7 @@ async function listV1(params?: ListParams): Promise<VehiclesListResponse> {
   );
   return {
     ...paginated,
-    summary: buildSummary(paginated.data),
+    summary: response.summary ?? buildSummary(paginated.data),
   };
 }
 
@@ -208,6 +212,7 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
 
     // Driver peut être dans raw.driver ou v.driver
     const driver = (raw.driver ?? v.driver) as {
+      id?: string;
       displayName?: string;
       profile?: { firstName?: string; lastName?: string };
     } | null;
@@ -265,6 +270,7 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
       plate: (v.plate_number as string) ?? (v.plate as string) ?? "",
       seats: (v.seats_count as number) ?? (v.seats as number) ?? 0,
       approval_status: ((v.status as string) ?? "pending") as Vehicle["approval_status"],
+      driver_id: (v.driver_id as string | null) ?? driver?.id ?? null,
       driver_name: driverName,
       registration_document: registrationDoc,
       owner_id: partnerId,
@@ -359,15 +365,20 @@ export const partnerVehiclesService = {
     return createV1(data);
   },
 
-  uploadRegistration: (id: string) => {
+  uploadRegistration: async (id: string, file: File) => {
     const partnerId = resolvePartnerId();
-    return apiWithNotify.post<VehicleDetail>(
-      useLegacyPortalApi()
-        ? `/partner/vehicles/${id}/registration`
-        : LINKS.partner.vehicles.registration(partnerId, id),
-      {},
-      "Carte grise envoyée — validation en cours"
-    );
+    if (useLegacyPortalApi()) {
+      return apiWithNotify.post<VehicleDetail>(
+        `/partner/vehicles/${id}/registration`,
+        { filename: file.name },
+        "Carte grise envoyée — validation en cours"
+      );
+    }
+
+    await attachPartnerVehicleRegistration(partnerId, id, file);
+    const detail = await getByIdV1(id);
+    notificationService.success("Carte grise envoyée — validation en cours");
+    return detail;
   },
 
   uploadDocument: (id: string, type: VehicleDocumentType) => {

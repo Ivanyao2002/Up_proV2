@@ -20,7 +20,19 @@ const outputPath = process.argv[3]
   ? path.resolve(process.argv[3])
   : inputPath.replace(/\.html$/i, ".pdf");
 
-const CHROME_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+function resolveChromePath() {
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const candidates = [
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    path.join(process.env.LOCALAPPDATA ?? "", "Google\\Chrome\\Application\\chrome.exe"),
+    "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+    "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  ];
+  return candidates.find((p) => p && fs.existsSync(p)) ?? candidates[0];
+}
+
+const CHROME_PATH = resolveChromePath();
 
 if (!fs.existsSync(inputPath)) {
   console.error("File not found:", inputPath);

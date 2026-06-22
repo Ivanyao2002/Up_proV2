@@ -38,6 +38,15 @@ export interface PartnerShift {
   status: "active" | "draft";
 }
 
+export interface CreateShiftPayload {
+  driver_name: string;
+  vehicle_label: string;
+  day_label: string;
+  start_time: string;
+  end_time: string;
+  status?: "active" | "draft";
+}
+
 export interface RecurringBooking {
   id: string;
   client_name: string;
@@ -66,6 +75,14 @@ export const partnerShiftsService = {
       `${LINKS.partner.shifts.list(partnerId)}${buildListQuery(params)}`
     );
     return mapApiList(res);
+  },
+
+  create: async (partnerId: string | number, data: CreateShiftPayload) => {
+    const res = await apiClient.post<PartnerShift>(
+      LINKS.partner.shifts.list(partnerId),
+      data
+    );
+    return res;
   },
 };
 

@@ -6,11 +6,12 @@ import { Button } from "@/shared/ui/Button";
 import { LiveMapCanvas } from "@/features/ops/components/LiveMapCanvas";
 import { LiveMapStatsBar } from "@/features/ops/components/LiveMapStatsBar";
 import { LiveMapDriversPanel } from "@/features/ops/components/LiveMapDriversPanel";
-import { usePartnerLiveMap } from "../api/partnerDriverDetail.queries";
+import { usePartnerLiveMapWithRealtime } from "../hooks/usePartnerLiveMapWithRealtime";
 import { MapPageSkeleton } from "@/shared/ui/skeletons";
 
 export function PartnerLiveMapPage() {
-  const { data, isLoading, isError, dataUpdatedAt } = usePartnerLiveMap();
+  const { data, isLoading, isError, dataUpdatedAt, realtimeActive, socketStatus } =
+    usePartnerLiveMapWithRealtime();
 
   if (isLoading) return <MapPageSkeleton showStatsBar={false} />;
   if (isError || !data) {
@@ -33,10 +34,21 @@ export function PartnerLiveMapPage() {
           <div className="flex flex-wrap items-center gap-2">
             <span className="flex items-center gap-1.5 rounded-full bg-teal/10 px-3 py-1 text-xs font-semibold text-teal">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
+                {realtimeActive ? (
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75" />
+                ) : null}
+                <span
+                  className={`relative inline-flex h-2 w-2 rounded-full ${
+                    realtimeActive ? "bg-teal" : "bg-muted"
+                  }`}
+                />
               </span>
-              LIVE · MAJ {updated}
+              {realtimeActive
+                ? "LIVE socket"
+                : socketStatus === "connecting"
+                  ? "Connexion socket…"
+                  : "MAJ HTTP"}{" "}
+              · {updated}
             </span>
             <Link href="/partner/drivers">
               <Button variant="secondary">Liste chauffeurs</Button>

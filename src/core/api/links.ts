@@ -713,6 +713,7 @@ export const LINKS = {
         `/v1/partners/${id}/cash-reconciliations`,
       revenue: (id: string | number) => `/v1/partners/${id}/revenue`,
       withdraw: (id: string | number) => `/v1/partners/${id}/wallet/withdraw`,
+      topUp: (id: string | number) => `/v1/partners/${id}/wallet/top-up`,
       driverTransfers: {
         stats: (id: string | number) =>
           `/v1/partners/${id}/wallet/driver-transfers/stats`,
@@ -747,6 +748,8 @@ export const LINKS = {
           `/v1/partners/${id}/safety/sos/${sosId}`,
         acknowledge: (id: string | number, sosId: string | number) =>
           `/v1/partners/${id}/safety/sos/${sosId}/acknowledge`,
+        resolve: (id: string | number, sosId: string | number) =>
+          `/v1/partners/${id}/safety/sos/${sosId}/resolve`,
         dashboard: (id: string | number) => `/v1/partners/${id}/safety/sos/dashboard`,
       },
     },
