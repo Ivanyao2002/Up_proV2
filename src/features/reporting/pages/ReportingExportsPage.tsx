@@ -11,28 +11,8 @@ import {
   useReportCatalog,
 } from "@/features/reporting/api/reporting.queries";
 import type { ExportFormat } from "@/features/reporting/api/reporting.types";
-
-const STATUS_LABEL: Record<string, string> = {
-  queued: "En attente",
-  processing: "En cours",
-  ready: "Disponible",
-  failed: "Échoué",
-  expired: "Expiré",
-};
-
-const STATUS_COLOR: Record<string, string> = {
-  queued: "text-muted",
-  processing: "text-amber-600",
-  ready: "text-teal-dark",
-  failed: "text-red-600",
-  expired: "text-muted line-through",
-};
-
-function formatBytes(n: number) {
-  if (n < 1024) return `${n} o`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} Ko`;
-  return `${(n / (1024 * 1024)).toFixed(1)} Mo`;
-}
+import { formatBytes } from "@/features/reporting/utils/reportingFormatters";
+import { STATUS_LABEL, STATUS_COLOR } from "@/features/reporting/lib/exportsConstants";
 
 export function ReportingExportsPage() {
   const searchParams = useSearchParams();

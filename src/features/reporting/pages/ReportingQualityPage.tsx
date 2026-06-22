@@ -5,30 +5,8 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { useReportingQuality } from "@/features/reporting/api/reporting.queries";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("fr-FR").format(n);
-}
-
-function fmtMin(n: number) {
-  if (n < 60) return `${n.toFixed(0)} min`;
-  return `${(n / 60).toFixed(1)} h`;
-}
-
-const CATEGORY_LABEL: Record<string, string> = {
-  payment: "Paiement",
-  behavior: "Comportement",
-  service: "Service",
-  logistics: "Logistique",
-  app: "Application",
-  other: "Autre",
-};
-
-const SEVERITY_COLOR: Record<string, string> = {
-  info: "bg-blue-100 text-blue-700",
-  warning: "bg-amber-100 text-amber-700",
-  critical: "bg-red-100 text-red-700",
-};
+import { fmt, fmtMin } from "@/features/reporting/utils/reportingFormatters";
+import { CATEGORY_LABEL, SEVERITY_COLOR } from "@/features/reporting/lib/qualityConstants";
 
 export function ReportingQualityPage() {
   const { data, isLoading, isError } = useReportingQuality();

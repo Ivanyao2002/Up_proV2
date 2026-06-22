@@ -15,12 +15,7 @@ import {
 import type { AdminSupportChat } from "../api/adminChat.types";
 import { useAdminSupportChats } from "../api/adminChat.queries";
 import { useSupportPaths } from "../lib/supportPaths";
-
-const STATUS_FILTERS = [
-  { value: "all" as const, label: "Tous" },
-  { value: "open" as const, label: "Ouverts" },
-  { value: "closed" as const, label: "Clôturés" },
-];
+import { STATUS_FILTERS } from "../lib/chatConstants";
 
 export function AdminSupportChatListPage() {
   const paths = useSupportPaths();

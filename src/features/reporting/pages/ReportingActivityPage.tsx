@@ -5,35 +5,8 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { useReportingActivity } from "@/features/reporting/api/reporting.queries";
-import { formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("fr-FR").format(n);
-}
-
-function fmtPct(n: number) {
-  return `${n.toFixed(1)} %`;
-}
-
-const DIMENSION_LABEL: Record<string, string> = {
-  service: "service",
-  country: "pays",
-  zone: "zone",
-  franchise: "franchise",
-  partner: "partenaire",
-  driver: "chauffeur",
-  deliverer: "livreur",
-};
-
-const DIMENSION_COL: Record<string, string> = {
-  franchise: "Franchise",
-  partner: "Partenaire",
-  zone: "Zone",
-  country: "Pays",
-  service: "Service",
-  driver: "Chauffeur",
-  deliverer: "Livreur",
-};
+import { fmt, fmtPct, formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
+import { DIMENSION_LABEL, DIMENSION_COL } from "@/features/reporting/lib/activityConstants";
 
 export function ReportingActivityPage() {
   const { data, isLoading, isError } = useReportingActivity({ group_by: "day" });

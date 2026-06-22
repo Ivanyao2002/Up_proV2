@@ -5,31 +5,8 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { useReportingFinance } from "@/features/reporting/api/reporting.queries";
-import { formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("fr-FR").format(n);
-}
-
-const PAYMENT_LABEL: Record<string, string> = {
-  cash: "Espèces",
-  wallet: "Wallet",
-  mobile_money: "Mobile Money",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  completed: "Réglées",
-  pending: "En attente",
-  failed: "Échouées",
-  refunded: "Remboursées",
-};
-
-const STATUS_COLOR: Record<string, string> = {
-  completed: "text-teal-dark",
-  pending: "text-amber-600",
-  failed: "text-red-600",
-  refunded: "text-muted",
-};
+import { fmt, formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
+import { PAYMENT_LABEL, STATUS_LABEL, STATUS_COLOR } from "@/features/reporting/lib/financeConstants";
 
 export function ReportingFinancePage() {
   const { data, isLoading, isError } = useReportingFinance();

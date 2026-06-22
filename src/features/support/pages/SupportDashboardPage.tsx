@@ -12,13 +12,7 @@ import {
   useSupportDashboardRecent,
 } from "../api/supportAudit.queries";
 import { useSupportPaths } from "../lib/supportPaths";
-import type { SupportAuditSeverity } from "../api/supportAudit.types";
-
-const SEVERITY_DOT: Record<SupportAuditSeverity, string> = {
-  info    : "bg-blue-400",
-  warning : "bg-amber-400",
-  critical: "bg-red-500",
-};
+import { SEVERITY_DOT } from "../lib/auditConstants";
 
 export function SupportDashboardPage() {
   const paths = useSupportPaths();

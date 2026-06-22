@@ -5,29 +5,8 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { useReportingGovernance } from "@/features/reporting/api/reporting.queries";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("fr-FR").format(n);
-}
-
-function fmtPct(n: number) {
-  return `${n.toFixed(1)} %`;
-}
-
-const ENTITY_LABEL: Record<string, string> = {
-  driver: "Chauffeurs",
-  deliverer: "Livreurs",
-  vehicle: "Véhicules",
-  partner: "Partenaires",
-  franchise: "Franchises",
-};
-
-const CATEGORY_LABEL: Record<string, string> = {
-  finance: "Finance",
-  support: "Support",
-  authentication: "Authentification",
-  administration: "Administration",
-};
+import { fmt, fmtPct } from "@/features/reporting/utils/reportingFormatters";
+import { ENTITY_LABEL, CATEGORY_LABEL } from "@/features/reporting/lib/governanceConstants";
 
 export function ReportingGovernancePage() {
   const { data, isLoading, isError } = useReportingGovernance();

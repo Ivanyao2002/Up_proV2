@@ -8,6 +8,7 @@ import { Button } from "@/shared/ui/Button";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { formatDateTime } from "@/shared/lib/format";
 
+import { TicketDetailRow }         from "../components/TicketDetailRow";
 import { TicketStatusBadge }       from "../components/TicketStatusBadge";
 import { TicketPriorityBadge }     from "../components/TicketPriorityBadge";
 import { AgentMessageBubble }      from "../components/AgentMessageBubble";
@@ -20,6 +21,7 @@ import type { ActionModalKind }    from "../components/AgentActionModal";
 import type { ComposeTab }         from "../components/AgentComposeArea";
 
 import { useSupportPaths } from "../lib/supportPaths";
+import { TERMINAL_STATUSES, REPORTER_LABELS } from "../lib/ticketConstants";
 import {
   useAgentTicketDetail,
   useAssignTicket,
@@ -38,14 +40,6 @@ import type {
   AgentCompensationType,
 } from "../api/agentTicket.types";
 
-const TERMINAL_STATUSES = new Set(["resolved", "closed", "escalated"]);
-
-const REPORTER_TYPE_LABELS: Record<string, string> = {
-  client   : "Client",
-  driver   : "Chauffeur",
-  partner  : "Partenaire",
-  deliverer: "Livreur",
-};
 
 interface Props {
   ticketId: string;
@@ -236,34 +230,34 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
           <div className="rounded-card border border-border bg-surface p-5 shadow-card">
             <h3 className="text-sm font-semibold text-heading">Détails</h3>
             <dl className="mt-3 space-y-2.5 text-sm">
-              <Row label="Statut">
+              <TicketDetailRow label="Statut">
                 <TicketStatusBadge status={data.status} />
-              </Row>
-              <Row label="Priorité">
+              </TicketDetailRow>
+              <TicketDetailRow label="Priorité">
                 <TicketPriorityBadge priority={data.priority} />
-              </Row>
-              <Row label="Signaleur">
+              </TicketDetailRow>
+              <TicketDetailRow label="Signaleur">
                 <span className="font-medium text-foreground">{data.reporter_name}</span>
-              </Row>
-              <Row label="Type">
+              </TicketDetailRow>
+              <TicketDetailRow label="Type">
                 <span className="text-foreground">
-                  {REPORTER_TYPE_LABELS[data.reporter_type] ?? data.reporter_type}
+                  {REPORTER_LABELS[data.reporter_type] ?? data.reporter_type}
                 </span>
-              </Row>
-              <Row label="Catégorie">
+              </TicketDetailRow>
+              <TicketDetailRow label="Catégorie">
                 <span className="text-foreground capitalize">{data.category}</span>
-              </Row>
-              <Row label="Franchise">
+              </TicketDetailRow>
+              <TicketDetailRow label="Franchise">
                 <span className="text-right text-foreground">{data.franchise_name}</span>
-              </Row>
+              </TicketDetailRow>
               {data.trip_ref && (
-                <Row label="Course">
+                <TicketDetailRow label="Course">
                   <span className="font-mono text-foreground">{data.trip_ref}</span>
-                </Row>
+                </TicketDetailRow>
               )}
-              <Row label="Créé le">
+              <TicketDetailRow label="Créé le">
                 <span className="text-foreground">{formatDateTime(data.created_at)}</span>
-              </Row>
+              </TicketDetailRow>
             </dl>
           </div>
 
@@ -307,12 +301,3 @@ export function AgentTicketDetailPage({ ticketId }: Props) {
   );
 }
 
-// ── Tiny layout helper ─────────────────────────────────────────────
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-start justify-between gap-2">
-      <dt className="shrink-0 text-muted">{label}</dt>
-      <dd className="text-right">{children}</dd>
-    </div>
-  );
-}

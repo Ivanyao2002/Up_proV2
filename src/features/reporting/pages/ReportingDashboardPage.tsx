@@ -3,35 +3,8 @@
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { useReportingOverview } from "@/features/reporting/api/reporting.queries";
-import { formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
-
-function fmt(n: number) {
-  return new Intl.NumberFormat("fr-FR").format(n);
-}
-
-function formatTrend(pct: number | null) {
-  if (pct === null) return undefined;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)} %`;
-}
-
-const SERVICE_LABEL: Record<string, string> = {
-  taxi: "VTC",
-  delivery: "Livraison",
-  freight: "Fret",
-  rental: "Location",
-};
-
-const SEVERITY_COLOR: Record<string, string> = {
-  info: "bg-blue-50 text-blue-700 border-blue-200",
-  warning: "bg-amber-50 text-amber-700 border-amber-200",
-  critical: "bg-red-50 text-red-700 border-red-200",
-};
-
-const SEVERITY_DOT: Record<string, string> = {
-  info: "bg-blue-500",
-  warning: "bg-amber-500",
-  critical: "bg-red-500",
-};
+import { fmt, formatTrend, formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
+import { SERVICE_LABEL, SEVERITY_COLOR, SEVERITY_DOT } from "@/features/reporting/lib/dashboardConstants";
 
 export function ReportingDashboardPage() {
   const { data, isLoading } = useReportingOverview();
