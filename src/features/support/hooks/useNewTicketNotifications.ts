@@ -3,139 +3,125 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supportTicketsService } from "../api/tickets.service";
+import { disputeService } from "@/features/disputes/api/dispute.service";
 import {
   playChatNotificationSound,
   unlockChatAudioOnInteraction,
 } from "@/shared/lib/chatNotificationSound";
 import { notificationService } from "@/core/http/notificationService";
-import type { AdminSupportTicket } from "../api/tickets.service";
+import {
+  NOTIF_POLL_MS,
+  NOTIF_MAX_STORED,
+  notifUid,
+  loadSeenIds,
+  saveSeenIds,
+  loadNotifications,
+  saveNotifications,
+  isSessionInitialized,
+  markSessionInitialized,
+  buildIncomingLabel,
+  type SupportNotif,
+  type SupportNotifKind,
+} from "../lib/supportNotifications";
 
-const POLL_MS       = 8000;
-const LS_SEEN_KEY   = "support:notif:seen_ids";   // IDs connus (cross-session)
-const LS_NOTIFS_KEY = "support:notif:list";        // liste affichée dans la cloche
-const SS_INIT_KEY   = "support:notif:initialized"; // init silencieuse faite cette session ?
-const MAX_STORED    = 30;
+// Ré-export pour compat des imports existants éventuels.
+export type { SupportNotif, SupportNotifKind, NewTicketNotif } from "../lib/supportNotifications";
 
-// ── helpers ────────────────────────────────────────────────────────────────────
+export function useNewTicketNotifications(options?: { includeDisputes?: boolean }) {
+  const includeDisputes = options?.includeDisputes ?? false;
 
-function loadSeenIds(): Set<string> {
-  try {
-    const raw = localStorage.getItem(LS_SEEN_KEY);
-    return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
-  } catch { return new Set(); }
-}
-
-function saveSeenIds(ids: Set<string>) {
-  try {
-    localStorage.setItem(LS_SEEN_KEY, JSON.stringify([...ids].slice(-500)));
-  } catch {}
-}
-
-function loadNotifications(): NewTicketNotif[] {
-  try {
-    const raw = localStorage.getItem(LS_NOTIFS_KEY);
-    return raw ? (JSON.parse(raw) as NewTicketNotif[]) : [];
-  } catch { return []; }
-}
-
-function saveNotifications(notifs: NewTicketNotif[]) {
-  try {
-    localStorage.setItem(LS_NOTIFS_KEY, JSON.stringify(notifs));
-  } catch {}
-}
-
-// sessionStorage : survit à la navigation dans l'onglet, reset au reload/nouvel onglet.
-// Grâce à ça, la 1ʳᵉ arrivée de données dans la session est silencieuse.
-// Les navigations suivantes (remounts) n'entrent PLUS dans la branche init.
-function isSessionInitialized(): boolean {
-  try { return sessionStorage.getItem(SS_INIT_KEY) === "1"; } catch { return false; }
-}
-function markSessionInitialized() {
-  try { sessionStorage.setItem(SS_INIT_KEY, "1"); } catch {}
-}
-
-// ── types ──────────────────────────────────────────────────────────────────────
-
-export interface NewTicketNotif {
-  id: string;
-  subject: string;
-  reporter_name: string;
-  reporter_type: AdminSupportTicket["reporter_type"];
-  created_at: string;
-  seen: boolean;
-}
-
-// ── hook ───────────────────────────────────────────────────────────────────────
-
-export function useNewTicketNotifications() {
-  const [notifications, setNotifications] = useState<NewTicketNotif[]>(loadNotifications);
+  const [notifications, setNotifications] = useState<SupportNotif[]>(loadNotifications);
   const seenIdsRef    = useRef<Set<string>>(loadSeenIds());
   const lastNotifyRef = useRef(0);
+  // Miroir de `notifications` pour dédupliquer hors du cycle de rendu, sans
+  // ajouter `notifications` aux deps de l'effet de polling.
+  const notifsRef     = useRef<SupportNotif[]>(notifications);
 
   useEffect(() => { unlockChatAudioOnInteraction(); }, []);
 
   useEffect(() => {
+    notifsRef.current = notifications;
     saveNotifications(notifications);
   }, [notifications]);
 
-  const { data } = useQuery({
+  const { data: ticketData } = useQuery({
     queryKey: ["support", "tickets", "open-notif"],
     queryFn: () => supportTicketsService.list({ status: "open", per_page: 20 }),
-    refetchInterval: POLL_MS,
+    refetchInterval: NOTIF_POLL_MS,
+    refetchIntervalInBackground: true,
+  });
+
+  const { data: disputeData } = useQuery({
+    queryKey: ["disputes", "open-notif"],
+    queryFn: () => disputeService.list({ status: "open", per_page: 20 }),
+    enabled: includeDisputes,
+    refetchInterval: NOTIF_POLL_MS,
     refetchIntervalInBackground: true,
   });
 
   useEffect(() => {
-    const tickets = data?.data ?? [];
+    const tickets = ticketData?.data ?? [];
+    const disputes = includeDisputes ? (disputeData?.data ?? []) : [];
+
+    // Normalise les deux sources vers la shape unique `SupportNotif`.
+    const candidates: SupportNotif[] = [
+      ...tickets.map<SupportNotif>((t) => ({
+        kind: "ticket",
+        id: t.id,
+        subject: t.subject,
+        reporter_name: t.reporter_name,
+        reporter_type: t.reporter_type,
+        created_at: t.created_at,
+        seen: false,
+      })),
+      ...disputes.map<SupportNotif>((d) => ({
+        kind: "dispute",
+        id: d.id,
+        subject: d.subject,
+        reporter_name: d.reporter_name,
+        category: d.category,
+        created_at: d.created_at,
+        seen: false,
+      })),
+    ];
 
     if (!isSessionInitialized()) {
-      // Première réception de données dans la session : enregistrer les tickets
-      // existants sans notifier (l'agent ouvre le portail, pas besoin de le bombarder).
-      tickets.forEach((t) => seenIdsRef.current.add(t.id));
+      // Première réception de données dans la session : enregistrer l'existant
+      // sans notifier (l'agent ouvre le portail, pas besoin de le bombarder).
+      candidates.forEach((c) => seenIdsRef.current.add(notifUid(c.kind, c.id)));
       saveSeenIds(seenIdsRef.current);
       markSessionInitialized();
       return;
     }
 
     // Polls suivants ET navigations : seenIds chargé depuis LS → seuls les vrais
-    // nouveaux tickets déclenchent son + badge.
-    const incoming = tickets.filter((t) => !seenIdsRef.current.has(t.id));
-    if (!incoming.length) return;
+    // nouveaux éléments déclenchent son + badge. On dédoublonne aussi contre la
+    // liste déjà affichée (seenIds peut dériver de `notifications` après reload).
+    const present = new Set(notifsRef.current.map((n) => notifUid(n.kind, n.id)));
+    const fresh = candidates.filter((c) => {
+      const key = notifUid(c.kind, c.id);
+      return !seenIdsRef.current.has(key) && !present.has(key);
+    });
+    if (!fresh.length) return;
 
-    incoming.forEach((t) => seenIdsRef.current.add(t.id));
+    fresh.forEach((c) => seenIdsRef.current.add(notifUid(c.kind, c.id)));
     saveSeenIds(seenIdsRef.current);
 
     const now = Date.now();
     if (now - lastNotifyRef.current > 1500) {
       lastNotifyRef.current = now;
       playChatNotificationSound();
-      const label =
-        incoming.length === 1
-          ? `Nouvelle réclamation — ${incoming[0].reporter_name}`
-          : `${incoming.length} nouvelles réclamations entrantes`;
-      notificationService.info(label, { duration: 5000 });
+      notificationService.info(buildIncomingLabel(fresh), { duration: 5000 });
     }
 
-    setNotifications((prev) =>
-      [
-        ...incoming.map<NewTicketNotif>((t) => ({
-          id: t.id,
-          subject: t.subject,
-          reporter_name: t.reporter_name,
-          reporter_type: t.reporter_type,
-          created_at: t.created_at,
-          seen: false,
-        })),
-        ...prev,
-      ].slice(0, MAX_STORED)
-    );
-  }, [data]);
+    setNotifications((prev) => [...fresh, ...prev].slice(0, NOTIF_MAX_STORED));
+  }, [ticketData, disputeData, includeDisputes]);
 
   const unseenCount = notifications.filter((n) => !n.seen).length;
 
-  function markOneSeen(id: string) {
+  function markOneSeen(kind: SupportNotifKind, id: string) {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, seen: true } : n))
+      prev.map((n) => (n.kind === kind && n.id === id ? { ...n, seen: true } : n))
     );
   }
 
@@ -143,8 +129,8 @@ export function useNewTicketNotifications() {
     setNotifications((prev) => prev.map((n) => ({ ...n, seen: true })));
   }
 
-  function removeOne(id: string) {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  function removeOne(kind: SupportNotifKind, id: string) {
+    setNotifications((prev) => prev.filter((n) => !(n.kind === kind && n.id === id)));
   }
 
   function clearAll() {

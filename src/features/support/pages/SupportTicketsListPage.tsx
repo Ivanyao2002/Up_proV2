@@ -61,7 +61,7 @@ export function SupportTicketsListPage() {
   // Onglets statut avec compteurs (les clés de facets correspondent aux valeurs de filtre).
   const statusOptions = STATUS_FILTERS.map((f) => ({
     value: f.value,
-    label: facets ? `${f.label} (${facets[f.value]})` : f.label,
+    label: facets ? `${f.label} (${facets[f.value] ?? 0})` : f.label,
   }));
 
   const columns: Column<AdminSupportTicket>[] = [

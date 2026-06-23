@@ -16,6 +16,8 @@ export function buildSupportPaths(base: SupportBasePath) {
     ticketDetail: (id: string) => `${base}/tickets/${id}`,
     chat: `${base}/chat`,
     chatDetail: (id: string) => `${base}/chat/${id}`,
+    disputes: `${base}/disputes`,
+    disputeDetail: (id: string) => `${base}/disputes/${id}`,
     anomalies: `${base}/anomalies`,
     anomaliesAudit: `${base}/anomalies/audit`,
   };

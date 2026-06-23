@@ -7,6 +7,7 @@ import { timeAgo } from "@/shared/lib/format";
 import { useNewTicketNotifications } from "../hooks/useNewTicketNotifications";
 import { useSupportPaths } from "../lib/supportPaths";
 import { REPORTER_LABELS } from "../lib/ticketConstants";
+import { CATEGORY_LABELS } from "@/features/disputes/lib/disputeConstants";
 
 export function TicketNotificationBell() {
   const [open, setOpen] = useState(false);
@@ -14,8 +15,11 @@ export function TicketNotificationBell() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef   = useRef<HTMLDivElement>(null);
   const paths = useSupportPaths();
+  
+  // Les litiges n'existent que dans le portail /support (pas en admin).
+  const includeDisputes = paths.base === "/support";
   const { notifications, unseenCount, markOneSeen, markAllSeen, removeOne, clearAll } =
-    useNewTicketNotifications();
+    useNewTicketNotifications({ includeDisputes });
 
   const hasUnseen = unseenCount > 0;
 
@@ -54,7 +58,7 @@ export function TicketNotificationBell() {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-          Réclamations entrantes
+          {includeDisputes ? "Réclamations & litiges" : "Réclamations entrantes"}
         </p>
         {notifications.length > 0 && (
           <div className="flex items-center gap-1">
@@ -95,16 +99,18 @@ export function TicketNotificationBell() {
               <path strokeLinecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 0 0-5-5.917V4a1 1 0 1 0-2 0v1.083A6 6 0 0 0 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" />
             </svg>
           </div>
-          <p className="text-xs text-muted">Aucune nouvelle réclamation</p>
+          <p className="text-xs text-muted">
+            {includeDisputes ? "Aucune nouvelle demande" : "Aucune nouvelle réclamation"}
+          </p>
         </div>
       ) : (
         <ul className="max-h-72 divide-y divide-border overflow-y-auto">
           {notifications.map((notif) => (
-            <li key={notif.id} className="group relative">
+            <li key={`${notif.kind}:${notif.id}`} className="group relative">
               <Link
-                href={paths.ticketDetail(notif.id)}
+                href={notif.kind === "dispute" ? paths.disputeDetail(notif.id) : paths.ticketDetail(notif.id)}
                 onClick={() => {
-                  markOneSeen(notif.id);
+                  markOneSeen(notif.kind, notif.id);
                   setOpen(false);
                 }}
                 className="flex items-start gap-3 px-4 py-3 pr-8 transition-colors hover:bg-surface-hover"
@@ -112,7 +118,7 @@ export function TicketNotificationBell() {
                 {/* Dot non-lu */}
                 <span
                   className={`mt-1.5 h-2 w-2 shrink-0 rounded-full transition-colors ${
-                    notif.seen ? "bg-transparent" : "bg-amber-500"
+                    notif.seen ? "bg-transparent" : notif.kind === "dispute" ? "bg-red-500" : "bg-amber-500"
                   }`}
                 />
                 <div className="min-w-0 flex-1">
@@ -120,7 +126,9 @@ export function TicketNotificationBell() {
                     {notif.subject}
                   </p>
                   <p className="mt-0.5 text-xs text-muted">
-                    {REPORTER_LABELS[notif.reporter_type] ?? notif.reporter_type} · {notif.reporter_name}
+                    {notif.kind === "dispute"
+                      ? `Litige${notif.category ? ` · ${CATEGORY_LABELS[notif.category]}` : ""} · ${notif.reporter_name}`
+                      : `${(notif.reporter_type && REPORTER_LABELS[notif.reporter_type]) ?? notif.reporter_type} · ${notif.reporter_name}`}
                   </p>
                 </div>
                 <span className="shrink-0 text-[11px] text-muted">{timeAgo(notif.created_at)}</span>
@@ -129,7 +137,7 @@ export function TicketNotificationBell() {
               {/* Bouton supprimer — visible au hover */}
               <button
                 type="button"
-                onClick={() => removeOne(notif.id)}
+                onClick={() => removeOne(notif.kind, notif.id)}
                 aria-label="Supprimer cette notification"
                 className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-muted opacity-0 transition-opacity hover:bg-canvas hover:text-foreground group-hover:opacity-100"
               >

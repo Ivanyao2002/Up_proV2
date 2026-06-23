@@ -6,55 +6,11 @@ import { env } from "@/core/config/env";
 import { LogoutButton } from "@/features/auth/components/LogoutButton";
 import { useChatSocketStore } from "@/features/support/hooks/useSupportChatSocket";
 import { TicketNotificationBell } from "@/features/support/components/TicketNotificationBell";
+import { SupportHelpButton } from "@/features/support/components/SupportHelpButton";
 import { MobileNavToggle } from "@/portals/shared/MobileNavToggle";
 import type { PortalShellTopbarProps } from "@/portals/shared/PortalShellLayout";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
-
-function getPageContext(pathname: string) {
-  if (/\/support\/tickets\/[^/]+$/.test(pathname)) {
-    return {
-      title: "Traitement d’une réclamation",
-      description: "Conversation, analyse et actions de résolution",
-    };
-  }
-  if (pathname.startsWith("/support/tickets")) {
-    return {
-      title: "File des réclamations",
-      description: "Plaintes partagées entre les agents support",
-    };
-  }
-  if (/\/support\/chat\/[^/]+$/.test(pathname)) {
-    return {
-      title: "Conversation support",
-      description: "Échange en temps réel avec une franchise",
-    };
-  }
-  if (pathname.startsWith("/support/chat")) {
-    return {
-      title: "Chat support",
-      description: "Conversations et messages non lus",
-    };
-  }
-  if (pathname.startsWith("/support/anomalies")) {
-    return {
-      title: "Historique des réclamations",
-      description: "Traçabilité des actions réalisées par les agents",
-    };
-  }
-  return {
-    title: "Centre de support",
-    description: "Vue d’ensemble de l’activité",
-  };
-}
-
-function getInitials(name?: string) {
-  return (name ?? "Agent Support")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
+import { getSupportPageContext, getInitials } from "@/features/support/lib/topbarContext";
 
 export function SupportTopbar({
   onMenuToggle,
@@ -63,7 +19,7 @@ export function SupportTopbar({
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const socketStatus = useChatSocketStore((s) => s.status);
-  const context = getPageContext(pathname);
+  const context = getSupportPageContext(pathname);
 
   const realtime = env.useRealAuth
     ? socketStatus === "connected"
@@ -111,6 +67,8 @@ export function SupportTopbar({
           <span className={`h-2 w-2 rounded-full ${realtime.dot}`} />
           {realtime.label}
         </div>
+
+        <SupportHelpButton />
 
         <TicketNotificationBell />
 

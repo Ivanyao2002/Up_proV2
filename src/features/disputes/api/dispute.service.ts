@@ -2,11 +2,13 @@ import { apiClient } from "@/core/http/apiClient";
 import { LINKS, withListQuery } from "@/core/api/links";
 import type { ListParams } from "@/shared/types/listParams";
 import type { DisputeDetail, DisputeListResponse } from "./dispute.types";
-import { mapDisputeDetail } from "./dispute.mapper";
+import { mapDispute, mapDisputeDetail } from "./dispute.mapper";
 
 export const disputeService = {
   list: (params?: ListParams): Promise<DisputeListResponse> =>
-    apiClient.get(withListQuery(LINKS.disputes.list, params)),
+    apiClient
+      .get<DisputeListResponse>(withListQuery(LINKS.disputes.list, params))
+      .then((res) => ({ ...res, data: (res?.data ?? []).map(mapDispute) })),
 
   getById: (id: string): Promise<DisputeDetail> =>
     apiClient.get(LINKS.disputes.getById(id)).then((raw) => mapDisputeDetail(raw, id)),

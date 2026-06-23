@@ -27,6 +27,8 @@ export interface SupportTicketStatusFacets {
   open: number;
   in_progress: number;
   resolved: number;
+  closed: number;
+  escalated: number;
 }
 
 export interface SupportTicketsListResponse extends Paginated<AdminSupportTicket> {
