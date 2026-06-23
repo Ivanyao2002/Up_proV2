@@ -21,14 +21,32 @@ export interface PricingLookupMaps {
 const CATEGORY_OPTIONS = ["ECO", "CONFORT", "CONFORT+", "PREMIUM"] as const;
 
 export function mapUiServiceToApi(service: PricingRule["service"]): string {
-  return service === "delivery" ? "DELIVERY" : "RIDE";
+  switch (service) {
+    case "delivery":
+      return "DELIVERY";
+    case "freight":
+      return "FREIGHT";
+    case "rental":
+      return "RENTAL";
+    default:
+      return "RIDE";
+  }
 }
 
 export function mapApiServiceToUi(
   serviceType?: string | null
 ): PricingRule["service"] {
   const key = String(serviceType ?? "").toUpperCase();
-  return key === "DELIVERY" ? "delivery" : "taxi";
+  switch (key) {
+    case "DELIVERY":
+      return "delivery";
+    case "FREIGHT":
+      return "freight";
+    case "RENTAL":
+      return "rental";
+    default:
+      return "taxi";
+  }
 }
 
 export function resolveSurgeMultiplier(item: ApiV1PricingRuleItem): number {
@@ -175,6 +193,7 @@ export function mapCreatePayloadToApi(
     minimum_fare_xof: payload.min_fare_fcfa ?? 0,
     night_multiplier:
       (payload.surge_multiplier ?? 1) > 1 ? payload.surge_multiplier : null,
+    effective_from: payload.effectiveFrom?.trim() || null,
     active: payload.status === "active",
   };
 }
@@ -196,6 +215,9 @@ export function mapUpdatePayloadToApi(
       payload.surge_multiplier > 1 ? payload.surge_multiplier : null;
   }
   if (payload.status != null) body.active = payload.status === "active";
+  if (payload.effectiveFrom != null) {
+    body.effective_from = payload.effectiveFrom.trim() || null;
+  }
   return body;
 }
 

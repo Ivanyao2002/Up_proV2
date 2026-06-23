@@ -4,6 +4,7 @@ import type { PricingRule } from "@/shared/types";
 import { Button } from "@/shared/ui/Button";
 import { ZoneTypePill } from "@/shared/ui/ZoneTypePill";
 import type { ZoneMapItem } from "@/features/network/components/AbidjanZonesMap";
+import { SERVICE_LABELS } from "@/shared/lib/tripLabels";
 import { PRICING_CATEGORY_OPTIONS } from "../api/adminPricing.mapper";
 
 export interface PricingFranchiseOption {
@@ -25,6 +26,7 @@ export interface PricingFormValues {
   min_fare_fcfa: number;
   surge_multiplier: number;
   status: PricingRule["status"];
+  effectiveFrom?: string;
 }
 
 interface PricingFormProps {
@@ -183,9 +185,22 @@ export function PricingForm({
           }
           className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2 disabled:opacity-60"
         >
-          <option value="taxi">Taxi</option>
-          <option value="delivery">Livraison</option>
+          <option value="taxi">{SERVICE_LABELS.taxi}</option>
+          <option value="delivery">{SERVICE_LABELS.delivery}</option>
+          <option value="rental">{SERVICE_LABELS.rental}</option>
+          <option value="freight">{SERVICE_LABELS.freight}</option>
         </select>
+      </label>
+
+      <label className="block">
+        <span className="text-sm font-medium">Date d&apos;application</span>
+        <input
+          type="date"
+          disabled={readOnly}
+          value={values.effectiveFrom ?? ""}
+          onChange={(e) => set({ effectiveFrom: e.target.value || undefined })}
+          className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2 disabled:opacity-60"
+        />
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">

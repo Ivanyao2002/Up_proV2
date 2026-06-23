@@ -59,6 +59,7 @@ export interface ApiV1PricingRuleCreateBody {
   per_minute_xof?: number;
   night_multiplier?: number | null;
   rain_multiplier?: number | null;
+  effective_from?: string | null;
   active: boolean;
 }
 
@@ -72,6 +73,7 @@ export interface ApiV1PricingRulePatchBody {
   per_minute_xof?: number;
   night_multiplier?: number | null;
   rain_multiplier?: number | null;
+  effective_from?: string | null;
   active?: boolean;
   zone_id?: string | null;
 }
