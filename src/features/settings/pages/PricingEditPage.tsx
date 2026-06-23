@@ -36,6 +36,8 @@ export function PricingEditPage({ pricingId }: PricingEditPageProps) {
         base_fare_fcfa: data.base_fare_fcfa,
         per_km_fcfa: data.per_km_fcfa,
         min_fare_fcfa: data.min_fare_fcfa,
+        waiting_per_minute_fcfa: data.waiting_per_minute_fcfa,
+        cancellation_fee_fcfa: data.cancellation_fee_fcfa,
         surge_multiplier: data.surge_multiplier,
         status: data.status,
       });
@@ -86,6 +88,8 @@ export function PricingEditPage({ pricingId }: PricingEditPageProps) {
               base_fare_fcfa: values.base_fare_fcfa,
               per_km_fcfa: values.per_km_fcfa,
               min_fare_fcfa: values.min_fare_fcfa,
+              waiting_per_minute_fcfa: values.waiting_per_minute_fcfa,
+              cancellation_fee_fcfa: values.cancellation_fee_fcfa,
               surge_multiplier: values.surge_multiplier,
               status: values.status,
               effectiveFrom: values.effectiveFrom,

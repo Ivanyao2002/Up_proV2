@@ -63,6 +63,29 @@ Le front va brancher le déclencheur manuel et la page de résultats **si les en
 - **`GET /v1/admin/bonus-awards`** : confirmer le contrat (liste des crédits par chauffeur, montant, période, règle source, statut **éligible / non-éligible**) — déclaré dans `links.ts:303` mais jamais alimenté.
 - **Crédit wallet automatique** + notification chauffeur + logs d'audit horodatés (UC-FR02).
 
+### 3.6 Frais d'attente (`waitingFee`) — feature à structurer *(P1)*
+
+**Contexte** : seul un champ plat `waiting_per_minute_xof` existe aujourd'hui dans la règle tarifaire (désormais surfacé dans le PricingForm admin : « Tarif d'attente (FCFA/min) »). La mécanique attendue — _3 min gratuites → 100 F/min → plafond 2 000 F, activable par pays/service sans MAJ de l'app_ — **n'existe pas** (ni toggle `enabled`, ni franchise gratuite, ni plafond). Vérifié : aucun `waitingFee.enabled`, aucun `free_minutes`, aucun `cap` dans le repo ni le swagger.
+
+**À implémenter côté moteur de prix backend** : un objet de configuration `waitingFee` (par pays/zone/service, ex. CI) :
+
+| Champ | Type | Exemple CI | Rôle |
+|-------|------|-----------|------|
+| `enabled` | bool | `true` | Active/désactive le calcul des frais d'attente **sans déploiement d'app** (lu par le moteur de prix). |
+| `free_minutes` | number | `3` | Minutes d'attente offertes avant facturation. |
+| `per_minute_xof` | number | `100` | Tarif par minute au-delà de la franchise (= `waiting_per_minute_xof` existant). |
+| `cap_xof` | number | `2000` | Plafond absolu des frais d'attente sur une course. |
+| `scope` | enum | `country=CI` / `service` | Granularité d'application (pays, zone, service VTC/livraison…). |
+
+**Règle de calcul** : `fee = min(cap_xof, max(0, waiting_minutes − free_minutes) × per_minute_xof)`, appliquée uniquement si `enabled`.
+
+**Exposition attendue pour le back-office** :
+- `GET` / `PATCH` d'une config `waitingFee` (idéalement dans `dispatch-config` / `pricing-config` par pays) → le front ajoutera l'écran de pilotage (toggle + 3 champs).
+- Émettre un événement d'audit à chaque bascule `enabled` et chaque changement de barème (cf. §5).
+- Renvoyer ces valeurs au calcul de prix **mobile/serveur** pour que l'activation soit immédiate, sans nouvelle version d'app.
+
+> Tant que cette config n'existe pas, l'admin ne peut piloter que le **taux brut** `waiting_per_minute_xof` (sans franchise gratuite ni plafond), et il n'existe **aucun interrupteur** pour allumer/éteindre la feature.
+
 ---
 
 ## 4. Reporting multiservices & 22 rapports *(UC-C01 / UC-C02 — slides 21 & 41)*

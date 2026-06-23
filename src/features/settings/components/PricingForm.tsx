@@ -24,6 +24,8 @@ export interface PricingFormValues {
   base_fare_fcfa: number;
   per_km_fcfa: number;
   min_fare_fcfa: number;
+  waiting_per_minute_fcfa?: number;
+  cancellation_fee_fcfa?: number;
   surge_multiplier: number;
   status: PricingRule["status"];
   effectiveFrom?: string;
@@ -250,6 +252,40 @@ export function PricingForm({
             disabled={readOnly}
             value={values.surge_multiplier}
             onChange={(e) => set({ surge_multiplier: Number(e.target.value) })}
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2 disabled:opacity-60"
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm font-medium">Tarif d&apos;attente (FCFA/min)</span>
+          <input
+            type="number"
+            min={0}
+            disabled={readOnly}
+            value={values.waiting_per_minute_fcfa ?? ""}
+            onChange={(e) =>
+              set({
+                waiting_per_minute_fcfa:
+                  e.target.value === "" ? undefined : Number(e.target.value),
+              })
+            }
+            placeholder="Ex. 100"
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2 disabled:opacity-60"
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm font-medium">Frais d&apos;annulation (FCFA)</span>
+          <input
+            type="number"
+            min={0}
+            disabled={readOnly}
+            value={values.cancellation_fee_fcfa ?? ""}
+            onChange={(e) =>
+              set({
+                cancellation_fee_fcfa:
+                  e.target.value === "" ? undefined : Number(e.target.value),
+              })
+            }
+            placeholder="Ex. 500"
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2 disabled:opacity-60"
           />
         </label>
