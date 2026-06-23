@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/shared/ui/Button";
+import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { formatFCFA } from "@/shared/lib/format";
 
 export interface DriverRechargeOption {
@@ -71,6 +72,7 @@ export function DriverRechargeModal({
   }
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
@@ -222,5 +224,6 @@ export function DriverRechargeModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

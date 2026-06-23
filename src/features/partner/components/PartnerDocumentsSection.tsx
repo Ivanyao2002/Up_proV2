@@ -22,7 +22,7 @@ export function PartnerDocumentsSection() {
           Pièce d&apos;identité du gérant et registre de commerce — dépôt et suivi de validation.
         </p>
       </div>
-      <PartnerDocumentsPanel partnerId={String(ownerId)} canUpload />
+      <PartnerDocumentsPanel partnerId={String(ownerId)} canUpload scope="partner" />
     </section>
   );
 }

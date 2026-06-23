@@ -12,6 +12,8 @@ export function useNotificationsList(params?: ListParams) {
   return useQuery({
     queryKey: notificationsKeys.list(params),
     queryFn: () => notificationsService.list(params),
+    // Pas de socket côté backend (cf. DB-05) : rafraîchissement périodique en polling HTTP.
+    refetchInterval: 30_000,
   });
 }
 

@@ -25,7 +25,7 @@ export function LiveMapStatsBar({ stats, className = "" }: LiveMapStatsBarProps)
     },
     {
       label: "Attente moy.",
-      value: `${stats.avg_wait_min ?? 0} min`,
+      value: stats.avg_wait_min != null ? `${stats.avg_wait_min} min` : "—",
       hint: "matching",
     },
   ];

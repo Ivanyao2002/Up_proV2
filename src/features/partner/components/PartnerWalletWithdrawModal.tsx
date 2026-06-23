@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/shared/ui/Button";
+import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { formatFCFA } from "@/shared/lib/format";
 import { usePartnerWalletWithdraw } from "../api/wallet.queries";
 
@@ -42,6 +43,7 @@ export function PartnerWalletWithdrawModal({
       : null;
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
@@ -109,5 +111,6 @@ export function PartnerWalletWithdrawModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

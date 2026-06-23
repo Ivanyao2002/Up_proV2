@@ -10,6 +10,7 @@ import { SelectFilter } from "@/shared/ui/SelectFilter";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { Button } from "@/shared/ui/Button";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { getPaymentStatusLabel } from "@/shared/lib/paymentLabels";
 import { getTripStatusLabel, STATUS_FILTER_OPTIONS } from "@/shared/lib/tripLabels";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
@@ -96,8 +97,8 @@ export function PartnerBookingsListPage() {
     {
       id: "payment_status",
       header: "Paiement",
-      cell: (b) => b.payment_status ?? "—",
-      exportValue: (b) => b.payment_status ?? "",
+      cell: (b) => getPaymentStatusLabel(b.payment_status),
+      exportValue: (b) => getPaymentStatusLabel(b.payment_status),
     },
     {
       id: "amount",

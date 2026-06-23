@@ -11,8 +11,6 @@ export type PortalRole =
 
 export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
 
-export type PartnerType = "FLEET" | "RENTAL" | "FREIGHT" | "MIXED";
-
 export interface User {
   id: string | number;
   name: string;
@@ -550,6 +548,8 @@ export interface LiveMapDriver {
   speed_kmh?: number;
   /** Âge du dernier point GPS (secondes) — snapshot HTTP ou delta socket */
   location_age_seconds?: number;
+  /** false = aucune coordonnée GPS réelle (ne pas afficher de marker à une position inventée). */
+  has_location?: boolean;
   availability: Driver["availability"];
   vehicle: string;
   /** Code ou libellé couleur véhicule (catalogue) */
@@ -682,7 +682,8 @@ export interface LiveMapData {
     drivers_online: number;
     drivers_on_trip: number;
     active_trips: number;
-    avg_wait_min: number;
+    /** Temps d'attente moyen (min). undefined = donnée non fournie par le backend. */
+    avg_wait_min?: number;
   };
   bounds: {
     lat_min: number;

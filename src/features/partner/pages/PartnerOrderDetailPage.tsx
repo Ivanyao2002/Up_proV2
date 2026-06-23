@@ -13,23 +13,13 @@ import { TripAssignedVehicleCard } from "@/features/ops/components/TripAssignedV
 import { isTripLiveOnMap } from "@/shared/lib/tripDriver";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { formatDateTime } from "@/shared/lib/format";
-import { getPaymentLabel } from "@/shared/lib/paymentLabels";
+import { getPaymentLabel, getPaymentStatusLabel } from "@/shared/lib/paymentLabels";
 import { TripFinancePanel } from "@/shared/finance/TripFinancePanel";
 import { usePartnerTripDriverLiveLocation } from "../hooks/usePartnerTripDriverLiveLocation";
 import { usePartnerOrderDetail } from "../api/orders.queries";
 
 interface Props {
   orderId: string;
-}
-
-function formatPaymentStatus(status?: string | null): string {
-  if (!status?.trim()) return "—";
-  const key = status.toLowerCase();
-  if (key === "pending") return "En attente";
-  if (key === "paid" || key === "completed") return "Payé";
-  if (key === "failed") return "Échoué";
-  if (key === "refunded") return "Remboursé";
-  return status;
 }
 
 function TripLiveTrackingBadge({
@@ -271,7 +261,7 @@ export function PartnerOrderDetailPage({ orderId }: Props) {
                 <div className="flex justify-between gap-2">
                   <dt>Statut paiement</dt>
                   <dd className="text-foreground">
-                    {formatPaymentStatus(trip.payment_status)}
+                    {getPaymentStatusLabel(trip.payment_status)}
                   </dd>
                 </div>
               )}

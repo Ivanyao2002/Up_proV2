@@ -8,6 +8,7 @@ import {
   serverPaginationFromMeta,
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
+import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import { Button } from "@/shared/ui/Button";
 import type { NotificationItem } from "@/features/support/api/notifications.service";
 import {
@@ -18,6 +19,10 @@ import {
 
 export function PartnerNotificationsPage() {
   const table = useServerTableState([]);
+
+  const { hasActiveFilters, resetAll } = useListFiltersReset({
+    search: { value: table.search, set: table.setSearch },
+  });
 
   const { data, isLoading, isError } = useNotificationsList(table.listParams);
   const markRead = useMarkNotificationRead();
@@ -115,6 +120,8 @@ export function PartnerNotificationsPage() {
         onSearchChange={table.setSearch}
         searchPlaceholder="Rechercher…"
         totalLabel={meta ? `${meta.total} notifications` : undefined}
+        hasActiveFilters={hasActiveFilters}
+        onReset={resetAll}
       />
 
       <DataTable

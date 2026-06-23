@@ -453,9 +453,12 @@ export const partnerPerformanceService = {
   },
 
   fleet: async (partnerId: string | number, params?: ListParams) => {
+    // Charger toute la période avant agrégation/recherche (la page n'a pas de pagination) :
+    // sans per_page élevé, seul le 1er lot serveur remonterait → KPI/tableau sous-évalués.
+    const fullParams: ListParams = { ...params, per_page: 200 };
     const [vehicles, drivers, assignments] = await Promise.all([
-      partnerPerformanceService.vehicles(partnerId, params),
-      partnerPerformanceService.drivers(partnerId, params),
+      partnerPerformanceService.vehicles(partnerId, fullParams),
+      partnerPerformanceService.drivers(partnerId, fullParams),
       fetchVehicleDriverAssignments(partnerId),
     ]);
     const data = mergeFleetPerformance(vehicles.data, drivers.data, assignments);

@@ -221,7 +221,7 @@ function mapPartnerTripPayloadToTripDetail(
   raw: Record<string, unknown>,
   envelope?: PartnerOrderDetailApiResponse
 ): PartnerTripDetail {
-  const booking = mapApiBookingItemToPartnerBooking(raw as ApiBookingItem);
+  const booking = mapApiBookingItemToPartnerBooking(raw as unknown as ApiBookingItem);
   const amount = booking.amount_fcfa ?? 0;
   const commission =
     readNumber(raw, "commission_xof", "commissionXof", "commission_fcfa") ??
@@ -322,7 +322,7 @@ export function mapPartnerOrderDetailResponse(
     }
     if (order.id || order.pickup_address || order.pickup_latitude) {
       return mapFranchiseOrderToTripDetail({
-        order: order as ApiLiveMapOrderBase,
+        order: order as unknown as ApiLiveMapOrderBase,
       }) as PartnerTripDetail;
     }
     return mapPartnerTripPayloadToTripDetail(order, response);

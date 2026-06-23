@@ -72,9 +72,10 @@ export function mapLiveMapDriverToFeature(driver: LiveMapDriver): MapboxPointFea
 }
 
 export function liveMapDataToMapFeatures(data: LiveMapData): MapboxPointFeature[] {
-  const driverFeatures: MapboxPointFeature[] = data.drivers.map((d) =>
-    mapLiveMapDriverToFeature(d)
-  );
+  const driverFeatures: MapboxPointFeature[] = data.drivers
+    // Exclure les chauffeurs sans coordonnées GPS réelles (pas de marker à une position inventée).
+    .filter((d) => d.has_location !== false)
+    .map((d) => mapLiveMapDriverToFeature(d));
 
   const orderFeatures: MapboxPointFeature[] = (data.order_markers ?? []).map(
     (m: LiveMapOrderMarker) => ({

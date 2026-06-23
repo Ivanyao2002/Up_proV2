@@ -152,15 +152,22 @@ interface CashReconciliationApiResponse {
 
 function mapCashReconciliationItem(item: CashReconciliationApiItem): CashReconciliation {
   const status = item.status as CashReconciliation["status"];
+  const meta = (item.metadata ?? {}) as {
+    driverName?: string;
+    driver_name?: string;
+    note?: string;
+    description?: string;
+  };
   return {
     id: item.id,
     driver_id: item.driver_id,
+    driver_name: meta.driverName ?? meta.driver_name ?? undefined,
     amount_fcfa: item.expected_amount_xof ?? item.declared_amount_xof ?? 0,
     status: ["pending", "submitted", "validated", "rejected"].includes(status) ? status : "pending",
     collected_at: item.period_end ?? item.created_at,
     submitted_at: item.status === "submitted" ? item.reviewed_at ?? item.updated_at : undefined,
     validated_at: item.status === "validated" ? item.reviewed_at ?? item.updated_at : undefined,
-    note: undefined,
+    note: meta.note ?? meta.description ?? undefined,
   };
 }
 
@@ -397,6 +404,16 @@ export interface PartnerRevenueResponse {
   };
 }
 
+export interface TopUpResponse {
+  ok: boolean;
+  message: string;
+  wallet?: PartnerWallet;
+  /** URL de redirection PSP (Mobile Money / carte) si l'API en fournit une. */
+  redirect_url?: string;
+  payment_url?: string;
+  transaction_id?: string;
+}
+
 export const partnerWalletService = {
   get: async (partnerId: string | number) => {
     const response = await apiClient.get<WalletApiResponse>(
@@ -413,20 +430,18 @@ export const partnerWalletService = {
   },
 
   settlements: async (partnerId: string | number, params?: ListParams) => {
-    try {
-      const response = await apiClient.get<SettlementsApiResponse>(
-        `${LINKS.partner.wallet.settlements(partnerId)}${buildListQuery(params)}`
-      );
-      return mapSettlementsResponse(response);
-    } catch {
-      // L'endpoint /settlements est cassé backend (PAYOUTS_FETCH_FAILED / colonne manquante).
-      // On retourne un résultat vide pour ne pas bloquer l'UI.
-      return { data: [], meta: { current_page: 1, per_page: 20, total: 0, last_page: 1 } } as Paginated<SettlementEntry>;
-    }
+    // Endpoint vérifié 200 (Swagger live + sonde runtime du 23/06) : {items:[], pagination}.
+    // On laisse remonter les erreurs réelles pour ne plus masquer un incident derrière un faux état vide.
+    const response = await apiClient.get<SettlementsApiResponse>(
+      `${LINKS.partner.wallet.settlements(partnerId)}${buildListQuery(params)}`
+    );
+    return mapSettlementsResponse(response);
   },
 
-  revenue: (partnerId: string | number) =>
-    apiClient.get<PartnerRevenueResponse>(LINKS.partner.wallet.revenue(partnerId)),
+  revenue: (partnerId: string | number, params?: ListParams) =>
+    apiClient.get<PartnerRevenueResponse>(
+      `${LINKS.partner.wallet.revenue(partnerId)}${buildListQuery(params)}`
+    ),
 
   withdraw: (partnerId: string | number, amount_fcfa: number) =>
     apiClient.post<{
@@ -436,15 +451,11 @@ export const partnerWalletService = {
       wallet: PartnerWallet;
     }>(LINKS.partner.wallet.withdraw(partnerId), { amount_fcfa }),
 
-  // NOTE: l'endpoint POST /v1/partners/{id}/wallet/top-up n'existe pas encore côté backend.
-  // Ce service est prêt à l'emploi dès que l'API d'alimentation wallet (Mobile Money / CB) sera disponible.
-  // Pour la recette du 21/06, une procédure de crédit manuel backend est nécessaire en l'absence de l'API.
+  // Endpoint vérifié 200 (Swagger live du 23/06). Le contrat exact (payload PSP, réponse)
+  // est à confirmer côté backend (cf. demande DB-06). On envoie le montant + la méthode et
+  // on relaie l'éventuelle URL de redirection PSP renvoyée par l'API.
   topUp: (partnerId: string | number, amount_fcfa: number, method: "mobile_money" | "card" = "mobile_money") =>
-    apiClient.post<{
-      ok: boolean;
-      message: string;
-      wallet: PartnerWallet;
-    }>(LINKS.partner.wallet.topUp(partnerId), { amount_fcfa, method }),
+    apiClient.post<TopUpResponse>(LINKS.partner.wallet.topUp(partnerId), { amount_fcfa, method }),
 
   getDriverRechargeStats: async (partnerId: string | number) => {
     const response = await apiClient.get<{

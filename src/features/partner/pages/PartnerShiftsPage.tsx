@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
+import { Button } from "@/shared/ui/Button";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
@@ -10,9 +12,11 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { PartnerShift } from "../api/shifts.service";
 import { usePartnerShifts } from "../api/shifts.queries";
+import { PartnerShiftCreateModal } from "../components/PartnerShiftCreateModal";
 
 export function PartnerShiftsPage() {
   const table = useServerTableState();
+  const [showCreate, setShowCreate] = useState(false);
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
@@ -74,6 +78,7 @@ export function PartnerShiftsPage() {
       <PageHeader
         title="Planning des shifts"
         breadcrumb={["Partenaire", "Activité"]}
+        actions={<Button onClick={() => setShowCreate(true)}>Nouveau shift</Button>}
       />
 
       <TableFiltersBar
@@ -99,6 +104,8 @@ export function PartnerShiftsPage() {
           table.setPageSize
         )}
       />
+
+      {showCreate && <PartnerShiftCreateModal onClose={() => setShowCreate(false)} />}
     </div>
   );
 }

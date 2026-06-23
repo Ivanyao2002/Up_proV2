@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
@@ -177,6 +178,7 @@ function RentalCreateModal({
   };
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-overlay" onClick={onClose} />
       <div className="relative w-full max-w-lg rounded-card bg-surface p-6 shadow-card overflow-y-auto max-h-[90vh]">
@@ -284,6 +286,7 @@ function RentalCreateModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 

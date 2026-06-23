@@ -54,6 +54,12 @@ export function usePartnerWalletTopUp() {
       partnerWalletService.topUp(ownerId!, payload.amount_fcfa, payload.method),
     onSuccess: (data) => {
       void qc.invalidateQueries({ queryKey: ["partner", "wallet"] });
+      // Si le PSP renvoie une URL de redirection, on bascule l'utilisateur vers le paiement.
+      const redirect = data.redirect_url ?? data.payment_url;
+      if (redirect && typeof window !== "undefined") {
+        window.location.assign(redirect);
+        return;
+      }
       notificationService.success(data.message);
     },
   });
@@ -112,6 +118,15 @@ export function usePartnerRevenue() {
   });
 }
 
+export function usePartnerRevenuePaginated(params?: ListParams) {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: ["partner", "revenue", "paginated", ownerId, params],
+    queryFn: () => partnerWalletService.revenue(ownerId!, params),
+    enabled: ownerId != null,
+  });
+}
+
 export const partnerCashReconciliationsKeys = {
   all: ["partner", "cash-reconciliations"] as const,
   list: (filters?: ListParams) =>
@@ -123,15 +138,6 @@ export function usePartnerCashReconciliations(params?: ListParams) {
   return useQuery({
     queryKey: partnerCashReconciliationsKeys.list(params),
     queryFn: () => partnerWalletService.cashReconciliations(ownerId!, params),
-    enabled: ownerId != null,
-  });
-}
-
-export function usePartnerRevenuePaginated(params?: ListParams) {
-  const { ownerId } = useScope();
-  return useQuery({
-    queryKey: ["partner", "revenue", "paginated", ownerId, params],
-    queryFn: () => partnerWalletService.revenue(ownerId!),
     enabled: ownerId != null,
   });
 }

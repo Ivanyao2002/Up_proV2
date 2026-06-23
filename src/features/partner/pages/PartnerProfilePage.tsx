@@ -279,22 +279,36 @@ export function PartnerProfilePage() {
           {/* Paramètres */}
           <section className="rounded-card border border-border bg-surface p-6 shadow-card">
             <h3 className="text-sm font-semibold text-foreground">Paramètres</h3>
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-3 opacity-60">
               <label className="flex items-center justify-between">
                 <span className="text-sm">Notifications email</span>
-                <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-border" />
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="h-4 w-4 rounded border-border cursor-not-allowed"
+                />
               </label>
               <label className="flex items-center justify-between">
                 <span className="text-sm">Notifications SMS</span>
-                <input type="checkbox" className="h-4 w-4 rounded border-border" />
+                <input
+                  type="checkbox"
+                  disabled
+                  className="h-4 w-4 rounded border-border cursor-not-allowed"
+                />
               </label>
               <label className="flex items-center justify-between">
                 <span className="text-sm">Rapports hebdomadaires</span>
-                <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-border" />
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  disabled
+                  className="h-4 w-4 rounded border-border cursor-not-allowed"
+                />
               </label>
             </div>
             <p className="mt-3 text-xs text-muted">
-              Ces paramètres seront synchronisés avec l'API prochainement
+              Gestion des préférences de notification à venir (API non disponible).
             </p>
           </section>
         </div>

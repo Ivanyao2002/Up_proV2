@@ -41,14 +41,20 @@ export interface PartnerDocumentsPanelProps {
   canUpload?: boolean;
   /** Permet valider / rejeter (admin, franchise). */
   canReview?: boolean;
+  /**
+   * "admin" (défaut) : fusionne route admin KYC + route partenaire.
+   * "partner" : route partenaire uniquement (portail partenaire — évite le 403 admin).
+   */
+  scope?: "admin" | "partner";
 }
 
 export function PartnerDocumentsPanel({
   partnerId,
   canUpload = false,
   canReview = false,
+  scope = "admin",
 }: PartnerDocumentsPanelProps) {
-  const { data: documents = [], isLoading, isError } = usePartnerKycDocuments(partnerId);
+  const { data: documents = [], isLoading, isError } = usePartnerKycDocuments(partnerId, scope);
   const uploadBatch = useUploadPartnerKycDocuments(partnerId);
   const uploadSingle = useUploadPartnerKycDocument(partnerId);
   const approveDoc = useApprovePartnerDocument(partnerId);

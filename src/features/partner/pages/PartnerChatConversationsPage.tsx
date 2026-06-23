@@ -9,11 +9,16 @@ import {
   serverPaginationFromMeta,
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
+import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import type { ChatConversation } from "@/features/support/api/chatConversations.service";
 import { useChatConversationsList } from "@/features/support/api/chatConversations.queries";
 
 export function PartnerChatConversationsPage() {
   const table = useServerTableState([]);
+
+  const { hasActiveFilters, resetAll } = useListFiltersReset({
+    search: { value: table.search, set: table.setSearch },
+  });
 
   const { data, isLoading, isError } = useChatConversationsList(table.listParams);
 
@@ -81,6 +86,8 @@ export function PartnerChatConversationsPage() {
         onSearchChange={table.setSearch}
         searchPlaceholder="Rechercher…"
         totalLabel={meta ? `${meta.total} conversations` : undefined}
+        hasActiveFilters={hasActiveFilters}
+        onReset={resetAll}
       />
 
       <DataTable

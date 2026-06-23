@@ -309,14 +309,14 @@ export function mapApiPartnerLiveMapToData(
       coords = readCoord(activeOrder.pickup_latitude, activeOrder.pickup_longitude);
     }
 
+    // On n'invente plus de position : un chauffeur sans coordonnées réelles est marqué
+    // has_location:false (exclu des markers, conservé dans la liste avec « Position inconnue »).
+    const hasLocation = Boolean(coords);
     if (!coords) {
-      // Petit offset aléatoire basé sur l'index pour éviter la superposition totale
-      const offsetLat = (i % 5) * 0.005 - 0.01;
-      const offsetLng = (i % 7) * 0.005 - 0.015;
-      coords = { lat: ABIDJAN_CENTER.lat + offsetLat, lng: ABIDJAN_CENTER.lng + offsetLng };
+      coords = { lat: ABIDJAN_CENTER.lat, lng: ABIDJAN_CENTER.lng };
+    } else {
+      allPoints.push(coords);
     }
-
-    allPoints.push(coords);
 
     const active_trip = activeOrder ? mapActiveTrip(activeOrder) : undefined;
 
@@ -355,6 +355,7 @@ export function mapApiPartnerLiveMapToData(
       name: driverName,
       lat: coords.lat,
       lng: coords.lng,
+      has_location: hasLocation,
       heading: d.heading ?? d.location?.heading ?? undefined,
       speed_kmh: d.speed_kmh ?? d.location?.speedKmh ?? undefined,
       availability: mapAvailability(d.availability_status),
@@ -393,7 +394,9 @@ export function mapApiPartnerLiveMapToData(
       drivers_online: driversOnline,
       drivers_on_trip: Math.max(driversOnTrip, activeOrdersByDriver.size),
       active_trips: activeTrips,
-      avg_wait_min: 0,
+      // Donnée non fournie par l'API partenaire : laisser undefined (affiché « — »)
+      // plutôt que d'afficher un « 0 min » trompeur.
+      avg_wait_min: undefined,
     },
     bounds: computeBounds(allPoints),
     drivers,

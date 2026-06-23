@@ -31,7 +31,11 @@ const cashColumns: Column<CashReconciliation>[] = [
   {
     id: "driver",
     header: "Chauffeur",
-    cell: (r) => <span className="font-medium">{r.driver_name ?? r.driver_id}</span>,
+    cell: (r) => (
+      <span className="font-medium">
+        {r.driver_name ?? (r.driver_id ? `Chauffeur ${r.driver_id.slice(-6).toUpperCase()}` : "—")}
+      </span>
+    ),
   },
   {
     id: "amount",

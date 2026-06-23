@@ -54,8 +54,8 @@ export function PartnerReportsPage() {
       id: "acceptance",
       header: "Acceptation",
       className: "tabular-nums",
-      cell: (r) => `${r.acceptance_rate_pct} %`,
-      exportValue: (r) => r.acceptance_rate_pct,
+      cell: (r) => (r.acceptance_rate_pct != null ? `${r.acceptance_rate_pct} %` : "—"),
+      exportValue: (r) => r.acceptance_rate_pct ?? "",
     },
     {
       id: "generated",

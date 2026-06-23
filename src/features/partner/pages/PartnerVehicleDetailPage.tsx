@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
+import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { VehicleApprovalPill } from "@/shared/ui/VehicleApprovalPill";
 import { KycDocumentCard } from "@/shared/ui/KycDocumentCard";
 import { formatDateTime } from "@/shared/lib/format";
@@ -143,7 +144,7 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Places</dt>
-                <dd className="text-foreground">{vehicle.seats}</dd>
+                <dd className="text-foreground">{vehicle.seats > 0 ? vehicle.seats : "—"}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt>Chauffeur</dt>
@@ -247,6 +248,7 @@ function AssignDriverModal({
   );
 
   return (
+    <ModalPortal>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
@@ -310,5 +312,6 @@ function AssignDriverModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

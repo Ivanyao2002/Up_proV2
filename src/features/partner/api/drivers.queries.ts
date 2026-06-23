@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { partnersKeys } from "@/features/network/api/partners.keys";
 import { useScope } from "@/core/auth/useScope";
 import { partnerDriversService } from "./drivers.service";
@@ -20,6 +20,30 @@ export function usePartnerDriversList(params?: ListParams) {
     queryKey: partnerDriversKeys.list(params),
     queryFn: () => partnerDriversService.list(params),
   });
+}
+
+/**
+ * Compteurs de disponibilité sur TOUTE la flotte (pas seulement la page courante).
+ * L'API ne renvoyant pas d'agrégat, on lit meta.total via un appel léger (per_page:1)
+ * par disponibilité.
+ */
+export function usePartnerDriverAvailabilityCounts() {
+  const availabilities = ["online", "on_trip", "offline"] as const;
+  const results = useQueries({
+    queries: availabilities.map((availability) => ({
+      queryKey: [...partnerDriversKeys.all, "count", availability] as const,
+      queryFn: () =>
+        partnerDriversService.list({ availability, page: 1, per_page: 1 }),
+      staleTime: 30_000,
+    })),
+  });
+
+  return {
+    online: results[0].data?.meta?.total,
+    on_trip: results[1].data?.meta?.total,
+    offline: results[2].data?.meta?.total,
+    isLoading: results.some((r) => r.isLoading),
+  };
 }
 
 export function usePartnerDriverDetail(id: string) {

@@ -34,7 +34,23 @@ function mergePartnerKycDocumentItems(
 }
 
 export const partnerDocumentsService = {
-  listKycDocuments: async (partnerId: string): Promise<KycDocument[]> => {
+  /**
+   * @param scope "admin" (défaut) fusionne la route admin KYC + la route partenaire ;
+   *              "partner" n'utilise QUE la route partenaire (GET /v1/partners/{id}/documents)
+   *              pour éviter le 403 sur /v1/admin/kyc/documents depuis le portail partenaire.
+   */
+  listKycDocuments: async (
+    partnerId: string,
+    scope: "admin" | "partner" = "admin"
+  ): Promise<KycDocument[]> => {
+    // Portail partenaire : pas d'accès à la route admin → on lit uniquement la route partenaire.
+    if (scope === "partner") {
+      const raw = await partnerProfileService.listDocuments(partnerId);
+      return dedupeKycDocumentsBySlot(
+        mapPartnerDocumentsToKyc(raw as unknown as PartnerDocument[])
+      );
+    }
+
     let kycError: unknown;
     let partnerError: unknown;
     let kycItems: ApiAdminKycDocumentItem[] = [];

@@ -28,6 +28,8 @@ export function usePartnerSupportChat(chatId: string) {
     queryKey: partnerSupportKeys.chat(chatId),
     queryFn: () => partnerSupportService.getChat(ownerId!, chatId),
     enabled: Boolean(chatId) && ownerId != null,
+    // Pas de socket côté backend (cf. DB-05) : polling court pour la réception quasi temps réel.
+    refetchInterval: 12_000,
   });
 }
 

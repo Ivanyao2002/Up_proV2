@@ -7,7 +7,7 @@ import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getTripStatusLabel, STATUS_FILTER_OPTIONS } from "@/shared/lib/tripLabels";
-import { getPaymentLabel } from "@/shared/lib/paymentLabels";
+import { getPaymentLabel, getPaymentStatusLabel } from "@/shared/lib/paymentLabels";
 import { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
@@ -88,8 +88,8 @@ export function PartnerOrdersListPage() {
     {
       id: "payment_status",
       header: "Paiement",
-      cell: (b) => b.payment_status ?? "—",
-      exportValue: (b) => b.payment_status ?? "",
+      cell: (b) => getPaymentStatusLabel(b.payment_status),
+      exportValue: (b) => getPaymentStatusLabel(b.payment_status),
     },
     {
       id: "payment_method",
@@ -162,7 +162,7 @@ export function PartnerOrdersListPage() {
         totalLabel={meta ? `${meta.total} courses enregistrées` : undefined}
         hasActiveFilters={hasActiveFilters}
         onResetAll={resetAll}
-        showAllDatePreset={false}
+        showAllDatePreset
       />
 
       <DataTable

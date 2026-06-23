@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/shared/ui/Button";
+import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { useCreateGpsDevice, useUpdateGpsDevice } from "../api/gps.queries";
 import type { GpsDevice } from "../api/gps.service";
 
@@ -62,6 +63,7 @@ export function PartnerGpsDeviceFormModal({
   };
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
@@ -143,5 +145,6 @@ export function PartnerGpsDeviceFormModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

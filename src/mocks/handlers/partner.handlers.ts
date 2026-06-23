@@ -41,6 +41,24 @@ import shiftsListPartner from "../data/shifts-list-partner.json";
 import recurringBookingsPartner from "../data/recurring-bookings-partner.json";
 import reportsPartner from "../data/reports-partner.json";
 
+// Le JSON fleet-list infère une union (certains items sans brand/model) et
+// approval_status: string : on type explicitement pour l'usage côté handlers de mock.
+interface MockFleetVehicle {
+  id: number;
+  label: string;
+  plate: string;
+  category: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  color?: string;
+  driver_name?: string;
+  approval_status: string;
+  created_at: string;
+  [key: string]: unknown;
+}
+const fleetVehicles = fleetList.data as MockFleetVehicle[];
+
 const PARTNER_COMPANY_NAME =
   (partnerProfile as { company_name?: string }).company_name ?? "Cocody Express";
 
@@ -408,7 +426,7 @@ export const partnerHandlers = [
 
   http.get("*/v1/partners/:id/vehicles", ({ request }) => {
     const query = parseListQuery(request);
-    let list = fleetList.data.filter((v) =>
+    let list = fleetVehicles.filter((v) =>
       matchesSearch(
         query.search,
         v.plate,
@@ -424,9 +442,9 @@ export const partnerHandlers = [
       list = list.filter((v) => v.approval_status === query.status);
     }
     const paginated = paginatedList(list, query, (v) => v.created_at);
-    const summary = fleetList.data.reduce(
+    const summary = fleetVehicles.reduce<Record<string, number>>(
       (acc, item) => {
-        acc[item.approval_status] += 1;
+        acc[item.approval_status] = (acc[item.approval_status] ?? 0) + 1;
         return acc;
       },
       { approved: 0, pending: 0, rejected: 0, draft: 0 }
@@ -448,7 +466,7 @@ export const partnerHandlers = [
 
   http.get("*/api/v2/partner/vehicles", ({ request }) => {
     const query = parseListQuery(request);
-    let list = fleetList.data.filter((v) =>
+    let list = fleetVehicles.filter((v) =>
       matchesSearch(
         query.search,
         v.plate,

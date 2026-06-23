@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
@@ -18,7 +20,9 @@ import {
   useDeleteFreightOffer,
 } from "../api/freight.queries";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { notificationService } from "@/core/http/notificationService";
 import type { FreightOffer } from "../api/freight.service";
+import { FreightLocationPicker, type FreightPoint } from "../components/FreightLocationPicker";
 
 export function PartnerFreightPage() {
   const table = useServerTableState([]);
@@ -36,7 +40,14 @@ export function PartnerFreightPage() {
     {
       id: "ref",
       header: "Référence",
-      cell: (o) => <div className="font-medium">{o.ref}</div>,
+      cell: (o) => (
+        <Link
+          href={`/partner/freight/${o.id}`}
+          className="font-medium text-foreground hover:text-teal"
+        >
+          {o.ref}
+        </Link>
+      ),
     },
     {
       id: "route",
@@ -202,13 +213,9 @@ function FreightActions({ offer }: { offer: FreightOffer }) {
 
 function FreightCreateModal({ onClose }: { onClose: () => void }) {
   const create = useCreateFreightOffer();
+  const [origin, setOrigin] = useState<FreightPoint | null>(null);
+  const [destination, setDestination] = useState<FreightPoint | null>(null);
   const [form, setForm] = useState({
-    origin_label: "",
-    origin_lat: 0,
-    origin_lng: 0,
-    destination_label: "",
-    destination_lat: 0,
-    destination_lng: 0,
     distance_km: 0,
     price_fcfa: 0,
     goods_type: "",
@@ -221,14 +228,18 @@ function FreightCreateModal({ onClose }: { onClose: () => void }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!origin || !destination) {
+      notificationService.error("Sélectionnez l'origine et la destination sur la carte.");
+      return;
+    }
     create.mutate(
       {
-        origin_label: form.origin_label,
-        origin_lat: Number(form.origin_lat),
-        origin_lng: Number(form.origin_lng),
-        destination_label: form.destination_label,
-        destination_lat: Number(form.destination_lat),
-        destination_lng: Number(form.destination_lng),
+        origin_label: origin.label,
+        origin_lat: origin.lat,
+        origin_lng: origin.lng,
+        destination_label: destination.label,
+        destination_lat: destination.lat,
+        destination_lng: destination.lng,
         distance_km: Number(form.distance_km) || 0,
         price_fcfa: Number(form.price_fcfa) || 0,
         goods_type: form.goods_type,
@@ -249,6 +260,7 @@ function FreightCreateModal({ onClose }: { onClose: () => void }) {
   });
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
@@ -259,31 +271,18 @@ function FreightCreateModal({ onClose }: { onClose: () => void }) {
       <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-card bg-surface p-6 shadow-card animate-fade-up">
         <h2 className="text-lg font-semibold text-foreground">Nouvelle offre de fret</h2>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Trajet (origine → destination)
+            </label>
+            <FreightLocationPicker
+              origin={origin}
+              destination={destination}
+              onOriginChange={setOrigin}
+              onDestinationChange={setDestination}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground">Origine</label>
-              <input className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-teal" {...field("origin_label")} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground">Destination</label>
-              <input className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-teal" {...field("destination_label")} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground">Lat origine</label>
-              <input type="number" step="any" className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-teal" {...field("origin_lat")} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground">Lng origine</label>
-              <input type="number" step="any" className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-teal" {...field("origin_lng")} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground">Lat destination</label>
-              <input type="number" step="any" className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-teal" {...field("destination_lat")} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground">Lng destination</label>
-              <input type="number" step="any" className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-teal" {...field("destination_lng")} required />
-            </div>
             <div>
               <label className="block text-sm font-medium text-foreground">Distance (km)</label>
               <input type="number" className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-teal" {...field("distance_km")} required />
@@ -326,5 +325,6 @@ function FreightCreateModal({ onClose }: { onClose: () => void }) {
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }

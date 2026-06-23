@@ -24,7 +24,10 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { Driver } from "@/shared/types";
 import { KpiCard } from "@/shared/ui/KpiCard";
-import { usePartnerDriversList } from "../api/drivers.queries";
+import {
+  usePartnerDriversList,
+  usePartnerDriverAvailabilityCounts,
+} from "../api/drivers.queries";
 import { partnerDriversService } from "../api/drivers.service";
 import { PartnerDriversFiltersPanel } from "../components/PartnerDriversFiltersPanel";
 
@@ -82,9 +85,14 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
   const selectedIds = Array.from(selected).map(String);
   const selectedDrivers = rows.filter((driver) => selected.has(driver.id));
 
-  const kpiOnline = rows.filter((d) => d.availability === "online").length;
-  const kpiInTrip = rows.filter((d) => d.availability === "on_trip").length;
-  const kpiOffline = rows.filter((d) => d.availability === "offline").length;
+  // Compteurs sur toute la flotte (API), avec repli sur la page courante pendant le chargement.
+  const fleetCounts = usePartnerDriverAvailabilityCounts();
+  const kpiOnline =
+    fleetCounts.online ?? rows.filter((d) => d.availability === "online").length;
+  const kpiInTrip =
+    fleetCounts.on_trip ?? rows.filter((d) => d.availability === "on_trip").length;
+  const kpiOffline =
+    fleetCounts.offline ?? rows.filter((d) => d.availability === "offline").length;
 
   const runBulkAction = async (
     action: (driverId: string) => Promise<void>,

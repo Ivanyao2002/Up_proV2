@@ -7,13 +7,19 @@ import { partnerDocumentsService } from "./partnerDocuments.service";
 
 export const partnerDocumentsKeys = {
   all: ["partner-documents"] as const,
-  list: (partnerId: string) => [...partnerDocumentsKeys.all, partnerId] as const,
+  list: (partnerId: string, scope: "admin" | "partner" = "admin") =>
+    [...partnerDocumentsKeys.all, partnerId, scope] as const,
+  /** Préfixe couvrant les deux scopes (admin + partner) pour l'invalidation. */
+  listPrefix: (partnerId: string) => [...partnerDocumentsKeys.all, partnerId] as const,
 };
 
-export function usePartnerKycDocuments(partnerId: string) {
+export function usePartnerKycDocuments(
+  partnerId: string,
+  scope: "admin" | "partner" = "admin"
+) {
   return useQuery({
-    queryKey: partnerDocumentsKeys.list(partnerId),
-    queryFn: () => partnerDocumentsService.listKycDocuments(partnerId),
+    queryKey: partnerDocumentsKeys.list(partnerId, scope),
+    queryFn: () => partnerDocumentsService.listKycDocuments(partnerId, scope),
     enabled: Boolean(partnerId),
   });
 }
@@ -24,7 +30,7 @@ export function useUploadPartnerKycDocuments(partnerId: string) {
     mutationFn: (documents: PartnerCreateDocumentsState) =>
       partnerDocumentsService.uploadDocuments(partnerId, documents),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.list(partnerId) });
+      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.listPrefix(partnerId) });
       notificationService.success("Documents envoyés — validation en cours");
     },
     onError: (error: Error) => {
@@ -52,7 +58,7 @@ export function useUploadPartnerKycDocument(partnerId: string) {
         replaceDocumentId
       ),
     onSuccess: (_data, variables) => {
-      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.list(partnerId) });
+      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.listPrefix(partnerId) });
       notificationService.success(
         variables.replaceDocumentId
           ? "Nouvelle version enregistrée — validation en cours"
@@ -71,7 +77,7 @@ export function useApprovePartnerDocument(partnerId: string) {
     mutationFn: (documentId: string) =>
       partnerDocumentsService.approveDocument(documentId),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.list(partnerId) });
+      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.listPrefix(partnerId) });
     },
   });
 }
@@ -87,7 +93,7 @@ export function useRejectPartnerDocument(partnerId: string) {
       reason: string;
     }) => partnerDocumentsService.rejectDocument(documentId, reason),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.list(partnerId) });
+      void qc.invalidateQueries({ queryKey: partnerDocumentsKeys.listPrefix(partnerId) });
     },
   });
 }

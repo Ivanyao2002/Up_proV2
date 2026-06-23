@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/shared/ui/Button";
+import { ModalPortal } from "@/shared/ui/ModalPortal";
 import {
   useCreatePartnerMember,
   useUpdatePartnerMember,
@@ -76,6 +77,7 @@ export function PartnerMemberFormModal({
   };
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
@@ -184,5 +186,6 @@ export function PartnerMemberFormModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

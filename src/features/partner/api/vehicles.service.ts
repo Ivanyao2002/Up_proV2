@@ -286,17 +286,19 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
       throw new Error("Véhicule introuvable.");
     }
 
+    // Ne pas inventer de statut : si le véhicule est approuvé, la carte grise l'est aussi.
+    const isApproved = match.approval_status === "approved";
     return {
       ...match,
       brand: match.label.split(" ")[0] ?? "—",
       model: match.label.split(" ").slice(1).join(" ") || "—",
-      seats: 0,
+      seats: 0, // inconnu via la liste — l'UI affiche « — » plutôt que « 0 places »
       owner_id: match.partner_id ?? partnerId,
       registration_document: {
-        id: "pending",
+        id: "registration",
         type: "registration",
         label: "Carte grise",
-        status: "pending",
+        status: isApproved ? "approved" : "pending",
         uploaded_at: match.created_at,
         reviewed_at: null,
       },

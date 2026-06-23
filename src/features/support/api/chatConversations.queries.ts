@@ -20,6 +20,8 @@ export function useChatConversation(id: string) {
     queryKey: chatConversationsKeys.detail(id),
     queryFn: () => chatConversationsService.get(id),
     enabled: !!id,
+    // Pas de socket côté backend (cf. DB-05) : polling court pour la réception quasi temps réel.
+    refetchInterval: 12_000,
   });
 }
 

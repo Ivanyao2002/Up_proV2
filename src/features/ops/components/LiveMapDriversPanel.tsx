@@ -80,6 +80,11 @@ function DriverRow({
             {driver.franchise_name}
           </p>
         )}
+        {driver.has_location === false && (
+          <p className="mt-0.5 truncate text-[10px] font-medium text-amber-600">
+            Position inconnue
+          </p>
+        )}
       </div>
       <AvailabilityPill status={driver.availability} />
     </div>
@@ -176,7 +181,7 @@ export function LiveMapDriversPanel({
           </span>
           <span>
             <span className="font-semibold tabular-nums text-heading">
-              {data.drivers.length}
+              {data.drivers.filter((d) => d.has_location !== false).length}
             </span>{" "}
             géolocalisés
           </span>

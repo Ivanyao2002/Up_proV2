@@ -39,7 +39,11 @@ export interface FreightOffer {
   id: string;
   ref: string;
   origin_label: string;
+  origin_lat?: number;
+  origin_lng?: number;
   destination_label: string;
+  destination_lat?: number;
+  destination_lng?: number;
   distance_km: number;
   weight_kg?: number;
   volume_m3?: number;
@@ -50,6 +54,8 @@ export interface FreightOffer {
   requested_at: string;
   client_name: string;
   client_phone?: string;
+  notes?: string;
+  vehicle_id?: string;
 }
 
 export interface CreateFreightOfferPayload {
@@ -82,6 +88,15 @@ export const partnerFreightService = {
       `${LINKS.partner.freight.list(partnerId)}${buildListQuery(params)}`
     );
     return mapFreightResponse(response);
+  },
+
+  // Pas d'endpoint GET détail côté backend (cf. demande DB-01) : on dérive l'offre
+  // depuis la liste paginée tant que GET /freight-offers/{offerId} n'est pas livré.
+  getById: async (partnerId: string | number, offerId: string) => {
+    const response = await partnerFreightService.list(partnerId, { per_page: 100 });
+    const offer = response.data.find((o) => o.id === offerId || o.ref === offerId);
+    if (!offer) throw new Error("Offre de fret introuvable");
+    return offer;
   },
 
   create: (partnerId: string | number, data: CreateFreightOfferPayload) =>
