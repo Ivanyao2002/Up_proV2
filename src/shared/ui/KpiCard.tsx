@@ -147,6 +147,7 @@ interface KpiCardProps {
   value: string;
   hint?: string;
   trend?: string;
+  trendTone?: "positive" | "negative" | "neutral";
   className?: string;
   variant?: KpiVariant;
   index?: number;
@@ -160,6 +161,7 @@ export function KpiCard({
   value,
   hint,
   trend,
+  trendTone = "neutral",
   className = "",
   variant,
   index,
@@ -168,6 +170,12 @@ export function KpiCard({
 }: KpiCardProps) {
   const v = resolveVariant(label, variant, index);
   const styles = VARIANT_STYLES[v];
+  const trendClass = {
+    positive:
+      "border-emerald-300/20 bg-emerald-400/20 text-emerald-100",
+    negative: "border-red-300/20 bg-red-400/20 text-red-100",
+    neutral: "border-white/10 bg-white/15 text-white/90",
+  }[trendTone];
 
   return (
     <div
@@ -201,12 +209,20 @@ export function KpiCard({
           </p>
         )}
         {(hint || trend) && (
-          <p
-            className={`text-xs leading-snug sm:text-sm ${compact ? "mt-1" : "mt-2"} ${styles.hint}`}
+          <div
+            className={`flex flex-wrap items-center gap-2 text-xs leading-snug sm:text-sm ${
+              compact ? "mt-1" : "mt-3"
+            } ${styles.hint}`}
           >
-            {trend && <span className={styles.trend}>{trend} </span>}
-            {hint}
-          </p>
+            {trend ? (
+              <span
+                className={`inline-flex rounded-full border px-2.5 py-1 font-semibold tabular-nums ${trendClass}`}
+              >
+                {trend}
+              </span>
+            ) : null}
+            {hint ? <span>{hint}</span> : null}
+          </div>
         )}
       </div>
     </div>

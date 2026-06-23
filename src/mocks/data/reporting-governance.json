@@ -1,0 +1,28 @@
+{
+  "period": { "date_from": "2026-06-01", "date_to": "2026-06-30", "timezone": "Africa/Abidjan" },
+  "scope": { "service": null, "country_code": null, "zone_id": null, "franchise_id": null, "partner_id": null },
+  "generated_at": "2026-06-20T10:45:00Z",
+  "audit": {
+    "events_count": 4820,
+    "sensitive_events_count": 74,
+    "failed_actions_count": 19,
+    "events_by_category": [
+      { "category": "finance", "count": 820 },
+      { "category": "support", "count": 610 },
+      { "category": "authentication", "count": 920 },
+      { "category": "administration", "count": 2470 }
+    ]
+  },
+  "compliance": {
+    "global_rate": 93.4,
+    "entities_checked": 1840,
+    "entities_compliant": 1718,
+    "documents_expired": 42,
+    "documents_expiring_soon": 96,
+    "by_entity_type": [
+      { "entity_type": "driver", "checked": 842, "compliant": 786, "compliance_rate": 93.3 },
+      { "entity_type": "deliverer", "checked": 278, "compliant": 259, "compliance_rate": 93.2 },
+      { "entity_type": "vehicle", "checked": 720, "compliant": 673, "compliance_rate": 93.5 }
+    ]
+  }
+}

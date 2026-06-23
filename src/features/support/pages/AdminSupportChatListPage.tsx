@@ -15,12 +15,7 @@ import {
 import type { AdminSupportChat } from "../api/adminChat.types";
 import { useAdminSupportChats } from "../api/adminChat.queries";
 import { useSupportPaths } from "../lib/supportPaths";
-
-const STATUS_FILTERS = [
-  { value: "all" as const, label: "Tous" },
-  { value: "open" as const, label: "Ouverts" },
-  { value: "closed" as const, label: "Clôturés" },
-];
+import { STATUS_FILTERS } from "../lib/chatConstants";
 
 export function AdminSupportChatListPage() {
   const paths = useSupportPaths();
@@ -99,7 +94,7 @@ export function AdminSupportChatListPage() {
   }
 
   return (
-    <div className="animate-fade-up">
+    <div className="min-h-0 animate-fade-up">
       <PageHeader title="Chat franchises" breadcrumb={["Admin", "Support", "Chat"]} />
 
       <TableFiltersBar
@@ -113,7 +108,7 @@ export function AdminSupportChatListPage() {
         <FilterChips
           options={STATUS_FILTERS}
           value={statusFilter}
-          onChange={setStatusFilter}
+          onChange={(v) => setStatusFilter(v)}
         />
       </TableFiltersBar>
 
@@ -124,7 +119,7 @@ export function AdminSupportChatListPage() {
         isLoading={isLoading}
         exportFileName="chat-support-admin"
         emptyTitle="Aucune conversation avec les franchises"
-        pagination={false}
+        maxHeight="clamp(320px, calc(100dvh - 330px), 680px)"
         serverPagination={serverPaginationFromMeta(
           meta,
           table.setPage,

@@ -11,9 +11,15 @@ export const SUPPORT_NAV: NavGroup[] = [
         permission: "support.tickets.view",
       },
       {
-        label: "Tickets",
+        label: "Réclamations",
         path: "/support/tickets",
         icon: "support",
+        permission: "support.tickets.view",
+      },
+      {
+        label: "Litiges",
+        path: "/support/disputes",
+        icon: "reports",
         permission: "support.tickets.view",
       },
       {
@@ -25,16 +31,10 @@ export const SUPPORT_NAV: NavGroup[] = [
     ],
   },
   {
-    group: "ANOMALIES",
+    group: "SUPERVISION",
     items: [
       {
-        label: "Centre anomalies",
-        path: "/support/anomalies",
-        icon: "crisis",
-        permission: "support.anomalies.view",
-      },
-      {
-        label: "Journal d'audit",
+        label: "Historique réclamations",
         path: "/support/anomalies/audit",
         icon: "reports",
         permission: "support.anomalies.view",

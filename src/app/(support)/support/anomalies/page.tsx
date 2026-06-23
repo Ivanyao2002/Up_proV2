@@ -1,5 +1,5 @@
-import { SupportAnomaliesPage } from "@/features/support/pages/SupportAnomaliesPage";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <SupportAnomaliesPage />;
+  redirect("/support/anomalies/audit");
 }

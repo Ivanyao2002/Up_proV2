@@ -1,0 +1,42 @@
+{
+  "period": { "date_from": "2026-06-01", "date_to": "2026-06-30", "timezone": "Africa/Abidjan" },
+  "scope": { "service": null, "country_code": null, "zone_id": null, "franchise_id": null, "partner_id": null },
+  "generated_at": "2026-06-20T10:45:00Z",
+  "kpis": {
+    "incidents_count": 96,
+    "critical_incidents_count": 8,
+    "complaints_count": 184,
+    "complaint_rate": 1.7,
+    "average_first_assignment_minutes": 6.4,
+    "average_resolution_minutes": 148.2,
+    "resolved_within_sla_rate": 91.5
+  },
+  "incidents_by_severity": [
+    { "severity": "info", "count": 32 },
+    { "severity": "warning", "count": 56 },
+    { "severity": "critical", "count": 8 }
+  ],
+  "complaints_by_category": [
+    { "category": "payment", "count": 74 },
+    { "category": "behavior", "count": 45 },
+    { "category": "service", "count": 39 },
+    { "category": "logistics", "count": 18 },
+    { "category": "app", "count": 8 }
+  ],
+  "series": [
+    { "bucket": "2026-06-01", "incidents": 4, "complaints": 7, "resolved_complaints": 6, "average_resolution_minutes": 132.5 },
+    { "bucket": "2026-06-02", "incidents": 3, "complaints": 5, "resolved_complaints": 5, "average_resolution_minutes": 119.0 },
+    { "bucket": "2026-06-03", "incidents": 5, "complaints": 9, "resolved_complaints": 8, "average_resolution_minutes": 155.3 },
+    { "bucket": "2026-06-04", "incidents": 6, "complaints": 11, "resolved_complaints": 9, "average_resolution_minutes": 162.7 },
+    { "bucket": "2026-06-05", "incidents": 4, "complaints": 8, "resolved_complaints": 8, "average_resolution_minutes": 141.0 },
+    { "bucket": "2026-06-06", "incidents": 2, "complaints": 4, "resolved_complaints": 4, "average_resolution_minutes": 105.5 },
+    { "bucket": "2026-06-07", "incidents": 3, "complaints": 6, "resolved_complaints": 5, "average_resolution_minutes": 128.0 }
+  ],
+  "ranking": [
+    { "dimension_type": "franchise", "dimension_id": "FR-003", "dimension_label": "Franchise Yopougon", "completed_activity": 2410, "incidents": 28, "complaints": 61, "complaint_rate": 2.53 },
+    { "dimension_type": "franchise", "dimension_id": "FR-001", "dimension_label": "Franchise Cocody", "completed_activity": 3810, "incidents": 18, "complaints": 48, "complaint_rate": 1.26 },
+    { "dimension_type": "franchise", "dimension_id": "FR-002", "dimension_label": "Franchise Plateau", "completed_activity": 2750, "incidents": 24, "complaints": 42, "complaint_rate": 1.53 },
+    { "dimension_type": "franchise", "dimension_id": "FR-004", "dimension_label": "Franchise Abobo", "completed_activity": 1340, "incidents": 14, "complaints": 22, "complaint_rate": 1.64 },
+    { "dimension_type": "franchise", "dimension_id": "FR-005", "dimension_label": "Franchise Marcory", "completed_activity": 530, "incidents": 12, "complaints": 11, "complaint_rate": 2.08 }
+  ]
+}

@@ -58,7 +58,55 @@ export const ADMIN_V1_BASE = "/v1/admin" as const;
 /** Chauffeur — fiche publique admin (`GET /v1/drivers/:id`) */
 export const DRIVERS_V1_BASE = "/v1/drivers" as const;
 
+/** Support agent — base `/v1/support` */
+export const SUPPORT_V1_BASE = "/v1/support" as const;
+
+/** Litiges mobiles — base `/v1/disputes` */
+export const DISPUTES_V1_BASE = "/v1/disputes" as const;
+
 export const LINKS = {
+  /** Litiges soumis depuis l'app mobile client */
+  disputes: {
+    list:     DISPUTES_V1_BASE,
+    getById:  (id: string) => `${DISPUTES_V1_BASE}/${id}`,
+    assign:   (id: string) => `${DISPUTES_V1_BASE}/${id}/assign`,
+    messages: (id: string) => `${DISPUTES_V1_BASE}/${id}/messages`,
+    resolve:  (id: string) => `${DISPUTES_V1_BASE}/${id}/resolve`,
+    close:    (id: string) => `${DISPUTES_V1_BASE}/${id}/close`,
+    escalate: (id: string) => `${DISPUTES_V1_BASE}/${id}/escalate`,
+  },
+
+  /** Support agent — /v1/support/... (Swagger § support) */
+  support: {
+    tickets: {
+      list:          `${SUPPORT_V1_BASE}/tickets`,
+      getById:       (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}`,
+      assign:        (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/assign`,
+      messages:      (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/messages`,
+      sanctions:     (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/sanctions`,
+      compensations:       (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/compensations`,
+      cancelCompensation:  (id: string, compId: string) => `${SUPPORT_V1_BASE}/tickets/${id}/compensations/${compId}/cancel`,
+      resolve:       (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/resolve`,
+      close:         (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/close`,
+      escalate:      (id: string) => `${SUPPORT_V1_BASE}/tickets/${id}/escalate`,
+    },
+    chat: {
+      list:        `${SUPPORT_V1_BASE}/chat`,
+      getById:     (id: string) => `${SUPPORT_V1_BASE}/chat/${id}`,
+      messages:    (id: string) => `${SUPPORT_V1_BASE}/chat/${id}/messages`,
+      close:       (id: string) => `${SUPPORT_V1_BASE}/chat/${id}/close`,
+      attachments: (id: string) => `${SUPPORT_V1_BASE}/chat/${id}/attachments`,
+    },
+    dashboard: {
+      stats:  `${SUPPORT_V1_BASE}/dashboard/stats`,
+      recent: `${SUPPORT_V1_BASE}/dashboard/recent`,
+    },
+    auditLog: `${SUPPORT_V1_BASE}/audit-log`,
+    trips: {
+      summary: (id: string) => `${SUPPORT_V1_BASE}/trips/${id}/summary`,
+    },
+  },
+
   v1: {
     drivers: {
       me: "/v1/drivers/me",
@@ -145,6 +193,7 @@ export const LINKS = {
       logout: `${AUTH_V1_BASE}/logout`,
       refresh: `${AUTH_V1_BASE}/refresh`,
       forgotPassword: `${AUTH_V1_BASE}/forgot-password`,
+      resetPassword: `${AUTH_V1_BASE}/reset-password`,
       otpSend: `${AUTH_V1_BASE}/otp/send`,
       otpVerify: `${AUTH_V1_BASE}/otp/verify`,
       driverResendOtp: `${AUTH_V1_BASE}/driver/resend-otp`,
@@ -156,6 +205,7 @@ export const LINKS = {
       login: "/auth/login",
       logout: "/auth/logout",
       forgotPassword: "/auth/forgot-password",
+      resetPassword: "/auth/reset-password",
       me: "/me",
     },
   },
@@ -320,7 +370,6 @@ export const LINKS = {
       dispatcherById: (id: string) => `${ADMIN_V1_BASE}/dispatchers/${id}`,
       settingsGeneral: `${ADMIN_V1_BASE}/settings/general`,
       financeCaps: `${ADMIN_V1_BASE}/settings/finance-caps`,
-      supportTickets: "/v1/support/tickets",
       chatConversations: "/v1/chat/conversations",
       chatMessages: (id: string) => `/v1/chat/conversations/${id}/messages`,
       safety: {
@@ -455,16 +504,6 @@ export const LINKS = {
       promos: createCrudEndpoints("/admin/marketing/promos"),
       campaigns: createCrudEndpoints("/admin/marketing/campaigns"),
       banners: createCrudEndpoints("/admin/marketing/banners"),
-    },
-
-    support: {
-      tickets: {
-        list: "/admin/support/tickets",
-      },
-      disputes: {
-        getById: (id: string | number) => `/admin/support/disputes/${id}`,
-        resolve: (id: string | number) => `/admin/support/disputes/${id}/resolve`,
-      },
     },
 
     settings: {
@@ -824,6 +863,22 @@ export const LINKS = {
     },
     bookings: {
       create: "/dispatch/bookings",
+    },
+  },
+
+  reporting: {
+    filterOptions: "/v1/reporting/filter-options",
+    overview: "/v1/reporting/overview",
+    activity: "/v1/reporting/activity",
+    finance: "/v1/reporting/finance",
+    quality: "/v1/reporting/quality",
+    governance: "/v1/reporting/governance",
+    reports: "/v1/reporting/reports",
+    exports: {
+      list: "/v1/reporting/exports",
+      create: "/v1/reporting/exports",
+      getById: (id: string) => `/v1/reporting/exports/${id}`,
+      download: (id: string) => `/v1/reporting/exports/${id}/download`,
     },
   },
 } as const;

@@ -1,0 +1,450 @@
+{
+  "ADM-TK-501": {
+    "id": "ADM-TK-501",
+    "subject": "Litige course TR-88421 — double débit",
+    "category": "payment",
+    "priority": "high",
+    "status": "in_progress",
+    "reporter_name": "Ouattara Kouadio",
+    "reporter_type": "client",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": "TR-88421",
+    "trip_id": "2",
+    "assigned_to_id": "10",
+    "assigned_to": "Aya Koné Support",
+    "created_at": "2026-06-02T14:20:00Z",
+    "updated_at": "2026-06-02T16:00:00Z",
+    "messages": [
+      {
+        "id": "msg-501-01",
+        "sender": "user",
+        "sender_name": "Ouattara Kouadio",
+        "content": "Bonjour, j'ai constaté un double débit sur mon compte pour la course TR-88421. Le montant de 3 500 FCFA a été prélevé deux fois. Merci de corriger cette erreur.",
+        "type": "message",
+        "created_at": "2026-06-02T14:20:00Z"
+      },
+      {
+        "id": "msg-501-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé et ajouté à la file support.",
+        "type": "system",
+        "created_at": "2026-06-02T14:20:01Z"
+      },
+      {
+        "id": "msg-501-sys-2",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket pris en charge par Agent Support.",
+        "type": "system",
+        "created_at": "2026-06-02T14:40:00Z"
+      },
+      {
+        "id": "msg-501-02",
+        "sender": "agent",
+        "sender_name": "Agent Support",
+        "content": "Bonjour M. Ouattara, je prends en charge votre dossier. Pouvez-vous confirmer votre numéro de téléphone et la date exacte de la course ?",
+        "type": "message",
+        "created_at": "2026-06-02T14:45:00Z"
+      },
+      {
+        "id": "msg-501-03",
+        "sender": "user",
+        "sender_name": "Ouattara Kouadio",
+        "content": "Mon numéro est le +225 07 12 34 56 78. La course date du 02/06/2026 vers 13h00, départ Cocody, arrivée Plateau.",
+        "type": "message",
+        "created_at": "2026-06-02T15:10:00Z"
+      },
+      {
+        "id": "msg-501-04",
+        "sender": "agent",
+        "sender_name": "Agent Support",
+        "content": "Merci. J'ai vérifié votre historique de transactions. Je constate effectivement deux prélèvements de 3 500 FCFA pour la même course. Je transmets la demande de remboursement à l'équipe finance — vous serez remboursé sous 48h.",
+        "type": "message",
+        "created_at": "2026-06-02T15:45:00Z"
+      }
+    ],
+    "sanctions": [],
+    "compensations": []
+  },
+
+  "ADM-TK-505": {
+    "id": "ADM-TK-505",
+    "subject": "Comportement agressif chauffeur — véhicule 7823",
+    "category": "behavior",
+    "priority": "high",
+    "status": "in_progress",
+    "reporter_name": "Fatou Diomandé",
+    "reporter_type": "client",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": "TR-91101",
+    "trip_id": "14",
+    "assigned_to_id": "10",
+    "assigned_to": "Aya Koné Support",
+    "created_at": "2026-06-19T16:30:00Z",
+    "updated_at": "2026-06-19T17:15:00Z",
+    "messages": [
+      {
+        "id": "msg-505-01",
+        "sender": "user",
+        "sender_name": "Fatou Diomandé",
+        "content": "Bonsoir, le chauffeur du véhicule 7823 a été très agressif pendant ma course. Il a haussé la voix lorsque je lui ai demandé de prendre l'autoroute et m'a menacée verbalement à l'arrivée. Je me suis sentie en danger. Je veux que des mesures soient prises.",
+        "type": "message",
+        "created_at": "2026-06-19T16:30:00Z"
+      },
+      {
+        "id": "msg-505-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé. Priorité haute — signalement comportement.",
+        "type": "system",
+        "created_at": "2026-06-19T16:30:01Z"
+      },
+      {
+        "id": "msg-505-sys-2",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket pris en charge par Agent Support.",
+        "type": "system",
+        "created_at": "2026-06-19T16:48:00Z"
+      },
+      {
+        "id": "msg-505-02",
+        "sender": "agent",
+        "sender_name": "Agent Support",
+        "content": "Bonsoir Mme Diomandé, je suis vraiment désolé pour cette expérience. Votre sécurité est notre priorité absolue. Je prends en charge votre dossier immédiatement. Pouvez-vous me décrire précisément les menaces verbales et l'heure approximative de l'arrivée ?",
+        "type": "message",
+        "created_at": "2026-06-19T16:52:00Z"
+      },
+      {
+        "id": "msg-505-03",
+        "sender": "user",
+        "sender_name": "Fatou Diomandé",
+        "content": "L'arrivée était vers 16h10 à Marcory, devant le marché. Il a dit « si tu n'es pas contente, descends et marche ». Mes enfants étaient avec moi. J'ai une photo du véhicule si besoin.",
+        "type": "message",
+        "created_at": "2026-06-19T17:05:00Z"
+      },
+      {
+        "id": "msg-505-04",
+        "sender": "agent",
+        "sender_name": "Agent Support",
+        "content": "Merci pour ces précisions. J'ai consulté les données GPS de la course TR-91101 et identifié le chauffeur. En attendant la procédure disciplinaire, je vous offre un geste commercial pour cette expérience inacceptable. Vous recevrez un code promo valable sur votre prochaine course.",
+        "type": "message",
+        "created_at": "2026-06-19T17:15:00Z"
+      },
+      {
+        "id": "msg-505-sys-3",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Note interne : Vérification en cours avec le manager partenaire. Risque de suspension.",
+        "type": "internal_note",
+        "created_at": "2026-06-19T17:16:00Z"
+      }
+    ],
+    "sanctions": [
+      {
+        "id": "sanc-505-01",
+        "type": "warning",
+        "reason": "Comportement verbal agressif envers client avec enfants dans le véhicule. Menace avérée selon rapport client et données GPS.",
+        "applied_at": "2026-06-19T17:20:00Z",
+        "applied_by": "Agent Support"
+      }
+    ],
+    "compensations": [
+      {
+        "id": "comp-505-01",
+        "type": "free_service",
+        "promo_code": "PROMO-GR8TXZ",
+        "created_at": "2026-06-19T17:18:00Z",
+        "created_by": "Agent Support"
+      }
+    ]
+  },
+
+  "ADM-TK-506": {
+    "id": "ADM-TK-506",
+    "subject": "Course annulée sans prévenir — client déjà sur place",
+    "category": "service",
+    "priority": "high",
+    "status": "open",
+    "reporter_name": "Yao Brice",
+    "reporter_type": "client",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": "TR-91190",
+    "trip_id": null,
+    "assigned_to_id": null,
+    "assigned_to": null,
+    "created_at": "2026-06-20T07:45:00Z",
+    "updated_at": "2026-06-20T07:45:00Z",
+    "messages": [
+      {
+        "id": "msg-506-01",
+        "sender": "user",
+        "sender_name": "Yao Brice",
+        "content": "Bonjour, j'avais commandé une course pour 7h30 (TR-91190). J'étais en bas de chez moi depuis 7h25, et le chauffeur a annulé à 7h38 sans aucun message ni appel. J'ai raté mon rendez-vous professionnel. Je veux un remboursement des frais d'annulation et une compensation pour le préjudice.",
+        "type": "message",
+        "created_at": "2026-06-20T07:45:00Z"
+      },
+      {
+        "id": "msg-506-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé. En attente de prise en charge.",
+        "type": "system",
+        "created_at": "2026-06-20T07:45:01Z"
+      }
+    ],
+    "sanctions": [],
+    "compensations": []
+  },
+
+  "ADM-TK-507": {
+    "id": "ADM-TK-507",
+    "subject": "Chauffeur a pris un itinéraire plus long — surcoût injustifié",
+    "category": "payment",
+    "priority": "normal",
+    "status": "open",
+    "reporter_name": "Aminata Coulibaly",
+    "reporter_type": "client",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": "TR-91204",
+    "trip_id": null,
+    "assigned_to_id": null,
+    "assigned_to": null,
+    "created_at": "2026-06-20T08:10:00Z",
+    "updated_at": "2026-06-20T08:10:00Z",
+    "messages": [
+      {
+        "id": "msg-507-01",
+        "sender": "user",
+        "sender_name": "Aminata Coulibaly",
+        "content": "Bonjour. Ce matin pour ma course TR-91204 (Yopougon → Treichville), le chauffeur a pris le grand tour en passant par Adjamé alors que l'itinéraire direct fait 12 km. J'ai payé 5 800 FCFA au lieu des 3 200 habituels. J'ai le suivi GPS, il a clairement dévié. Je veux le remboursement de la différence soit 2 600 FCFA.",
+        "type": "message",
+        "created_at": "2026-06-20T08:10:00Z"
+      },
+      {
+        "id": "msg-507-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé. En attente de prise en charge.",
+        "type": "system",
+        "created_at": "2026-06-20T08:10:01Z"
+      }
+    ],
+    "sanctions": [],
+    "compensations": []
+  },
+
+  "ADM-TK-503": {
+    "id": "ADM-TK-503",
+    "subject": "Attente 45 min — chauffeur introuvable puis annulation",
+    "category": "service",
+    "priority": "normal",
+    "status": "open",
+    "reporter_name": "Mariam Traoré",
+    "reporter_type": "client",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": "TR-90988",
+    "trip_id": null,
+    "assigned_to_id": null,
+    "assigned_to": null,
+    "created_at": "2026-06-19T11:20:00Z",
+    "updated_at": "2026-06-19T11:20:00Z",
+    "messages": [
+      {
+        "id": "msg-503-01",
+        "sender": "user",
+        "sender_name": "Mariam Traoré",
+        "content": "J'ai attendu 45 minutes un chauffeur indiqué comme « en route » dans l'appli. Il n'a répondu à aucun de mes 3 appels. La course a finalement été annulée automatiquement. Ce n'est pas acceptable, surtout que j'avais un enfant avec moi sous la chaleur.",
+        "type": "message",
+        "created_at": "2026-06-19T11:20:00Z"
+      },
+      {
+        "id": "msg-503-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé. En attente de prise en charge.",
+        "type": "system",
+        "created_at": "2026-06-19T11:20:01Z"
+      }
+    ],
+    "sanctions": [],
+    "compensations": []
+  },
+
+  "ADM-TK-504": {
+    "id": "ADM-TK-504",
+    "subject": "Colis livré endommagé — emballage défoncé",
+    "category": "logistics",
+    "priority": "normal",
+    "status": "open",
+    "reporter_name": "Kouassi René",
+    "reporter_type": "client",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": "LV-44012",
+    "trip_id": null,
+    "assigned_to_id": null,
+    "assigned_to": null,
+    "created_at": "2026-06-19T14:00:00Z",
+    "updated_at": "2026-06-19T14:00:00Z",
+    "messages": [
+      {
+        "id": "msg-504-01",
+        "sender": "user",
+        "sender_name": "Kouassi René",
+        "content": "Bonjour, j'ai reçu ma livraison LV-44012 ce matin mais le colis était complètement défoncé. Il s'agit d'un appareil électronique (chargeur 45W) maintenant inutilisable. Je veux une prise en charge du remplacement. J'ai des photos si nécessaire.",
+        "type": "message",
+        "created_at": "2026-06-19T14:00:00Z"
+      },
+      {
+        "id": "msg-504-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé. En attente de prise en charge.",
+        "type": "system",
+        "created_at": "2026-06-19T14:00:01Z"
+      }
+    ],
+    "sanctions": [],
+    "compensations": []
+  },
+
+  "ADM-TK-498": {
+    "id": "ADM-TK-498",
+    "subject": "Partenaire Cocody Express — KYC bloqué",
+    "category": "other",
+    "priority": "normal",
+    "status": "in_progress",
+    "reporter_name": "Cocody Express",
+    "reporter_type": "partner",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": null,
+    "trip_id": null,
+    "assigned_to_id": "10",
+    "assigned_to": "Aya Koné Support",
+    "created_at": "2026-06-01T09:00:00Z",
+    "updated_at": "2026-06-02T10:15:00Z",
+    "messages": [
+      {
+        "id": "msg-498-01",
+        "sender": "user",
+        "sender_name": "Cocody Express",
+        "content": "Bonjour, notre dossier KYC est bloqué depuis 5 jours. Nos nouveaux chauffeurs ne peuvent pas accepter de courses. Le dossier de Mamadou Sanogo (DRIV-1042) est en attente de validation depuis le 28/05.",
+        "type": "message",
+        "created_at": "2026-06-01T09:00:00Z"
+      },
+      {
+        "id": "msg-498-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé. En attente de prise en charge.",
+        "type": "system",
+        "created_at": "2026-06-01T09:00:01Z"
+      },
+      {
+        "id": "msg-498-sys-2",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket pris en charge par Agent Support.",
+        "type": "system",
+        "created_at": "2026-06-01T09:30:00Z"
+      },
+      {
+        "id": "msg-498-02",
+        "sender": "agent",
+        "sender_name": "Agent Support",
+        "content": "Bonjour, je consulte le dossier DRIV-1042. La CNI soumise a été jugée illisible lors du scan automatique. Pouvez-vous remettre une photo haute résolution de la pièce d'identité ?",
+        "type": "justification_request",
+        "created_at": "2026-06-01T09:45:00Z"
+      },
+      {
+        "id": "msg-498-03",
+        "sender": "user",
+        "sender_name": "Cocody Express",
+        "content": "D'accord, voici une meilleure photo. Pouvez-vous accélérer le traitement ? Nous avons des courses non prises en charge depuis 5 jours.",
+        "type": "message",
+        "created_at": "2026-06-01T10:30:00Z"
+      }
+    ],
+    "sanctions": [],
+    "compensations": []
+  },
+
+  "ADM-TK-490": {
+    "id": "ADM-TK-490",
+    "subject": "Demande remboursement wallet chauffeur 101",
+    "category": "payment",
+    "priority": "normal",
+    "status": "resolved",
+    "reporter_name": "Koné Ibrahim",
+    "reporter_type": "driver",
+    "franchise_name": "UpJunoo Côte d'Ivoire",
+    "trip_ref": null,
+    "trip_id": null,
+    "assigned_to_id": "10",
+    "assigned_to": "Aya Koné Support",
+    "created_at": "2026-05-29T11:30:00Z",
+    "updated_at": "2026-05-30T09:00:00Z",
+    "messages": [
+      {
+        "id": "msg-490-01",
+        "sender": "user",
+        "sender_name": "Koné Ibrahim",
+        "content": "Bonjour, j'ai un solde de 12 000 FCFA bloqué sur mon wallet depuis 2 semaines. Je souhaite un remboursement.",
+        "type": "message",
+        "created_at": "2026-05-29T11:30:00Z"
+      },
+      {
+        "id": "msg-490-sys-1",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket créé. En attente de prise en charge.",
+        "type": "system",
+        "created_at": "2026-05-29T11:30:01Z"
+      },
+      {
+        "id": "msg-490-sys-2",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket pris en charge par Agent Support.",
+        "type": "system",
+        "created_at": "2026-05-29T12:00:00Z"
+      },
+      {
+        "id": "msg-490-02",
+        "sender": "agent",
+        "sender_name": "Agent Support",
+        "content": "Dossier vérifié côté finance. Le remboursement a été initié. Délai : 48h ouvrées.",
+        "type": "message",
+        "created_at": "2026-05-29T14:00:00Z"
+      },
+      {
+        "id": "msg-490-03",
+        "sender": "agent",
+        "sender_name": "Agent Support",
+        "content": "Remboursement confirmé côté comptabilité. Crédit appliqué sur wallet mobile.",
+        "type": "internal_note",
+        "created_at": "2026-05-30T08:50:00Z"
+      },
+      {
+        "id": "msg-490-sys-3",
+        "sender": "system",
+        "sender_name": "Système",
+        "content": "Ticket résolu.",
+        "type": "system",
+        "created_at": "2026-05-30T09:00:00Z"
+      }
+    ],
+    "sanctions": [],
+    "compensations": [
+      {
+        "id": "comp-490-01",
+        "type": "fixed_discount",
+        "discount_value": 3500,
+        "promo_code": "PROMO-KR72XA",
+        "created_at": "2026-05-30T08:55:00Z",
+        "created_by": "Agent Support"
+      }
+    ]
+  }
+}

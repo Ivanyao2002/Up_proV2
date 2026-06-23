@@ -1,0 +1,124 @@
+{
+  "data": [
+    {
+      "id": "DSP-001",
+      "subject": "Double débit sur ma course TR-88421",
+      "description": "J'ai été prélevé deux fois pour la même course.",
+      "category": "payment",
+      "status": "open",
+      "reporter_name": "Kouamé Koffi",
+      "reporter_phone": "+225 07 12 34 56",
+      "trip_id": "TRIP-3001",
+      "trip_ref": "TR-88421",
+      "assigned_to": null,
+      "assigned_to_id": null,
+      "created_at": "2026-06-20T09:12:00Z",
+      "updated_at": "2026-06-20T09:12:00Z"
+    },
+    {
+      "id": "DSP-002",
+      "subject": "Chauffeur impoli et conduite agressive",
+      "description": "Le chauffeur a insulté ma femme et conduit de manière très dangereuse.",
+      "category": "behavior",
+      "status": "in_progress",
+      "reporter_name": "Awa Traoré",
+      "reporter_phone": "+225 05 67 89 01",
+      "trip_id": "TRIP-3002",
+      "trip_ref": "TR-77345",
+      "assigned_to": "Aya Koné Support",
+      "assigned_to_id": "10",
+      "created_at": "2026-06-19T15:45:00Z",
+      "updated_at": "2026-06-20T08:30:00Z"
+    },
+    {
+      "id": "DSP-003",
+      "subject": "Course annulée mais débit effectué",
+      "description": "Ma course a été annulée par le chauffeur mais j'ai quand même été débité de 1 500 FCFA.",
+      "category": "payment",
+      "status": "resolved",
+      "reporter_name": "Ibrahim Coulibaly",
+      "reporter_phone": "+225 01 23 45 67",
+      "trip_id": "TRIP-3003",
+      "trip_ref": "TR-66212",
+      "assigned_to": "Aya Koné Support",
+      "assigned_to_id": "10",
+      "created_at": "2026-06-18T11:20:00Z",
+      "updated_at": "2026-06-19T14:00:00Z"
+    },
+    {
+      "id": "DSP-004",
+      "subject": "Chauffeur introuvable à l'adresse de prise en charge",
+      "description": "J'ai attendu 20 minutes à l'adresse indiquée, le chauffeur n'est jamais venu.",
+      "category": "service",
+      "status": "open",
+      "reporter_name": "Fatou Diallo",
+      "reporter_phone": "+225 07 56 78 90",
+      "trip_id": "TRIP-3004",
+      "trip_ref": "TR-55109",
+      "assigned_to": null,
+      "assigned_to_id": null,
+      "created_at": "2026-06-21T07:55:00Z",
+      "updated_at": "2026-06-21T07:55:00Z"
+    },
+    {
+      "id": "DSP-005",
+      "subject": "Bug — application crash lors du paiement",
+      "description": "L'application s'est fermée pendant le paiement et je ne sais pas si j'ai été débité.",
+      "category": "app",
+      "status": "closed",
+      "reporter_name": "Moussa Sanogo",
+      "reporter_phone": "+225 05 34 56 78",
+      "trip_id": null,
+      "trip_ref": null,
+      "assigned_to": "Aya Koné Support",
+      "assigned_to_id": "10",
+      "created_at": "2026-06-17T16:30:00Z",
+      "updated_at": "2026-06-18T10:00:00Z"
+    },
+    {
+      "id": "DSP-006",
+      "subject": "Colis endommagé lors de la livraison",
+      "description": "Mon colis est arrivé avec le contenu cassé. Le livreur semble l'avoir jeté.",
+      "category": "logistics",
+      "status": "in_progress",
+      "reporter_name": "Aminata Ouédraogo",
+      "reporter_phone": "+225 07 90 12 34",
+      "trip_id": "TRIP-3006",
+      "trip_ref": "TR-44830",
+      "assigned_to": "Aya Koné Support",
+      "assigned_to_id": "10",
+      "created_at": "2026-06-20T13:10:00Z",
+      "updated_at": "2026-06-21T09:00:00Z"
+    },
+    {
+      "id": "DSP-007",
+      "subject": "Autre problème non listé",
+      "description": "J'ai un problème avec mon compte qui ne correspond à aucune catégorie proposée.",
+      "category": "other",
+      "status": "open",
+      "reporter_name": "Seydou Bamba",
+      "reporter_phone": "+225 01 78 90 12",
+      "trip_id": null,
+      "trip_ref": null,
+      "assigned_to": null,
+      "assigned_to_id": null,
+      "created_at": "2026-06-21T10:40:00Z",
+      "updated_at": "2026-06-21T10:40:00Z"
+    }
+  ],
+  "meta": {
+    "total": 7,
+    "current_page": 1,
+    "per_page": 20,
+    "last_page": 1
+  },
+  "facets": {
+    "status": {
+      "all": 7,
+      "open": 3,
+      "in_progress": 2,
+      "resolved": 1,
+      "closed": 1
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "catalog": [
+    { "code": "platform_activity", "label": "Activité totale", "description": "Volumes créés, terminés et annulés sur la période.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "service", "country_code"] },
+    { "code": "activity_by_franchise", "label": "Activité par franchise", "description": "Volumes, GMV et taux opérationnels par franchise.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "service", "country_code", "zone_id", "franchise_id"] },
+    { "code": "activity_by_partner", "label": "Activité par partenaire", "description": "Performance des partenaires de transport.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "service", "franchise_id", "partner_id"] },
+    { "code": "driver_performance", "label": "Performance chauffeurs", "description": "Missions, taux et revenus par chauffeur.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "franchise_id", "partner_id"] },
+    { "code": "deliverer_performance", "label": "Performance livreurs", "description": "Missions, taux et revenus par livreur.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "franchise_id", "partner_id"] },
+    { "code": "financial_summary", "label": "Synthèse financière", "description": "GMV, commissions et wallets consolidés.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "service", "country_code", "franchise_id"] },
+    { "code": "transactions", "label": "Transactions", "description": "Détail des transactions par statut et moyen de paiement.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "franchise_id"] },
+    { "code": "complaints", "label": "Réclamations", "description": "Liste des tickets et indicateurs de résolution.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "franchise_id"] },
+    { "code": "compliance_summary", "label": "Conformité globale", "description": "Taux et documents expirés ou en alerte.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to", "franchise_id"] },
+    { "code": "audit_summary", "label": "Synthèse d'audit", "description": "Événements sensibles et actions critiques.", "formats": ["csv", "xlsx"], "available_filters": ["date_from", "date_to"] }
+  ],
+  "exports": [
+    { "id": "exp-001", "report_code": "financial_summary", "report_label": "Synthèse financière", "format": "xlsx", "status": "ready", "created_by": { "id": "usr-10", "name": "Analyste Reporting" }, "created_at": "2026-06-20T09:10:00Z", "completed_at": "2026-06-20T09:10:14Z", "expires_at": "2026-06-27T09:10:14Z", "file_size_bytes": 284620, "error_message": null },
+    { "id": "exp-002", "report_code": "platform_activity", "report_label": "Activité totale", "format": "csv", "status": "ready", "created_by": { "id": "usr-10", "name": "Analyste Reporting" }, "created_at": "2026-06-19T16:30:00Z", "completed_at": "2026-06-19T16:30:08Z", "expires_at": "2026-06-26T16:30:08Z", "file_size_bytes": 112340, "error_message": null },
+    { "id": "exp-003", "report_code": "complaints", "report_label": "Réclamations", "format": "xlsx", "status": "failed", "created_by": { "id": "usr-10", "name": "Analyste Reporting" }, "created_at": "2026-06-18T11:20:00Z", "completed_at": null, "expires_at": null, "file_size_bytes": null, "error_message": "Délai dépassé lors de la génération." }
+  ]
+}
