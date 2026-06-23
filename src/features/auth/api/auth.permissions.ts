@@ -33,12 +33,12 @@ export const ADMIN_BACKOFFICE_PERMISSIONS: string[] = [
   "reporting.quality.view",
   "reporting.governance.view",
   "reporting.exports.view",
+  "settings.audit.view",
 ];
 
 export const COMPTA_PORTAL_PERMISSIONS: string[] = [
   "finance.transactions.view",
   "finance.wallets.view",
-  "finance.withdrawals.approve",
 ];
 
 export const SUPPORT_PORTAL_PERMISSIONS: string[] = [
