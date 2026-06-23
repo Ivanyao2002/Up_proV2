@@ -42,6 +42,7 @@ export interface CreatePricingPayload {
   surge_multiplier?: number;
   status?: PricingRule["status"];
   city_label?: string;
+  effectiveFrom?: string;
 }
 
 export type UpdatePricingPayload = Omit<

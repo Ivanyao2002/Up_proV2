@@ -3,5 +3,5 @@
 import { WithdrawalsListPage } from "@/features/finance/pages/WithdrawalsListPage";
 
 export function ComptaWithdrawalsPage() {
-  return <WithdrawalsListPage />;
+  return <WithdrawalsListPage readOnly />;
 }

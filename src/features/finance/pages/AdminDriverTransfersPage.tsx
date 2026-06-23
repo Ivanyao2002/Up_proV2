@@ -44,7 +44,11 @@ const STATUS_FILTERS: {
   { value: "failed", label: DRIVER_TRANSFER_STATUS.failed.label },
 ];
 
-export function AdminDriverTransfersPage() {
+export function AdminDriverTransfersPage({
+  readOnly = false,
+}: {
+  readOnly?: boolean;
+}) {
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [sourceFilter, setSourceFilter] =
     useState<(typeof SOURCE_OPTIONS)[number]["value"]>("all");
@@ -152,9 +156,11 @@ export function AdminDriverTransfersPage() {
         title="Recharges chauffeurs"
         breadcrumb={["Admin", "Finance", "Recharges"]}
         actions={
-          <Button variant="primary" onClick={() => setRechargeOpen(true)}>
-            Nouvelle recharge
-          </Button>
+          readOnly ? undefined : (
+            <Button variant="primary" onClick={() => setRechargeOpen(true)}>
+              Nouvelle recharge
+            </Button>
+          )
         }
       />
 
@@ -234,10 +240,12 @@ export function AdminDriverTransfersPage() {
         />
       )}
 
-      <AdminDriverRechargeModal
-        open={rechargeOpen}
-        onClose={() => setRechargeOpen(false)}
-      />
+      {!readOnly && (
+        <AdminDriverRechargeModal
+          open={rechargeOpen}
+          onClose={() => setRechargeOpen(false)}
+        />
+      )}
     </div>
   );
 }

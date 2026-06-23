@@ -214,6 +214,7 @@ export interface Transaction {
   status: TransactionStatus;
   payment_method: Trip["payment_method"];
   franchise_name: string;
+  service_type?: string;
   created_at: string;
 }
 
