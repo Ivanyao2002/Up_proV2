@@ -139,7 +139,7 @@ export const ADMIN_NAV: NavGroup[] = [
         label: "Portefeuilles",
         path: "/admin/finance/wallets",
         icon: "wallet",
-        permission: "finance.transactions.view",
+        permission: "finance.wallets.view",
       },
       {
         label: "Ledger comptable",
@@ -168,6 +168,12 @@ export const ADMIN_NAV: NavGroup[] = [
       {
         label: "Règles bonus",
         path: "/admin/finance/bonus-rules",
+        icon: "finance",
+        permission: "finance.transactions.view",
+      },
+      {
+        label: "Attributions bonus",
+        path: "/admin/finance/bonus-awards",
         icon: "finance",
         permission: "finance.transactions.view",
       },
@@ -274,7 +280,7 @@ export const ADMIN_NAV: NavGroup[] = [
         label: "Audit",
         path: "/admin/settings/audit",
         icon: "reports",
-        permission: "settings.dispatchers.view",
+        permission: "settings.audit.view",
       },
       {
         label: "Général",
