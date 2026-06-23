@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { RectoVersoFiles } from "@/shared/types/documentUpload";
 import { DocumentPreviewThumbnail } from "./DocumentPreviewThumbnail";
+import { DOCUMENT_UPLOAD_HINT, validateDocumentFile } from "@/shared/lib/uploadValidation";
 
 interface DocumentRectoVersoRowProps {
   label: string;
@@ -27,6 +28,19 @@ function SideUpload({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSelect = (picked: File | null) => {
+    if (picked) {
+      const result = validateDocumentFile(picked);
+      if (!result.ok) {
+        setError(result.error ?? "Fichier invalide.");
+        return;
+      }
+    }
+    setError(null);
+    onSelect(picked);
+  };
 
   useEffect(() => {
     if (!file) {
@@ -54,6 +68,12 @@ function SideUpload({
       {file && (
         <p className="truncate text-xs text-teal-dark">{file.name}</p>
       )}
+      <p className="text-xs text-muted">{DOCUMENT_UPLOAD_HINT}</p>
+      {error && (
+        <p className="text-xs text-red-600" role="alert">
+          {error}
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -65,7 +85,7 @@ function SideUpload({
         {file && (
           <button
             type="button"
-            onClick={() => onSelect(null)}
+            onClick={() => handleSelect(null)}
             className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted hover:text-foreground"
           >
             Retirer
@@ -75,9 +95,12 @@ function SideUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*,.pdf"
+        accept="image/jpeg,image/png,application/pdf"
         className="hidden"
-        onChange={(e) => onSelect(e.target.files?.[0] ?? null)}
+        onChange={(e) => {
+          handleSelect(e.target.files?.[0] ?? null);
+          e.target.value = "";
+        }}
       />
     </div>
   );

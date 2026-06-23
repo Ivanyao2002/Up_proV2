@@ -24,6 +24,14 @@ const config: Config = {
           dark: "var(--color-teal-dark)",
           soft: "var(--color-teal-soft)",
         },
+        success: "var(--color-success)",
+        "success-soft": "var(--color-success-soft)",
+        warning: "var(--color-warning)",
+        "warning-soft": "var(--color-warning-soft)",
+        danger: "var(--color-danger)",
+        "danger-soft": "var(--color-danger-soft)",
+        info: "var(--color-info)",
+        "info-soft": "var(--color-info-soft)",
         canvas: "var(--color-canvas)",
         surface: {
           DEFAULT: "var(--color-surface)",
@@ -43,6 +51,8 @@ const config: Config = {
         sans: ["var(--font-poppins)", "system-ui", "sans-serif"],
       },
       borderRadius: {
+        sm: "8px",
+        md: "10px",
         card: "var(--radius-card)",
         hero: "var(--radius-hero)",
       },

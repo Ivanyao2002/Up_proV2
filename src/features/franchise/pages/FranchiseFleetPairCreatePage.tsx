@@ -77,7 +77,7 @@ export function FranchiseFleetPairCreatePage({ lockedPartnerId }: FranchiseFleet
         variant="admin"
         lockedPartnerId={lockedPartnerId}
         backHref={backHref}
-        legacyPhone={null}
+        legacyPhone={false}
         partners={partners?.data ?? []}
         partnerDetailLoading={false}
         lockedPartner={null}

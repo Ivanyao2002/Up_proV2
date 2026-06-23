@@ -17,7 +17,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
           document.documentElement.classList.remove("theme-transition");
         }, 300);
       }}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-canvas text-muted transition-colors hover:bg-surface-hover hover:text-foreground ${className}`}
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-canvas text-muted transition-colors hover:bg-surface-hover hover:text-foreground lg:h-9 lg:w-9 ${className}`}
       aria-label={isDark ? "Passer en mode clair" : "Passer en mode nuit"}
       title={isDark ? "Mode clair" : "Mode nuit"}
     >

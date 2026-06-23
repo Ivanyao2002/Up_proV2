@@ -15,6 +15,29 @@
   body {
     @apply bg-canvas font-sans text-foreground antialiased;
   }
+
+  /* Anneau de focus clavier visible et homogène (WCAG 2.4.7) — ne jamais
+     supprimer l'outline sans équivalent. */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Lien d'évitement vers le contenu principal (#23). */
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    @apply not-sr-only fixed left-4 top-4 z-[100] rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white shadow-card;
+  }
 }
 
 @layer components {

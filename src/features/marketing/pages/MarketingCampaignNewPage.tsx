@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import type { MarketingCampaign } from "../api/marketing.service";
 import { useCreateMarketingCampaign } from "../api/marketing.queries";
 
@@ -19,6 +20,13 @@ export function MarketingCampaignNewPage() {
     ends_at: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
   });
 
+  const [dateError, setDateError] = useState<string | null>(null);
+
+  const isDirty =
+    !create.isSuccess &&
+    (values.name.trim() !== "" || values.audience.trim() !== "");
+  useUnsavedChanges(isDirty);
+
   const set = (patch: Partial<typeof values>) => setValues((v) => ({ ...v, ...patch }));
 
   return (
@@ -32,6 +40,11 @@ export function MarketingCampaignNewPage() {
         className="space-y-4 rounded-card border border-border bg-surface p-6 shadow-card"
         onSubmit={(e) => {
           e.preventDefault();
+          if (values.ends_at < values.starts_at) {
+            setDateError("La date de fin doit être postérieure ou égale à la date de début.");
+            return;
+          }
+          setDateError(null);
           create.mutate(
             {
               name: values.name,
@@ -84,7 +97,10 @@ export function MarketingCampaignNewPage() {
               type="date"
               required
               value={values.starts_at}
-              onChange={(e) => set({ starts_at: e.target.value })}
+              onChange={(e) => {
+                set({ starts_at: e.target.value });
+                setDateError(null);
+              }}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
             />
           </label>
@@ -93,12 +109,22 @@ export function MarketingCampaignNewPage() {
             <input
               type="date"
               required
+              min={values.starts_at}
               value={values.ends_at}
-              onChange={(e) => set({ ends_at: e.target.value })}
+              onChange={(e) => {
+                set({ ends_at: e.target.value });
+                setDateError(null);
+              }}
+              aria-invalid={dateError ? true : undefined}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
             />
           </label>
         </div>
+        {dateError && (
+          <p className="text-sm text-red-600" role="alert">
+            {dateError}
+          </p>
+        )}
         <label className="block">
           <span className="text-sm font-medium">Statut</span>
           <select

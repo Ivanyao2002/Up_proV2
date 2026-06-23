@@ -4,6 +4,7 @@ import { SimplePageSkeleton } from "@/shared/ui/skeletons";
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { formatDateTime } from "@/shared/lib/format";
 import {
   useCrisisMode,
@@ -23,6 +24,7 @@ export function CrisisModePage() {
   const { data, isLoading, isError } = useCrisisMode();
   const update = useUpdateCrisisMode();
   const [draft, setDraft] = useState<CrisisModeState | null>(null);
+  const [confirmActivation, setConfirmActivation] = useState(false);
 
   useEffect(() => {
     if (data) setDraft(data);
@@ -38,6 +40,19 @@ export function CrisisModePage() {
 
   const set = (patch: Partial<CrisisModeState>) =>
     setDraft((prev) => (prev ? { ...prev, ...patch } : prev));
+
+  // Activer la crise ou suspendre le dispatch a un impact global → on confirme
+  // avant d'enregistrer (#77 audit UX). Les autres modifs s'enregistrent direct.
+  const requiresConfirmation =
+    draft.active || draft.pause_dispatch;
+
+  const handleSubmit = () => {
+    if (requiresConfirmation) {
+      setConfirmActivation(true);
+      return;
+    }
+    update.mutate(draft);
+  };
 
   const activateCrisis = () => {
     set({
@@ -82,7 +97,7 @@ export function CrisisModePage() {
         className="space-y-5 rounded-card border border-border bg-surface p-6 shadow-card"
         onSubmit={(e) => {
           e.preventDefault();
-          update.mutate(draft);
+          handleSubmit();
         }}
       >
         <label className="flex items-center gap-3">
@@ -173,6 +188,23 @@ export function CrisisModePage() {
           </Button>
         </div>
       </form>
+
+      <ConfirmModal
+        open={confirmActivation}
+        title="Confirmer l'activation du mode crise ?"
+        message={
+          draft.pause_dispatch
+            ? `Impact : suspension du dispatch automatique pour TOUS les territoires + surge global ×${draft.global_surge_multiplier}. Une alerte sera affichée à tous les utilisateurs. Confirmez-vous ?`
+            : `Impact : mode crise activé (niveau ${LEVEL_LABELS[draft.level]}) + surge global ×${draft.global_surge_multiplier}, avec alerte affichée à tous les utilisateurs. Le dispatch automatique reste actif. Confirmez-vous ?`
+        }
+        confirmLabel="Activer"
+        variant="danger"
+        onConfirm={() => {
+          setConfirmActivation(false);
+          update.mutate(draft);
+        }}
+        onCancel={() => setConfirmActivation(false)}
+      />
     </div>
   );
 }

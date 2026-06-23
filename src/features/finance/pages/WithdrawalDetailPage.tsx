@@ -54,6 +54,8 @@ export function WithdrawalDetailPage({ withdrawalId }: WithdrawalDetailPageProps
         ? `/admin/fleet/drivers/${data.owner_id}`
         : null;
 
+  const overBalance = data.amount_fcfa > data.wallet_balance_fcfa;
+
   return (
     <div className="animate-fade-up">
       <PageHeader
@@ -90,6 +92,17 @@ export function WithdrawalDetailPage({ withdrawalId }: WithdrawalDetailPageProps
           value={WITHDRAWAL_METHOD_LABELS[data.method]}
         />
       </div>
+
+      {overBalance && data.status === "pending" ? (
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="font-medium">Solde insuffisant</p>
+          <p className="mt-1 text-xs">
+            Le montant demandé ({formatFCFA(data.amount_fcfa)}) dépasse le solde du
+            wallet ({formatFCFA(data.wallet_balance_fcfa)}). Vérifiez avant d&apos;approuver
+            le paiement.
+          </p>
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <section className="rounded-card border border-border bg-surface p-5 shadow-card">
@@ -148,8 +161,13 @@ export function WithdrawalDetailPage({ withdrawalId }: WithdrawalDetailPageProps
       <ConfirmModal
         open={confirmApprove}
         title="Approuver ce retrait ?"
-        message={`Confirmer le paiement de ${formatFCFA(data.amount_fcfa)} à ${data.owner_name}.`}
+        message={
+          overBalance
+            ? `⚠️ Le montant ${formatFCFA(data.amount_fcfa)} dépasse le solde wallet (${formatFCFA(data.wallet_balance_fcfa)}). Confirmer quand même le paiement à ${data.owner_name} ?`
+            : `Confirmer le paiement de ${formatFCFA(data.amount_fcfa)} à ${data.owner_name}.`
+        }
         confirmLabel="Approuver"
+        variant={overBalance ? "danger" : undefined}
         onConfirm={() => {
           approve.mutate(withdrawalId, { onSuccess: () => setConfirmApprove(false) });
         }}

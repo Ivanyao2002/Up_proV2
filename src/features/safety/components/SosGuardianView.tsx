@@ -50,9 +50,15 @@ export function SosGuardianView({
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {dataUpdatedAt ? (
-              <span className="text-xs text-muted">
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${
+                    isFetching ? "animate-pulse bg-teal" : "bg-teal/40"
+                  }`}
+                  aria-hidden
+                />
                 MAJ {formatDateTime(new Date(dataUpdatedAt).toISOString())}
-                {isFetching ? " · actualisation…" : ""}
+                {isFetching ? " · actualisation…" : " · auto 30 s"}
               </span>
             ) : null}
             <Link href={routes.incidents}>

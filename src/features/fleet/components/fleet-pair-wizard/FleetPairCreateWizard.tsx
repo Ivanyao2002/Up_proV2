@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/shared/ui/Button";
 import { WizardStepper } from "@/shared/ui/WizardStepper";
@@ -55,6 +55,30 @@ const PARTNER_CATEGORIES: { value: VehicleCategory; label: string }[] = [
   { value: "van", label: "Utilitaire" },
   { value: "premium", label: "Premium" },
 ];
+
+/** Format plaque ivoirienne attendu : 2 lettres, 3 ou 4 chiffres, suffixe CI. Ex. AB-452-CI */
+const PLATE_FORMAT_HINT = "Format attendu : AB-452-CI";
+const PLATE_PATTERN = /^[A-Z]{2}-\d{3,4}-CI$/;
+
+/** Normalise la plaque saisie : majuscules, tirets, suppression des caractères superflus. */
+function normalizePlate(raw: string): string {
+  const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (!cleaned) return "";
+  const letters = cleaned.slice(0, 2);
+  const rest = cleaned.slice(2);
+  const digits = rest.replace(/[^0-9]/g, "").slice(0, 4);
+  const suffix = rest.replace(/[^A-Z]/g, "").slice(0, 2);
+  let out = letters;
+  if (digits) out += `-${digits}`;
+  if (suffix) out += `-${suffix}`;
+  return out;
+}
+
+/** Valide le format de plaque. Plaque vide acceptée (champ optionnel). */
+function isPlateValid(plate: string): boolean {
+  if (!plate.trim()) return true;
+  return PLATE_PATTERN.test(plate.trim());
+}
 
 export interface AdminFleetPairSubmitPayload {
   data: {
@@ -138,6 +162,7 @@ function emptyProvenance(): FieldProvenance {
 export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   const requirePhoneOtp = !props.legacyPhone;
   const [stepId, setStepId] = useState<WizardStepId>("mode");
+  const stepTitleRef = useRef<HTMLHeadingElement>(null);
   const [driverPhoneVerified, setDriverPhoneVerified] = useState(!requirePhoneOtp);
   const [creationMode, setCreationMode] = useState<CreationMode | null>(null);
   const [documents, setDocuments] = useState<WizardDocumentsState>(EMPTY_WIZARD_DOCUMENTS);
@@ -157,6 +182,7 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   const [year, setYear] = useState(new Date().getFullYear());
   const [seats, setSeats] = useState(4);
   const [plate, setPlate] = useState("");
+  const [plateError, setPlateError] = useState<string | null>(null);
 
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -173,6 +199,21 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
   const adminModels = props.variant === "admin" ? (brandModels ?? []) : [];
   const wizardSteps = getWizardStepsForMode(creationMode);
   const stepIndex = getWizardStepIndex(stepId, creationMode);
+  const currentStepLabel = wizardSteps[stepIndex]?.label ?? "";
+
+  // #44 — déplacer le focus vers le titre de la nouvelle étape pour les lecteurs d'écran.
+  useEffect(() => {
+    stepTitleRef.current?.focus();
+  }, [stepId]);
+
+  // #44 — revenir à une étape déjà validée depuis le stepper.
+  const goToStepIndex = useCallback(
+    (index: number) => {
+      const target = wizardSteps[index];
+      if (target) setStepId(target.id as WizardStepId);
+    },
+    [wizardSteps]
+  );
 
   useEffect(() => {
     if (props.variant !== "admin") return;
@@ -459,6 +500,7 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
     if (!colorCode.trim()) next.push("Sélectionnez une couleur.");
     if (year < 1990 || year > new Date().getFullYear() + 1) next.push("Année invalide.");
     if (seats < 1 || seats > 12) next.push("Nombre de places invalide.");
+    if (!isPlateValid(plate)) next.push(`Plaque invalide. ${PLATE_FORMAT_HINT}.`);
     if (!driverValid) {
       if (requirePhoneOtp && !driverPhoneVerified) {
         next.push("Vérifiez le numéro de téléphone du chauffeur par OTP.");
@@ -474,6 +516,7 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
     if (!brand.trim()) next.push("Indiquez la marque.");
     if (!model.trim()) next.push("Indiquez le modèle.");
     if (!color.trim()) next.push("Indiquez la couleur.");
+    if (!isPlateValid(plate)) next.push(`Plaque invalide. ${PLATE_FORMAT_HINT}.`);
     if (!driverValid) {
       if (requirePhoneOtp && !driverPhoneVerified) {
         next.push("Vérifiez le numéro de téléphone du chauffeur par OTP.");
@@ -544,10 +587,23 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
   return (
     <div className="space-y-6">
-      <WizardStepper steps={wizardSteps} currentIndex={stepIndex} />
+      <WizardStepper
+        steps={wizardSteps}
+        currentIndex={stepIndex}
+        onStepSelect={goToStepIndex}
+      />
+
+      <h2 ref={stepTitleRef} tabIndex={-1} className="sr-only">
+        {currentStepLabel
+          ? `Étape ${stepIndex + 1} sur ${wizardSteps.length} : ${currentStepLabel}`
+          : ""}
+      </h2>
 
       {errors.length > 0 && stepId === "review" && (
-        <ul className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}
@@ -556,7 +612,7 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
 
       {stepId === "review" && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          <span className="font-medium">n'hesitez pas à corriger les champs extraits</span>
+          <span className="font-medium">n&apos;hésitez pas à corriger les champs extraits</span>
         </p>
       )}
 
@@ -861,12 +917,27 @@ export function FleetPairCreateWizard(props: FleetPairCreateWizardProps) {
                 <input
                   value={plate}
                   onChange={(e) => {
-                    setPlate(e.target.value);
+                    const normalized = normalizePlate(e.target.value);
+                    setPlate(normalized);
                     markManual("plate");
+                    setPlateError(
+                      isPlateValid(normalized) ? null : PLATE_FORMAT_HINT
+                    );
                   }}
+                  onBlur={() =>
+                    setPlateError(isPlateValid(plate) ? null : PLATE_FORMAT_HINT)
+                  }
                   placeholder="AB-452-CI"
+                  aria-invalid={plateError ? true : undefined}
+                  aria-describedby="plate-hint"
                   className={labelClass("plate")}
                 />
+                <p
+                  id="plate-hint"
+                  className={`mt-1 text-xs ${plateError ? "text-red-600" : "text-muted"}`}
+                >
+                  {plateError ?? PLATE_FORMAT_HINT}
+                </p>
               </label>
             </div>
 

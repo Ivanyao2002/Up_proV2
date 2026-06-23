@@ -100,6 +100,9 @@ export function PortalSidebar({
 
           const isOpen = openGroups[section.group] ?? true;
           const groupActive = isNavGroupActive(pathname, items);
+          const groupId = `nav-group-${section.group
+            .replace(/\s+/g, "-")
+            .toLowerCase()}`;
 
           return (
             <div key={section.group} className={isWorkspace ? "mb-5" : "mb-2"}>
@@ -112,6 +115,7 @@ export function PortalSidebar({
                   groupActive ? "text-teal-dark" : "text-muted"
                 }`}
                 aria-expanded={isOpen}
+                aria-controls={groupId}
               >
                 <span className="text-[10px] font-semibold uppercase tracking-widest">
                   {section.group}
@@ -123,12 +127,18 @@ export function PortalSidebar({
                   }`}
                 />
               </button>
-              {isOpen && (
+              <div
+                className={`nav-group-collapse grid transition-[grid-template-rows] duration-200 ease-out ${
+                  isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                }`}
+              >
                 <ul
+                  id={groupId}
+                  aria-hidden={!isOpen}
                   className={
                     isWorkspace
-                      ? "space-y-1.5"
-                      : "ml-1 space-y-0.5 border-l border-border/60 pl-2"
+                      ? "space-y-1.5 overflow-hidden"
+                      : "ml-1 space-y-0.5 overflow-hidden border-l border-border/60 pl-2"
                   }
                 >
                   {items.map((item) => {
@@ -191,7 +201,7 @@ export function PortalSidebar({
                     );
                   })}
                 </ul>
-              )}
+              </div>
             </div>
           );
         })}

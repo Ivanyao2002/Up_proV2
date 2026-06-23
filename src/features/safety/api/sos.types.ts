@@ -42,6 +42,13 @@ export interface SosIncident {
   cancelled_at: string | null;
   client_id: string | null;
   driver_id: string | null;
+  /** Contacts joignables — à exposer côté backend pour permettre l'appel direct. */
+  client_name?: string | null;
+  client_phone?: string | null;
+  driver_name?: string | null;
+  driver_phone?: string | null;
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
   order_id: string | null;
   franchise_id: string | null;
   partner_id: string | null;

@@ -35,6 +35,10 @@ import {
   type PartnerLegalForm,
 } from "../lib/partnerLegalForm";
 import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MIN_MESSAGE,
+} from "@/shared/lib/passwordPolicy";
+import {
   EMPTY_PARTNER_CREATE_DOCUMENTS,
   PartnerCreateDocumentsSection,
   partnerCreateDocumentsComplete,
@@ -205,15 +209,13 @@ export function PartnerCreateForm({
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       next.push("Un email valide est requis.");
     }
-    if (password.length < 6) {
-      next.push("Le mot de passe doit contenir au moins 6 caractères.");
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      next.push(PASSWORD_MIN_MESSAGE);
     }
     if (password !== passwordConfirm) {
       next.push("Les mots de passe ne correspondent pas.");
     }
-    if (isAdmin && !legacy && !phoneLocal.trim() && !phone.trim()) {
-      next.push("Le téléphone est recommandé.");
-    }
+    // Téléphone optionnel côté admin (ne bloque pas) ; requis côté self-service.
     if (!isAdmin && !phone.trim()) {
       next.push("Le téléphone est requis.");
     }
@@ -598,7 +600,7 @@ export function PartnerCreateForm({
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            minLength={6}
+            minLength={PASSWORD_MIN_LENGTH}
             className={inputClass}
             required
           />

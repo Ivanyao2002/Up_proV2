@@ -123,6 +123,9 @@ function GroupDocumentFace({
             isPdf={isPdf}
             fallbackSrc={fallbackSrc}
             subtitle={`Soumis le ${formatDateTime(document.uploaded_at)}`}
+            // Recto/verso agrandis et côte à côte (grille sm:grid-cols-2) pour
+            // ne pas couper les pièces d'identité (#75 audit UX).
+            imageHeightClassName="h-40 md:h-52"
           />
           {canReplace ? (
             <>

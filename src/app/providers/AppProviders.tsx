@@ -15,7 +15,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <ThemeProvider>
         <MswProvider>
           {children}
-          <Toaster position="top-center" />
+          <Toaster
+            position="top-center"
+            gutter={8}
+            toastOptions={{ duration: 5000 }}
+          />
         </MswProvider>
       </ThemeProvider>
     </QueryClientProvider>

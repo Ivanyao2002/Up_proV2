@@ -24,7 +24,6 @@ import {
   uploadPartnerCreateDocuments,
   type PartnerCreateDocumentUpload,
 } from "@/features/network/api/partnerCreateDocuments.v1";
-import type { PartnerLegalForm } from "@/features/network/lib/partnerLegalForm";
 import type { Driver, Paginated, Partner, Trip, Vehicle } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import {
@@ -60,12 +59,12 @@ export interface CreatePartnerPayload {
   /** UUID ville catalogue — prioritaire sur `city` (libellé). Requis par POST /v1/partners. */
   city_id?: string;
   address?: string;
+  commission_rate?: number;
   /** Forme juridique du partenaire. */
-  legal_form?: PartnerLegalForm;
+  legal_form?: "INDIVIDUAL" | "COMPANY";
   /** Gérant (personne morale uniquement). */
   manager_first_name?: string;
   manager_last_name?: string;
-  commission_rate?: number;
   partner_type?: "FLEET" | "FREIGHT" | "RENTAL";
 }
 

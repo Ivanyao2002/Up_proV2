@@ -60,10 +60,6 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
   const timelineItems = tripTimelineToItems(trip.timeline);
   const showDriverOnMap = liveTracking && Boolean(driverLiveLocation);
 
-  const canCancel = ["requested", "matching", "assigned", "in_progress"].includes(
-    trip.status
-  );
-
   return (
     <div className="animate-fade-up">
       <div className="page-sticky-header">
@@ -74,11 +70,6 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
             <div className="flex flex-wrap items-center gap-2">
               <ServicePill service={trip.service} />
               <StatusPill status={trip.status} pulse={trip.status === "in_progress"} />
-              {canCancel && (
-                <Button variant="secondary" className="!text-xs">
-                  Annuler la course
-                </Button>
-              )}
             </div>
           }
         />

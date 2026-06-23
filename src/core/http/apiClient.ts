@@ -160,20 +160,30 @@ export const apiWithNotify = {
     endpoint: string,
     data?: unknown,
     successMessage?: string
-  ): Promise<T | null> {
+  ): Promise<T> {
+    let response: Response;
     try {
-      const response = await fetchClient(endpoint, {
+      response = await fetchClient(endpoint, {
         method: "POST",
         body: jsonRequestBody(data),
       });
-      if (notificationService.handleApiResponse(response, successMessage)) {
-        return parseJson<T>(response);
-      }
-      return null;
     } catch (error) {
+      // Erreur réseau / JS — toast puis propagation pour déclencher `onError`.
       notificationService.handleJavaScriptError(error as Error);
       throw error;
     }
+
+    if (notificationService.handleApiResponse(response, successMessage)) {
+      return parseJson<T>(response);
+    }
+
+    // HTTP 4xx/5xx : le toast d'erreur est déjà affiché par `handleApiResponse`.
+    // On propage pour que la mutation passe en `onError` (et ne ferme pas le modal
+    // ni n'affiche un faux succès). Pas de re-notification ici → pas de double toast.
+    throw new ApiError(response.status, {
+      message: `Erreur ${response.status}`,
+      status: response.status,
+    });
   },
 };
 

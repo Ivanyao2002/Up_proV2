@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { APP_LOGO_SRC } from "@/shared/brand/logo";
 import { AppProviders } from "./providers/AppProviders";
@@ -12,12 +12,24 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "UpJunoo Pro",
+  title: {
+    default: "UpJunoo Pro",
+    template: "%s · UpJunoo",
+  },
   description: "Back-office UpJunoo — Admin, Partenaire, Franchise",
   icons: {
     icon: APP_LOGO_SRC,
     apple: APP_LOGO_SRC,
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0b1220" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
 };
 
 export default function RootLayout({

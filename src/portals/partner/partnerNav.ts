@@ -164,7 +164,7 @@ export const PARTNER_NAV: NavGroup[] = [
     group: "SUPPORT",
     items: [
       {
-        label: "Chat",
+        label: "Chat support",
         path: "/partner/support/chat",
         icon: "chat",
         permission: "ops.dashboard.view",
@@ -176,7 +176,7 @@ export const PARTNER_NAV: NavGroup[] = [
         permission: "ops.dashboard.view",
       },
       {
-        label: "Chat course",
+        label: "Messages course",
         path: "/partner/support/conversations",
         icon: "chat",
         permission: "ops.dashboard.view",

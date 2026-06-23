@@ -19,6 +19,14 @@
   .animate-stagger > *:nth-child(5) {
     animation-delay: 200ms;
   }
+
+  /* Stagger générique : pour les listes de plus de 5 éléments, poser --i
+     sur chaque enfant (ex. style={{ "--i": index }}) pour étendre le
+     décalage. Les 5 premiers gardent leurs délais nth-child (plus
+     spécifiques) ; --i prend le relais au-delà. */
+  .animate-stagger > * {
+    animation-delay: calc(var(--i, 0) * 50ms);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -28,6 +36,10 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  .nav-group-collapse {
+    transition: none !important;
   }
 }
 

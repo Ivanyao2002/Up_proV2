@@ -59,7 +59,11 @@ export function PhoneInput({ value, onChange, required, disabled }: PhoneInputPr
     COUNTRIES.find((c) => c.code === countryCode) ?? COUNTRIES[0]
   );
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -70,6 +74,18 @@ export function PhoneInput({ value, onChange, required, disabled }: PhoneInputPr
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  // À l'ouverture : positionne l'index actif sur le pays sélectionné et y place le focus.
+  useEffect(() => {
+    if (!open) return;
+    const selected = COUNTRIES.findIndex((c) => c.code === country.code);
+    const initial = selected >= 0 ? selected : 0;
+    setActiveIndex(initial);
+    const id = window.requestAnimationFrame(() => {
+      optionRefs.current[initial]?.focus();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [open, country.code]);
 
   useEffect(() => {
     const { countryCode: detected } = parsePhone(value);
@@ -83,6 +99,58 @@ export function PhoneInput({ value, onChange, required, disabled }: PhoneInputPr
     setCountry(c);
     onChange(c.dialCode + national);
     setOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  const closeAndRefocus = () => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
+
+  const handleListKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    switch (e.key) {
+      case "ArrowDown": {
+        e.preventDefault();
+        const next = (activeIndex + 1) % COUNTRIES.length;
+        setActiveIndex(next);
+        optionRefs.current[next]?.focus();
+        break;
+      }
+      case "ArrowUp": {
+        e.preventDefault();
+        const prev = (activeIndex - 1 + COUNTRIES.length) % COUNTRIES.length;
+        setActiveIndex(prev);
+        optionRefs.current[prev]?.focus();
+        break;
+      }
+      case "Home": {
+        e.preventDefault();
+        setActiveIndex(0);
+        optionRefs.current[0]?.focus();
+        break;
+      }
+      case "End": {
+        e.preventDefault();
+        const last = COUNTRIES.length - 1;
+        setActiveIndex(last);
+        optionRefs.current[last]?.focus();
+        break;
+      }
+      case "Enter":
+      case " ": {
+        e.preventDefault();
+        handleCountrySelect(COUNTRIES[activeIndex]);
+        break;
+      }
+      case "Escape": {
+        e.preventDefault();
+        closeAndRefocus();
+        break;
+      }
+      case "Tab":
+        setOpen(false);
+        break;
+    }
   };
 
   const handleNationalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,9 +162,13 @@ export function PhoneInput({ value, onChange, required, disabled }: PhoneInputPr
   return (
     <div ref={ref} className="relative flex">
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Indicatif pays : ${country.name} (${country.dialCode})`}
         className="inline-flex items-center gap-1.5 rounded-l-lg border border-r-0 border-border bg-surface px-3 py-2.5 text-sm hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-teal/30"
       >
         <span className="text-base leading-none">{country.flag}</span>
@@ -123,21 +195,38 @@ export function PhoneInput({ value, onChange, required, disabled }: PhoneInputPr
       />
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-64 overflow-auto rounded-lg border border-border bg-white py-1 shadow-lg dark:bg-surface">
-          {COUNTRIES.map((c) => (
-            <button
-              key={c.code}
-              type="button"
-              onClick={() => handleCountrySelect(c)}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                c.code === country.code ? "bg-teal/10 font-medium" : ""
-              }`}
-            >
-              <span className="text-base">{c.flag}</span>
-              <span className="flex-1 text-left text-foreground">{c.name}</span>
-              <span className="text-muted">{c.dialCode}</span>
-            </button>
-          ))}
+        <div
+          ref={listRef}
+          role="listbox"
+          aria-label="Liste des pays"
+          aria-activedescendant={`phone-country-${COUNTRIES[activeIndex]?.code}`}
+          onKeyDown={handleListKeyDown}
+          className="absolute left-0 top-full z-50 mt-1 max-h-60 w-64 overflow-auto rounded-lg border border-border bg-white py-1 shadow-lg dark:bg-surface"
+        >
+          {COUNTRIES.map((c, i) => {
+            const isSelected = c.code === country.code;
+            return (
+              <button
+                key={c.code}
+                id={`phone-country-${c.code}`}
+                ref={(el) => {
+                  optionRefs.current[i] = el;
+                }}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                tabIndex={i === activeIndex ? 0 : -1}
+                onClick={() => handleCountrySelect(c)}
+                className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:hover:bg-slate-700 dark:focus:bg-slate-700 ${
+                  isSelected ? "bg-teal/10 font-medium" : ""
+                }`}
+              >
+                <span className="text-base">{c.flag}</span>
+                <span className="flex-1 text-left text-foreground">{c.name}</span>
+                <span className="text-muted">{c.dialCode}</span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

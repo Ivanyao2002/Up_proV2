@@ -1,45 +1,24 @@
 import type { TransactionStatus, WithdrawalStatus } from "@/shared/types";
+import { Badge, type BadgeTone } from "./Badge";
 
-const TX_LABELS: Record<TransactionStatus, string> = {
-  completed: "Validé",
-  pending: "En attente",
-  failed: "Échoué",
+const TX_MAP: Record<TransactionStatus, { label: string; tone: BadgeTone }> = {
+  completed: { label: "Validé", tone: "success" },
+  pending: { label: "En attente", tone: "warning" },
+  failed: { label: "Échoué", tone: "danger" },
 };
 
-const TX_STYLES: Record<TransactionStatus, string> = {
-  completed: "bg-teal/15 text-teal-dark",
-  pending: "bg-amber-50 text-amber-700",
-  failed: "bg-red-50 text-red-600",
-};
-
-const WD_LABELS: Record<WithdrawalStatus, string> = {
-  pending: "En attente",
-  approved: "Approuvé",
-  rejected: "Rejeté",
-};
-
-const WD_STYLES: Record<WithdrawalStatus, string> = {
-  pending: "bg-amber-50 text-amber-700",
-  approved: "bg-teal/15 text-teal-dark",
-  rejected: "bg-red-50 text-red-600",
+const WD_MAP: Record<WithdrawalStatus, { label: string; tone: BadgeTone }> = {
+  pending: { label: "En attente", tone: "warning" },
+  approved: { label: "Approuvé", tone: "success" },
+  rejected: { label: "Rejeté", tone: "danger" },
 };
 
 export function TransactionStatusPill({ status }: { status: TransactionStatus }) {
-  return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${TX_STYLES[status]}`}
-    >
-      {TX_LABELS[status]}
-    </span>
-  );
+  const { label, tone } = TX_MAP[status];
+  return <Badge tone={tone}>{label}</Badge>;
 }
 
 export function WithdrawalStatusPill({ status }: { status: WithdrawalStatus }) {
-  return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${WD_STYLES[status]}`}
-    >
-      {WD_LABELS[status]}
-    </span>
-  );
+  const { label, tone } = WD_MAP[status];
+  return <Badge tone={tone}>{label}</Badge>;
 }
