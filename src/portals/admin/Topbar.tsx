@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/core/auth/authStore";
 import { LogoutButton } from "@/features/auth/components/LogoutButton";
 import { AdminAssistantTopbarButton } from "@/features/assistant/components/AdminAssistantProvider";
+import { TicketNotificationBell } from "@/features/support/components/TicketNotificationBell";
 import { MobileNavToggle } from "@/portals/shared/MobileNavToggle";
-import { NotificationBellButton } from "@/portals/shared/NotificationBellButton";
 import {
   CommandPalette,
   type CommandPaletteItem,
@@ -67,7 +67,7 @@ export function Topbar({ onMenuToggle, mobileNavOpen }: PortalShellTopbarProps) 
       </div>
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         <AdminAssistantTopbarButton />
-        <NotificationBellButton href="/admin/support/chat" />
+        <TicketNotificationBell />
         <ThemeToggle />
         <span className="hidden max-w-[8rem] truncate text-sm text-muted sm:inline md:max-w-none">
           {user?.name}

@@ -1,0 +1,63 @@
+{
+  "period": {
+    "date_from": "2026-06-01",
+    "date_to": "2026-06-30",
+    "timezone": "Africa/Abidjan",
+    "comparison_date_from": "2026-05-01",
+    "comparison_date_to": "2026-05-31"
+  },
+  "scope": {
+    "service": null,
+    "country_code": null,
+    "zone_id": null,
+    "franchise_id": null,
+    "partner_id": null
+  },
+  "generated_at": "2026-06-20T10:45:00Z",
+  "kpis": {
+    "total_activity": { "value": 12450, "previous_value": 11280, "change_pct": 10.37 },
+    "completed_activity": { "value": 10840, "previous_value": 9960, "change_pct": 8.84 },
+    "gmv": { "value": 184500000, "currency": "XOF", "previous_value": 169200000, "change_pct": 9.04 },
+    "platform_commission": { "value": 22140000, "currency": "XOF", "previous_value": 20304000, "change_pct": 9.04 },
+    "active_drivers": { "value": 842, "previous_value": 790, "change_pct": 6.58 },
+    "active_clients": { "value": 6310, "previous_value": 5982, "change_pct": 5.48 },
+    "cancellation_rate": { "value": 6.8, "previous_value": 7.4, "change_pct": -8.11 },
+    "complaint_rate": { "value": 1.7, "previous_value": 1.9, "change_pct": -10.53 }
+  },
+  "activity_series": [
+    { "bucket": "2026-06-01", "created": 420, "completed": 372, "cancelled": 28, "gmv": 6150000, "currency": "XOF" },
+    { "bucket": "2026-06-02", "created": 395, "completed": 348, "cancelled": 24, "gmv": 5820000, "currency": "XOF" },
+    { "bucket": "2026-06-03", "created": 438, "completed": 389, "cancelled": 31, "gmv": 6430000, "currency": "XOF" },
+    { "bucket": "2026-06-04", "created": 512, "completed": 460, "cancelled": 35, "gmv": 7580000, "currency": "XOF" },
+    { "bucket": "2026-06-05", "created": 486, "completed": 432, "cancelled": 29, "gmv": 7140000, "currency": "XOF" },
+    { "bucket": "2026-06-06", "created": 401, "completed": 352, "cancelled": 22, "gmv": 5820000, "currency": "XOF" },
+    { "bucket": "2026-06-07", "created": 375, "completed": 328, "cancelled": 20, "gmv": 5420000, "currency": "XOF" },
+    { "bucket": "2026-06-08", "created": 448, "completed": 397, "cancelled": 32, "gmv": 6560000, "currency": "XOF" },
+    { "bucket": "2026-06-09", "created": 422, "completed": 374, "cancelled": 26, "gmv": 6180000, "currency": "XOF" },
+    { "bucket": "2026-06-10", "created": 394, "completed": 347, "cancelled": 23, "gmv": 5730000, "currency": "XOF" }
+  ],
+  "service_breakdown": [
+    { "service": "taxi", "activity": 7800, "completed": 7010, "gmv": 109000000, "currency": "XOF" },
+    { "service": "delivery", "activity": 2900, "completed": 2540, "gmv": 41800000, "currency": "XOF" },
+    { "service": "freight", "activity": 1150, "completed": 980, "gmv": 28400000, "currency": "XOF" },
+    { "service": "rental", "activity": 600, "completed": 310, "gmv": 5300000, "currency": "XOF" }
+  ],
+  "alerts": [
+    {
+      "code": "CANCELLATION_RATE_HIGH",
+      "severity": "warning",
+      "label": "Taux d'annulation supérieur au seuil (12.4 %)",
+      "value": 12.4,
+      "threshold": 10,
+      "dimension": { "type": "franchise", "id": "FR-003", "label": "Franchise Yopougon" }
+    },
+    {
+      "code": "COMPLAINT_RATE_HIGH",
+      "severity": "warning",
+      "label": "Taux de réclamation élevé (3.1 %)",
+      "value": 3.1,
+      "threshold": 2.5,
+      "dimension": { "type": "partner", "id": "PT-007", "label": "Partenaire Abobo Express" }
+    }
+  ]
+}

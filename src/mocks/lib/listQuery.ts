@@ -5,6 +5,7 @@ export interface ListQuery extends PaginateParams {
   date_from: string | null;
   date_to: string | null;
   status: string | null;
+  severity: string | null;
   zone: string | null;
   zone_id: number | null;
   availability: string | null;
@@ -14,6 +15,7 @@ export interface ListQuery extends PaginateParams {
   service: string | null;
   franchise_id: number | null;
   partner_id: number | null;
+  reporter_type: string | null;
 }
 
 export function parseListQuery(request: Request): ListQuery {
@@ -43,6 +45,7 @@ export function parseListQuery(request: Request): ListQuery {
     service: url.searchParams.get("service"),
     franchise_id: parseIdParam(url.searchParams.get("franchise_id")),
     partner_id: parseIdParam(url.searchParams.get("partner_id")),
+    reporter_type: url.searchParams.get("reporter_type"),
   };
 }
 

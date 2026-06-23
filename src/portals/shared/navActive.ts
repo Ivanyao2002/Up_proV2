@@ -211,7 +211,14 @@ function isNavItemActiveLegacy(pathname: string, itemPath: string): boolean {
     const base = itemPath.replace(/\/tickets$/, "");
     return (
       pathname === `${base}/tickets` ||
-      pathname.startsWith(`${base}/disputes`)
+      /^(\/admin\/support|\/support)\/tickets\/[^/]+$/.test(pathname)
+    );
+  }
+  if (itemPath === "/admin/support/disputes" || itemPath === "/support/disputes") {
+    const base = itemPath.replace(/\/disputes$/, "");
+    return (
+      pathname === `${base}/disputes` ||
+      pathname.startsWith(`${base}/disputes/`)
     );
   }
   if (itemPath === "/admin/support/chat" || itemPath === "/support/chat") {

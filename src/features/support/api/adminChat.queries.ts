@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminChatKeys } from "./adminChat.keys";
 import { adminChatService } from "./adminChat.service";
+import type { AdminSupportChatDetail } from "./adminChat.types";
 import type { ListParams } from "@/shared/types/listParams";
 import { useChatSocketStore } from "../hooks/useSupportChatSocket";
 
@@ -39,12 +40,44 @@ export function useAdminSupportChat(chatId: string) {
 
 export function useReplyAdminChat(chatId: string) {
   const qc = useQueryClient();
-
   return useMutation({
-    mutationFn: (body: string) => adminChatService.replyChat(chatId, body),
+    mutationFn: ({ body, attachmentId }: { body: string; attachmentId?: string }) =>
+      adminChatService.replyChat(chatId, body, attachmentId),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminChatKeys.detail(chatId) });
       void qc.invalidateQueries({ queryKey: adminChatKeys.all });
     },
+  });
+}
+
+export function useCloseAdminChat(chatId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => adminChatService.closeChat(chatId),
+    // Optimistic update: marque la conversation "closed" immédiatement
+    // pour ne pas dépendre de la vitesse du réseau ou du mock.
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: adminChatKeys.detail(chatId) });
+      const prev = qc.getQueryData<AdminSupportChatDetail>(adminChatKeys.detail(chatId));
+      qc.setQueryData<AdminSupportChatDetail>(adminChatKeys.detail(chatId), (old) =>
+        old ? { ...old, status: "closed" } : old
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) {
+        qc.setQueryData(adminChatKeys.detail(chatId), ctx.prev);
+      }
+    },
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: adminChatKeys.detail(chatId) });
+      void qc.invalidateQueries({ queryKey: adminChatKeys.all });
+    },
+  });
+}
+
+export function useUploadChatAttachment(chatId: string) {
+  return useMutation({
+    mutationFn: (file: File) => adminChatService.uploadAttachment(chatId, file),
   });
 }

@@ -13,6 +13,7 @@ export interface PortalShellTopbarProps {
 interface PortalShellLayoutProps {
   nav: NavGroup[];
   subtitle: string;
+  sidebarAppearance?: "default" | "support" | "reporting";
   topbar: (props: PortalShellTopbarProps) => ReactNode;
   children: ReactNode;
   headerSlot?: ReactNode;
@@ -22,6 +23,7 @@ interface PortalShellLayoutProps {
 export function PortalShellLayout({
   nav,
   subtitle,
+  sidebarAppearance = "default",
   topbar,
   children,
   headerSlot,
@@ -70,6 +72,7 @@ export function PortalShellLayout({
       <PortalSidebar
         nav={nav}
         subtitle={subtitle}
+        appearance={sidebarAppearance}
         filterByPermission={filterByPermission}
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}

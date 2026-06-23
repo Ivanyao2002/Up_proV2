@@ -4,18 +4,19 @@ import { useEffect, useState, type ReactNode } from "react";
 import { env } from "@/core/config/env";
 
 export function MswProvider({ children }: { children: ReactNode }) {
-  const [ready, setReady] = useState(!env.useMocks);
+  // Always start false so server and client render the same initial HTML.
+  // useEffect runs only on the client after hydration.
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!env.useMocks) return;
-
-    async function init() {
-      const { worker } = await import("@/mocks/browser");
-      await worker.start({ onUnhandledRequest: "bypass" });
+    if (!env.useMocks) {
       setReady(true);
+      return;
     }
-
-    void init();
+    import("@/mocks/browser")
+      .then(({ worker }) => worker.start({ onUnhandledRequest: "bypass" }))
+      .then(() => setReady(true))
+      .catch(() => setReady(true));
   }, []);
 
   if (!ready) {

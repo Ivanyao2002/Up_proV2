@@ -1,0 +1,196 @@
+{
+  "data": [
+    {
+      "id": "aud-505-sanction",
+      "at": "2026-06-19T17:20:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "sanction.applied",
+      "category": "sanction",
+      "severity": "info",
+      "resource_id": "ADM-TK-505",
+      "resource_label": "Ticket ADM-TK-505",
+      "detail": "Avertissement appliqué au chauffeur pour comportement verbal agressif.",
+      "metadata": {
+        "sanction_type": "warning"
+      }
+    },
+    {
+      "id": "aud-505-note",
+      "at": "2026-06-19T17:16:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.note_added",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-505",
+      "resource_label": "Ticket ADM-TK-505",
+      "detail": "Note interne ajoutée pour documenter la vérification avec le manager partenaire.",
+      "metadata": {
+        "message_type": "internal_note"
+      }
+    },
+    {
+      "id": "aud-505-message",
+      "at": "2026-06-19T17:15:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.message_sent",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-505",
+      "resource_label": "Ticket ADM-TK-505",
+      "detail": "Réponse envoyée à Fatou Diomandé après vérification des données de la course TR-91101.",
+      "metadata": {
+        "message_type": "message"
+      }
+    },
+    {
+      "id": "aud-505-compensation",
+      "at": "2026-06-19T17:18:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "compensation.applied",
+      "category": "compensation",
+      "severity": "warning",
+      "resource_id": "ADM-TK-505",
+      "resource_label": "Ticket ADM-TK-505",
+      "detail": "Service offert accordé à la cliente. Code promo généré : PROMO-GR8TXZ.",
+      "metadata": {
+        "compensation_type": "free_service",
+        "promo_code": "PROMO-GR8TXZ"
+      }
+    },
+    {
+      "id": "aud-505-assigned",
+      "at": "2026-06-19T16:45:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.assigned",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-505",
+      "resource_label": "Ticket ADM-TK-505",
+      "detail": "Réclamation prise en charge par Aya Koné Support."
+    },
+    {
+      "id": "aud-501-message",
+      "at": "2026-06-02T15:45:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.message_sent",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-501",
+      "resource_label": "Ticket ADM-TK-501",
+      "detail": "Confirmation du double prélèvement envoyée au client avec transmission à l'équipe finance.",
+      "metadata": {
+        "message_type": "message"
+      }
+    },
+    {
+      "id": "aud-501-assigned",
+      "at": "2026-06-02T14:40:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.assigned",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-501",
+      "resource_label": "Ticket ADM-TK-501",
+      "detail": "Réclamation prise en charge par Aya Koné Support."
+    },
+    {
+      "id": "aud-498-justification",
+      "at": "2026-06-01T09:45:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.justification_requested",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-498",
+      "resource_label": "Ticket ADM-TK-498",
+      "detail": "Nouvelle photographie haute résolution de la CNI demandée au partenaire.",
+      "metadata": {
+        "message_type": "justification_request"
+      }
+    },
+    {
+      "id": "aud-498-assigned",
+      "at": "2026-06-01T09:30:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.assigned",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-498",
+      "resource_label": "Ticket ADM-TK-498",
+      "detail": "Réclamation prise en charge par Aya Koné Support."
+    },
+    {
+      "id": "aud-490-resolved",
+      "at": "2026-05-30T09:00:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.resolved",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-490",
+      "resource_label": "Ticket ADM-TK-490",
+      "detail": "Réclamation résolue après confirmation du remboursement par la comptabilité.",
+      "metadata": {
+        "transition_note": "Remboursement confirmé côté comptabilité."
+      }
+    },
+    {
+      "id": "aud-490-compensation",
+      "at": "2026-05-30T08:55:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "compensation.applied",
+      "category": "compensation",
+      "severity": "warning",
+      "resource_id": "ADM-TK-490",
+      "resource_label": "Ticket ADM-TK-490",
+      "detail": "Réduction fixe accordée au chauffeur. Code promo généré : PROMO-KR72XA.",
+      "metadata": {
+        "compensation_type": "fixed_discount",
+        "discount_value": 3500,
+        "promo_code": "PROMO-KR72XA"
+      }
+    },
+    {
+      "id": "aud-490-note",
+      "at": "2026-05-30T08:50:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.note_added",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-490",
+      "resource_label": "Ticket ADM-TK-490",
+      "detail": "Note interne ajoutée : remboursement confirmé et crédit appliqué sur le wallet mobile.",
+      "metadata": {
+        "message_type": "internal_note"
+      }
+    },
+    {
+      "id": "aud-490-assigned",
+      "at": "2026-05-29T12:00:00Z",
+      "actor_email": "support@upjunoo.ci",
+      "actor_name": "Aya Koné Support",
+      "action": "ticket.assigned",
+      "category": "ticket",
+      "severity": "info",
+      "resource_id": "ADM-TK-490",
+      "resource_label": "Ticket ADM-TK-490",
+      "detail": "Réclamation prise en charge par Aya Koné Support."
+    }
+  ],
+  "meta": {
+    "total": 13,
+    "per_page": 25,
+    "current_page": 1,
+    "last_page": 1
+  }
+}
