@@ -305,6 +305,7 @@ export function mapFinanceTransactionItem(item: ApiFinanceTransactionItem): Tran
     status: mapTransactionStatus(item.status),
     payment_method: (item.payment_method as Transaction["payment_method"]) ?? "wallet",
     franchise_name: resolveFranchiseName(item),
+    service_type: item.order?.serviceType ?? item.service_type ?? undefined,
     created_at: item.created_at ?? item.createdAt ?? item.posted_at ?? new Date().toISOString(),
   };
 }

@@ -136,6 +136,7 @@ export function PricingNewPage() {
               min_fare_fcfa: values.min_fare_fcfa,
               surge_multiplier: values.surge_multiplier,
               status: values.status,
+              effectiveFrom: values.effectiveFrom,
             },
             { onSuccess: () => router.push("/admin/settings/pricing") }
           );
