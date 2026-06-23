@@ -93,12 +93,6 @@ export const FRANCHISE_NAV: NavGroup[] = [
         permission: "finance.wallets.view",
       },
       {
-        label: "Recharges partenaires",
-        path: "/franchise/finance/partner-transfers",
-        icon: "wallet",
-        permission: "finance.wallets.view",
-      },
-      {
         label: "Recharges chauffeurs",
         path: "/franchise/finance/driver-transfers",
         icon: "wallet-transfer",

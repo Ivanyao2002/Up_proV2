@@ -3,7 +3,17 @@ import { mapV1PaginationToMeta } from "@/core/api/v1Pagination";
 import type { Paginated, Partner } from "@/shared/types";
 import type { ListParams } from "@/shared/types/listParams";
 import { paginateClientList } from "@/shared/lib/clientList";
+import { normalizePartnerLegalForm } from "@/features/network/lib/partnerLegalForm";
 import type { ApiAdminPartnerItem } from "./adminPartners.api.types";
+
+function resolveManagerDisplayName(item: ApiAdminPartnerItem): string | null {
+  if (item.manager_display_name?.trim()) return item.manager_display_name.trim();
+  const composed = [item.manager_first_name, item.manager_last_name]
+    .filter((part) => part?.trim())
+    .join(" ")
+    .trim();
+  return composed || null;
+}
 
 function mapPartnerStatus(status?: string | null): Partner["status"] {
   const key = String(status ?? "pending").toLowerCase();
@@ -59,6 +69,10 @@ export function mapAdminPartnerItemToPartner(
     contact_phone: item.contact_phone ?? "—",
     partner_type: item.partner_type ?? null,
     commission_rate: item.commission_rate ?? null,
+    legal_form: normalizePartnerLegalForm(item.legal_form) ?? null,
+    manager_first_name: item.manager_first_name?.trim() || null,
+    manager_last_name: item.manager_last_name?.trim() || null,
+    manager_display_name: resolveManagerDisplayName(item),
   };
 }
 

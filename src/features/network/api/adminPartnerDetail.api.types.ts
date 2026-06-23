@@ -13,6 +13,10 @@ export interface ApiV1PartnerItem {
   trade_name?: string | null;
   name?: string | null;
   partner_type?: string | null;
+  legal_form?: string | null;
+  manager_first_name?: string | null;
+  manager_last_name?: string | null;
+  manager_display_name?: string | null;
   city_id?: string | null;
   address?: string | null;
   contact_phone?: string | null;

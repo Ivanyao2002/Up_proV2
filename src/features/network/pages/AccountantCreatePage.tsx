@@ -9,7 +9,7 @@ import { Button } from "@/shared/ui/Button";
 import { PasswordInput } from "@/shared/ui/PasswordInput";
 import { PasswordMatchIndicator } from "@/shared/ui/PasswordMatchIndicator";
 import { PhoneDialPrefix } from "@/shared/ui/PhoneDialPrefix";
-import { useCatalogCountries } from "../api/franchises.queries";
+import { useBootstrapCountries } from "../api/franchises.queries";
 import { useCreateAccountant } from "../api/adminAccountants.queries";
 
 const PORTAL_PASSWORD_MIN = 8;
@@ -17,7 +17,7 @@ const PORTAL_PASSWORD_MIN = 8;
 export function AccountantCreatePage() {
   const router = useRouter();
   const create = useCreateAccountant();
-  const { data: countries = [], isLoading: countriesLoading } = useCatalogCountries(true);
+  const { data: countries = [], isLoading: countriesLoading } = useBootstrapCountries(true);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

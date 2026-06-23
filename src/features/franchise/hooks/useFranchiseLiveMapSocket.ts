@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "@/core/auth/authStore";
 import { env } from "@/core/config/env";
-import { normalizeSocketIoUrl } from "@/features/ops/api/liveMap.realtime";
+import { normalizeSocketIoUrl, pruneLiveMapDeltaMap } from "@/features/ops/api/liveMap.realtime";
 import type {
   AdminLiveMapLocationDelta,
   AdminLiveMapLocationsPayload,
@@ -47,6 +47,10 @@ export function useFranchiseLiveMapSocket(
     setDeltas(new Map());
   }, []);
 
+  const pruneDeltas = useCallback((keepIds: Set<string>) => {
+    setDeltas((prev) => pruneLiveMapDeltaMap(prev, keepIds));
+  }, []);
+
   useEffect(() => {
     if (!enabled || !token) {
       setStatus("idle");
@@ -60,6 +64,7 @@ export function useFranchiseLiveMapSocket(
     }
 
     const socketUrl = normalizeSocketIoUrl(rt.url);
+    console.debug("[FranchiseLiveMapSocket] Connecting", { socketUrl, room: rt.room, event: rt.event });
     const { clientOptions } = rt;
     const socket = io(socketUrl, {
       reconnection: clientOptions?.reconnection ?? true,
@@ -76,13 +81,15 @@ export function useFranchiseLiveMapSocket(
     setStatus("connecting");
 
     const onConnect = () => {
+      console.debug("[FranchiseLiveMapSocket] Connected, joining", rt.joinPayload);
       setStatus("connected");
       if (rt.joinPayload) {
         socket.emit("join", rt.joinPayload);
       }
     };
 
-    const onDisconnect = () => {
+    const onDisconnect = (reason: string) => {
+      console.debug("[FranchiseLiveMapSocket] Disconnected", reason);
       setStatus("disconnected");
     };
 
@@ -97,11 +104,13 @@ export function useFranchiseLiveMapSocket(
       });
     };
 
-    const onJoinDenied = () => {
+    const onJoinDenied = (reason?: unknown) => {
+      console.error("[FranchiseLiveMapSocket] join_denied", reason);
       setStatus("error");
     };
 
-    const onConnectError = () => {
+    const onConnectError = (err: unknown) => {
+      console.error("[FranchiseLiveMapSocket] connect_error", err);
       setStatus("error");
     };
 
@@ -123,5 +132,5 @@ export function useFranchiseLiveMapSocket(
     };
   }, [enabled, token, config?.url, config?.event, config?.room]);
 
-  return { deltas, status, clearDeltas };
+  return { deltas, status, clearDeltas, pruneDeltas };
 }

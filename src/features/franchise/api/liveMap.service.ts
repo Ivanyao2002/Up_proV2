@@ -2,7 +2,8 @@ import { apiClient } from "@/core/http/apiClient";
 import { resolveFranchiseId } from "@/core/api/franchiseContext.service";
 import { LINKS, createUrl } from "@/core/api/links";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
-import type { LiveMapData } from "@/shared/types";
+import { env } from "@/core/config/env";
+import type { LiveMapData, LiveMapRealtimeConfig } from "@/shared/types";
 import type { ApiAdminLiveMapResponse } from "@/features/ops/api/liveMap.api.types";
 import { mapApiLiveMapToData } from "@/features/ops/api/liveMap.mapper";
 import type { LiveMapScopeFiltersValue } from "@/features/ops/api/liveMap.types";
@@ -10,6 +11,25 @@ import {
   franchiseLiveMapQueryParams,
   type FranchiseLiveMapFiltersValue,
 } from "./liveMap.types";
+
+function buildFranchiseRealtimeFallback(): LiveMapRealtimeConfig {
+  const base = env.apiUrl.replace(/\/$/, "");
+  return {
+    transport: "socket.io",
+    url: base,
+    room: "franchise:live-map",
+    event: "franchise:live:locations",
+    joinPayload: { room: "franchise:live-map" },
+    clientOptions: {
+      reconnection: true,
+      reconnectionAttempts: null,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
+      timeout: 45000,
+      transports: ["websocket", "polling"],
+    },
+  };
+}
 
 function buildFranchiseLiveMapEndpoint(
   filters?: FranchiseLiveMapFiltersValue
@@ -56,6 +76,7 @@ export const franchiseLiveMapService = {
 
     return {
       ...mapped,
+      realtime: mapped.realtime ?? buildFranchiseRealtimeFallback(),
       filter_options: {
         franchises: [],
         partners: partnerOptions,

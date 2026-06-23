@@ -23,13 +23,19 @@ export function parseListQuery(request: Request): ListQuery {
   const zoneIdRaw = url.searchParams.get("zone_id");
   return {
     page: Number(url.searchParams.get("page") ?? "1"),
-    per_page: Number(url.searchParams.get("per_page") ?? "25"),
+    per_page: Number(
+      url.searchParams.get("per_page") ??
+        url.searchParams.get("limit") ??
+        "25"
+    ),
     search: url.searchParams.get("search"),
     date_from:
       url.searchParams.get("date_from") ?? url.searchParams.get("dateFrom"),
     date_to: url.searchParams.get("date_to") ?? url.searchParams.get("dateTo"),
-    status: url.searchParams.get("status"),
-    severity: url.searchParams.get("severity"),
+    status:
+      url.searchParams.get("status") ??
+      url.searchParams.get("approvalStatus") ??
+      url.searchParams.get("approval_status"),
     zone: url.searchParams.get("zone"),
     zone_id: zoneIdRaw ? Number(zoneIdRaw) : null,
     availability: url.searchParams.get("availability"),

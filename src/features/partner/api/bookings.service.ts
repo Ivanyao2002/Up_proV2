@@ -18,11 +18,25 @@ export interface CreateBookingPayload {
   notes?: string;
 }
 
+export interface ApiBookingDriver {
+  id?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  name?: string | null;
+  phone?: string | null;
+}
+
 export interface ApiBookingItem {
   id: string;
+  ref?: string | null;
   order_reference?: string | null;
   client_id?: string | null;
+  client_name?: string | null;
   driver_id?: string | null;
+  driver_name?: string | null;
+  driver?: ApiBookingDriver | null;
   vehicle_id?: string | null;
   franchise_id?: string | null;
   city_id?: string | null;
@@ -32,12 +46,19 @@ export interface ApiBookingItem {
   status: string;
   payment_status?: string | null;
   payment_method_code?: string | null;
+  payment_method?: string | null;
   pickup_address?: string | null;
   pickup_latitude?: number | null;
   pickup_longitude?: number | null;
   dropoff_address?: string | null;
   dropoff_latitude?: number | null;
   dropoff_longitude?: number | null;
+  from_label?: string | null;
+  to_label?: string | null;
+  from_lat?: number | null;
+  from_lng?: number | null;
+  to_lat?: number | null;
+  to_lng?: number | null;
   scheduled_at?: string | null;
   accepted_at?: string | null;
   arrived_at?: string | null;
@@ -46,6 +67,8 @@ export interface ApiBookingItem {
   cancelled_at?: string | null;
   estimated_price_xof?: number | null;
   final_price_xof?: number | null;
+  amount_fcfa?: number | null;
+  amount?: number | null;
   option_codes?: string[] | null;
   passenger_count?: number | null;
   notes?: string | null;
@@ -127,24 +150,56 @@ export function mapApiStatusToTripStatus(status?: string | null): TripStatus {
 
 export function mapApiBookingItemToPartnerBooking(item: ApiBookingItem): PartnerBooking {
   const meta = item.metadata ?? {};
+  const driver = item.driver;
+  const driverName =
+    item.driver_name?.trim() ||
+    driver?.name?.trim() ||
+    [driver?.first_name ?? driver?.firstName, driver?.last_name ?? driver?.lastName]
+      .filter((part) => typeof part === "string" && part.trim())
+      .join(" ")
+      .trim() ||
+    undefined;
+
   return {
     id: item.id,
-    ref: item.order_reference || `TR-${item.id.slice(0, 8).toUpperCase()}`,
-    from_label: item.pickup_address || "—",
-    to_label: item.dropoff_address || "—",
-    from_lat: item.pickup_latitude ?? undefined,
-    from_lng: item.pickup_longitude ?? undefined,
-    to_lat: item.dropoff_latitude ?? undefined,
-    to_lng: item.dropoff_longitude ?? undefined,
-    client_name: meta.clientName || `Client ${item.client_id?.slice(0, 6) ?? ""}`,
-    client_phone: meta.clientPhone ?? undefined,
+    ref:
+      item.ref?.trim() ||
+      item.order_reference?.trim() ||
+      `TR-${item.id.slice(0, 8).toUpperCase()}`,
+    from_label:
+      item.from_label?.trim() ||
+      item.pickup_address?.trim() ||
+      "—",
+    to_label:
+      item.to_label?.trim() ||
+      item.dropoff_address?.trim() ||
+      "—",
+    from_lat: item.from_lat ?? item.pickup_latitude ?? undefined,
+    from_lng: item.from_lng ?? item.pickup_longitude ?? undefined,
+    to_lat: item.to_lat ?? item.dropoff_latitude ?? undefined,
+    to_lng: item.to_lng ?? item.dropoff_longitude ?? undefined,
+    client_name:
+      item.client_name?.trim() ||
+      meta.clientName?.trim() ||
+      (item.client_id ? `Client ${item.client_id.slice(0, 6)}` : "Client"),
+    client_phone: meta.clientPhone ?? driver?.phone ?? undefined,
     service: meta.service === "delivery" ? "delivery" : "taxi",
-    payment_method: item.payment_method_code === "wallet" ? "wallet" : item.payment_method_code === "orange_money" ? "orange_money" : "cash",
+    payment_method:
+      item.payment_method_code === "wallet" || item.payment_method?.toLowerCase() === "wallet"
+        ? "wallet"
+        : item.payment_method_code === "orange_money" || item.payment_method?.toLowerCase() === "orange_money"
+          ? "orange_money"
+          : "cash",
     status: mapApiStatusToTripStatus(item.status),
-    amount_fcfa: item.estimated_price_xof ?? item.final_price_xof ?? undefined,
-    driver_id: item.driver_id ?? undefined,
-    driver_name: undefined, // Pas de nom driver dans la liste
-    driver_phone: undefined,
+    amount_fcfa:
+      item.amount_fcfa ??
+      item.amount ??
+      item.final_price_xof ??
+      item.estimated_price_xof ??
+      undefined,
+    driver_id: item.driver_id ?? driver?.id ?? undefined,
+    driver_name: driverName,
+    driver_phone: driver?.phone ?? undefined,
     notes: item.notes ?? undefined,
     created_at: item.created_at,
     payment_status: item.payment_status,
@@ -160,6 +215,13 @@ export interface BookingsApiResponse {
   items?: ApiBookingItem[];
   data?: ApiBookingItem[];
   bookings?: ApiBookingItem[];
+  counters?: {
+    total?: number;
+    completed?: number;
+    cancelled?: number;
+    in_progress?: number;
+    requested?: number;
+  };
   pagination?: {
     page: number;
     limit: number;

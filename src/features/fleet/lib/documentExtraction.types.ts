@@ -23,6 +23,10 @@ export interface ExtractedVehicleFields {
   model?: string | null;
   year?: number | null;
   color?: string | null;
+  brand_code?: string | null;
+  model_id?: string | null;
+  color_id?: string | null;
+  color_code?: string | null;
   confidence?: number;
 }
 

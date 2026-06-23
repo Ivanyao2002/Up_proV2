@@ -18,6 +18,7 @@ export interface User {
   role: PortalRole;
   scope: Scope;
   franchise_id?: number | string;
+  franchise_name?: string;
   owner_id?: number | string;
   /** Type de partenaire — détermine l'accès aux modules fret/location */
   partner_type?: PartnerType;
@@ -93,6 +94,10 @@ export interface TripTimelineEvent {
   label: string;
   description?: string;
   at: string;
+  /** Étape non encore atteinte (pas de date) — affichée en muted */
+  pending?: boolean;
+  /** Étape courante (current: true côté backend) */
+  is_current?: boolean;
   /** Chauffeurs contactés pendant la recherche (détail par nom + issue) */
   matching_drivers?: TripMatchingDriver[];
 }
@@ -140,6 +145,20 @@ export interface TripDetail extends Trip {
   franchise_name?: string;
   estimated_arrival_at?: string;
   timeline: TripTimelineEvent[];
+  /** Type service API (`RIDE`, `DELIVERY_CARGO`, …) pour routes dispatch. */
+  api_service_type?: string;
+  /** Données spécifiques aux courses FREIGHT */
+  freight_cargo?: {
+    description?: string;
+    weight_kg?: number;
+    volume_m3?: number;
+    vehicle_type_code?: string;
+    package_type_code?: string;
+    customs_required?: boolean;
+    distance_km?: number;
+    payment_status?: string;
+    order_reference?: string;
+  };
 }
 
 export interface Franchise {
@@ -166,6 +185,13 @@ export interface Partner {
   /** FLEET | FREIGHT | RENTAL | MIXED — `GET /v1/partners/{id}` */
   partner_type?: string | null;
   commission_rate?: number | null;
+  /** Forme juridique — INDIVIDUAL (personne physique) | COMPANY (personne morale). */
+  legal_form?: "INDIVIDUAL" | "COMPANY" | null;
+  /** Gérant / représentant légal (renseigné uniquement pour une personne morale). */
+  manager_first_name?: string | null;
+  manager_last_name?: string | null;
+  /** « Prénom Nom » du gérant, calculé côté API. */
+  manager_display_name?: string | null;
 }
 
 export type TransactionType =
@@ -792,6 +818,7 @@ export interface VehicleDetail extends Vehicle {
   owner_id: number | string;
   registration_document: KycDocument;
   approved_at?: string | null;
+  driver_id?: string | null;
 }
 
 /** Fiche véhicule admin — GET /v1/partners/{partnerId}/vehicles/{vehicleId} */

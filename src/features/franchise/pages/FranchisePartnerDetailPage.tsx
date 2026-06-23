@@ -21,20 +21,30 @@ import {
   serverPaginationFromMeta,
   useServerTableState,
 } from "@/shared/hooks/useServerTableState";
-import type { Driver, Trip } from "@/shared/types";
+import { VehicleApprovalPill } from "@/shared/ui/VehicleApprovalPill";
+import { IvorianPlateBadge } from "@/shared/ui/IvorianPlateBadge";
+import { VehicleTypeBadge } from "@/shared/ui/VehicleTypeBadge";
+import { getVehicleApprovalLabel } from "@/shared/lib/vehicleLabels";
+import type { Driver, Trip, Vehicle } from "@/shared/types";
 import type { CreatePartnerPayload, FranchisePartnerDetail, PartnerCommission } from "../api/partners.service";
 import {
   useFranchisePartnerDetail,
   useFranchisePartnerDrivers,
   useFranchisePartnerOrders,
   useFranchisePartnerCommissions,
+  useFranchisePartnerVehicles,
   useUpdateFranchisePartner,
   useDeleteFranchisePartner,
+  useActivateFranchisePartner,
+  useSuspendFranchisePartner,
 } from "../api/partners.queries";
+import { PartnerDocumentsPanel } from "@/features/network/components/PartnerDocumentsPanel";
 
 const TABS = [
   { id: "overview", label: "Aperçu" },
+  { id: "documents", label: "Documents" },
   { id: "drivers", label: "Chauffeurs" },
+  { id: "vehicles", label: "Véhicules" },
   { id: "trips", label: "Courses" },
   { id: "commissions", label: "Commissions" },
 ];
@@ -108,7 +118,6 @@ function InviteDriverModal({
 }
 
 function TabDrivers({ partnerId }: { partnerId: string }) {
-  const [showInvite, setShowInvite] = useState(false);
   const table = useServerTableState();
   const { data, isLoading } = useFranchisePartnerDrivers(partnerId, table.listParams);
   const rows = data?.data ?? [];
@@ -149,26 +158,16 @@ function TabDrivers({ partnerId }: { partnerId: string }) {
   ];
 
   return (
-    <div>
-      <div className="mb-4 flex justify-end">
-        <Button type="button" onClick={() => setShowInvite(true)}>
-          + Ajouter un chauffeur
-        </Button>
-      </div>
-      <DataTable
-        columns={columns}
-        data={rows}
-        rowKey={(d) => d.id}
-        isLoading={isLoading}
-        exportFileName="chauffeurs-partenaire"
-        emptyTitle="Aucun chauffeur"
-        pagination={false}
-        serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
-      />
-      {showInvite && (
-        <InviteDriverModal partnerId={partnerId} onClose={() => setShowInvite(false)} />
-      )}
-    </div>
+    <DataTable
+      columns={columns}
+      data={rows}
+      rowKey={(d) => d.id}
+      isLoading={isLoading}
+      exportFileName="chauffeurs-partenaire"
+      emptyTitle="Aucun chauffeur"
+      pagination={false}
+      serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
+    />
   );
 }
 
@@ -223,6 +222,79 @@ function TabTrips({ partnerId }: { partnerId: string }) {
       isLoading={isLoading}
       exportFileName="courses-partenaire"
       emptyTitle="Aucune course"
+      pagination={false}
+      serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
+    />
+  );
+}
+
+function TabVehicles({ partnerId }: { partnerId: string }) {
+  const table = useServerTableState();
+  const { data, isLoading } = useFranchisePartnerVehicles(partnerId, table.listParams);
+  const rows = data?.data ?? [];
+  const meta = data?.meta;
+
+  const columns: Column<Vehicle>[] = [
+    {
+      id: "plate",
+      header: "Immatriculation",
+      cell: (v) => v.plate ? <IvorianPlateBadge plate={v.plate} size="sm" /> : <span className="text-muted">—</span>,
+      exportValue: (v) => v.plate ?? "",
+    },
+    {
+      id: "brand",
+      header: "Marque",
+      cell: (v) => v.brand ?? "—",
+      exportValue: (v) => v.brand ?? "",
+    },
+    {
+      id: "model",
+      header: "Modèle",
+      cell: (v) => v.model ?? "—",
+      exportValue: (v) => v.model ?? "",
+    },
+    {
+      id: "driver",
+      header: "Chauffeur affecté",
+      cell: (v) => v.driver_name ?? "—",
+      exportValue: (v) => v.driver_name ?? "",
+    },
+    {
+      id: "year",
+      header: "Année",
+      className: "tabular-nums",
+      cell: (v) => v.year > 0 ? v.year : "—",
+      exportValue: (v) => String(v.year),
+    },
+    {
+      id: "color",
+      header: "Couleur",
+      cell: (v) => v.color,
+      exportValue: (v) => v.color,
+    },
+    {
+      id: "type",
+      header: "Type & service",
+      cell: (v) => <VehicleTypeBadge vehicle={v} />,
+      exportValue: (v) => [v.category_code, v.category_label, v.category].filter(Boolean).join(" · "),
+    },
+    {
+      id: "status",
+      header: "Statut",
+      cell: (v) => <VehicleApprovalPill status={v.approval_status} />,
+      exportValue: (v) => getVehicleApprovalLabel(v.approval_status),
+    },
+  ];
+
+  return (
+    <DataTable
+      columns={columns}
+      data={rows}
+      rowKey={(v) => String(v.id)}
+      isLoading={isLoading}
+      exportFileName="vehicules-partenaire"
+      emptyTitle="Aucun véhicule"
+      emptyDescription="Ce partenaire n'a pas encore de véhicule enregistré."
       pagination={false}
       serverPagination={serverPaginationFromMeta(meta, table.setPage, table.setPageSize)}
     />
@@ -288,7 +360,7 @@ function TabCommissions({ partnerId }: { partnerId: string }) {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {stats && (
         <div className="grid gap-4 sm:grid-cols-3">
           <KpiCard label="Total commissions" value={formatFCFA(stats.total_fcfa)} variant="navy" />
@@ -323,7 +395,7 @@ function EditPartnerModal({
     contact_email: data.contact_email ?? "",
     contact_phone: data.contact_phone ?? "",
     city: data.city,
-    address: data.address,
+    address: data.address ?? undefined,
   });
   const update = useUpdateFranchisePartner(String(data.id));
 
@@ -399,6 +471,8 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
   const [showEdit, setShowEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const deletePartner = useDeleteFranchisePartner();
+  const activatePartner = useActivateFranchisePartner();
+  const suspendPartner = useSuspendFranchisePartner();
   const { data, isLoading, isError } = useFranchisePartnerDetail(partnerId);
 
   if (isLoading) {
@@ -467,7 +541,7 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
               <div className="grid gap-4 sm:grid-cols-2">
                 <KpiCard label="CA total" value={formatFCFA(data.revenue_month_fcfa ?? 0)} variant="navy" />
                 <KpiCard label="Solde wallet" value={formatFCFA(data.wallet_balance_fcfa ?? 0)} variant="teal" />
-                <KpiCard label="Courses" value={String(data.trips_count ?? 0)} variant="navy" />
+                <KpiCard label="Courses terminées" value={String(data.trips_count ?? 0)} variant="navy" />
                 <KpiCard label="Chauffeurs" value={String(data.drivers_count ?? 0)} variant="teal" />
                 <KpiCard label="Véhicules" value={String(data.vehicles_count ?? 0)} variant="navy" />
                 <KpiCard label="Membre depuis" value={formatDateTime(data.created_at)} variant="teal" />
@@ -530,8 +604,16 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
           </div>
         )}
 
+        {/* ── Documents ── */}
+        {tab === "documents" && (
+          <PartnerDocumentsPanel partnerId={partnerId} canUpload canReview />
+        )}
+
         {/* ── Chauffeurs ── */}
         {tab === "drivers" && <TabDrivers partnerId={partnerId} />}
+
+        {/* ── Véhicules ── */}
+        {tab === "vehicles" && <TabVehicles partnerId={partnerId} />}
 
         {/* ── Courses ── */}
         {tab === "trips" && <TabTrips partnerId={partnerId} />}
@@ -545,7 +627,11 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
         title={data.status === "suspended" ? "Réactiver ce partenaire ?" : "Approuver ce partenaire ?"}
         message="Le partenaire pourra à nouveau recevoir des courses et gérer ses chauffeurs."
         confirmLabel={data.status === "suspended" ? "Réactiver" : "Approuver"}
-        onConfirm={() => setConfirmActivate(false)}
+        onConfirm={() => {
+          activatePartner.mutate(partnerId, {
+            onSuccess: () => setConfirmActivate(false),
+          });
+        }}
         onCancel={() => setConfirmActivate(false)}
       />
 
@@ -555,7 +641,11 @@ export function FranchisePartnerDetailPage({ partnerId }: FranchisePartnerDetail
         message="Le partenaire ne pourra plus recevoir de courses tant que le compte est suspendu."
         confirmLabel="Suspendre"
         variant="danger"
-        onConfirm={() => setConfirmSuspend(false)}
+        onConfirm={() => {
+          suspendPartner.mutate(partnerId, {
+            onSuccess: () => setConfirmSuspend(false),
+          });
+        }}
         onCancel={() => setConfirmSuspend(false)}
       />
 

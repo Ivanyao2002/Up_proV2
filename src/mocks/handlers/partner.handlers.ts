@@ -406,6 +406,46 @@ export const partnerHandlers = [
     );
   }),
 
+  http.get("*/v1/partners/:id/vehicles", ({ request }) => {
+    const query = parseListQuery(request);
+    let list = fleetList.data.filter((v) =>
+      matchesSearch(
+        query.search,
+        v.plate,
+        v.label,
+        v.brand,
+        v.model,
+        v.category,
+        v.driver_name,
+        v.approval_status
+      )
+    );
+    if (query.status) {
+      list = list.filter((v) => v.approval_status === query.status);
+    }
+    const paginated = paginatedList(list, query, (v) => v.created_at);
+    const summary = fleetList.data.reduce(
+      (acc, item) => {
+        acc[item.approval_status] += 1;
+        return acc;
+      },
+      { approved: 0, pending: 0, rejected: 0, draft: 0 }
+    );
+    return HttpResponse.json({
+      status: "ok",
+      generatedAt: new Date().toISOString(),
+      items: paginated.data,
+      pagination: {
+        page: paginated.meta.current_page,
+        limit: paginated.meta.per_page,
+        total: paginated.meta.total,
+        totalPages: paginated.meta.last_page,
+        hasMore: paginated.meta.current_page < paginated.meta.last_page,
+      },
+      summary,
+    });
+  }),
+
   http.get("*/api/v2/partner/vehicles", ({ request }) => {
     const query = parseListQuery(request);
     let list = fleetList.data.filter((v) =>

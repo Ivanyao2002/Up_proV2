@@ -1,6 +1,5 @@
 "use client";
 
-import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { StatusPill } from "@/shared/ui/StatusPill";
@@ -11,10 +10,12 @@ import { Button } from "@/shared/ui/Button";
 import { TripRoutePreview } from "@/features/ops/components/TripRoutePreview";
 import { TripAssignedVehicleCard } from "@/features/ops/components/TripAssignedVehicleCard";
 import { isTripLiveOnMap } from "@/shared/lib/tripDriver";
-import { formatFCFA, formatDateTime } from "@/shared/lib/format";
-import { getPaymentLabel } from "@/shared/lib/paymentLabels";
+import { formatDateTime } from "@/shared/lib/format";
+import { TripFinancePanel } from "@/shared/finance/TripFinancePanel";
+import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { useFranchiseTripDetail } from "../api/trips.queries";
 import { useTripDriverLiveLocation } from "@/features/ops/hooks/useTripDriverLiveLocation";
+import { FreightCargoCard } from "../components/FreightCargoCard";
 
 interface FranchiseTripDetailPageProps {
   tripId: string;
@@ -35,7 +36,7 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
     return (
       <DetailPageSkeleton
         title="Course"
-        breadcrumb={["Franchise", "Courses"]}
+        breadcrumb={["Franchise", "Opération", "Courses"]}
         showSidebar={false}
         kpiCount={3}
       />
@@ -46,8 +47,8 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
     return (
       <p className="text-sm text-red-600">
         Course introuvable.{" "}
-        <Link href="/franchise/trips" className="text-teal underline">
-          Retour à la liste
+        <Link href="/franchise/ops/trips" className="text-teal underline">
+          Retour
         </Link>
       </p>
     );
@@ -60,11 +61,10 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
 
   return (
     <div className="animate-fade-up">
-      {/* Header sticky résumé */}
-      <div className="sticky top-0 z-10 -mx-6 -mt-2 mb-6 border-b border-border bg-canvas/95 px-6 py-4 backdrop-blur md:-mx-8 md:px-8">
+      <div className="page-sticky-header">
         <PageHeader
           title={trip.ref}
-          breadcrumb={["Franchise", "Courses", trip.ref]}
+          breadcrumb={["Franchise", "Opération", "Courses", trip.ref]}
           actions={
             <div className="flex flex-wrap items-center gap-2">
               {trip.service && <ServicePill service={trip.service} />}
@@ -72,12 +72,9 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
             </div>
           }
         />
-        <p className="mt-1 text-sm text-muted">
-          {trip.client_name} · {trip.from_label} → {trip.to_label}
-        </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+      <div className="detail-page-grid">
         <div className="space-y-6">
           <TripRoutePreview
             fromLabel={trip.from_label}
@@ -95,6 +92,13 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
               <Timeline items={timelineItems} />
             </div>
           </div>
+
+          {trip.service === "freight" && trip.freight_cargo && (
+            <FreightCargoCard
+              cargo={trip.freight_cargo}
+              estimatedPriceXof={trip.amount_fcfa}
+            />
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-card border border-border bg-surface p-5 shadow-card">
@@ -136,7 +140,7 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
                   )}
                 </>
               ) : (
-                <p className="mt-2 text-sm text-muted">En cours d&apos;assignation</p>
+                <p className="mt-2 text-sm text-muted">Non assigné</p>
               )}
             </div>
             <TripAssignedVehicleCard
@@ -145,35 +149,26 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
               driverLive={isRealtime}
             />
           </div>
-
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-card border border-border bg-surface p-5 shadow-card">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Montant
-            </p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-heading">
-              {formatFCFA(trip.amount_fcfa)}
-            </p>
-            {trip.payment_method && (
-              <p className="mt-2 text-sm text-muted">
-                {getPaymentLabel(trip.payment_method)}
-              </p>
-            )}
-          </div>
+          <TripFinancePanel trip={trip} />
 
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
-            <h3 className="font-semibold text-foreground">Détails</h3>
+            <h3 className="font-semibold text-foreground">Contexte</h3>
             <dl className="mt-3 space-y-2 text-muted">
-              <div className="flex justify-between gap-2">
-                <dt>Départ</dt>
-                <dd className="max-w-[55%] text-right text-foreground">{trip.from_label}</dd>
-              </div>
-              <div className="flex justify-between gap-2">
-                <dt>Arrivée</dt>
-                <dd className="max-w-[55%] text-right text-foreground">{trip.to_label}</dd>
-              </div>
+              {trip.zone_name && (
+                <div className="flex justify-between gap-2">
+                  <dt>Zone</dt>
+                  <dd className="text-foreground">{trip.zone_name}</dd>
+                </div>
+              )}
+              {trip.partner_name && (
+                <div className="flex justify-between gap-2">
+                  <dt>Partenaire</dt>
+                  <dd className="text-foreground">{trip.partner_name}</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-2">
                 <dt>Créée le</dt>
                 <dd className="text-foreground">{formatDateTime(trip.created_at)}</dd>
@@ -189,7 +184,7 @@ export function FranchiseTripDetailPage({ tripId }: FranchiseTripDetailPageProps
             </dl>
           </div>
 
-          <Link href="/franchise/trips">
+          <Link href="/franchise/ops/trips" className="block">
             <Button variant="secondary" className="w-full">
               ← Retour aux courses
             </Button>

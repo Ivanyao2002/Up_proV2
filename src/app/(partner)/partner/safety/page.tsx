@@ -1,5 +1,5 @@
-import { PartnerSosPage } from "@/features/partner/pages/PartnerSosPage";
+import { PartnerSosGuardianPage } from "@/features/partner/pages/PartnerSosGuardianPage";
 
 export default function Page() {
-  return <PartnerSosPage />;
+  return <PartnerSosGuardianPage />;
 }

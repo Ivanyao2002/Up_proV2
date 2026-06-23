@@ -3,11 +3,5 @@
 import { AdminDriverTransfersPage } from "@/features/finance/pages/AdminDriverTransfersPage";
 
 export function ComptaRechargesPage() {
-  return (
-    <AdminDriverTransfersPage
-      title="Recharges chauffeurs"
-      breadcrumb={["Comptabilité", "Recharges"]}
-      readOnly
-    />
-  );
+  return <AdminDriverTransfersPage />;
 }

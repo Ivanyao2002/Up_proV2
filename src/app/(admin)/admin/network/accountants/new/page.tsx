@@ -1,5 +1,5 @@
-import { AccountantCreatePage } from "@/features/network/pages/AccountantCreatePage";
+import { StaffCreatePage } from "@/features/network/pages/StaffCreatePage";
 
 export default function Page() {
-  return <AccountantCreatePage />;
+  return <StaffCreatePage kind="accountant" />;
 }

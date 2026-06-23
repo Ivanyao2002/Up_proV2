@@ -28,6 +28,7 @@ import {
   normalizePartnerType,
   type PartnerType,
 } from "../lib/partnerType";
+import { PartnerDocumentsPanel } from "../components/PartnerDocumentsPanel";
 
 interface PartnerEditPageProps {
   partnerId: string;
@@ -191,7 +192,7 @@ export function PartnerEditPage({ partnerId }: PartnerEditPageProps) {
   }
 
   return (
-    <div className="animate-fade-up mx-auto w-full max-w-3xl px-4 pb-10">
+    <div className="animate-fade-up mx-auto w-full max-w-4xl px-4 pb-10">
       <PageHeader
         title={`Modifier — ${data.name}`}
         breadcrumb={["Admin", "Réseau", "Partenaires", data.name, "Modifier"]}
@@ -423,6 +424,16 @@ export function PartnerEditPage({ partnerId }: PartnerEditPageProps) {
           </Button>
         </div>
       </form>
+
+      <section className="mt-8 space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Documents légaux</h2>
+          <p className="mt-1 text-sm text-muted">
+            Consultez, déposez ou validez les pièces du partenaire (CNI, RCC).
+          </p>
+        </div>
+        <PartnerDocumentsPanel partnerId={partnerId} canUpload canReview />
+      </section>
     </div>
   );
 }

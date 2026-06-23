@@ -18,11 +18,11 @@ export function useClientsList(params?: ListParams) {
   });
 }
 
-export function useClientDetail(id: string) {
+export function useClientDetail(id: string, enabled = true) {
   return useQuery({
     queryKey: clientsKeys.detail(id),
     queryFn: () => clientsService.get(id),
-    enabled: Boolean(id),
+    enabled: enabled && Boolean(id),
   });
 }
 

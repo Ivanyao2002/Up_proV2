@@ -107,6 +107,9 @@ export interface ApiFinanceTransactionItem {
     ref?: string;
     serviceType?: string;
   } | null;
+  order_id?: string;
+  service_type?: string;
+  metadata?: Record<string, unknown>;
   commissionBreakdown?: {
     grossAmountXof?: number;
     driverAmountXof?: number;

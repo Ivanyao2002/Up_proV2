@@ -4,15 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
-import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
-import { FilterChips } from "@/shared/ui/FilterChips";
 import { VehicleApprovalPill } from "@/shared/ui/VehicleApprovalPill";
 import { Button } from "@/shared/ui/Button";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { getVehicleApprovalLabel } from "@/shared/lib/vehicleLabels";
 import { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
-import { DateRangeFilter } from "@/shared/ui/DateRangeFilter";
 import { IvorianPlateBadge } from "@/shared/ui/IvorianPlateBadge";
 import { VehicleTypeBadge } from "@/shared/ui/VehicleTypeBadge";
 import {
@@ -21,6 +18,7 @@ import {
 } from "@/shared/hooks/useServerTableState";
 import type { Vehicle, VehicleApprovalStatus } from "@/shared/types";
 import { usePartnerVehiclesList } from "../api/vehicles.queries";
+import { PartnerListFiltersPanel } from "../components/PartnerListFiltersPanel";
 
 const STATUS_FILTERS: { value: VehicleApprovalStatus | "all"; label: string }[] = [
   { value: "all", label: "Tous" },
@@ -44,14 +42,13 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
   const table = useServerTableState(
     [statusFilter, pendingOnly, dateRange.dateFrom, dateRange.dateTo],
     {
-      status: pendingOnly
-        ? "pending"
-        : statusFilter !== "all"
-          ? statusFilter
-          : undefined,
       ...dateRange.listParams,
     }
   );
+
+  const effectiveStatus: VehicleApprovalStatus | "all" = pendingOnly
+    ? "pending"
+    : statusFilter;
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
@@ -69,7 +66,10 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
     ],
   });
 
-  const { data, isLoading, isError } = usePartnerVehiclesList(table.listParams);
+  const { data, isLoading, isError } = usePartnerVehiclesList(
+    effectiveStatus,
+    table.listParams
+  );
 
   const rows = data?.data ?? [];
   const meta = data?.meta;
@@ -160,32 +160,20 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
         </div>
       )}
 
-      <TableFiltersBar
+      <PartnerListFiltersPanel
+        showStatusFilters={!pendingOnly}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        statusOptions={STATUS_FILTERS}
+        allStatusValue="all"
+        dateRange={dateRange}
         search={table.search}
         onSearchChange={table.setSearch}
         searchPlaceholder="Marque, plaque, chauffeur…"
         totalLabel={meta ? `${meta.total} véhicules enregistrés` : undefined}
         hasActiveFilters={hasActiveFilters}
-        onReset={resetAll}
-      >
-        {!pendingOnly && (
-          <FilterChips
-            options={STATUS_FILTERS}
-            value={statusFilter}
-            onChange={setStatusFilter}
-          />
-        )}
-        <DateRangeFilter
-          preset={dateRange.preset}
-          onPresetChange={dateRange.setPreset}
-          customFrom={dateRange.customFrom}
-          customTo={dateRange.customTo}
-          onCustomFromChange={dateRange.setCustomFrom}
-          onCustomToChange={dateRange.setCustomTo}
-          showAllPreset
-          rangeLabel={dateRange.rangeLabel}
-        />
-      </TableFiltersBar>
+        onResetAll={resetAll}
+      />
 
       <DataTable
         columns={columns}

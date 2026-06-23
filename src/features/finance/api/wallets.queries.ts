@@ -15,6 +15,6 @@ export function useWalletsList(params?: ListParams) {
   const scope = useComptaApiScope();
   return useQuery({
     queryKey: walletsKeys.list(scope, params),
-    queryFn: () => walletsService.list(params, scope),
+    queryFn: () => walletsService.list(params),
   });
 }

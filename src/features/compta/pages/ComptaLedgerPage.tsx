@@ -7,7 +7,7 @@ import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { FilterChips } from "@/shared/ui/FilterChips";
 import { Button } from "@/shared/ui/Button";
-import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { formatDate, formatDateTime, formatFCFA } from "@/shared/lib/format";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
   serverPaginationFromMeta,
@@ -19,11 +19,9 @@ import {
 } from "@/features/ops/components/TripsScopeFilters";
 import { ReverseLedgerModal } from "../components/ReverseLedgerModal";
 import { ComptaPageHero } from "../components/ComptaPageHero";
-import {
-  ledgerEntryTypeLabel,
-  ledgerSourceTypeLabel,
-  ledgerStatusLabel,
-} from "../api/compta.mapper";
+import { ComptaLedgerDetailSheet, ledgerEntryExportLine } from "../components/ComptaLedgerDetailSheet";
+import { ComptaLedgerEntryCell } from "../components/ComptaLedgerEntryCell";
+import { ledgerStatusLabel } from "../api/compta.mapper";
 import { useLedgerExport, useLedgerList, useReverseLedgerEntry } from "../api/ledger.queries";
 import { useComptaMe } from "../api/comptaPortal.queries";
 import { useComptaApiScope } from "../api/useComptaApiScope";
@@ -51,6 +49,22 @@ const ENTRY_TYPE_FILTERS = [
   { value: "reversal", label: "Extournes" },
 ];
 
+function LedgerStatusPill({ status }: { status: string }) {
+  const label = ledgerStatusLabel(status);
+  const tone =
+    status === "posted"
+      ? "bg-emerald-50 text-emerald-800 ring-emerald-200/80"
+      : status === "pending"
+        ? "bg-amber-50 text-amber-800 ring-amber-200/80"
+        : "bg-slate-100 text-slate-600 ring-slate-200/80";
+
+  return (
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold ring-1 ${tone}`}>
+      {label}
+    </span>
+  );
+}
+
 export function ComptaLedgerPage({
   title = "Journal comptable",
   breadcrumb = ["Comptabilité", "Journal"],
@@ -59,7 +73,6 @@ export function ComptaLedgerPage({
 }: {
   title?: string;
   breadcrumb?: string[];
-  /** Lien croisé journal ↔ transactions (admin : `/admin/finance/transactions`). */
   transactionsHref?: string;
   showReverse?: boolean;
 } = {}) {
@@ -79,6 +92,7 @@ export function ComptaLedgerPage({
     franchiseId: null,
     partnerId: null,
   });
+  const [detailEntry, setDetailEntry] = useState<LedgerEntry | null>(null);
   const [reverseEntry, setReverseEntry] = useState<LedgerEntry | null>(null);
 
   const table = useServerTableState(
@@ -117,81 +131,61 @@ export function ComptaLedgerPage({
   const baseColumns: Column<LedgerEntry>[] = useMemo(
     () => [
       {
+        id: "entry",
+        header: "Écriture",
+        className: "min-w-[240px]",
+        cell: (row) => <ComptaLedgerEntryCell entry={row} />,
+        exportValue: (row) => ledgerEntryExportLine(row),
+      },
+      {
         id: "posted_at",
         header: "Date",
-        className: "whitespace-nowrap text-muted",
-        cell: (row) => formatDateTime(row.posted_at),
+        className: "whitespace-nowrap text-muted w-[88px]",
+        cell: (row) => {
+          const d = new Date(row.posted_at);
+          const time =
+            Number.isNaN(d.getTime()) ? "" : new Intl.DateTimeFormat("fr-CI", { timeStyle: "short" }).format(d);
+          return (
+            <div className="text-xs leading-tight">
+              <p className="font-medium text-foreground/90">{formatDate(row.posted_at)}</p>
+              {time ? <p className="mt-0.5 text-muted">{time}</p> : null}
+            </div>
+          );
+        },
         exportValue: (row) => formatDateTime(row.posted_at),
-      },
-      {
-        id: "txn_id",
-        header: "Réf. txn",
-        cell: (row) => (
-          <span className="font-mono text-xs">
-            {row.txn_id?.slice(0, 12) ?? row.id.slice(0, 8)}
-          </span>
-        ),
-        exportValue: (row) => row.txn_id ?? row.id,
-      },
-      {
-        id: "entry_type",
-        header: "Nature",
-        cell: (row) => <span className="text-sm">{ledgerEntryTypeLabel(row.entry_type)}</span>,
-        exportValue: (row) => ledgerEntryTypeLabel(row.entry_type),
-      },
-      {
-        id: "direction",
-        header: "Sens",
-        cell: (row) => (
-          <span className={row.direction === "credit" ? "text-emerald-700" : "text-red-700"}>
-            {row.direction === "credit" ? "Crédit" : "Débit"}
-          </span>
-        ),
-        exportValue: (row) => row.direction,
       },
       {
         id: "amount",
         header: "Montant",
-        className: "tabular-nums font-medium",
-        cell: (row) => formatFCFA(row.amount_xof),
+        className: "text-right whitespace-nowrap",
+        cell: (row) => (
+          <div className="text-right">
+            <p
+              className={`text-base font-semibold tabular-nums ${
+                row.direction === "credit" ? "text-emerald-700" : "text-red-600"
+              }`}
+            >
+              {row.direction === "credit" ? "+" : "−"}
+              {formatFCFA(row.amount_xof)}
+            </p>
+            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-muted">
+              {row.balance_bucket === "WITHDRAWABLE"
+                ? "Retirable"
+                : row.balance_bucket
+                  ? "Service"
+                  : row.direction === "credit"
+                    ? "Crédit"
+                    : "Débit"}
+            </p>
+          </div>
+        ),
         exportValue: (row) => row.amount_xof,
-      },
-      {
-        id: "balance_bucket",
-        header: "Bucket",
-        cell: (row) => {
-          if (!row.balance_bucket) return "—";
-          return row.balance_bucket === "WITHDRAWABLE" ? "Retirable" : "Service";
-        },
-        exportValue: (row) => row.balance_bucket ?? "",
-      },
-      {
-        id: "owner",
-        header: "Propriétaire",
-        cell: (row) => (
-          <div>
-            <p className="font-medium">{row.owner_name ?? "—"}</p>
-            <p className="text-xs text-muted">{row.franchise_name}</p>
-          </div>
-        ),
-        exportValue: (row) => `${row.owner_name ?? ""} (${row.franchise_name ?? ""})`,
-      },
-      {
-        id: "source",
-        header: "Source",
-        cell: (row) => (
-          <div className="text-xs text-muted">
-            {ledgerSourceTypeLabel(row.source_type)}
-            {row.order_ref ? ` · ${row.order_ref}` : null}
-          </div>
-        ),
-        exportValue: (row) =>
-          `${ledgerSourceTypeLabel(row.source_type)}${row.order_ref ? ` · ${row.order_ref}` : ""}`,
       },
       {
         id: "status",
         header: "Statut",
-        cell: (row) => <span className="text-sm">{ledgerStatusLabel(row.status)}</span>,
+        className: "hidden sm:table-cell",
+        cell: (row) => <LedgerStatusPill status={row.status} />,
         exportValue: (row) => ledgerStatusLabel(row.status),
       },
     ],
@@ -202,22 +196,28 @@ export function ComptaLedgerPage({
     id: "actions",
     header: "",
     exportValue: () => "",
-    cell: (row) => {
-      const canReverse =
-        row.status === "posted" &&
-        row.entry_type !== "reversal" &&
-        row.direction !== undefined;
-      if (!canReverse) return <span className="text-xs text-muted">—</span>;
-      return (
-        <Button
-          variant="secondary"
-          className="!py-1 !px-2 !text-xs"
-          onClick={() => setReverseEntry(row)}
+    cell: (row) => (
+      <div className="flex items-center justify-end gap-1" data-row-action>
+        <button
+          type="button"
+          className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-teal transition hover:bg-teal/10"
+          onClick={() => setDetailEntry(row)}
         >
-          Extourner
-        </Button>
-      );
-    },
+          Détail
+        </button>
+        {showReverse &&
+        row.status === "posted" &&
+        row.entry_type !== "reversal" ? (
+          <Button
+            variant="secondary"
+            className="!py-1 !px-2 !text-xs"
+            onClick={() => setReverseEntry(row)}
+          >
+            Extourner
+          </Button>
+        ) : null}
+      </div>
+    ),
   };
 
   const crossLinkHref =
@@ -228,7 +228,7 @@ export function ComptaLedgerPage({
       ? "Voir les transactions détaillées"
       : "Voir le journal comptable";
 
-  const columns = showReverse ? [...baseColumns, actionsColumn] : baseColumns;
+  const columns = [...baseColumns, actionsColumn];
 
   if (isError) {
     return (
@@ -260,14 +260,14 @@ export function ComptaLedgerPage({
         }
       />
       <p className="-mt-2 mb-6 text-sm text-muted">
-        Source de vérité comptable — écritures immuables, extournes et filtres par périmètre.
+        Cliquez sur une ligne pour ouvrir le détail complet — ventilation, références et identifiants.
       </p>
 
       <div className="animate-stagger space-y-6">
         <ComptaPageHero
           kicker="Journal ledger"
           title="Écritures comptables"
-          description="Consultez, filtrez et exportez les mouvements enregistrés sur votre périmètre."
+          description="Vue synthétique des mouvements. Le détail financier s'ouvre au clic."
           countryLabel={countryLabel}
           stats={[
             { value: formatFCFA(data?.summary?.credits_xof ?? 0), label: "Crédits" },
@@ -281,7 +281,7 @@ export function ComptaLedgerPage({
             <TableFiltersBar
               search={table.search}
               onSearchChange={table.setSearch}
-              searchPlaceholder="Rechercher réf., propriétaire, description…"
+              searchPlaceholder="Rechercher libellé, compte, course…"
               hasActiveFilters={hasActiveFilters}
               onReset={resetAll}
             >
@@ -325,6 +325,11 @@ export function ComptaLedgerPage({
               emptyTitle="Aucune écriture"
               emptyDescription="Aucune écriture sur cette période ou ces filtres."
               pagination={false}
+              rowHeight="compact"
+              onRowClick={setDetailEntry}
+              getRowClassName={(row) =>
+                detailEntry?.id === row.id ? "bg-teal/[0.04] ring-1 ring-inset ring-teal/15" : undefined
+              }
             />
           </div>
         </section>
@@ -333,13 +338,6 @@ export function ComptaLedgerPage({
           className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1 border-t border-border pt-6 text-xs text-muted"
           aria-label="Raccourcis journal"
         >
-          {showReverse ? (
-            <>
-              <span>Actions :</span>
-              <span>extourne depuis une ligne du tableau</span>
-              <span aria-hidden>·</span>
-            </>
-          ) : null}
           <Link href={crossLinkHref} className="font-medium text-teal hover:underline">
             {crossLinkLabel}
           </Link>
@@ -353,6 +351,19 @@ export function ComptaLedgerPage({
           </Link>
         </nav>
       </div>
+
+      <ComptaLedgerDetailSheet
+        entry={detailEntry}
+        onClose={() => setDetailEntry(null)}
+        onReverse={
+          showReverse
+            ? (entry) => {
+                setDetailEntry(null);
+                setReverseEntry(entry);
+              }
+            : undefined
+        }
+      />
 
       <ReverseLedgerModal
         entry={reverseEntry}

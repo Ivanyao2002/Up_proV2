@@ -20,6 +20,10 @@ export interface ListParams {
   /** Plage de dates (YYYY-MM-DD) — envoyée à l’API v1 en `dateFrom` / `dateTo`. */
   date_from?: string;
   date_to?: string;
+  /** Journal comptable — filtre sens écriture. */
+  direction?: string;
+  balance_bucket?: string;
+  entry_type?: string;
 }
 
 export function buildListQuery(params?: ListParams): string {
@@ -49,6 +53,11 @@ export function buildListQuery(params?: ListParams): string {
   if (params.category && params.category !== "all") qs.set("category", params.category);
   if (params.date_from?.trim()) qs.set("date_from", params.date_from.trim());
   if (params.date_to?.trim()) qs.set("date_to", params.date_to.trim());
+  if (params.direction && params.direction !== "all") qs.set("direction", params.direction);
+  if (params.balance_bucket && params.balance_bucket !== "all") {
+    qs.set("balance_bucket", params.balance_bucket);
+  }
+  if (params.entry_type && params.entry_type !== "all") qs.set("entry_type", params.entry_type);
   const s = qs.toString();
   return s ? `?${s}` : "";
 }

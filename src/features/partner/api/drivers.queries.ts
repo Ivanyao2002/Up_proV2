@@ -6,7 +6,7 @@ import { useScope } from "@/core/auth/useScope";
 import { partnerDriversService } from "./drivers.service";
 import type { CreateDriverPayload } from "./drivers.service";
 import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
-import type { KycDocument } from "@/shared/types";
+import type { DriverKycDocumentType } from "@/shared/types/driverDocuments";
 import type { ListParams } from "@/shared/types/listParams";
 
 export const partnerDriversKeys = {
@@ -58,11 +58,23 @@ export function useCreatePartnerDriver() {
 export function useUploadPartnerDriverDocument(driverId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ type, file }: { type: KycDocument["type"]; file: File }) =>
+    mutationFn: ({ type, file }: { type: DriverKycDocumentType; file: File }) =>
       partnerDriversService.uploadDocument(driverId, type, file),
     onSuccess: (data) => {
       qc.setQueryData(partnerDriversKeys.detail(driverId), data);
-      void qc.invalidateQueries({ queryKey: partnerDriversKeys.list() });
+      void qc.invalidateQueries({ queryKey: partnerDriversKeys.all });
+    },
+  });
+}
+
+export function useUpdatePartnerDriver(driverId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<CreateDriverPayload>) =>
+      partnerDriversService.update(driverId, data),
+    onSuccess: (data) => {
+      qc.setQueryData(partnerDriversKeys.detail(driverId), data);
+      void qc.invalidateQueries({ queryKey: partnerDriversKeys.all });
     },
   });
 }

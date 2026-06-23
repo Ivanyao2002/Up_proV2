@@ -12,10 +12,11 @@ import { SosStatusPill } from "./SosStatusPill";
 
 interface SosActiveIncidentCardProps {
   incident: SosIncident;
+  detailHref: string;
 }
 
-export function SosActiveIncidentCard({ incident }: SosActiveIncidentCardProps) {
-  const href = `/admin/ops/sos/incidents/${incident.id}`;
+export function SosActiveIncidentCard({ incident, detailHref }: SosActiveIncidentCardProps) {
+  const href = detailHref;
   const actor =
     SOS_ACTOR_LABELS[incident.actor_type] ?? incident.actor_type;
   const trigger =

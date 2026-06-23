@@ -1,6 +1,7 @@
 import { PortalShellLayout } from "@/portals/shared/PortalShellLayout";
 import { PortalTopbar } from "@/portals/shared/PortalTopbar";
 import { NotificationBellButton } from "@/portals/shared/NotificationBellButton";
+import { PartnerSosSoundListener } from "@/features/safety/components/PartnerSosSoundListener";
 import { PartnerChatSoundListener } from "@/features/support/components/PartnerChatSoundListener";
 import { PARTNER_NAV } from "./partnerNav";
 
@@ -9,7 +10,12 @@ export function PartnerShell({ children }: { children: React.ReactNode }) {
     <PortalShellLayout
       nav={PARTNER_NAV}
       subtitle="Partenaire"
-      headerSlot={<PartnerChatSoundListener />}
+      headerSlot={
+        <>
+          <PartnerChatSoundListener />
+          <PartnerSosSoundListener />
+        </>
+      }
       topbar={(props) => (
         <PortalTopbar
           {...props}
