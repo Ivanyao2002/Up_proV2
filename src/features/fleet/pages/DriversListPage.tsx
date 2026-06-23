@@ -60,12 +60,22 @@ const AVAILABILITY_OPTIONS = [
   { value: "paused", label: "Pause" },
 ];
 
+const CATEGORY_OPTIONS = [
+  { value: "all" as const, label: "Toutes les catégories" },
+  { value: "STANDARD", label: "Standard" },
+  { value: "CONFORT", label: "Confort" },
+  { value: "VIP", label: "VIP" },
+  { value: "MOTO", label: "Moto" },
+];
+
 export function DriversListPage() {
   const [zoneFilter, setZoneFilter] = useState<(typeof ZONE_OPTIONS)[number]["value"]>("all");
   const [accountFilter, setAccountFilter] =
     useState<(typeof ACCOUNT_OPTIONS)[number]["value"]>("all");
   const [availabilityFilter, setAvailabilityFilter] =
     useState<(typeof AVAILABILITY_OPTIONS)[number]["value"]>("all");
+  const [categoryFilter, setCategoryFilter] =
+    useState<(typeof CATEGORY_OPTIONS)[number]["value"]>("all");
   const [complianceFilter, setComplianceFilter] = useState<
     (typeof DRIVER_COMPLIANCE_FILTER_OPTIONS)[number]["value"]
   >("all");
@@ -86,11 +96,12 @@ export function DriversListPage() {
   );
 
   const table = useServerTableState(
-    [zoneFilter, accountFilter, availabilityFilter, complianceFilter],
+    [zoneFilter, accountFilter, availabilityFilter, categoryFilter, complianceFilter],
     {
       zone: zoneFilter !== "all" ? zoneFilter : undefined,
       account_status: accountFilter !== "all" ? accountFilter : undefined,
       availability: availabilityFilter !== "all" ? availabilityFilter : undefined,
+      service: categoryFilter !== "all" ? categoryFilter : undefined,
       compliance_status:
         complianceFilter !== "all"
           ? (complianceFilter as DriverComplianceStatus)
@@ -107,6 +118,11 @@ export function DriversListPage() {
         value: availabilityFilter,
         defaultValue: "all",
         reset: () => setAvailabilityFilter("all"),
+      },
+      {
+        value: categoryFilter,
+        defaultValue: "all",
+        reset: () => setCategoryFilter("all"),
       },
       {
         value: complianceFilter,
@@ -181,6 +197,12 @@ export function DriversListPage() {
         <span className="text-muted">{d.vehicle_label ?? "—"}</span>
       ),
       exportValue: (d) => d.vehicle_label ?? "",
+    },
+    {
+      id: "category",
+      header: "Service",
+      cell: (d) => d.ride_category_code ?? "—",
+      exportValue: (d) => d.ride_category_code ?? "",
     },
     {
       id: "rating",
@@ -281,6 +303,13 @@ export function DriversListPage() {
             value={availabilityFilter}
             onChange={setAvailabilityFilter}
             options={AVAILABILITY_OPTIONS}
+          />
+          <SelectFilter
+            wide
+            label="Service"
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            options={CATEGORY_OPTIONS}
           />
           <SelectFilter
             wide

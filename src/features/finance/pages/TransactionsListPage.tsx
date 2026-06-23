@@ -11,6 +11,8 @@ import { KpiCard } from "@/shared/ui/KpiCard";
 import { TransactionStatusPill } from "@/shared/ui/TransactionStatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { TRANSACTION_TYPE_LABELS } from "@/shared/lib/financeLabels";
+import { getServiceLabel } from "@/shared/lib/tripLabels";
+import { mapApiServiceType } from "@/features/admin/api/adminOrder.shared";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import {
   serverPaginationFromMeta,
@@ -45,6 +47,25 @@ const STATUS_FILTERS: { value: TransactionStatus | "all"; label: string }[] = [
   { value: "failed", label: "Échouées" },
 ];
 
+const SERVICE_FILTERS: { value: string; label: string }[] = [
+  { value: "all", label: "Tous services" },
+  { value: "RIDE", label: "VTC" },
+  { value: "DELIVERY_CARGO", label: "Livraison" },
+  { value: "FREIGHT", label: "Fret" },
+  { value: "RENTAL", label: "Location" },
+];
+
+/**
+ * `service_type` n'est pas porté par le type `Transaction` (présent uniquement
+ * sur le détail via `FinanceTransactionDetail`). On le lit défensivement ici :
+ * la colonne s'affichera dès que le mapper liste finance le renseignera.
+ */
+function getTransactionServiceLabel(t: Transaction): string {
+  const raw = (t as { service_type?: string | null }).service_type;
+  if (!raw) return "—";
+  return getServiceLabel(mapApiServiceType(raw));
+}
+
 interface TransactionsListPageProps {
   title?: string;
   subtitle?: string;
@@ -62,6 +83,7 @@ export function TransactionsListPage({
 }: TransactionsListPageProps = {}) {
   const [typeFilter, setTypeFilter] = useState<TransactionType | "all">(defaultTypeFilter);
   const [statusFilter, setStatusFilter] = useState<TransactionStatus | "all">("all");
+  const [serviceFilter, setServiceFilter] = useState<string>("all");
   const [scope, setScope] = useState<TripsScopeFiltersValue>({
     franchiseId: null,
     partnerId: null,
@@ -70,10 +92,11 @@ export function TransactionsListPage({
   const scopeActive = scope.franchiseId != null || scope.partnerId != null;
 
   const table = useServerTableState(
-    [typeFilter, statusFilter, scope.franchiseId, scope.partnerId],
+    [typeFilter, statusFilter, serviceFilter, scope.franchiseId, scope.partnerId],
     {
       type: typeFilter !== "all" ? typeFilter : undefined,
       status: statusFilter !== "all" ? statusFilter : undefined,
+      service: serviceFilter !== "all" ? serviceFilter : undefined,
       franchise_id: scope.franchiseId ?? undefined,
       partner_id: scope.partnerId ?? undefined,
     }
@@ -84,6 +107,7 @@ export function TransactionsListPage({
     fields: [
       { value: typeFilter, defaultValue: "all", reset: () => setTypeFilter("all") },
       { value: statusFilter, defaultValue: "all", reset: () => setStatusFilter("all") },
+      { value: serviceFilter, defaultValue: "all", reset: () => setServiceFilter("all") },
       {
         value: scopeActive,
         defaultValue: false,
@@ -119,6 +143,14 @@ export function TransactionsListPage({
         <span className="text-sm">{TRANSACTION_TYPE_LABELS[t.type]}</span>
       ),
       exportValue: (t) => TRANSACTION_TYPE_LABELS[t.type],
+    },
+    {
+      id: "service",
+      header: "Service",
+      cell: (t) => (
+        <span className="text-sm">{getTransactionServiceLabel(t)}</span>
+      ),
+      exportValue: (t) => getTransactionServiceLabel(t),
     },
     {
       id: "label",
@@ -246,6 +278,11 @@ export function TransactionsListPage({
             options={STATUS_FILTERS}
             value={statusFilter}
             onChange={setStatusFilter}
+          />
+          <FilterChips
+            options={SERVICE_FILTERS}
+            value={serviceFilter}
+            onChange={setServiceFilter}
           />
         </div>
       </TableFiltersBar>

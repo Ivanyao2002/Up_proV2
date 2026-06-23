@@ -157,6 +157,13 @@ function driverMatchesFilters(driver: Driver, params?: ListParams): boolean {
     return false;
   }
   if (
+    params?.service &&
+    params.service !== "all" &&
+    driver.ride_category_code !== params.service
+  ) {
+    return false;
+  }
+  if (
     params?.compliance_status &&
     params.compliance_status !== "all" &&
     driver.compliance_status !== params.compliance_status
