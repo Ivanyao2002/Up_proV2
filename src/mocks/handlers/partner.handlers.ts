@@ -413,8 +413,8 @@ export const partnerHandlers = [
         query.search,
         v.plate,
         v.label,
-        v.brand,
-        v.model,
+        (v as { brand?: string }).brand,
+        (v as { model?: string }).model,
         v.category,
         v.driver_name,
         v.approval_status
@@ -426,7 +426,7 @@ export const partnerHandlers = [
     const paginated = paginatedList(list, query, (v) => v.created_at);
     const summary = fleetList.data.reduce(
       (acc, item) => {
-        acc[item.approval_status] += 1;
+        acc[item.approval_status as keyof typeof acc] += 1;
         return acc;
       },
       { approved: 0, pending: 0, rejected: 0, draft: 0 }

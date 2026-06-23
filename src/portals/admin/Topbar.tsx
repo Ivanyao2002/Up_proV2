@@ -14,16 +14,6 @@ export function Topbar({ onMenuToggle, mobileNavOpen }: PortalShellTopbarProps) 
     <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-4 sm:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <MobileNavToggle onClick={onMenuToggle} open={mobileNavOpen} />
-        <button
-          type="button"
-          className="hidden rounded-lg border border-border px-3 py-1.5 text-xs text-muted md:inline-flex"
-          title="Recherche globale"
-        >
-          ⌘K Rechercher…
-        </button>
-        <span className="hidden min-w-0 truncate rounded-full bg-canvas px-3 py-1 text-xs text-muted sm:inline-block">
-          Abidjan · Toutes franchises
-        </span>
       </div>
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         <AdminAssistantTopbarButton />

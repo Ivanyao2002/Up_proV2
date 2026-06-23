@@ -52,6 +52,17 @@ export interface FreightOffer {
   client_phone?: string;
 }
 
+/** Détail d'une offre de fret — superset de la liste (statut élargi + géoloc + tracking). */
+export interface FreightOfferDetail extends Omit<FreightOffer, "status"> {
+  status: string;
+  origin_lat?: number;
+  origin_lng?: number;
+  destination_lat?: number;
+  destination_lng?: number;
+  notes?: string;
+  vehicle_id?: string | null;
+}
+
 export interface CreateFreightOfferPayload {
   origin_label: string;
   origin_lat: number;
@@ -84,8 +95,23 @@ export const partnerFreightService = {
     return mapFreightResponse(response);
   },
 
+  /** Pas d'endpoint détail dédié : on récupère l'offre depuis la liste du partenaire. */
+  getById: async (
+    partnerId: string | number,
+    offerId: string
+  ): Promise<FreightOfferDetail | undefined> => {
+    const res = await partnerFreightService.list(partnerId);
+    return res.data.find((offer) => String(offer.id) === String(offerId));
+  },
+
   create: (partnerId: string | number, data: CreateFreightOfferPayload) =>
     apiClient.post<FreightOffer>(LINKS.partner.freight.create(partnerId), data),
+
+  updateStatus: (partnerId: string | number, offerId: string, status: string) =>
+    apiClient.patch<FreightOffer>(
+      LINKS.partner.freight.update(partnerId, offerId),
+      { status }
+    ),
 
 
   update: (partnerId: string | number, offerId: string, data: UpdateFreightOfferPayload) =>

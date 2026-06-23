@@ -26,12 +26,20 @@ export function useSosIncidentsList(params?: SosListParams) {
   });
 }
 
+const LIVE_REFETCH_ACTIVE_MS = 12_000;
+
 export function useSosIncidentDetail(id: string) {
   return useQuery({
     queryKey: sosKeys.detail(id),
     queryFn: () => sosService.getIncidentById(id),
     enabled: Boolean(id),
-    refetchInterval: LIVE_REFETCH_MS,
+    // Incident actif/escaladé = vie/mort → on rafraîchit plus vite (#11 audit UX).
+    refetchInterval: (query) => {
+      const status = query.state.data?.incident?.status;
+      return status === "active" || status === "escalated"
+        ? LIVE_REFETCH_ACTIVE_MS
+        : LIVE_REFETCH_MS;
+    },
   });
 }
 

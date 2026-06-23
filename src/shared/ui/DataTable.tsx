@@ -195,6 +195,13 @@ export function DataTable<T>({
       notificationService.warning("Export non configuré pour ce tableau");
       return;
     }
+    // En pagination serveur, l'export ne porte que sur la page chargée — le dire
+    // explicitement plutôt que de laisser croire à un export complet (#6 audit UX).
+    if (serverMode && totalItems > data.length) {
+      notificationService.warning(
+        `Export limité à la page affichée (${data.length} sur ${totalItems} lignes).`
+      );
+    }
     setExporting(format);
     try {
       const ok =
@@ -227,7 +234,14 @@ export function DataTable<T>({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6">
           {hasExport ? (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-muted">Exporter</span>
+              <span className="text-xs font-medium text-muted">
+                Exporter
+                {serverMode && totalItems > data.length ? (
+                  <span className="ml-1 font-normal text-amber-600">
+                    (page affichée)
+                  </span>
+                ) : null}
+              </span>
               <Button
                 type="button"
                 variant="secondary"
@@ -298,7 +312,9 @@ export function DataTable<T>({
                 </th>
               )}
               {columns.map((col) => {
-                const isSortable = Boolean(col.sortKey);
+                // En pagination serveur, le tri client ne porterait que sur la page
+                // affichée (décision trompeuse) → on n'expose pas le tri (#5 audit UX).
+                const isSortable = Boolean(col.sortKey) && !serverMode;
                 const isActive = sortCol === col.id;
                 return (
                   <th

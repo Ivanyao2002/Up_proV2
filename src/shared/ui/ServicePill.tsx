@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import type { Trip } from "@/shared/types";
 import { getServiceLabel } from "@/shared/lib/tripLabels";
 

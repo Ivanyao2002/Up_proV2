@@ -19,6 +19,29 @@ export function usePartnerFreightOffers(params?: ListParams) {
   });
 }
 
+export function usePartnerFreightOfferDetail(offerId: string) {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: [...partnerFreightKeys.all, "detail", offerId],
+    queryFn: () => partnerFreightService.getById(ownerId!, offerId),
+    enabled: ownerId != null && Boolean(offerId),
+  });
+}
+
+export function useUpdateFreightOfferStatus() {
+  const qc = useQueryClient();
+  const { ownerId } = useScope();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => {
+      if (!ownerId) throw new Error("Partner ID non disponible");
+      return partnerFreightService.updateStatus(ownerId, id, status);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: partnerFreightKeys.all });
+    },
+  });
+}
+
 export function useCreateFreightOffer() {
   const qc = useQueryClient();
   const { ownerId } = useScope();
