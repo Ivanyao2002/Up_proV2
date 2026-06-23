@@ -351,6 +351,7 @@ export const LINKS = {
       bonusRules: `${ADMIN_V1_BASE}/bonus-rules`,
       bonusRuleById: (id: string) => `${ADMIN_V1_BASE}/bonus-rules/${id}`,
       bonusAwards: `${ADMIN_V1_BASE}/bonus-awards`,
+      bonusRunEvaluation: `${ADMIN_V1_BASE}/bonus/run-evaluation`,
       marketing: {
         promos: `${ADMIN_V1_BASE}/marketing/promos`,
         promoById: (id: string) => `${ADMIN_V1_BASE}/marketing/promos/${id}`,

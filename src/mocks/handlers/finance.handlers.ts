@@ -3,6 +3,7 @@ import withdrawals from "../data/withdrawals.json";
 import financeWallets from "../data/finance-wallets.json";
 import financeCommissions from "../data/finance-commissions.json";
 import financeReconciliation from "../data/finance-reconciliation.json";
+import bonusAwardsSeed from "../data/bonus-awards.json";
 import {
   TRANSACTIONS_CATALOG,
   filterTransactions,
@@ -123,6 +124,48 @@ export const financeHandlers = [
       },
     ];
     return HttpResponse.json(paginatedList(seed, query));
+  }),
+
+  // Attributions bonus (historique des crédits du moteur de bonus).
+  // Forme v1 : { status, awards: [...], pagination: { page, limit, total, totalPages } }.
+  http.get("*/api/v2/admin/finance/bonus-awards", ({ request }) => {
+    const query = parseListQuery(request);
+    const all = bonusAwardsSeed.awards.filter((a) =>
+      matchesSearch(
+        query.search,
+        a.driver_name,
+        a.driver_phone,
+        a.rule_name,
+        a.period_label,
+        a.id
+      )
+    );
+    const page = paginatedList(all, query);
+    return HttpResponse.json({
+      status: "ok",
+      awards: page.data,
+      pagination: {
+        page: page.meta.current_page,
+        limit: page.meta.per_page,
+        total: page.meta.total,
+        totalPages: page.meta.last_page,
+      },
+    });
+  }),
+
+  // Déclencheur manuel d'évaluation des bonus.
+  http.post("*/api/v2/admin/finance/bonus/run-evaluation", () => {
+    const eligible = bonusAwardsSeed.awards.filter((a) => a.eligible);
+    return HttpResponse.json({
+      status: "ok",
+      message: "Évaluation des bonus terminée",
+      summary: {
+        evaluated: bonusAwardsSeed.awards.length,
+        awarded: eligible.length,
+        skipped: bonusAwardsSeed.awards.length - eligible.length,
+        total_amount_xof: eligible.reduce((sum, a) => sum + (a.amount_xof ?? 0), 0),
+      },
+    });
   }),
 
   http.get("*/api/v2/admin/finance/commissions", ({ request }) => {
