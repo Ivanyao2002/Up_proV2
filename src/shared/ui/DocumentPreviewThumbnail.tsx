@@ -15,6 +15,9 @@ interface DocumentPreviewThumbnailProps {
   /** Déclenché quand il n'y a pas d'image affichable (vide, erreur, ou preview désactivée). */
   onPickFile?: () => void;
   pickLabel?: string;
+  /** Hauteur de l'aperçu image (classes Tailwind). Agrandissable pour les pièces
+   * d'identité recto/verso (#75 audit UX). */
+  imageHeightClassName?: string;
 }
 
 function PickFilePlaceholder({
@@ -57,6 +60,7 @@ export function DocumentPreviewThumbnail({
   allowPreview = true,
   onPickFile,
   pickLabel = "Cliquer pour choisir une image",
+  imageHeightClassName = "h-28 md:h-32",
 }: DocumentPreviewThumbnailProps) {
   const [open, setOpen] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -128,7 +132,7 @@ export function DocumentPreviewThumbnail({
             src={activeSrc}
             alt={alt}
             referrerPolicy="no-referrer"
-            className="h-28 w-full object-cover object-top transition-transform duration-200 group-hover:scale-[1.02] md:h-32"
+            className={`${imageHeightClassName} w-full bg-navy/5 object-contain object-center transition-transform duration-200 group-hover:scale-[1.02]`}
             onError={(e) => {
               const img = e.currentTarget;
               if (

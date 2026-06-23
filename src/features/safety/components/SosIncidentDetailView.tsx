@@ -106,6 +106,11 @@ export function SosIncidentDetailView({
   const lng = incident.last_longitude ?? incident.longitude;
   const staleGps = (incident.last_location_age_minutes ?? 0) > 5;
 
+  // Notes obligatoires pour les clôtures « fausse alerte » et « autre » : elles
+  // exigent une justification traçable (#78 audit UX).
+  const notesRequired = resolution === "false_alarm" || resolution === "other";
+  const resolveNotesMissing = notesRequired && resolveNotes.trim() === "";
+
   return (
     <div className="animate-fade-up">
       <PageHeader
@@ -504,13 +509,27 @@ export function SosIncidentDetailView({
                 </select>
               </label>
               <label className="block">
-                <span className="font-medium text-foreground">Notes</span>
+                <span className="font-medium text-foreground">
+                  Notes{notesRequired ? " (obligatoire)" : " (optionnel)"}
+                </span>
                 <textarea
-                  className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 outline-none ring-teal/30 focus:ring-2"
+                  className={`mt-1 w-full rounded-lg border px-3 py-2.5 outline-none ring-teal/30 focus:ring-2 ${
+                    resolveNotesMissing ? "border-red-300" : "border-border"
+                  }`}
                   rows={3}
                   value={resolveNotes}
                   onChange={(e) => setResolveNotes(e.target.value)}
+                  placeholder={
+                    notesRequired
+                      ? "Justifiez la clôture (fausse alerte / autre)…"
+                      : undefined
+                  }
                 />
+                {resolveNotesMissing ? (
+                  <span className="mt-1 block text-xs text-red-600">
+                    Une justification est requise pour ce type de clôture.
+                  </span>
+                ) : null}
               </label>
             </div>
             <div className="mt-6 flex justify-end gap-2">
@@ -518,7 +537,7 @@ export function SosIncidentDetailView({
                 Annuler
               </Button>
               <Button
-                disabled={resolve.isPending}
+                disabled={resolve.isPending || resolveNotesMissing}
                 onClick={() => {
                   resolve.mutate(
                     {

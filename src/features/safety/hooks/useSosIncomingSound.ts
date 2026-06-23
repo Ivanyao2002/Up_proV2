@@ -69,8 +69,13 @@ export function useSosIncomingSound({
     notificationService.warning(label, { duration: 6000 });
   };
 
+  // Clé dédiée au polling sonore (#34 audit UX) : on n'hérite pas du cache du
+  // dashboard, qui poll à un intervalle différent — sinon double charge non
+  // déterministe (les deux requêtes se disputent le même cache).
+  const soundQueryKey = [...dashboardQueryKey, "sound"] as const;
+
   const { data } = useQuery({
-    queryKey: dashboardQueryKey,
+    queryKey: soundQueryKey,
     queryFn: dashboardQueryFn,
     enabled,
     refetchInterval: pollIntervalMs,

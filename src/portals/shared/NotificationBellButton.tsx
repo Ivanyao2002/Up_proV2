@@ -14,7 +14,7 @@ export function NotificationBellButton({ href = "/partner/support/notifications"
   return (
     <Link
       href={href}
-      className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-canvas hover:text-foreground"
+      className="relative flex h-11 w-11 items-center justify-center rounded-lg text-muted transition-colors hover:bg-canvas hover:text-foreground lg:h-9 lg:w-9"
       aria-label={
         unread > 0 ? `Notifications, ${unread} non lues` : "Notifications"
       }

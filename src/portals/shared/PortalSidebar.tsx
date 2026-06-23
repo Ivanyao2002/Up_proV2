@@ -93,8 +93,16 @@ export function PortalSidebar({
                   }`}
                 />
               </button>
-              {isOpen && (
-                <ul id={groupId} className="space-y-0.5 border-l border-border/60 pl-2 ml-1">
+              <div
+                className={`nav-group-collapse grid transition-[grid-template-rows] duration-200 ease-out ${
+                  isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                }`}
+              >
+                <ul
+                  id={groupId}
+                  aria-hidden={!isOpen}
+                  className="space-y-0.5 overflow-hidden border-l border-border/60 pl-2 ml-1"
+                >
                   {items.map((item) => {
                     const active = isNavItemActive(pathname, item.path);
                     return (
@@ -128,7 +136,7 @@ export function PortalSidebar({
                     );
                   })}
                 </ul>
-              )}
+              </div>
             </div>
           );
         })}

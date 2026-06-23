@@ -8,7 +8,7 @@ export function MobileNavToggle({ onClick, open = false }: MobileNavToggleProps)
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground lg:hidden"
+      className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:bg-surface-hover hover:text-foreground lg:hidden"
       aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
       aria-expanded={open}
     >

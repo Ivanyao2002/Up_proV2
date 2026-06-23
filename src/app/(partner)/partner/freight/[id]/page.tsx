@@ -1,5 +1,10 @@
 import { PartnerFreightDetailPage } from "@/features/partner/pages/PartnerFreightDetailPage";
 
-export default function Page({ params }: { params: { id: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await params;
   return <PartnerFreightDetailPage />;
 }

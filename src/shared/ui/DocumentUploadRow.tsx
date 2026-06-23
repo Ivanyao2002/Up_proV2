@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DocumentPreviewThumbnail } from "./DocumentPreviewThumbnail";
+import { DOCUMENT_UPLOAD_HINT, validateDocumentFile } from "@/shared/lib/uploadValidation";
 
 interface DocumentUploadRowProps {
   label: string;
@@ -22,6 +23,19 @@ export function DocumentUploadRow({
 }: DocumentUploadRowProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSelect = (picked: File | null) => {
+    if (picked) {
+      const result = validateDocumentFile(picked);
+      if (!result.ok) {
+        setError(result.error ?? "Fichier invalide.");
+        return;
+      }
+    }
+    setError(null);
+    onSelect(picked);
+  };
 
   useEffect(() => {
     if (!file) {
@@ -49,18 +63,24 @@ export function DocumentUploadRow({
             )}
           </p>
           <p className="text-xs text-muted">{description}</p>
+          <p className="text-xs text-muted">{DOCUMENT_UPLOAD_HINT}</p>
           {file && (
             <p className="mt-1 truncate text-xs text-teal-dark">{file.name}</p>
+          )}
+          {error && (
+            <p className="mt-1 text-xs text-red-600" role="alert">
+              {error}
+            </p>
           )}
         </div>
         <div className="flex shrink-0 gap-2">
           <input
             ref={inputRef}
             type="file"
-            accept="image/*,.pdf"
+            accept="image/jpeg,image/png,application/pdf"
             className="hidden"
             onChange={(e) => {
-              onSelect(e.target.files?.[0] ?? null);
+              handleSelect(e.target.files?.[0] ?? null);
               e.target.value = "";
             }}
           />
@@ -74,7 +94,7 @@ export function DocumentUploadRow({
           {file && (
             <button
               type="button"
-              onClick={() => onSelect(null)}
+              onClick={() => handleSelect(null)}
               className="rounded-lg px-3 py-2 text-xs text-muted hover:text-red-600"
             >
               Retirer

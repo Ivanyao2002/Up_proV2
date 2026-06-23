@@ -1,5 +1,30 @@
-/** Détermine si un lien de navigation est actif selon le pathname courant. */
-export function isNavItemActive(pathname: string, itemPath: string): boolean {
+/** Stratégie de correspondance d'un chemin avec le pathname courant. */
+export type NavMatchStrategy = "exact" | "prefix";
+
+/** Descripteur minimal permettant un matching déclaratif d'un lien de nav. */
+export interface NavItemMatch {
+  path: string;
+  match?: NavMatchStrategy;
+  activePaths?: string[];
+}
+
+/** Vrai si `pathname` correspond à `path` selon la stratégie demandée. */
+function matchesPath(
+  pathname: string,
+  path: string,
+  strategy: NavMatchStrategy
+): boolean {
+  if (pathname === path || pathname === `${path}/`) return true;
+  if (strategy === "prefix") return pathname.startsWith(`${path}/`);
+  return false;
+}
+
+/**
+ * Comportement historique (règles spécifiques codées en dur), conservé comme
+ * repli lorsqu'un lien ne déclare ni `match` ni `activePaths`. Ne pas modifier
+ * les résultats actifs des routes existantes.
+ */
+function isNavItemActiveLegacy(pathname: string, itemPath: string): boolean {
   // ——— Partenaire ———
   if (itemPath === "/partner/drivers") {
     return (
@@ -216,9 +241,38 @@ export function isNavItemActive(pathname: string, itemPath: string): boolean {
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
 }
 
+/**
+ * Détermine si un lien de navigation est actif selon le pathname courant.
+ *
+ * Accepte soit le chemin du lien (string, comportement historique), soit un
+ * descripteur déclaratif `{ path, match?, activePaths? }`. Lorsqu'une stratégie
+ * `match` et/ou des `activePaths` sont fournis, ils priment ; sinon on retombe
+ * sur les règles spécifiques historiques (`isNavItemActiveLegacy`).
+ */
+export function isNavItemActive(
+  pathname: string,
+  item: string | NavItemMatch
+): boolean {
+  if (typeof item === "string") {
+    return isNavItemActiveLegacy(pathname, item);
+  }
+
+  const { path, match, activePaths } = item;
+
+  // Pas de configuration déclarative : on conserve le comportement historique.
+  if (!match && (!activePaths || activePaths.length === 0)) {
+    return isNavItemActiveLegacy(pathname, path);
+  }
+
+  // Stratégie par défaut : prefix (comportement de repli par défaut existant).
+  const strategy: NavMatchStrategy = match ?? "prefix";
+  const paths = [path, ...(activePaths ?? [])];
+  return paths.some((p) => matchesPath(pathname, p, strategy));
+}
+
 export function isNavGroupActive(
   pathname: string,
-  items: { path: string }[]
+  items: NavItemMatch[]
 ): boolean {
-  return items.some((item) => isNavItemActive(pathname, item.path));
+  return items.some((item) => isNavItemActive(pathname, item));
 }

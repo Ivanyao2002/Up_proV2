@@ -42,7 +42,7 @@ export function RejectReasonModal({
 
   return (
     <ModalPortal>
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
       <button
         type="button"
         className="absolute inset-0 bg-overlay animate-fade-up"
@@ -55,7 +55,7 @@ export function RejectReasonModal({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="relative w-full max-w-md rounded-card bg-surface p-6 shadow-card outline-none animate-fade-up"
+        className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-card bg-surface p-6 shadow-card outline-none animate-fade-up sm:rounded-card"
       >
         <h2 id={titleId} className="text-lg font-semibold text-foreground">
           {title}

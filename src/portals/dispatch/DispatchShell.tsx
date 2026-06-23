@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/core/auth/authStore";
 import { PortalShellLayout } from "@/portals/shared/PortalShellLayout";
 import { PortalTopbar } from "@/portals/shared/PortalTopbar";
+import { NotificationBellButton } from "@/portals/shared/NotificationBellButton";
 import { DISPATCH_NAV } from "./dispatchNav";
 
 export function DispatchShell({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,7 @@ export function DispatchShell({ children }: { children: React.ReactNode }) {
           scopeLabel={`Dispatch · ${zones}`}
           badge="Dispatcher"
           loginPath="/dispatch/login"
+          extraActions={<NotificationBellButton href="/dispatch/console" />}
         />
       )}
     >

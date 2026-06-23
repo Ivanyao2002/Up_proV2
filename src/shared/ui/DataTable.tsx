@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
 import { Button } from "./Button";
+import { EmptyState } from "./EmptyState";
+import { ErrorState } from "./ErrorState";
 import { downloadCsv, downloadExcel } from "@/shared/lib/tableExport";
 import { notificationService } from "@/core/http/notificationService";
 
@@ -59,6 +67,22 @@ interface DataTableProps<T> {
   getRowClassName?: (row: T) => string | undefined;
   /** Clic sur une ligne (hors cases à cocher / boutons) */
   onRowClick?: (row: T) => void;
+  /** Libellé accessible de la ligne cliquable (pour le clavier / lecteurs d'écran) */
+  rowAriaLabel?: (row: T) => string;
+  /** Affiche un état d'erreur dans le corps du tableau (en gardant l'en-tête) */
+  isError?: boolean;
+  /** Message d'erreur contextualisé */
+  errorMessage?: string;
+  /** Callback du bouton « Réessayer » de l'état d'erreur */
+  onRetry?: () => void;
+  /** Indique qu'un ou plusieurs filtres sont actifs (état vide contextualisé) */
+  hasActiveFilters?: boolean;
+  /** Callback du bouton « Réinitialiser les filtres » de l'état vide */
+  onResetFilters?: () => void;
+  /** Rend la 1ère colonne (et la colonne de sélection) en position sticky */
+  stickyFirstColumn?: boolean;
+  /** Rend une vue cartes empilées sous le breakpoint md (table masquée sous md) */
+  renderCard?: (row: T) => ReactNode;
 }
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -104,6 +128,14 @@ export function DataTable<T>({
   rowHeight = "default",
   getRowClassName,
   onRowClick,
+  rowAriaLabel,
+  isError,
+  errorMessage,
+  onRetry,
+  hasActiveFilters,
+  onResetFilters,
+  stickyFirstColumn,
+  renderCard,
 }: DataTableProps<T>) {
   const serverMode = Boolean(serverPagination);
   const paginationEnabled = !serverMode && pagination !== false;
@@ -135,6 +167,14 @@ export function DataTable<T>({
   const rowClass = rowHeight === "compact" ? "h-10" : "h-[52px]";
   const colCount = columns.length + (selectable ? 1 : 0);
   const hasExport = Boolean(exportFileName) && columns.some((c) => c.exportValue);
+
+  // Classes sticky pour la 1ère colonne (et la colonne de sélection) sur tables larges (#30).
+  const stickySelectClass = stickyFirstColumn
+    ? "sticky left-0 z-[1] bg-surface"
+    : "";
+  const stickyFirstColClass = stickyFirstColumn
+    ? `sticky ${selectable ? "left-12" : "left-0"} z-[1] bg-surface`
+    : "";
 
   const activePage = serverMode ? serverPagination!.page : page;
   const activePageSize = serverMode ? serverPagination!.pageSize : pageSize;
@@ -293,25 +333,31 @@ export function DataTable<T>({
         </div>
       )}
 
+      {selectable && allSelected && totalItems > activePageSize && (
+        <div className="border-b border-border bg-teal/[0.06] px-4 py-2 text-center text-xs text-foreground sm:px-6">
+          Les {data.length} de cette page sont sélectionnés.
+        </div>
+      )}
+
       <div
-        className="overflow-x-auto overflow-y-auto"
+        className={`overflow-x-auto overflow-y-auto ${renderCard ? "hidden md:block" : ""}`}
         style={maxHeight ? { maxHeight } : undefined}
       >
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10 border-b border-border bg-surface">
             <tr className="text-left text-xs uppercase tracking-wider text-muted">
               {selectable && (
-                <th className="w-12 px-3 py-3 sm:px-6">
+                <th className={`w-12 px-3 py-3 sm:px-6 ${stickySelectClass}`}>
                   <input
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleAll}
                     className="rounded border-border text-teal focus:ring-teal"
-                    aria-label="Tout sélectionner"
+                    aria-label="Tout sélectionner (page)"
                   />
                 </th>
               )}
-              {columns.map((col) => {
+              {columns.map((col, colIndex) => {
                 // En pagination serveur, le tri client ne porterait que sur la page
                 // affichée (décision trompeuse) → on n'expose pas le tri (#5 audit UX).
                 const isSortable = Boolean(col.sortKey) && !serverMode;
@@ -319,7 +365,9 @@ export function DataTable<T>({
                 return (
                   <th
                     key={col.id}
-                    className={`px-3 py-3 font-medium sm:px-6 ${col.className ?? ""}`}
+                    className={`px-3 py-3 font-medium sm:px-6 ${
+                      colIndex === 0 ? stickyFirstColClass : ""
+                    } ${col.className ?? ""}`}
                     aria-sort={isActive ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
                   >
                     {isSortable ? (
@@ -346,27 +394,72 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {isLoading && <SkeletonRows cols={colCount} rowClass={rowClass} />}
-            {!isLoading && data.length === 0 && (
+            {!isLoading && isError && (
               <tr>
-                <td colSpan={colCount} className="px-3 py-16 text-center sm:px-6">
-                  <p className="font-medium text-foreground">{emptyTitle}</p>
-                  {emptyDescription && (
-                    <p className="mt-1 text-sm text-muted">{emptyDescription}</p>
+                <td colSpan={colCount} className="px-3 py-12 sm:px-6">
+                  <ErrorState
+                    message={
+                      errorMessage ??
+                      "Impossible de charger les données. Veuillez réessayer."
+                    }
+                    onRetry={onRetry}
+                  />
+                </td>
+              </tr>
+            )}
+            {!isLoading && !isError && data.length === 0 && (
+              <tr>
+                <td colSpan={colCount} className="px-3 py-12 sm:px-6">
+                  {hasActiveFilters ? (
+                    <EmptyState
+                      title="Aucun résultat pour ces filtres"
+                      description="Essayez d'élargir ou de réinitialiser vos critères de recherche."
+                      actionLabel={onResetFilters ? "Réinitialiser les filtres" : undefined}
+                      onAction={onResetFilters}
+                    />
+                  ) : (
+                    <EmptyState title={emptyTitle} description={emptyDescription} />
                   )}
                 </td>
               </tr>
             )}
             {!isLoading &&
+              !isError &&
               visibleData.map((row) => {
                 const key = rowKey(row);
                 const selected = selectedKeys?.has(key);
                 const extraRowClass = getRowClassName?.(row) ?? "";
+                const handleRowActivate = () => {
+                  if (!onRowClick) return;
+                  onRowClick(row);
+                };
+                const handleRowKeyDown = onRowClick
+                  ? (e: ReactKeyboardEvent<HTMLTableRowElement>) => {
+                      const target = e.target as HTMLElement;
+                      if (
+                        target.closest("button, a, input, select, textarea, [data-row-action]")
+                      ) {
+                        return;
+                      }
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onRowClick(row);
+                      }
+                    }
+                  : undefined;
                 return (
                   <tr
                     key={key}
                     className={`${rowClass} border-t border-border/50 transition-colors duration-120 hover:bg-surface-hover/80 ${
                       selected ? "bg-teal/[0.04]" : ""
-                    } ${extraRowClass} ${onRowClick ? "cursor-pointer" : ""}`}
+                    } ${extraRowClass} ${
+                      onRowClick
+                        ? "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal"
+                        : ""
+                    }`}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    role={onRowClick ? "button" : undefined}
+                    aria-label={onRowClick ? rowAriaLabel?.(row) : undefined}
                     onClick={
                       onRowClick
                         ? (e) => {
@@ -376,13 +469,14 @@ export function DataTable<T>({
                             ) {
                               return;
                             }
-                            onRowClick(row);
+                            handleRowActivate();
                           }
                         : undefined
                     }
+                    onKeyDown={handleRowKeyDown}
                   >
                     {selectable && (
-                      <td className="px-3 sm:px-6">
+                      <td className={`px-3 sm:px-6 ${stickySelectClass}`}>
                         <input
                           type="checkbox"
                           checked={selected}
@@ -392,8 +486,13 @@ export function DataTable<T>({
                         />
                       </td>
                     )}
-                    {columns.map((col) => (
-                      <td key={col.id} className={`px-3 sm:px-6 ${col.className ?? ""}`}>
+                    {columns.map((col, colIndex) => (
+                      <td
+                        key={col.id}
+                        className={`px-3 sm:px-6 ${
+                          colIndex === 0 ? stickyFirstColClass : ""
+                        } ${col.className ?? ""}`}
+                      >
                         {col.cell(row)}
                       </td>
                     ))}
@@ -403,6 +502,79 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
+
+      {renderCard && (
+        <div className="space-y-3 p-3 md:hidden sm:p-4">
+          {isLoading &&
+            [1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-20 animate-pulse rounded-card border border-border/50 bg-navy/[0.03] dark:bg-white/[0.03]"
+              />
+            ))}
+          {!isLoading && isError && (
+            <ErrorState
+              message={
+                errorMessage ??
+                "Impossible de charger les données. Veuillez réessayer."
+              }
+              onRetry={onRetry}
+            />
+          )}
+          {!isLoading && !isError && data.length === 0 && (
+            hasActiveFilters ? (
+              <EmptyState
+                title="Aucun résultat pour ces filtres"
+                description="Essayez d'élargir ou de réinitialiser vos critères de recherche."
+                actionLabel={onResetFilters ? "Réinitialiser les filtres" : undefined}
+                onAction={onResetFilters}
+              />
+            ) : (
+              <EmptyState title={emptyTitle} description={emptyDescription} />
+            )
+          )}
+          {!isLoading &&
+            !isError &&
+            visibleData.map((row) => {
+              const key = rowKey(row);
+              if (onRowClick) {
+                return (
+                  <div
+                    key={key}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={rowAriaLabel?.(row)}
+                    className="cursor-pointer rounded-card outline-none focus-visible:ring-2 focus-visible:ring-teal"
+                    onClick={(e) => {
+                      const target = e.target as HTMLElement;
+                      if (
+                        target.closest("button, a, input, select, textarea, [data-row-action]")
+                      ) {
+                        return;
+                      }
+                      onRowClick(row);
+                    }}
+                    onKeyDown={(e) => {
+                      const target = e.target as HTMLElement;
+                      if (
+                        target.closest("button, a, input, select, textarea, [data-row-action]")
+                      ) {
+                        return;
+                      }
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onRowClick(row);
+                      }
+                    }}
+                  >
+                    {renderCard(row)}
+                  </div>
+                );
+              }
+              return <div key={key}>{renderCard(row)}</div>;
+            })}
+        </div>
+      )}
 
       {(footer || paginationEnabled || serverMode) && (
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 text-sm text-muted sm:px-6">

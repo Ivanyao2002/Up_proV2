@@ -1,14 +1,15 @@
 import type { JSX } from "react";
 import type { Trip } from "@/shared/types";
 import { getServiceLabel } from "@/shared/lib/tripLabels";
+import { Badge, type BadgeTone } from "./Badge";
 
 type TripService = Trip["service"];
 
-const STYLES: Record<TripService, string> = {
-  taxi: "bg-navy/10 text-foreground",
-  delivery: "bg-teal/15 text-teal-dark",
-  rental: "bg-canvas text-muted border border-border",
-  freight: "bg-amber-50 text-amber-800",
+const TONES: Record<TripService, BadgeTone> = {
+  taxi: "info",
+  delivery: "success",
+  rental: "neutral",
+  freight: "warning",
 };
 
 function IconTaxi({ className }: { className?: string }) {
@@ -59,11 +60,9 @@ const ICONS: Record<TripService, ({ className }: { className?: string }) => JSX.
 export function ServicePill({ service }: { service: TripService }) {
   const Icon = ICONS[service];
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${STYLES[service]}`}
-    >
+    <Badge tone={TONES[service]}>
       <Icon className="h-3.5 w-3.5 shrink-0" />
       {getServiceLabel(service)}
-    </span>
+    </Badge>
   );
 }

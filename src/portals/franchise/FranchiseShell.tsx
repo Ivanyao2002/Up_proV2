@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/core/auth/authStore";
 import { PortalShellLayout } from "@/portals/shared/PortalShellLayout";
 import { PortalTopbar } from "@/portals/shared/PortalTopbar";
+import { NotificationBellButton } from "@/portals/shared/NotificationBellButton";
 import { FranchiseSosSoundListener } from "@/features/safety/components/FranchiseSosSoundListener";
 import { FranchiseChatSoundListener } from "@/features/support/components/FranchiseChatSoundListener";
 import { FRANCHISE_NAV } from "./franchiseNav";
@@ -29,6 +30,7 @@ export function FranchiseShell({ children }: { children: React.ReactNode }) {
           scopeLabel={scopeLabel}
           badge="Franchise"
           loginPath="/franchise/login"
+          extraActions={<NotificationBellButton href="/franchise/support" />}
         />
       )}
     >

@@ -11,6 +11,16 @@
   --color-teal-dark: #099885;
   --color-teal-soft: rgba(10, 179, 156, 0.12);
 
+  /* Statuts sémantiques — clair (texte sur -soft conforme AA) */
+  --color-success: #0f7b63;
+  --color-success-soft: rgba(10, 179, 156, 0.12);
+  --color-warning: #92600a;
+  --color-warning-soft: rgba(217, 152, 14, 0.14);
+  --color-danger: #c0392b;
+  --color-danger-soft: rgba(220, 53, 47, 0.1);
+  --color-info: #2f4a8c;
+  --color-info-soft: rgba(64, 81, 137, 0.1);
+
   --color-canvas: #f3f3f9;
   --color-surface: #ffffff;
   --color-surface-hover: #f8f9fc;
@@ -49,6 +59,16 @@
   --color-teal: #2dd4bf;
   --color-teal-dark: #5eead4;
   --color-teal-soft: rgba(45, 212, 191, 0.14);
+
+  /* Statuts sémantiques — nuit (texte clair sur fonds atténués) */
+  --color-success: #34d399;
+  --color-success-soft: rgba(45, 212, 191, 0.16);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgba(251, 191, 36, 0.16);
+  --color-danger: #f87171;
+  --color-danger-soft: rgba(248, 113, 113, 0.16);
+  --color-info: #8ba0d4;
+  --color-info-soft: rgba(107, 127, 168, 0.18);
 
   --color-canvas: #0e1118;
   --color-surface: #161d28;
