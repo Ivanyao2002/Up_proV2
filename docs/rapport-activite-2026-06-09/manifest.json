@@ -1,0 +1,153 @@
+{
+  "generatedAt": "2026-06-09T17:46:57.387Z",
+  "baseUrl": "http://localhost:3000",
+  "results": [
+    {
+      "slug": "01-dashboard",
+      "label": "Tableau de bord",
+      "url": "/admin/dashboard",
+      "file": "screenshots/01-dashboard.png",
+      "ok": true
+    },
+    {
+      "slug": "02-carte-live",
+      "label": "Carte live",
+      "url": "/admin/ops/map",
+      "file": "screenshots/02-carte-live.png",
+      "ok": true
+    },
+    {
+      "slug": "03-courses-liste",
+      "label": "Liste courses",
+      "url": "/admin/ops/trips",
+      "file": "screenshots/03-courses-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "04-franchises-liste",
+      "label": "Liste franchises",
+      "url": "/admin/network/franchises",
+      "file": "screenshots/04-franchises-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "05-partenaires-liste",
+      "label": "Liste partenaires",
+      "url": "/admin/network/partners",
+      "file": "screenshots/05-partenaires-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "06-chauffeurs-liste",
+      "label": "Liste chauffeurs",
+      "url": "/admin/fleet/drivers",
+      "file": "screenshots/06-chauffeurs-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "07-vehicules-liste",
+      "label": "Liste véhicules",
+      "url": "/admin/fleet/vehicles",
+      "file": "screenshots/07-vehicules-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "08-kyc-file",
+      "label": "File KYC",
+      "url": "/admin/fleet/kyc",
+      "file": "screenshots/08-kyc-file.png",
+      "ok": true
+    },
+    {
+      "slug": "09-finance-dashboard",
+      "label": "Finance — tableau de bord",
+      "url": "/admin/finance",
+      "file": "screenshots/09-finance-dashboard.png",
+      "ok": true
+    },
+    {
+      "slug": "10-transactions-liste",
+      "label": "Transactions",
+      "url": "/admin/finance/transactions",
+      "file": "screenshots/10-transactions-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "11-retraits-liste",
+      "label": "Retraits",
+      "url": "/admin/finance/withdrawals",
+      "file": "screenshots/11-retraits-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "12-marketing-bannieres",
+      "label": "Bannières",
+      "url": "/admin/marketing/banners",
+      "file": "screenshots/12-marketing-bannieres.png",
+      "ok": true
+    },
+    {
+      "slug": "13-marketing-banniere-new",
+      "label": "Nouvelle bannière",
+      "url": "/admin/marketing/banners/new",
+      "file": "screenshots/13-marketing-banniere-new.png",
+      "ok": true
+    },
+    {
+      "slug": "14-marketing-promos",
+      "label": "Codes promo",
+      "url": "/admin/marketing/promos",
+      "file": "screenshots/14-marketing-promos.png",
+      "ok": true
+    },
+    {
+      "slug": "15-marketing-campagnes",
+      "label": "Campagnes",
+      "url": "/admin/marketing/campaigns",
+      "file": "screenshots/15-marketing-campagnes.png",
+      "ok": true
+    },
+    {
+      "slug": "20-course-detail",
+      "label": "Détail course",
+      "url": "/admin/ops/trips/fdbe2608-2e7f-4e22-9e57-9347e9446089",
+      "file": "screenshots/20-course-detail.png",
+      "ok": true
+    },
+    {
+      "slug": "21-partenaire-detail",
+      "label": "Détail partenaire",
+      "url": "/admin/network/partners/e67afb8d-5e9e-40f4-bae3-160dbbd2e06b",
+      "file": "screenshots/21-partenaire-detail.png",
+      "ok": true
+    },
+    {
+      "slug": "22-franchise-detail",
+      "label": "Détail franchise",
+      "url": "/admin/network/franchises/82781966-5ca5-4a67-9147-1a6dd245e31d",
+      "file": "screenshots/22-franchise-detail.png",
+      "ok": true
+    },
+    {
+      "slug": "23-chauffeur-detail",
+      "label": "Détail chauffeur",
+      "url": "/admin/fleet/drivers/25dd8e9b-a413-498c-95b1-dda6464f8cb5",
+      "file": "screenshots/23-chauffeur-detail.png",
+      "ok": true
+    },
+    {
+      "slug": "24-transaction-detail",
+      "label": "Détail transaction",
+      "url": "/admin/finance/transactions/99320b0b-57e5-4dbd-af0a-54d46ed809c2",
+      "file": "screenshots/24-transaction-detail.png",
+      "ok": true
+    },
+    {
+      "slug": "25-retrait-detail",
+      "label": "Détail retrait",
+      "url": "/admin/finance/withdrawals/5a055bb3-5b7a-45b5-abd2-bcc245cb444b",
+      "file": "screenshots/25-retrait-detail.png",
+      "ok": true
+    }
+  ]
+}

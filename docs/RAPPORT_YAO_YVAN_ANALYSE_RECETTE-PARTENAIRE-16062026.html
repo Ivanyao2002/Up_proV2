@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport Yao Yvan — Analyse recette Partenaire — 16/06/2026</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #e2e8f0; color: #0f172a; line-height: 1.45; }
+.page { width: 210mm; min-height: 297mm; margin: 12px auto; background: #fff; position: relative; page-break-after: always; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+.page:last-child { page-break-after: auto; }
+@media print { body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+.cover { background: #016d71; color: #fff; min-height: 297mm; padding: 48px 52px; overflow: hidden; }
+.cover::before, .cover::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill { display: inline-block; margin-top: 28px; background: #f8bb10; color: #0f172a; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 999px; }
+.cover h1 { margin-top: 40px; font-size: 38px; font-weight: 800; line-height: 1.15; max-width: 92%; }
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 10px; font-size: 32px; }
+.cover .lead { margin-top: 22px; max-width: 540px; font-size: 14px; opacity: .92; }
+.cover .meta-line { width: 48px; height: 4px; background: #f8bb10; margin: 32px 0 18px; }
+.cover .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; font-size: 12px; }
+.cover .meta-grid label { display: block; font-size: 10px; opacity: .75; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.cover-footer { margin-top: auto; padding-top: 36px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; opacity: .9; }
+.cover-footer .dv { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px; }
+.inner { padding: 40px 48px 56px; }
+.header { background: #016d71; color: #fff; margin: -40px -48px 28px -48px; padding: 28px 48px; }
+.header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.header .meta { font-size: 12px; opacity: .9; }
+h2.section-title { font-size: 22px; font-weight: 800; color: #016d71; margin-bottom: 6px; }
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 22px; }
+.section-title-inner { font-size: 15px; font-weight: 700; color: #016d71; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #016d71; }
+.finition-band { display: flex; align-items: center; gap: 16px; background: #f0fdfa; border: 1px solid #5eead4; border-radius: 12px; padding: 16px 22px; margin-bottom: 22px; }
+.finition-number { font-size: 44px; font-weight: 800; color: #016d71; line-height: 1; flex-shrink: 0; }
+.finition-desc { font-size: 12px; color: #0f172a; }
+.finition-desc strong { display: block; font-size: 14px; margin-bottom: 4px; color: #016d71; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+.kpi { background: #f8fafc; border-radius: 12px; padding: 16px 12px; text-align: center; border: 1px solid #e2e8f0; border-top: 4px solid #016d71; }
+.kpi.gold-top { border-top-color: #f8bb10; }
+.kpi.err-top { border-top-color: #ef4444; }
+.kpi .val { font-size: 28px; font-weight: 800; color: #016d71; }
+.kpi .lbl { font-size: 11px; color: #64748b; margin-top: 4px; font-weight: 600; }
+.progress-bar-wrap { background: #e2e8f0; border-radius: 999px; height: 12px; margin: 4px 0 10px 0; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #016d71, #22c55e); }
+.progress-bar.warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.progress-bar.err { background: linear-gradient(90deg, #ef4444, #f87171); }
+table.data { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 16px; }
+table.data thead th { background: #016d71; color: #fff; text-align: left; padding: 9px 10px; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; }
+table.data tbody td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+.badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-err { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.priority { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.priority-high { background: #ef4444; color: #fff; }
+.priority-medium { background: #f59e0b; color: #fff; }
+.priority-low { background: #22c55e; color: #fff; }
+.summary-box { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 16px 18px; margin-bottom: 18px; }
+.summary-box h4 { color: #0f766e; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.summary-box ul { margin-left: 18px; font-size: 11px; }
+.summary-box li { margin-bottom: 4px; }
+.alert-box { background: #fefce8; border-left: 4px solid #f8bb10; padding: 12px 16px; margin-bottom: 16px; font-size: 11px; border-radius: 0 8px 8px 0; }
+.error-box { background: #fee2e2; border-left: 4px solid #dc2626; padding: 12px 16px; margin-bottom: 16px; font-size: 11px; border-radius: 0 8px 8px 0; }
+.success-box { background: #dcfce7; border-left: 4px solid #16a34a; padding: 12px 16px; margin-bottom: 16px; font-size: 11px; border-radius: 0 8px 8px 0; }
+code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-family: 'SF Mono', monospace; font-size: 10px; }
+.page-foot { font-size: 10px; color: #94a3b8; position: absolute; bottom: 24px; left: 48px; right: 48px; display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+.checklist { font-size: 11px; margin-left: 4px; }
+.checklist li { margin-bottom: 6px; list-style: none; padding-left: 22px; position: relative; }
+.checklist li::before { content: '☐'; position: absolute; left: 0; color: #016d71; font-weight: 700; }
+.flow-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; font-size: 12px; text-align: center; margin-bottom: 18px; font-weight: 600; }
+.flow-box .arrow { color: #016d71; margin: 0 8px; }
+  </style>
+</head>
+<body>
+
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="logo">UPJUNOO <span>PRO</span></div>
+    <div class="badge-pill">● ANALYSE RECETTE — INTERFACE PARTENAIRE</div>
+    <h1>Rapport d'analyse<span class="gold">Plan de recette vs Back-office Partenaire</span></h1>
+    <p class="lead">
+      Comparaison entre le document « Plan complet de recette » (slides 5.5, 9–10, 13, 20, 39 — jalon 21 juin 2026)
+      et le portail <strong>/partner</strong> du front <code>Up_prov2</code>.
+    </p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Auteur</label>YAO YVAN</div>
+      <div><label>Date</label>16 Juin 2026</div>
+      <div><label>Environnement</label>api.upjunoo-dev.tech</div>
+      <div><label>Sources</label>PLAN DE RECETTE ET DEPLOIEMENT.pdf</div>
+      <div><label>Analyse</label>ANALYSE-PLAN-RECETTE-PARTENAIRE.md</div>
+      <div><label>Version</label>1.0 — Confidentiel technique</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">YY</span>Yao Yvan — Équipe Développement Frontend UpJunoo Pro</div>
+      <div>RAPPORT_YAO_YVAN_ANALYSE_RECETTE-PARTENAIRE-16062026</div>
+    </div>
+  </div>
+</div>
+
+<div class="page inner">
+  <h2 class="section-title">Synthèse <span class="gold">exécutive</span></h2>
+  <p class="sub">Couverture du profil Partenaire (interface #04) — lecture au 16/06/2026.</p>
+
+  <div class="finition-band">
+    <div class="finition-number">75%</div>
+    <div class="finition-desc">
+      <strong>Niveau de préparation recette — Portail Partenaire</strong>
+      Le portail couvre solidement la flotte, les opérations et la <strong>recharge cascade chauffeurs</strong> (rôle central du plan).
+      <strong>2 écarts P0</strong> : alimentation wallet partenaire (Mobile Money / carte) absente ; flux fret « demande client → devis » à clarifier.
+    </div>
+  </div>
+
+  <div class="flow-box">
+    Chaîne attendue slide 13 :
+    <span class="badge badge-warn">Mobile Money</span>
+    <span class="arrow">→</span>
+    <span class="badge badge-err">Wallet partenaire</span>
+    <span class="arrow">→</span>
+    <span class="badge badge-ok">Wallets chauffeurs</span>
+    <br/><span style="font-size:10px;font-weight:400;color:#64748b;margin-top:8px;display:block;">Étape 1–2 manquante en UI · Étape 3 implémentée (<code>PartnerDriverRechargeModal</code>)</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">75%</div><div class="lbl">13 fonctions slide 5.5</div></div>
+    <div class="kpi gold-top"><div class="val">85%</div><div class="lbl">Flotte &amp; opérations</div></div>
+    <div class="kpi err-top"><div class="val">2</div><div class="lbl">Écarts P0 critiques</div></div>
+    <div class="kpi"><div class="val">~40</div><div class="lbl">Pages /partner</div></div>
+  </div>
+
+  <div class="section-title-inner">Score par domaine</div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Flotte &amp; suivi activité</span><span>8.5/10 — 85%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar" style="width:85%"></div></div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Finance cascade (UC-FIN01)</span><span>7.5/10 — 75%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar warn" style="width:75%"></div></div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Multiservices (fret + location)</span><span>6.5/10 — 65%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar warn" style="width:65%"></div></div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Réclamations &amp; support</span><span>5/10 — 50%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar err" style="width:50%"></div></div>
+
+  <div class="error-box">
+    <strong>Écart métier #1 — Top-up wallet partenaire :</strong> Le plan exige recharge par <strong>Mobile Money</strong> ou <strong>carte bancaire</strong> avant la cascade chauffeurs.
+    <code>PartnerWalletPage</code> propose retrait et recharge chauffeur, mais <strong>pas de bouton d'alimentation</strong> du wallet partenaire.
+  </div>
+
+  <div class="summary-box">
+    <h4>Points forts identifiés</h4>
+    <ul>
+      <li>Dashboard KPI + carte live + courses</li>
+      <li>CRUD chauffeurs, véhicules, documents, membres équipe</li>
+      <li>Wallet : consultation, retrait, recharges chauffeurs + historique</li>
+      <li>Performance, rapports, revenus, grand livre</li>
+      <li>Fret (offres) et location avec guard module</li>
+    </ul>
+  </div>
+
+  <div class="page-foot"><span>YAO YVAN — UpJunoo Pro</span><span>Page 1 / 6</span></div>
+</div>
+
+<div class="page inner">
+  <div class="header">
+    <h1>13 fonctionnalités — Slide 5.5 Partenaires</h1>
+    <div class="meta">Service à recetter · UC-P01 · UC-P02 · UC-FIN01</div>
+  </div>
+
+  <table class="data">
+    <thead><tr><th>#</th><th>Fonctionnalité plan</th><th>Statut</th><th>Implémentation</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>Création compte partenaire</td><td><span class="badge badge-info">Admin</span></td><td><code>/admin/network/partners/new</code></td></tr>
+      <tr><td>02</td><td>Validation admin central</td><td><span class="badge badge-info">Admin</span></td><td>Fiche partenaire admin</td></tr>
+      <tr><td>03</td><td>Rattachement chauffeurs &amp; véhicules</td><td><span class="badge badge-ok">OK</span></td><td>UC-P02 · <code>/partner/drivers</code>, <code>/partner/fleet</code></td></tr>
+      <tr><td>04</td><td>Suivi activité flotte</td><td><span class="badge badge-ok">OK</span></td><td>Dashboard, map, orders</td></tr>
+      <tr><td>05</td><td>Revenus, commissions, performance</td><td><span class="badge badge-ok">OK</span></td><td>wallet, revenue, performance</td></tr>
+      <tr><td>06</td><td>Reporting période &amp; service</td><td><span class="badge badge-warn">Partiel</span></td><td><code>/partner/reports</code></td></tr>
+      <tr><td>07</td><td>Documents véhicule / chauffeur</td><td><span class="badge badge-ok">OK</span></td><td>API documents</td></tr>
+      <tr><td>08</td><td>Recharge wallet — Mobile Money</td><td><span class="badge badge-err">Absent</span></td><td>—</td></tr>
+      <tr><td>09</td><td>Recharge wallet — Carte CB/Visa</td><td><span class="badge badge-err">Absent</span></td><td>—</td></tr>
+      <tr><td>10</td><td>Recharge cascade chauffeurs</td><td><span class="badge badge-ok">OK</span></td><td><code>PartnerDriverRechargeModal</code></td></tr>
+      <tr><td>11</td><td>Fret + devis</td><td><span class="badge badge-warn">Partiel</span></td><td>Offres fret — flux client à valider</td></tr>
+      <tr><td>12</td><td>Validation location</td><td><span class="badge badge-warn">Partiel</span></td><td><code>/partner/rental</code> + module guard</td></tr>
+      <tr><td>13</td><td>Communication &amp; réclamations</td><td><span class="badge badge-warn">Partiel</span></td><td>Chat support</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title-inner">Reporting attendu — Slide 20</div>
+  <table class="data">
+    <thead><tr><th>Indicateur</th><th>Couverture</th><th>Remarque</th></tr></thead>
+    <tbody>
+      <tr><td>Nb chauffeurs / véhicules rattachés</td><td><span class="badge badge-ok">OK</span></td><td>Dashboard + listes</td></tr>
+      <tr><td>Nb courses par chauffeur</td><td><span class="badge badge-warn">Partiel</span></td><td>Performance, reports</td></tr>
+      <tr><td>Montant activité &amp; commissions</td><td><span class="badge badge-ok">OK</span></td><td>Revenue, wallet</td></tr>
+      <tr><td>Performance par période &amp; service</td><td><span class="badge badge-warn">Partiel</span></td><td>Reports</td></tr>
+      <tr><td>Statuts &amp; conformité KYC</td><td><span class="badge badge-warn">Partiel</span></td><td>Pages pending hors nav</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>YAO YVAN — UpJunoo Pro</span><span>Page 2 / 6</span></div>
+</div>
+
+<div class="page inner">
+  <div class="header">
+    <h1>Inventaire écrans — Portail Partenaire</h1>
+    <div class="meta">Réf. <code>src/portals/partner/partnerNav.ts</code> · ~40 routes</div>
+  </div>
+
+  <table class="data">
+    <thead><tr><th>Groupe</th><th>Écran</th><th>Route</th><th>Plan / UC</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>MA FLOTTE</td><td>Tableau de bord</td><td><code>/partner/dashboard</code></td><td>Slide 20</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>MA FLOTTE</td><td>Véhicules · Chauffeurs</td><td><code>/partner/fleet</code>, <code>/drivers</code></td><td>UC-P02</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>MA FLOTTE</td><td>KYC pending</td><td><code>/partner/drivers/pending</code></td><td>Conformité</td><td><span class="badge badge-warn">Hors nav</span></td></tr>
+      <tr><td>MA FLOTTE</td><td>Courses · Carte live</td><td><code>/partner/orders</code>, <code>/map</code></td><td>Suivi</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>MA FLOTTE</td><td>Performance · GPS · SOS</td><td><code>/performance</code>, <code>/gps-devices</code></td><td>—</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>OPPORTUNITÉS</td><td>Fret (offres)</td><td><code>/partner/freight</code></td><td>UC-F01</td><td><span class="badge badge-warn">Partiel</span></td></tr>
+      <tr><td>OPPORTUNITÉS</td><td>Location</td><td><code>/partner/rental</code></td><td>UC-LO</td><td><span class="badge badge-warn">Module guard</span></td></tr>
+      <tr><td>ACTIVITÉ</td><td>Nouvelle course / livraison</td><td><code>/partner/bookings/new</code></td><td>UC-T / UC-L</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>ACTIVITÉ</td><td>Rapports</td><td><code>/partner/reports</code></td><td>#06</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>FINANCE</td><td>Portefeuille</td><td><code>/partner/wallet</code></td><td>Wallet propre</td><td><span class="badge badge-warn">Sans top-up</span></td></tr>
+      <tr><td>FINANCE</td><td>Recharges chauffeurs</td><td><code>/partner/wallet/driver-transfers</code></td><td>UC-FIN01</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>FINANCE</td><td>Revenus · Ledger · Settlements</td><td><code>/partner/wallet/*</code></td><td>#05</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>SUPPORT</td><td>Chat · Notifications</td><td><code>/partner/support/*</code></td><td>#13</td><td><span class="badge badge-warn">Partiel</span></td></tr>
+      <tr><td>COMPTE</td><td>Profil · Membres</td><td><code>/partner/profile</code>, <code>/members</code></td><td>UC-P01</td><td><span class="badge badge-ok">OK</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert-box">
+    <strong>Pages existantes mais commentées dans la navigation :</strong>
+    <code>/partner/fleet/pending</code>, <code>/partner/drivers/pending</code>, <code>/partner/bookings</code>.
+    Accessibles par URL directe.
+  </div>
+
+  <div class="page-foot"><span>YAO YVAN — UpJunoo Pro</span><span>Page 3 / 6</span></div>
+</div>
+
+<div class="page inner">
+  <div class="header">
+    <h1>Use cases recette — Partenaire</h1>
+    <div class="meta">UC-P01 · UC-P02 · UC-FIN01 · UC-F01 · UC-LO · UC-S01</div>
+  </div>
+
+  <table class="data">
+    <thead><tr><th>UC</th><th>Intitulé</th><th>Crit.</th><th>Partenaire</th><th>Écart principal</th></tr></thead>
+    <tbody>
+      <tr><td>UC-P01</td><td>Création &amp; validation partenaire</td><td>M</td><td><span class="badge badge-warn">Partiel</span></td><td>Création côté admin ; accès post-validation</td></tr>
+      <tr><td>UC-P02</td><td>Rattachement + cloisonnement</td><td>C</td><td><span class="badge badge-ok">OK</span></td><td>Test négatif 2 comptes obligatoire</td></tr>
+      <tr><td>UC-FIN01</td><td>Recharge wallet (3 voies)</td><td>C</td><td><span class="badge badge-warn">Partiel</span></td><td>Voie 2.c OK · 2.a/2.b absentes</td></tr>
+      <tr><td>UC-F01</td><td>Fret urbain</td><td>M</td><td><span class="badge badge-warn">Partiel</span></td><td>Offres vs demandes client</td></tr>
+      <tr><td>UC-LO01–02</td><td>Location</td><td>M</td><td><span class="badge badge-warn">Partiel</span></td><td>Module optionnel</td></tr>
+      <tr><td>UC-T01–05</td><td>Transport VTC</td><td>C/M</td><td><span class="badge badge-ok">OK</span></td><td>Orders + bookings</td></tr>
+      <tr><td>UC-L01–04</td><td>Livraison</td><td>—</td><td><span class="badge badge-warn">Partiel</span></td><td>Pas de vue livreur</td></tr>
+      <tr><td>UC-S01</td><td>Réclamation</td><td>M</td><td><span class="badge badge-warn">Partiel</span></td><td>Chat sans workflow finance</td></tr>
+    </tbody>
+  </table>
+
+  <div class="success-box">
+    <strong>Point d'alignement majeur avec le plan :</strong> le partenaire est bien l'acteur de la <strong>recharge cascade</strong> (contrairement au central qui ne doit pas recharger les chauffeurs).
+    <code>PartnerDriverRechargeModal</code> + API <code>wallet/driver-recharge</code> sont en place.
+  </div>
+
+  <div class="section-title-inner">Détail UC-P02 — Cloisonnement (critique)</div>
+  <table class="data">
+    <thead><tr><th>Étape recette</th><th>Action</th><th>Statut prévu</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Partenaire A rattache chauffeur + véhicule</td><td>Visible uniquement A</td></tr>
+      <tr><td>2</td><td>Course avec chauffeur A</td><td>Reporting A cohérent</td></tr>
+      <tr><td>3</td><td>Login partenaire B</td><td>Aucune donnée de A visible</td></tr>
+      <tr><td>4</td><td>Même franchise, 2 partenaires</td><td>Cloisonnement strict maintenu</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>YAO YVAN — UpJunoo Pro</span><span>Page 4 / 6</span></div>
+</div>
+
+<div class="page inner">
+  <div class="header">
+    <h1>Écarts priorisés &amp; décisions</h1>
+    <div class="meta">P0 bloquant recette 21/06 · P1 important · P2 différé</div>
+  </div>
+
+  <table class="data">
+    <thead><tr><th>Priorité</th><th>Écart</th><th>Impact</th><th>Action recommandée</th></tr></thead>
+    <tbody>
+      <tr><td><span class="priority priority-high">P0</span></td><td>Top-up wallet MM + CB absent</td><td>UC-FIN01 voies 2.a/2.b</td><td>UI + API PayDunya ou procédure crédit test documentée</td></tr>
+      <tr><td><span class="priority priority-high">P0</span></td><td>Cloisonnement UC-P02 non prouvé</td><td>Critère acceptation slide 39</td><td>2 comptes partenaires pilotes en préprod</td></tr>
+      <tr><td><span class="priority priority-high">P0</span></td><td>Flux fret demande → devis</td><td>UC-F01</td><td>Arbitrer offres vs demandes entrantes</td></tr>
+      <tr><td><span class="priority priority-medium">P1</span></td><td>KYC pending hors navigation</td><td>Conformité slide 20</td><td>Réactiver nav ou documenter URLs</td></tr>
+      <tr><td><span class="priority priority-medium">P1</span></td><td>Pas de vue livreur</td><td>UC-L</td><td>Accepter bookings delivery ou développer</td></tr>
+      <tr><td><span class="priority priority-medium">P1</span></td><td>Réclamations structurées</td><td>UC-S01</td><td>Enrichir support ou lien admin tickets</td></tr>
+      <tr><td><span class="priority priority-low">P2</span></td><td>RBAC membres équipe</td><td>—</td><td>Hors jalon V1</td></tr>
+      <tr><td><span class="priority priority-low">P2</span></td><td>GPS / tracking avancé</td><td>—</td><td>Extension produit</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title-inner">Décisions équipe</div>
+  <table class="data">
+    <thead><tr><th>Sujet</th><th>Options</th><th>Impact 21/06</th></tr></thead>
+    <tbody>
+      <tr><td>Alimentation wallet</td><td>Développer vs crédit manuel backend</td><td>Pass/fail UC-FIN01</td></tr>
+      <tr><td>Fret</td><td>Scénario offres vs demandes client</td><td>Périmètre UC-F01</td></tr>
+      <tr><td>Go/No-Go</td><td>Accepter P2 (livreurs, RBAC)</td><td>Recette réaliste</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>YAO YVAN — UpJunoo Pro</span><span>Page 5 / 6</span></div>
+</div>
+
+<div class="page inner">
+  <div class="header">
+    <h1>Checklist recette — Dimanche 21 juin 2026</h1>
+    <div class="meta">Portail Partenaire · Compte pilote <code>dev.partner@upjunoo-dev.tech</code></div>
+  </div>
+
+  <div class="section-title-inner">Avant le test</div>
+  <ul class="checklist">
+    <li>Compte partenaire validé par admin (UC-P01)</li>
+    <li>2e partenaire pilote pour test cloisonnement UC-P02</li>
+    <li>Wallet partenaire avec solde test (procédure top-up définie)</li>
+    <li>Modules fret et location activés si test multiservices</li>
+  </ul>
+
+  <div class="section-title-inner" style="margin-top:20px;">Scénarios jour J</div>
+  <ul class="checklist">
+    <li>UC-P02 : créer chauffeur + véhicule → course → visible uniquement sur ce compte</li>
+    <li>UC-FIN01 : cascade recharge chauffeur → historique driver-transfers</li>
+    <li>UC-FIN01 négatif : recharge sans solde → erreur explicite</li>
+    <li>Dashboard : KPI cohérents avec course test</li>
+    <li>Orders : suivi temps réel aligné client/chauffeur</li>
+    <li>Fret : créer offre / traiter demande (selon flux retenu)</li>
+    <li>Location : réservation si module actif</li>
+    <li>Reports : export période avec chiffres terrain</li>
+    <li>Support : ouvrir chat → réponse support</li>
+    <li>Cloisonnement : login partenaire B → aucune donnée partenaire A</li>
+  </ul>
+
+  <div class="summary-box" style="margin-top:24px;">
+    <h4>Fichiers de référence</h4>
+    <ul>
+      <li><code>docs/ANALYSE-PLAN-RECETTE-PARTENAIRE.md</code> — analyse complète</li>
+      <li><code>docs/CONTEXTE-ANALYSE-RECETTE-PARTENAIRE-2026-06-16.md</code> — contexte méthodo</li>
+      <li><code>src/portals/partner/partnerNav.ts</code> — navigation</li>
+      <li><code>src/features/partner/pages/PartnerWalletPage.tsx</code> — finance</li>
+    </ul>
+  </div>
+
+  <div class="page-foot"><span>YAO YVAN — UpJunoo Pro</span><span>Page 6 / 6</span></div>
+</div>
+
+</body>
+</html>

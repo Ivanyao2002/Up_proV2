@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport d&#x27;Activité — UPJUNOO PRO Back-office v2</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #e2e8f0;
+  color: #0f172a;
+  line-height: 1.45;
+}
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 12px auto;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+.page:last-child { page-break-after: auto; }
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; }
+}
+
+.cover {
+  background: #016d71;
+  color: #fff;
+  min-height: 297mm;
+  padding: 48px 52px;
+  overflow: hidden;
+}
+.cover::before, .cover::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; min-height: calc(297mm - 96px); display: flex; flex-direction: column; }
+.cover-logo {
+  display: block;
+  height: 52px;
+  width: auto;
+  max-width: 240px;
+  object-fit: contain;
+  object-position: left center;
+}
+.badge-pill {
+  display: inline-block;
+  margin-top: 28px;
+  background: #f8bb10;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+.cover h1 {
+  margin-top: 48px;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.15;
+  max-width: 95%;
+}
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 8px; font-size: 32px; }
+.cover .lead {
+  margin-top: 24px;
+  max-width: 540px;
+  font-size: 14px;
+  opacity: .92;
+}
+.cover .meta-line {
+  width: 48px;
+  height: 4px;
+  background: #f8bb10;
+  margin: 36px 0 20px;
+}
+.cover .meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  font-size: 12px;
+}
+.cover .meta-grid label {
+  display: block;
+  font-size: 10px;
+  opacity: .75;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+.cover-footer {
+  margin-top: auto;
+  padding-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 11px;
+  opacity: .9;
+}
+.cover-footer .dv {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; margin-right: 10px;
+}
+
+.inner { padding: 40px 48px 64px; }
+h2.section-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #016d71;
+  margin-bottom: 8px;
+}
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.kpi-grid.row2 { grid-template-columns: repeat(2, 1fr); }
+.kpi {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  border-top: 4px solid #016d71;
+}
+.kpi.gold-top { border-top-color: #f8bb10; }
+.kpi .val { font-size: 28px; font-weight: 800; color: #0f172a; }
+.kpi .lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #016d71;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-top: 6px;
+}
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 24px 0 32px;
+}
+.chart-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+}
+.chart-box h4 { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+.bar-track {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.bar-fill { height: 100%; background: #016d71; border-radius: 5px; }
+.chart-pct { font-size: 22px; font-weight: 800; color: #016d71; margin-top: 8px; }
+
+.block-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.block-title::before {
+  content: '';
+  width: 4px;
+  height: 22px;
+  background: #016d71;
+  border-radius: 2px;
+}
+.block-note { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+.warn-banner {
+  background: #ecfdf5;
+  border-left: 4px solid #016d71;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  border-radius: 0 8px 8px 0;
+}
+.warn-banner strong { color: #016d71; }
+.outlook-banner {
+  background: #fef3c7;
+  border-left: 4px solid #f8bb10;
+  padding: 14px 16px;
+  margin: 20px 0;
+  font-size: 13px;
+  border-radius: 0 8px 8px 0;
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 12px;
+}
+table.data thead th {
+  background: #016d71;
+  color: #fff;
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+table.data tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-info { background: #e0f2fe; color: #0369a1; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+ul.check { list-style: none; margin-bottom: 16px; }
+ul.check li {
+  font-size: 13px;
+  padding: 8px 0 8px 28px;
+  position: relative;
+  border-bottom: 1px solid #f1f5f9;
+}
+ul.check li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #016d71;
+  font-weight: 800;
+}
+ul.pending li::before { content: '○'; color: #f8bb10; }
+
+.capture {
+  margin-bottom: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  break-inside: avoid;
+}
+.capture-head {
+  background: #016d71;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.capture-head h3 {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+}
+.capture-num {
+  background: #f8bb10;
+  color: #0f172a;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.capture-body {
+  padding: 14px 16px 16px;
+  background: #f8fafc;
+}
+.capture-body p {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 10px;
+}
+.capture-frame {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  background: #fff;
+  line-height: 0;
+}
+.capture-frame img {
+  width: 100%;
+  height: auto;
+  max-height: 155mm;
+  object-fit: contain;
+  object-position: top center;
+  display: block;
+}
+.capture-frame.compact img { max-height: 72mm; }
+.capture-tags {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.capture-tags span {
+  font-size: 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #64748b;
+  font-weight: 600;
+}
+.two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.page-foot {
+  position: absolute;
+  bottom: 24px;
+  left: 48px;
+  right: 48px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #94a3b8;
+}
+.note-global {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 12px;
+}
+.timeline {
+  border-left: 3px solid #016d71;
+  margin-left: 8px;
+  padding-left: 20px;
+}
+.timeline-item {
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+.timeline-item strong { color: #016d71; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1 — COUVERTURE -->
+<div class="page cover">
+  <div class="cover-inner">
+    <img
+      class="cover-logo"
+      src="../public/assets/logo.png"
+      alt="UpJunoo Pro"
+      width="220"
+      height="52"
+    />
+    <div class="badge-pill">● RAPPORT D&#x27;ACTIVITÉ DÉVELOPPEMENT</div>
+    <h1>Back-office v2<span class="gold">Écrans terminés · Intégrations API en cours</span></h1>
+    <p class="lead">
+      Point d&#x27;avancement sur la refonte du back-office UpJunoo Pro (Next.js) :
+      parcours UI/UX finalisés sur les portails Admin et Partenaire, branchement progressif
+      de l&#x27;API <code style="opacity:.85">/v1</code>, temps réel carte live et authentification opérationnels.
+    </p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Date du rapport</label>4 Juin 2026 — 18:30</div>
+      <div><label>Périmètre</label>Admin · Partenaire · Carte live</div>
+      <div><label>Destinataire</label>Direction &amp; équipe produit</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">CR</span>Équipe Développement | Ingénierie Front &amp; Intégration API</div>
+      <div>CONFIDENTIEL | Version 1.0 — Juin 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 — SYNTHÈSE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Synthèse <span class="gold">exécutive</span></h2>
+  <p class="sub">
+    Les maquettes fonctionnelles et l&#x27;ergonomie des écrans principaux sont achevées.
+    La phase d&#x27;intégration backend a démarré : les modules critiques (auth, dashboard admin, carte live temps réel)
+    consomment déjà l&#x27;API de développement.
+  </p>
+
+  <div class="warn-banner">
+    <strong>Message clé :</strong> l&#x27;interface est prête à l&#x27;emploi visuellement ; l&#x27;effort actuel porte sur le branchement
+    des données réelles, la stabilisation du temps réel et l&#x27;extension des endpoints <code>/v1/admin</code> sur l&#x27;ensemble des listes et fiches.
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">128+</div><div class="lbl">Pages / écrans routés</div></div>
+    <div class="kpi"><div class="val">8</div><div class="lbl">Routes API /v1 branchées</div></div>
+    <div class="kpi gold-top"><div class="val">1</div><div class="lbl">Canal Socket.io actif</div></div>
+  </div>
+  <div class="kpi-grid row2">
+    <div class="kpi"><div class="val">UI ✓</div><div class="lbl">Design system UpJunoo (teal / or)</div></div>
+    <div class="kpi gold-top"><div class="val">Demain soir</div><div class="lbl">Avancement majeur attendu sur intégrations</div></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-box">
+      <h4>Avancement écrans (UI / navigation)</h4>
+      <div class="bar-track"><div class="bar-fill" style="width:92%"></div></div>
+      <div class="chart-pct">~92 %</div>
+      <p style="font-size:11px;color:#64748b;margin-top:8px">Sidebars, tableaux, fiches, formulaires, thème clair/sombre.</p>
+    </div>
+    <div class="chart-box">
+      <h4>Avancement intégration API réelle</h4>
+      <div class="bar-track"><div class="bar-fill" style="width:28%;background:#f8bb10"></div></div>
+      <div class="chart-pct" style="color:#b45309">~28 %</div>
+      <p style="font-size:11px;color:#64748b;margin-top:8px">Auth + dashboard + carte live + quelques fiches ; reste en mocks MSW.</p>
+    </div>
+  </div>
+
+  <div class="block-title">Répartition du travail</div>
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Lot</th>
+        <th>Statut</th>
+        <th>Détail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Écrans &amp; navigation</strong></td>
+        <td><span class="badge badge-ok">Terminé</span></td>
+        <td>Portails Admin, Partenaire, Franchise, Dispatch — menus, KPI cards, listes, fiches détail, support, finance.</td>
+      </tr>
+      <tr>
+        <td><strong>Intégration API /v1</strong></td>
+        <td><span class="badge badge-warn">En cours</span></td>
+        <td>Login, session, dashboard admin, live-map HTTP, détail course/chauffeur ; extension progressive documentée.</td>
+      </tr>
+      <tr>
+        <td><strong>Temps réel carte live</strong></td>
+        <td><span class="badge badge-ok">Opérationnel</span></td>
+        <td>Socket <code>admin:live:locations</code>, fusion deltas GPS, Mapbox, animation fluide véhicules.</td>
+      </tr>
+      <tr>
+        <td><strong>Partenaire &amp; mocks</strong></td>
+        <td><span class="badge badge-info">UI prête</span></td>
+        <td>Données démo (MSW) — branchement API partenaire planifié en priorité P0.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="outlook-banner">
+    <strong>Perspective — mercredi 3 juin au soir :</strong> nous visons un bond significatif sur les intégrations
+    (listes courses/chauffeurs, portefeuille partenaire, KYC, support) et la réduction du mode mock sur les parcours critiques.
+  </div>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Rapport d&#x27;activité Back-office v2</span>
+    <span>Page 2 / 6</span>
+  </div>
+</div>
+
+<!-- PAGE 3 — CAPTURES ADMIN -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Portail Admin</span></h2>
+  <p class="sub">Captures d&#x27;écran illustrant les écrans finalisés et les modules déjà connectés à l&#x27;API ou au temps réel.</p>
+
+  <div class="capture">
+    <div class="capture-head">
+      <h3>Fig. 1 — Tableau de bord administrateur (données API)</h3>
+      <span class="capture-num">CAPTURE 01</span>
+    </div>
+    <div class="capture-body">
+      <p>KPIs opérationnels : courses du jour, chauffeurs approuvés, file KYC, activité récente branchée sur <code>GET /v1/admin/dashboard</code>.</p>
+      <div class="capture-frame">
+        <img src="rapport-activite/captures/01-admin-dashboard.png" alt="Tableau de bord administrateur UpJunoo Pro"/>
+      </div>
+      <div class="capture-tags">
+        <span>Route : /admin/dashboard</span>
+        <span>API ✓</span>
+        <span>Temps réel —</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="capture">
+    <div class="capture-head">
+      <h3>Fig. 2 — Carte live réseau mondial (Mapbox + Socket.io)</h3>
+      <span class="capture-num">CAPTURE 02</span>
+    </div>
+    <div class="capture-body">
+      <p>Vue opérationnelle centrale : snapshot HTTP initial, positions en flux via socket, marqueurs animés sur voies, panneau flotte et popups course.</p>
+      <div class="capture-frame">
+        <img src="rapport-activite/captures/02-carte-live-admin.png" alt="Carte live réseau mondial — temps réel socket"/>
+      </div>
+      <div class="capture-tags">
+        <span>Route : /admin/ops/map</span>
+        <span>GET /v1/admin/live-map</span>
+        <span>Socket ✓</span>
+        <span>Mapbox ✓</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Rapport d&#x27;activité Back-office v2</span>
+    <span>Page 3 / 6</span>
+  </div>
+</div>
+
+<!-- PAGE 4 — CAPTURES PARTENAIRE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Portail Partenaire</span></h2>
+  <p class="sub">Parcours flotte, finance et support — UI finalisée ; données majoritairement en démo en attendant le branchement <code>/v1/owner</code>.</p>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head">
+        <h3>Fig. 3 — Dashboard partenaire</h3>
+        <span class="capture-num">CAP. 03</span>
+      </div>
+      <div class="capture-body">
+        <p>Revenus du jour, courses, chauffeurs en ligne, portefeuille, flux 7 jours.</p>
+        <div class="capture-frame compact">
+          <img src="rapport-activite/captures/03-partner-dashboard.png" alt="Tableau de bord partenaire"/>
+        </div>
+        <div class="capture-tags"><span>UI ✓</span><span>API à brancher</span></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head">
+        <h3>Fig. 4 — Portefeuille &amp; mouvements</h3>
+        <span class="capture-num">CAP. 04</span>
+      </div>
+      <div class="capture-body">
+        <p>Solde, retraits en attente, recharges chauffeurs, historique mouvements.</p>
+        <div class="capture-frame compact">
+          <img src="rapport-activite/captures/04-partner-wallet.png" alt="Portefeuille partenaire"/>
+        </div>
+        <div class="capture-tags"><span>UI ✓</span><span>Finance P0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="capture">
+    <div class="capture-head">
+      <h3>Fig. 5 — Fiche chauffeur (aperçu, KPIs, position live, courses récentes)</h3>
+      <span class="capture-num">CAPTURE 05</span>
+    </div>
+    <div class="capture-body">
+      <p>Profil complet : statuts KYC, portefeuille mobile, mini-carte position, export CSV/Excel des courses.</p>
+      <div class="capture-frame">
+        <img src="rapport-activite/captures/05-partner-driver-detail.png" alt="Fiche chauffeur — aperçu et position live"/>
+      </div>
+      <div class="capture-tags">
+        <span>/partner/drivers/[id]</span>
+        <span>Documents KYC</span>
+        <span>Lien carte live flotte</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head">
+        <h3>Fig. 6 — Détail course TR-88421</h3>
+        <span class="capture-num">CAP. 06</span>
+      </div>
+      <div class="capture-body">
+        <p>Timeline suivi, client/chauffeur, montant FCFA, trajet départ/arrivée.</p>
+        <div class="capture-frame compact">
+          <img src="rapport-activite/captures/06-partner-trip-detail.png" alt="Détail course TR-88421"/>
+        </div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head">
+        <h3>Fig. 7 — Support chat franchise</h3>
+        <span class="capture-num">CAP. 07</span>
+      </div>
+      <div class="capture-body">
+        <p>Fil de conversation ticket CH-P-12, validation véhicule.</p>
+        <div class="capture-frame compact">
+          <img src="rapport-activite/captures/07-partner-support-chat.png" alt="Support chat validation véhicule"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="capture">
+    <div class="capture-head">
+      <h3>Fig. 8 — Documents KYC chauffeur (onglet Documents)</h3>
+      <span class="capture-num">CAPTURE 08</span>
+    </div>
+    <div class="capture-body">
+      <p>CNI, permis et carte grise — statuts de validation franchise.</p>
+      <div class="capture-frame">
+        <img src="rapport-activite/captures/08-partner-driver-kyc.png" alt="Documents KYC chauffeur validés"/>
+      </div>
+      <div class="capture-tags">
+        <span>Documents KYC</span>
+        <span>UI ✓</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Rapport d&#x27;activité Back-office v2</span>
+    <span>Page 4 / 6</span>
+  </div>
+</div>
+
+<!-- PAGE 5 — INTÉGRATIONS -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Intégrations <span class="gold">réalisées</span></h2>
+  <p class="sub">Détail technique des branchements effectifs sur l&#x27;environnement <code>api.upjunoo-dev.tech</code> (documenté dans <em>docs/API-INTEGRATION-BACKOFFICE.md</em>).</p>
+
+  <div class="block-title">Infrastructure &amp; configuration</div>
+  <ul class="check">
+    <li>Client HTTP unifié avec routage <code>/v1/</code> vs <code>/api/v2/</code> (legacy mocks MSW).</li>
+    <li>Variables d&#x27;environnement : <code>NEXT_PUBLIC_API_URL</code>, <code>NEXT_PUBLIC_USE_REAL_AUTH</code>, <code>NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN</code>.</li>
+    <li>Headers portail : <code>Authorization</code>, <code>X-Client-Type: back-office</code>, <code>X-Scope</code>, franchise / owner.</li>
+    <li>Guards d&#x27;authentification (AuthGuard, GuestGuard) et hydratation session.</li>
+  </ul>
+
+  <div class="block-title">Routes API /v1 déjà branchées</div>
+  <table class="data">
+    <thead>
+      <tr><th>Méthode</th><th>Endpoint</th><th>Usage front</th><th>Statut</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>POST</td><td>/v1/auth/login</td><td>Connexion admin / franchise / partenaire</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>GET</td><td>/v1/auth/me</td><td>Session, rôles, périmètre</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>POST</td><td>/v1/auth/logout</td><td>Déconnexion</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>GET</td><td>/v1/admin/dashboard</td><td>Tableau de bord admin (KPIs + activité)</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>GET</td><td>/v1/admin/live-map</td><td>Snapshot carte (chauffeurs, marqueurs, bounds)</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>GET</td><td>/v1/admin/orders</td><td>Détail course admin</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>GET</td><td>/v1/drivers/:id</td><td>Fiche chauffeur (fallback enrichissement)</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>GET</td><td>/v1/admin/drivers</td><td>Liste / agrégation fiche chauffeur</td><td><span class="badge badge-ok">OK</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Carte live — stack temps réel &amp; rendu</div>
+  <ul class="check">
+    <li><strong>Socket.io</strong> : événement <code>admin:live:locations</code>, statuts connecté / déconnecté, badge UI « Temps réel actif ».</li>
+    <li><strong>Fusion données</strong> : snapshot HTTP une fois au chargement ; deltas GPS fusionnés sans re-polling agressif (30 s en secours si socket coupé).</li>
+    <li><strong>Mapbox GL</strong> : marqueurs chauffeurs, popups enrichies, icône GPS personnalisée.</li>
+    <li><strong>Animation</strong> : itinéraires Mapbox Directions (throttle), vitesse <code>speed_kmh</code>, extrapolation entre paquets socket — mouvement fluide sur voies.</li>
+    <li>Documentation technique : <code>ADMIN-LIVE-MAP-SOCKET.md</code>.</li>
+  </ul>
+
+  <div class="block-title">Qualité &amp; outillage</div>
+  <ul class="check">
+    <li>Typage TypeScript (mappers API → modèles UI), React Query pour cache et mutations.</li>
+    <li>Mode mocks MSW conservé pour développement hors-ligne et écrans non encore branchés.</li>
+    <li>Compilation <code>tsc --noEmit</code> validée sur le socle intégré.</li>
+  </ul>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Rapport d&#x27;activité Back-office v2</span>
+    <span>Page 5 / 6</span>
+  </div>
+</div>
+
+<!-- PAGE 6 — SUITE & ENGAGEMENT -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Prochaines étapes <span class="gold">&amp; engagement</span></h2>
+  <p class="sub">Priorisation alignée sur la matrice P0 / P1 du document d&#x27;intégration API.</p>
+
+  <div class="block-title">Intégrations à venir (priorité immédiate)</div>
+  <table class="data">
+    <thead>
+      <tr><th>Priorité</th><th>Module</th><th>Endpoints cibles</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="badge badge-err" style="background:#fecaca;color:#b91c1c">P0</span></td><td>Listes &amp; détail courses (admin + partenaire)</td><td><code>/v1/admin/orders</code>, routes owner bookings</td></tr>
+      <tr><td><span class="badge badge-err" style="background:#fecaca;color:#b91c1c">P0</span></td><td>Chauffeurs &amp; file KYC</td><td><code>/v1/admin/drivers</code>, <code>/v1/admin/kyc/documents</code></td></tr>
+      <tr><td><span class="badge badge-warn">P1</span></td><td>Carte live — commandes temps réel</td><td><code>/v1/admin/live-orders</code> (stats sans recharger live-map)</td></tr>
+      <tr><td><span class="badge badge-warn">P1</span></td><td>Portefeuille &amp; recharges partenaire</td><td>Endpoints finance owner / wallet</td></tr>
+      <tr><td><span class="badge badge-neutral">P2</span></td><td>Support tickets &amp; chat API</td><td>Messages persistés côté backend</td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Calendrier indicatif</div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <strong>Aujourd&#x27;hui — 4 juin 2026</strong>
+      Écrans validés visuellement ; auth, dashboard admin et carte live temps réel en production de dev ; animation carte stabilisée ; rapport illustré.
+    </div>
+    <div class="timeline-item">
+      <strong>Prochaine échéance — 5 juin 2026 (objectif soir)</strong>
+      Extension massive des intégrations P0 : courses, chauffeurs, KYC, début portefeuille partenaire ; réduction du recours aux mocks sur les parcours quotidiens.
+    </div>
+    <div class="timeline-item">
+      <strong>Suite de sprint</strong>
+      Franchise, dispatch, marketing et finance générale selon roadmap Swagger.
+    </div>
+  </div>
+
+  <div class="outlook-banner" style="margin-top:24px">
+    <strong>Engagement équipe :</strong> d&#x27;ici <strong>demain soir</strong>, nous aurons <strong>grandement avancé</strong> sur le branchement API —
+    l&#x27;application passera d&#x27;une démonstration UI riche à un back-office réellement alimenté par les données UpJunoo sur les flux opérationnels majeurs.
+  </div>
+
+  <div class="block-title">Légende des captures (récapitulatif)</div>
+  <table class="data">
+    <thead><tr><th>N°</th><th>Titre pour rapport / présentation</th><th>Portail</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>Tableau de bord administrateur — KPIs temps réel</td><td>Admin</td></tr>
+      <tr><td>02</td><td>Carte live mondiale — Socket.io &amp; Mapbox</td><td>Admin</td></tr>
+      <tr><td>03</td><td>Tableau de bord partenaire — Vue flotte Cocody Express</td><td>Partenaire</td></tr>
+      <tr><td>04</td><td>Portefeuille mobile — Soldes &amp; mouvements FCFA</td><td>Partenaire</td></tr>
+      <tr><td>05</td><td>Fiche chauffeur — KPIs, position live &amp; historique courses</td><td>Partenaire</td></tr>
+      <tr><td>06</td><td>Détail course — Timeline &amp; participants</td><td>Partenaire</td></tr>
+      <tr><td>07</td><td>Support chat — Ticket validation véhicule</td><td>Partenaire</td></tr>
+      <tr><td>08</td><td>Documents KYC chauffeur — Statuts validés</td><td>Partenaire</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note-global">
+    PDF généré automatiquement : <code>docs/RAPPORT-ACTIVITE-UPJUNOO-PRO.pdf</code> — captures dans <code>docs/rapport-activite/captures/</code>.
+  </p>
+
+  <div class="page-foot">
+    <span>UPJUNOO PRO — Rapport d&#x27;activité Back-office v2</span>
+    <span>Page 6 / 6</span>
+  </div>
+</div>
+
+</body>
+</html>

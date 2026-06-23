@@ -24,12 +24,8 @@ import {
   uploadPartnerCreateDocuments,
   type PartnerCreateDocumentUpload,
 } from "@/features/network/api/partnerCreateDocuments.v1";
-<<<<<<< HEAD
 import type { PartnerLegalForm } from "@/features/network/lib/partnerLegalForm";
-import type { Driver, Paginated, Partner, Trip } from "@/shared/types";
-=======
 import type { Driver, Paginated, Partner, Trip, Vehicle } from "@/shared/types";
->>>>>>> fed127ab51adf60f32a63511528f4b8eb2d9ad87
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
 import {
   mapFranchiseOrdersToTripsList,
@@ -64,19 +60,13 @@ export interface CreatePartnerPayload {
   /** UUID ville catalogue — prioritaire sur `city` (libellé). Requis par POST /v1/partners. */
   city_id?: string;
   address?: string;
-<<<<<<< HEAD
   /** Forme juridique du partenaire. */
   legal_form?: PartnerLegalForm;
   /** Gérant (personne morale uniquement). */
   manager_first_name?: string;
   manager_last_name?: string;
-=======
   commission_rate?: number;
-  legal_form?: "INDIVIDUAL" | "COMPANY";
-  manager_first_name?: string;
-  manager_last_name?: string;
   partner_type?: "FLEET" | "FREIGHT" | "RENTAL";
->>>>>>> fed127ab51adf60f32a63511528f4b8eb2d9ad87
 }
 
 export interface FranchisePartnerCreateResult extends FranchisePartnerDetail {
@@ -247,33 +237,7 @@ export const franchisePartnersService = {
 
     const response = await apiClient.post<ApiPartnerCreateResponse>(
       LINKS.v1.partners.create,
-<<<<<<< HEAD
-      {
-        franchiseId,
-        legalName,
-        tradeName,
-        cityId,
-        email,
-        password: payload.password,
-        contactEmail: email,
-        ...(payload.contact_phone.trim()
-          ? {
-              contactPhone: payload.contact_phone.trim(),
-              phone: payload.contact_phone.trim(),
-            }
-          : {}),
-        ...(payload.legal_form ? { legalForm: payload.legal_form } : {}),
-        ...(payload.legal_form === "COMPANY" && payload.manager_first_name?.trim()
-          ? { managerFirstName: payload.manager_first_name.trim() }
-          : {}),
-        ...(payload.legal_form === "COMPANY" && payload.manager_last_name?.trim()
-          ? { managerLastName: payload.manager_last_name.trim() }
-          : {}),
-        ...(payload.address?.trim() ? { address: payload.address.trim() } : {}),
-      }
-=======
       body
->>>>>>> fed127ab51adf60f32a63511528f4b8eb2d9ad87
     );
 
     const p = response.partner;

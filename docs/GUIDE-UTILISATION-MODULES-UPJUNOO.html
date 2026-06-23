@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guide d'utilisation — UpJunoo Pro</title>
+  <style>
+    :root {
+      --navy: #0f172a;
+      --teal: #0d9488;
+      --teal-dark: #0f766e;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--navy);
+      background: var(--bg);
+    }
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 3rem 2rem;
+      background: linear-gradient(145deg, #0f172a 0%, #134e4a 100%);
+      color: #fff;
+      page-break-after: always;
+    }
+    .cover h1 { font-size: 2.25rem; font-weight: 700; margin: 0 0 0.5rem; max-width: 720px; }
+    .cover .sub { font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem; }
+    .cover .meta { font-size: 0.9rem; opacity: 0.75; }
+    .cover .logo { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1.5rem; color: #5eead4; }
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2.portal-title {
+      font-size: 1.75rem;
+      color: var(--teal-dark);
+      border-bottom: 3px solid var(--teal);
+      padding-bottom: 0.5rem;
+      margin: 3rem 0 1.5rem;
+      page-break-before: always;
+    }
+    h2.portal-title .count { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+    h2.portal-title:first-of-type { page-break-before: auto; margin-top: 0; }
+    .group-title {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 2rem 0 1rem;
+    }
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+      page-break-inside: avoid;
+    }
+    .module-card header h3 { margin: 0.25rem 0; font-size: 1.35rem; }
+    .module-group {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--teal-dark);
+      background: #ccfbf1;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    .badge-dynamic {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #b45309;
+      background: #fef3c7;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+    .path { margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--muted); }
+    .objectif { margin: 1rem 0; }
+    .shot {
+      margin: 1rem 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f1f5f9;
+    }
+    .shot img { width: 100%; height: auto; display: block; }
+    .shot figcaption {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .shot-missing {
+      padding: 3rem;
+      text-align: center;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .usage h4 { margin: 0 0 0.5rem; font-size: 0.95rem; }
+    .usage ol { margin: 0; padding-left: 1.25rem; }
+    .usage li { margin-bottom: 0.35rem; }
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .toc h2 { margin-top: 0; font-size: 1.25rem; }
+    .toc ul { columns: 2; gap: 2rem; padding-left: 1.25rem; margin: 0.5rem 0 0; }
+    .toc a { color: var(--teal-dark); text-decoration: none; font-size: 0.85rem; }
+    .toc a:hover { text-decoration: underline; }
+    table.accounts {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 1rem 0 2rem;
+    }
+    table.accounts th, table.accounts td {
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+    }
+    table.accounts th { background: #f1f5f9; font-weight: 600; }
+    .summary-box {
+      background: #ecfdf5;
+      border: 1px solid #99f6e4;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+    @media print {
+      body { background: #fff; }
+      .cover { min-height: auto; padding: 4rem 2rem; }
+      .module-card { box-shadow: none; }
+      .toc ul { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="cover">
+    <div class="logo">UpJunoo Pro</div>
+    <h1>Guide d'utilisation — UpJunoo Pro</h1>
+    <p class="sub">Portails Administrateur et Comptabilité · captures d'écran environnement DEV</p>
+    <p class="meta">
+      Version 1.0 · 17 juin 2026<br />
+      API : https://api.upjunoo-dev.tech · App : http://localhost:3000<br />
+      83 / 86 captures générées<br />
+      Portail Administrateur: 74 · Portail Comptabilité: 12
+    </p>
+  </header>
+
+  <main>
+    <div class="summary-box">
+      <strong>Résumé :</strong> ce document recense <strong>86 écrans</strong>
+      des portails <em>Administrateur</em> et <em>Comptabilité</em>, avec captures d'écran
+      prises sur l'environnement de développement.
+    </div>
+
+    <section id="comptes">
+      <h2>Comptes de démonstration</h2>
+      <table class="accounts">
+        <thead>
+          <tr>
+            <th>Portail</th>
+            <th>URL connexion</th>
+            <th>Email</th>
+            <th>Mot de passe</th>
+            <th>Périmètre</th>
+          </tr>
+        </thead>
+        <tbody>
+    <tr>
+      <td>Administrateur</td>
+      <td><code>/admin/login</code></td>
+      <td><code>dev.admin@upjunoo-dev.tech</code></td>
+      <td><code>Upjunoo@Dev2026!</code></td>
+      <td>Plateforme globale — tous les modules admin</td>
+    </tr>
+    <tr>
+      <td>Comptable</td>
+      <td><code>/compta/login</code></td>
+      <td><code>comptable@upjunoo-dev.tech</code></td>
+      <td><code>123456789</code></td>
+      <td>Finances et comptabilité — périmètre pays du comptable</td>
+    </tr></tbody>
+      </table>
+    </section>
+
+    <nav class="toc" id="sommaire">
+      <h2>Sommaire complet (86 pages)</h2>
+      <h2 style="margin-top:1.5rem">Portail Administrateur (74)</h2><ul><li><a href="#admin-login">Connexion — Connexion administrateur</a></li><li><a href="#admin">Connexion — Accueil administrateur</a></li><li><a href="#admin-forgot-password">Connexion — Mot de passe oublié</a></li><li><a href="#admin-dashboard">OPÉRATIONS — Tableau de bord</a></li><li><a href="#admin-map">OPÉRATIONS — Carte live</a></li><li><a href="#admin-trips">OPÉRATIONS — Courses</a></li><li><a href="#admin-ops-trips-id">OPÉRATIONS — Courses — détail</a></li><li><a href="#admin-ops-trips-id-forensic">OPÉRATIONS — Analyse forensique</a></li><li><a href="#admin-sos">OPÉRATIONS — SOS Guardian</a></li><li><a href="#admin-ops-sos-incidents">OPÉRATIONS — Incidents</a></li><li><a href="#admin-ops-sos-incidents-id">OPÉRATIONS — Incidents — détail</a></li><li><a href="#admin-ops-dispatch">OPÉRATIONS — Dispatch</a></li><li><a href="#admin-ops-crisis">OPÉRATIONS — Gestion de crise</a></li><li><a href="#admin-franchises">RÉSEAU — Franchises</a></li><li><a href="#admin-network-franchises-new">RÉSEAU — Création</a></li><li><a href="#admin-network-franchises-id">RÉSEAU — Franchises — détail</a></li><li><a href="#admin-network-franchises-id-edit">RÉSEAU — Modification</a></li><li><a href="#admin-network-franchises-id-partners-new">RÉSEAU — Création</a></li><li><a href="#admin-zones">RÉSEAU — Zones</a></li><li><a href="#admin-network-zones-new">RÉSEAU — Création</a></li><li><a href="#admin-network-zones-id">RÉSEAU — Zones — détail</a></li><li><a href="#admin-partners">RÉSEAU — Partenaires</a></li><li><a href="#admin-network-partners-new">RÉSEAU — Création</a></li><li><a href="#admin-network-partners-id">RÉSEAU — Partenaires — détail</a></li><li><a href="#admin-network-partners-id-edit">RÉSEAU — Modification</a></li><li><a href="#admin-network-partners-id-drivers-new">RÉSEAU — Création</a></li><li><a href="#admin-accountants">RÉSEAU — Comptables</a></li><li><a href="#admin-network-accountants-new">RÉSEAU — Création</a></li><li><a href="#admin-drivers">FLOTTE — Chauffeurs</a></li><li><a href="#admin-fleet-drivers-id">FLOTTE — Chauffeurs — détail</a></li><li><a href="#admin-vehicles">FLOTTE — Véhicules</a></li><li><a href="#admin-fleet-vehicles-new">FLOTTE — Création</a></li><li><a href="#admin-fleet-vehicles-id">FLOTTE — Véhicules — détail</a></li><li><a href="#admin-kyc">FLOTTE — File KYC</a></li><li><a href="#admin-clients">FLOTTE — Clients</a></li><li><a href="#admin-fleet-clients-id">FLOTTE — Clients — détail</a></li><li><a href="#admin-finance">FINANCE — Finance générale</a></li><li><a href="#admin-transactions">FINANCE — Transactions</a></li><li><a href="#admin-finance-transactions-id">FINANCE — Transactions — détail</a></li><li><a href="#admin-withdrawals">FINANCE — Retraits</a></li><li><a href="#admin-finance-withdrawals-id">FINANCE — Retraits — détail</a></li><li><a href="#admin-wallets">FINANCE — Portefeuilles</a></li><li><a href="#admin-ledger">FINANCE — Ledger comptable</a></li><li><a href="#admin-driver-transfers">FINANCE — Recharges chauffeurs</a></li><li><a href="#admin-commissions">FINANCE — Commissions</a></li><li><a href="#admin-finance-commission-rules">FINANCE — Règles de commission</a></li><li><a href="#admin-finance-commission-rules-new">FINANCE — Création</a></li><li><a href="#admin-finance-commission-rules-id-edit">FINANCE — Modification</a></li><li><a href="#admin-finance-bonus-rules">FINANCE — Règles de bonus</a></li><li><a href="#admin-reconciliation">FINANCE — Réconciliation</a></li><li><a href="#admin-promos">MARKETING — Codes promo</a></li><li><a href="#admin-marketing-promos-new">MARKETING — Création</a></li><li><a href="#admin-marketing-campaigns">MARKETING — Campagnes</a></li><li><a href="#admin-marketing-campaigns-new">MARKETING — Création</a></li><li><a href="#admin-marketing-banners">MARKETING — Bannières</a></li><li><a href="#admin-marketing-banners-new">MARKETING — Création</a></li><li><a href="#admin-tickets">SUPPORT — Tickets</a></li><li><a href="#admin-chat">SUPPORT — Chat</a></li><li><a href="#admin-support-chat-id">SUPPORT — Chat — détail</a></li><li><a href="#admin-support-disputes-id">SUPPORT — Litiges — détail</a></li><li><a href="#admin-dispatch-rules">PARAMÈTRES — Règles de dispatch</a></li><li><a href="#admin-roles">PARAMÈTRES — Rôles</a></li><li><a href="#admin-settings-roles-new">PARAMÈTRES — Création</a></li><li><a href="#admin-settings-roles-id">PARAMÈTRES — Rôles — détail</a></li><li><a href="#admin-pricing">PARAMÈTRES — Tarification</a></li><li><a href="#admin-settings-pricing-new">PARAMÈTRES — Création</a></li><li><a href="#admin-settings-pricing-id">PARAMÈTRES — Tarification — détail</a></li><li><a href="#admin-settings-finance-caps">PARAMÈTRES — Plafonds finance</a></li><li><a href="#admin-settings-integrations">PARAMÈTRES — Intégrations</a></li><li><a href="#admin-settings-weather">PARAMÈTRES — Météo</a></li><li><a href="#admin-settings-audit">PARAMÈTRES — Audit</a></li><li><a href="#admin-settings-general">PARAMÈTRES — Général</a></li><li><a href="#admin-settings-dispatchers">PARAMÈTRES — Dispatchers</a></li><li><a href="#admin-settings-dispatchers-new">PARAMÈTRES — Création</a></li></ul><h2 style="margin-top:1.5rem">Portail Comptabilité (12)</h2><ul><li><a href="#compta-login">Connexion — Connexion comptable</a></li><li><a href="#compta-dashboard">COMPTABILITÉ — Tableau de bord comptable</a></li><li><a href="#compta-flows">COMPTABILITÉ — Flux entrées / sorties</a></li><li><a href="#compta-ledger">COMPTABILITÉ — Journal comptable</a></li><li><a href="#compta-commissions">COMPTABILITÉ — Commissions &amp; bénéfices</a></li><li><a href="#compta-wallets">COMPTABILITÉ — Portefeuilles</a></li><li><a href="#compta-reconciliation">COMPTABILITÉ — Réconciliation</a></li><li><a href="#compta-periods">COMPTABILITÉ — Clôtures &amp; périodes</a></li><li><a href="#compta-transactions">CONSULTATION — Transactions</a></li><li><a href="#compta-withdrawals">CONSULTATION — Retraits</a></li><li><a href="#compta-recharges">CONSULTATION — Recharges chauffeurs</a></li><li><a href="#compta-exports">ACTIONS — Rapports &amp; exports</a></li></ul>
+    </nav>
+
+    
+    <h2 class="portal-title" id="portail-admin">Portail Administrateur <span class="count">(74 pages)</span></h2>
+    
+      <section class="group-section">
+        <h2 class="group-title">Connexion</h2>
+        
+        <article class="module-card" id="admin-login">
+          <header>
+            <span class="module-group">Connexion</span>
+            <h3>Connexion administrateur</h3>
+            <p class="path"><code>/admin/login</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Accéder au portail administrateur de la plateforme.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-login.png" alt="Connexion administrateur" loading="lazy" /><figcaption>Capture — /admin/login</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir l'URL de connexion admin.</li><li>Saisir l'email et le mot de passe du compte administrateur.</li><li>Cliquer sur « Se connecter » — redirection vers le tableau de bord.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin">
+          <header>
+            <span class="module-group">Connexion</span>
+            <h3>Accueil administrateur</h3>
+            <p class="path"><code>/admin/dashboard</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Point d'entrée du portail administrateur — vue tableau de bord après connexion.</p>
+          <figure class="shot"><img src="guide-screenshots/admin.png" alt="Accueil administrateur" loading="lazy" /><figcaption>Capture — /admin/dashboard</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Se connecter via /admin/login.</li><li>Accéder au tableau de bord : KPI courses, flux, alertes et activité réseau.</li><li>Naviguer vers les modules via le menu latéral.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-forgot-password">
+          <header>
+            <span class="module-group">Connexion</span>
+            <h3>Mot de passe oublié</h3>
+            <p class="path"><code>/admin/forgot-password</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran mot de passe oublié — /admin/forgot-password</p>
+          <figure class="shot"><img src="guide-screenshots/admin-forgot-password.png" alt="Mot de passe oublié" loading="lazy" /><figcaption>Capture — /admin/forgot-password</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/forgot-password.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">OPÉRATIONS</h2>
+        
+        <article class="module-card" id="admin-dashboard">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Tableau de bord</h3>
+            <p class="path"><code>/admin/dashboard</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Vue synthétique de l'activité réseau (courses, chauffeurs, indicateurs clés).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-dashboard.png" alt="Tableau de bord" loading="lazy" /><figcaption>Capture — /admin/dashboard</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Consulter les KPI du jour : courses, chauffeurs en ligne, tendances.</li><li>Accéder rapidement aux sections opérationnelles via le menu latéral.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-map">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Carte live</h3>
+            <p class="path"><code>/admin/ops/map</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Suivre en temps réel la position des chauffeurs et l'activité sur la carte.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-map.png" alt="Carte live" loading="lazy" /><figcaption>Capture — /admin/ops/map</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Zoomer / déplacer la carte pour explorer une zone.</li><li>Cliquer sur un marqueur chauffeur pour voir son statut.</li><li>Utiliser les filtres franchise / partenaire si disponibles.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-trips">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Courses</h3>
+            <p class="path"><code>/admin/ops/trips</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Lister, filtrer et ouvrir le détail de toutes les courses du réseau.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-trips.png" alt="Courses" loading="lazy" /><figcaption>Capture — /admin/ops/trips</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Filtrer par statut, service, zone ou période.</li><li>Cliquer sur une ligne pour ouvrir la fiche course (trajet, client, chauffeur, finance).</li><li>Exporter la liste si besoin d'analyse externe.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-ops-trips-id">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Courses — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/ops/trips/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran courses — détail — /admin/ops/trips/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-ops-trips-id.png" alt="Courses — détail" loading="lazy" /><figcaption>Capture — /admin/ops/trips/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/ops/trips/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-ops-trips-id-forensic">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Analyse forensique <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/ops/trips/[id]/forensic</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran analyse forensique — /admin/ops/trips/[id]/forensic</p>
+          <figure class="shot"><img src="guide-screenshots/admin-ops-trips-id-forensic.png" alt="Analyse forensique" loading="lazy" /><figcaption>Capture — /admin/ops/trips/[id]/forensic</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/ops/trips/[id]/forensic.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-sos">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>SOS Guardian</h3>
+            <p class="path"><code>/admin/ops/sos</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Surveiller les alertes SOS et incidents sécurité chauffeurs.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-sos.png" alt="SOS Guardian" loading="lazy" /><figcaption>Capture — /admin/ops/sos</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Consulter les incidents actifs et leur localisation.</li><li>Ouvrir le détail d'un incident pour le traitement.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-ops-sos-incidents">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Incidents</h3>
+            <p class="path"><code>/admin/ops/sos/incidents</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran incidents — /admin/ops/sos/incidents</p>
+          <figure class="shot"><img src="guide-screenshots/admin-ops-sos-incidents.png" alt="Incidents" loading="lazy" /><figcaption>Capture — /admin/ops/sos/incidents</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/ops/sos/incidents.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-ops-sos-incidents-id">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Incidents — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/ops/sos/incidents/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran incidents — détail — /admin/ops/sos/incidents/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-ops-sos-incidents-id.png" alt="Incidents — détail" loading="lazy" /><figcaption>Capture — /admin/ops/sos/incidents/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/ops/sos/incidents/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-ops-dispatch">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Dispatch</h3>
+            <p class="path"><code>/admin/ops/dispatch</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran dispatch — /admin/ops/dispatch</p>
+          <figure class="shot"><img src="guide-screenshots/admin-ops-dispatch.png" alt="Dispatch" loading="lazy" /><figcaption>Capture — /admin/ops/dispatch</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/ops/dispatch.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-ops-crisis">
+          <header>
+            <span class="module-group">OPÉRATIONS</span>
+            <h3>Gestion de crise</h3>
+            <p class="path"><code>/admin/ops/crisis</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran gestion de crise — /admin/ops/crisis</p>
+          <figure class="shot"><img src="guide-screenshots/admin-ops-crisis.png" alt="Gestion de crise" loading="lazy" /><figcaption>Capture — /admin/ops/crisis</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/ops/crisis.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">RÉSEAU</h2>
+        
+        <article class="module-card" id="admin-franchises">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Franchises</h3>
+            <p class="path"><code>/admin/network/franchises</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Gérer les franchises du réseau (création, statut, territoire).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-franchises.png" alt="Franchises" loading="lazy" /><figcaption>Capture — /admin/network/franchises</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Lister les franchises actives / suspendues.</li><li>Créer une franchise : email portail, mot de passe, ville.</li><li>Ouvrir une fiche pour modifier ou consulter les partenaires rattachés.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-franchises-new">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/network/franchises/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/network/franchises/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-franchises-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/network/franchises/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/franchises/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-franchises-id">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Franchises — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/network/franchises/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran franchises — détail — /admin/network/franchises/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-franchises-id.png" alt="Franchises — détail" loading="lazy" /><figcaption>Capture — /admin/network/franchises/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/franchises/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-franchises-id-edit">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Modification <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/network/franchises/[id]/edit</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran modification — /admin/network/franchises/[id]/edit</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-franchises-id-edit.png" alt="Modification" loading="lazy" /><figcaption>Capture — /admin/network/franchises/[id]/edit</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/franchises/[id]/edit.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-franchises-id-partners-new">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Création <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/network/franchises/[id]/partners/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/network/franchises/[id]/partners/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-franchises-id-partners-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/network/franchises/[id]/partners/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/franchises/[id]/partners/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-zones">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Zones</h3>
+            <p class="path"><code>/admin/network/zones</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Définir les zones géographiques (polygones) utilisées pour le dispatch et la tarification.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-zones.png" alt="Zones" loading="lazy" /><figcaption>Capture — /admin/network/zones</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Consulter la carte des zones par ville.</li><li>Créer ou éditer une zone : nom, polygone, franchise associée.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-zones-new">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/network/zones/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/network/zones/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-zones-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/network/zones/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/zones/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-zones-id">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Zones — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/network/zones/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran zones — détail — /admin/network/zones/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-zones-id.png" alt="Zones — détail" loading="lazy" /><figcaption>Capture — /admin/network/zones/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/zones/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-partners">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Partenaires</h3>
+            <p class="path"><code>/admin/network/partners</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Gérer les partenaires flotte (taxi, livraison, location…).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-partners.png" alt="Partenaires" loading="lazy" /><figcaption>Capture — /admin/network/partners</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Créer un partenaire : raison sociale, commission, compte portail.</li><li>Suspendre / activer un partenaire.</li><li>Accéder aux chauffeurs et véhicules du partenaire depuis sa fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-partners-new">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/network/partners/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/network/partners/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-partners-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/network/partners/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/partners/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-partners-id">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Partenaires — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/network/partners/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran partenaires — détail — /admin/network/partners/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-partners-id.png" alt="Partenaires — détail" loading="lazy" /><figcaption>Capture — /admin/network/partners/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/partners/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-partners-id-edit">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Modification <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/network/partners/[id]/edit</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran modification — /admin/network/partners/[id]/edit</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-partners-id-edit.png" alt="Modification" loading="lazy" /><figcaption>Capture — /admin/network/partners/[id]/edit</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/partners/[id]/edit.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-partners-id-drivers-new">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Création <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/network/partners/[id]/drivers/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/network/partners/[id]/drivers/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-partners-id-drivers-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/network/partners/[id]/drivers/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/partners/[id]/drivers/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-accountants">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Comptables</h3>
+            <p class="path"><code>/admin/network/accountants</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Créer et gérer les comptes du portail comptabilité (un comptable par pays).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-accountants.png" alt="Comptables" loading="lazy" /><figcaption>Capture — /admin/network/accountants</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Créer un comptable : email, mot de passe, pays géré.</li><li>Suspendre ou réactiver un accès comptable.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-network-accountants-new">
+          <header>
+            <span class="module-group">RÉSEAU</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/network/accountants/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/network/accountants/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-network-accountants-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/network/accountants/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/network/accountants/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">FLOTTE</h2>
+        
+        <article class="module-card" id="admin-drivers">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>Chauffeurs</h3>
+            <p class="path"><code>/admin/fleet/drivers</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Liste et fiches chauffeurs : KYC, disponibilité, wallet, historique.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-drivers.png" alt="Chauffeurs" loading="lazy" /><figcaption>Capture — /admin/fleet/drivers</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Filtrer par zone, statut compte, disponibilité, conformité.</li><li>Ouvrir une fiche : onglets KYC, activité, wallet.</li><li>Approuver, suspendre ou transférer un chauffeur vers un autre partenaire.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-fleet-drivers-id">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>Chauffeurs — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/fleet/drivers/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran chauffeurs — détail — /admin/fleet/drivers/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-fleet-drivers-id.png" alt="Chauffeurs — détail" loading="lazy" /><figcaption>Capture — /admin/fleet/drivers/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/fleet/drivers/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-vehicles">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>Véhicules</h3>
+            <p class="path"><code>/admin/fleet/vehicles</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Parc véhicules : immatriculation, catégorie, chauffeur assigné.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-vehicles.png" alt="Véhicules" loading="lazy" /><figcaption>Capture — /admin/fleet/vehicles</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Rechercher par plaque ou partenaire.</li><li>Créer un véhicule et l'assigner à un chauffeur.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-fleet-vehicles-new">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/fleet/vehicles/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/fleet/vehicles/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-fleet-vehicles-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/fleet/vehicles/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/fleet/vehicles/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-fleet-vehicles-id">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>Véhicules — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/fleet/vehicles/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran véhicules — détail — /admin/fleet/vehicles/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-fleet-vehicles-id.png" alt="Véhicules — détail" loading="lazy" /><figcaption>Capture — /admin/fleet/vehicles/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/fleet/vehicles/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-kyc">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>File KYC</h3>
+            <p class="path"><code>/admin/fleet/kyc</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Valider les documents d'identité et permis en attente.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-kyc.png" alt="File KYC" loading="lazy" /><figcaption>Capture — /admin/fleet/kyc</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Traiter la file par ordre d'ancienneté.</li><li>Approuver ou rejeter document par document avec motif.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-clients">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>Clients</h3>
+            <p class="path"><code>/admin/fleet/clients</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Consulter les comptes passagers et leur historique.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-clients.png" alt="Clients" loading="lazy" /><figcaption>Capture — /admin/fleet/clients</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Rechercher un client par nom ou téléphone.</li><li>Ouvrir la fiche pour voir les courses passées.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-fleet-clients-id">
+          <header>
+            <span class="module-group">FLOTTE</span>
+            <h3>Clients — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/fleet/clients/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran clients — détail — /admin/fleet/clients/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-fleet-clients-id.png" alt="Clients — détail" loading="lazy" /><figcaption>Capture — /admin/fleet/clients/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/fleet/clients/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">FINANCE</h2>
+        
+        <article class="module-card" id="admin-finance">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Finance générale</h3>
+            <p class="path"><code>/admin/finance</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Hub finance : synthèse soldes, flux et accès aux sous-modules.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-finance.png" alt="Finance générale" loading="lazy" /><figcaption>Capture — /admin/finance</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Vue d'ensemble des indicateurs financiers.</li><li>Naviguer vers transactions, retraits, portefeuilles, etc.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-transactions">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Transactions</h3>
+            <p class="path"><code>/admin/finance/transactions</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Journal des mouvements financiers (crédits, débits, paiements).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-transactions.png" alt="Transactions" loading="lazy" /><figcaption>Capture — /admin/finance/transactions</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Filtrer par type, période, montant.</li><li>Ouvrir une transaction pour le détail et la réconciliation.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-finance-transactions-id">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Transactions — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/finance/transactions/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran transactions — détail — /admin/finance/transactions/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-finance-transactions-id.png" alt="Transactions — détail" loading="lazy" /><figcaption>Capture — /admin/finance/transactions/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/finance/transactions/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-withdrawals">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Retraits</h3>
+            <p class="path"><code>/admin/finance/withdrawals</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Traiter les demandes de retrait chauffeurs et partenaires.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-withdrawals.png" alt="Retraits" loading="lazy" /><figcaption>Capture — /admin/finance/withdrawals</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Filtrer les retraits en attente.</li><li>Approuver ou rejeter avec justification.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-finance-withdrawals-id">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Retraits — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/finance/withdrawals/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran retraits — détail — /admin/finance/withdrawals/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-finance-withdrawals-id.png" alt="Retraits — détail" loading="lazy" /><figcaption>Capture — /admin/finance/withdrawals/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/finance/withdrawals/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-wallets">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Portefeuilles</h3>
+            <p class="path"><code>/admin/finance/wallets</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Soldes des portefeuilles par acteur (chauffeur, partenaire, franchise).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-wallets.png" alt="Portefeuilles" loading="lazy" /><figcaption>Capture — /admin/finance/wallets</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Rechercher un portefeuille par propriétaire.</li><li>Consulter solde disponible / non retirable.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-ledger">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Ledger comptable</h3>
+            <p class="path"><code>/admin/finance/ledger</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Grand-livre comptable admin (écritures débit/crédit).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-ledger.png" alt="Ledger comptable" loading="lazy" /><figcaption>Capture — /admin/finance/ledger</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Filtrer par bucket, type d'écriture, période.</li><li>Exporter pour contrôle comptable.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-driver-transfers">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Recharges chauffeurs</h3>
+            <p class="path"><code>/admin/finance/driver-transfers</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Recharger le wallet d'un chauffeur depuis le back-office.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-driver-transfers.png" alt="Recharges chauffeurs" loading="lazy" /><figcaption>Capture — /admin/finance/driver-transfers</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Sélectionner chauffeur et montant.</li><li>Confirmer la recharge — mouvement tracé au ledger.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-commissions">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Commissions</h3>
+            <p class="path"><code>/admin/finance/commissions</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Suivi des commissions prélevées sur les courses.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-commissions.png" alt="Commissions" loading="lazy" /><figcaption>Capture — /admin/finance/commissions</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Analyser les commissions par période ou partenaire.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-finance-commission-rules">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Règles de commission</h3>
+            <p class="path"><code>/admin/finance/commission-rules</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran règles de commission — /admin/finance/commission-rules</p>
+          <figure class="shot"><img src="guide-screenshots/admin-finance-commission-rules.png" alt="Règles de commission" loading="lazy" /><figcaption>Capture — /admin/finance/commission-rules</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/finance/commission-rules.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-finance-commission-rules-new">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/finance/commission-rules/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/finance/commission-rules/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-finance-commission-rules-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/finance/commission-rules/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/finance/commission-rules/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-finance-commission-rules-id-edit">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Modification <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/finance/commission-rules/[id]/edit</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran modification — /admin/finance/commission-rules/[id]/edit</p>
+          <div class="shot shot-missing">Capture non disponible</div>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/finance/commission-rules/[id]/edit.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-finance-bonus-rules">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Règles de bonus</h3>
+            <p class="path"><code>/admin/finance/bonus-rules</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran règles de bonus — /admin/finance/bonus-rules</p>
+          <figure class="shot"><img src="guide-screenshots/admin-finance-bonus-rules.png" alt="Règles de bonus" loading="lazy" /><figcaption>Capture — /admin/finance/bonus-rules</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/finance/bonus-rules.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-reconciliation">
+          <header>
+            <span class="module-group">FINANCE</span>
+            <h3>Réconciliation</h3>
+            <p class="path"><code>/admin/finance/reconciliation</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Rapprocher les flux cash / mobile money avec le ledger.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-reconciliation.png" alt="Réconciliation" loading="lazy" /><figcaption>Capture — /admin/finance/reconciliation</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Identifier les écarts non justifiés.</li><li>Marquer les écarts comme traités.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">MARKETING</h2>
+        
+        <article class="module-card" id="admin-promos">
+          <header>
+            <span class="module-group">MARKETING</span>
+            <h3>Codes promo</h3>
+            <p class="path"><code>/admin/marketing/promos</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Créer et gérer les codes promotionnels.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-promos.png" alt="Codes promo" loading="lazy" /><figcaption>Capture — /admin/marketing/promos</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Définir montant ou pourcentage, validité, usage max.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-marketing-promos-new">
+          <header>
+            <span class="module-group">MARKETING</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/marketing/promos/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/marketing/promos/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-marketing-promos-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/marketing/promos/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/marketing/promos/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-marketing-campaigns">
+          <header>
+            <span class="module-group">MARKETING</span>
+            <h3>Campagnes</h3>
+            <p class="path"><code>/admin/marketing/campaigns</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran campagnes — /admin/marketing/campaigns</p>
+          <figure class="shot"><img src="guide-screenshots/admin-marketing-campaigns.png" alt="Campagnes" loading="lazy" /><figcaption>Capture — /admin/marketing/campaigns</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/marketing/campaigns.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-marketing-campaigns-new">
+          <header>
+            <span class="module-group">MARKETING</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/marketing/campaigns/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/marketing/campaigns/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-marketing-campaigns-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/marketing/campaigns/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/marketing/campaigns/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-marketing-banners">
+          <header>
+            <span class="module-group">MARKETING</span>
+            <h3>Bannières</h3>
+            <p class="path"><code>/admin/marketing/banners</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran bannières — /admin/marketing/banners</p>
+          <figure class="shot"><img src="guide-screenshots/admin-marketing-banners.png" alt="Bannières" loading="lazy" /><figcaption>Capture — /admin/marketing/banners</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/marketing/banners.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-marketing-banners-new">
+          <header>
+            <span class="module-group">MARKETING</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/marketing/banners/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/marketing/banners/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-marketing-banners-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/marketing/banners/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/marketing/banners/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">SUPPORT</h2>
+        
+        <article class="module-card" id="admin-tickets">
+          <header>
+            <span class="module-group">SUPPORT</span>
+            <h3>Tickets</h3>
+            <p class="path"><code>/admin/support/tickets</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> File de tickets support utilisateurs.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-tickets.png" alt="Tickets" loading="lazy" /><figcaption>Capture — /admin/support/tickets</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Assigner et clôturer les demandes.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-chat">
+          <header>
+            <span class="module-group">SUPPORT</span>
+            <h3>Chat</h3>
+            <p class="path"><code>/admin/support/chat</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Messagerie support en temps réel.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-chat.png" alt="Chat" loading="lazy" /><figcaption>Capture — /admin/support/chat</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Répondre aux conversations clients / chauffeurs.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-support-chat-id">
+          <header>
+            <span class="module-group">SUPPORT</span>
+            <h3>Chat — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/support/chat/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran chat — détail — /admin/support/chat/[id]</p>
+          <div class="shot shot-missing">Capture non disponible</div>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/support/chat/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-support-disputes-id">
+          <header>
+            <span class="module-group">SUPPORT</span>
+            <h3>Litiges — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/support/disputes/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran litiges — détail — /admin/support/disputes/[id]</p>
+          <div class="shot shot-missing">Capture non disponible</div>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/support/disputes/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">PARAMÈTRES</h2>
+        
+        <article class="module-card" id="admin-dispatch-rules">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Règles de dispatch</h3>
+            <p class="path"><code>/admin/settings/dispatch-rules</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Configurer le moteur de dispatch (vagues, priorités, zones).</p>
+          <figure class="shot"><img src="guide-screenshots/admin-dispatch-rules.png" alt="Règles de dispatch" loading="lazy" /><figcaption>Capture — /admin/settings/dispatch-rules</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ajuster les paramètres globaux et par pays.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-roles">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Rôles</h3>
+            <p class="path"><code>/admin/settings/roles</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Gestion RBAC — permissions par rôle admin.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-roles.png" alt="Rôles" loading="lazy" /><figcaption>Capture — /admin/settings/roles</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Créer un rôle et cocher les permissions module par module.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-roles-new">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/settings/roles/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/settings/roles/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-roles-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/settings/roles/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/roles/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-roles-id">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Rôles — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/settings/roles/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran rôles — détail — /admin/settings/roles/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-roles-id.png" alt="Rôles — détail" loading="lazy" /><figcaption>Capture — /admin/settings/roles/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/roles/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-pricing">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Tarification</h3>
+            <p class="path"><code>/admin/settings/pricing</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Grilles tarifaires par zone et catégorie véhicule.</p>
+          <figure class="shot"><img src="guide-screenshots/admin-pricing.png" alt="Tarification" loading="lazy" /><figcaption>Capture — /admin/settings/pricing</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Créer / modifier une règle de prix.</li><li>Tester l'impact sur une estimation.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-pricing-new">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/settings/pricing/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/settings/pricing/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-pricing-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/settings/pricing/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/pricing/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-pricing-id">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Tarification — détail <span class="badge-dynamic">route dynamique</span></h3>
+            <p class="path"><code>/admin/settings/pricing/[id]</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran tarification — détail — /admin/settings/pricing/[id]</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-pricing-id.png" alt="Tarification — détail" loading="lazy" /><figcaption>Capture — /admin/settings/pricing/[id]</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/pricing/[id].</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-finance-caps">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Plafonds finance</h3>
+            <p class="path"><code>/admin/settings/finance-caps</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran plafonds finance — /admin/settings/finance-caps</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-finance-caps.png" alt="Plafonds finance" loading="lazy" /><figcaption>Capture — /admin/settings/finance-caps</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/finance-caps.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-integrations">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Intégrations</h3>
+            <p class="path"><code>/admin/settings/integrations</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran intégrations — /admin/settings/integrations</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-integrations.png" alt="Intégrations" loading="lazy" /><figcaption>Capture — /admin/settings/integrations</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/integrations.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-weather">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Météo</h3>
+            <p class="path"><code>/admin/settings/weather</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran météo — /admin/settings/weather</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-weather.png" alt="Météo" loading="lazy" /><figcaption>Capture — /admin/settings/weather</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/weather.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-audit">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Audit</h3>
+            <p class="path"><code>/admin/settings/audit</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran audit — /admin/settings/audit</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-audit.png" alt="Audit" loading="lazy" /><figcaption>Capture — /admin/settings/audit</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/audit.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-general">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Général</h3>
+            <p class="path"><code>/admin/settings/general</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran général — /admin/settings/general</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-general.png" alt="Général" loading="lazy" /><figcaption>Capture — /admin/settings/general</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/general.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-dispatchers">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Dispatchers</h3>
+            <p class="path"><code>/admin/settings/dispatchers</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran dispatchers — /admin/settings/dispatchers</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-dispatchers.png" alt="Dispatchers" loading="lazy" /><figcaption>Capture — /admin/settings/dispatchers</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/dispatchers.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="admin-settings-dispatchers-new">
+          <header>
+            <span class="module-group">PARAMÈTRES</span>
+            <h3>Création</h3>
+            <p class="path"><code>/admin/settings/dispatchers/new</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écran création — /admin/settings/dispatchers/new</p>
+          <figure class="shot"><img src="guide-screenshots/admin-settings-dispatchers-new.png" alt="Création" loading="lazy" /><figcaption>Capture — /admin/settings/dispatchers/new</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Ouvrir la page /admin/settings/dispatchers/new.</li><li>Utiliser les filtres, actions et formulaires disponibles à l'écran.</li><li>Consulter les détails via les liens de la liste ou les onglets de la fiche.</li></ol>
+          </div>
+        </article>
+      </section>
+
+    <h2 class="portal-title" id="portail-compta">Portail Comptabilité <span class="count">(12 pages)</span></h2>
+    
+      <section class="group-section">
+        <h2 class="group-title">Connexion</h2>
+        
+        <article class="module-card" id="compta-login">
+          <header>
+            <span class="module-group">Connexion</span>
+            <h3>Connexion comptable</h3>
+            <p class="path"><code>/compta/login</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Accéder au portail comptabilité (périmètre pays).</p>
+          <figure class="shot"><img src="guide-screenshots/compta-login.png" alt="Connexion comptable" loading="lazy" /><figcaption>Capture — /compta/login</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Saisir l'email et le mot de passe du compte comptable.</li><li>Après connexion : accès limité aux finances du pays assigné.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">COMPTABILITÉ</h2>
+        
+        <article class="module-card" id="compta-dashboard">
+          <header>
+            <span class="module-group">COMPTABILITÉ</span>
+            <h3>Tableau de bord comptable</h3>
+            <p class="path"><code>/compta</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> KPIs comptables du pays : entrées/sorties, commissions, écarts.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-dashboard.png" alt="Tableau de bord comptable" loading="lazy" /><figcaption>Capture — /compta</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Vérifier la période en cours et son statut (ouverte / clôturée).</li><li>Surveiller retraits en attente et wallets sous le minimum dispatch.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-flows">
+          <header>
+            <span class="module-group">COMPTABILITÉ</span>
+            <h3>Flux entrées / sorties</h3>
+            <p class="path"><code>/compta/flows</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Visualiser les flux financiers entrants et sortants du pays.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-flows.png" alt="Flux entrées / sorties" loading="lazy" /><figcaption>Capture — /compta/flows</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Filtrer par période et type de flux.</li><li>Analyser les tendences crédit vs débit.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-ledger">
+          <header>
+            <span class="module-group">COMPTABILITÉ</span>
+            <h3>Journal comptable</h3>
+            <p class="path"><code>/compta/ledger</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Grand-livre filtré sur le pays du comptable.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-ledger.png" alt="Journal comptable" loading="lazy" /><figcaption>Capture — /compta/ledger</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Consulter les écritures avec filtres wallet, direction, service.</li><li>Exporter en CSV pour logiciel comptable externe.</li><li>Extourner une écriture erronée (avec motif obligatoire).</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-commissions">
+          <header>
+            <span class="module-group">COMPTABILITÉ</span>
+            <h3>Commissions &amp; bénéfices</h3>
+            <p class="path"><code>/compta/commissions</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Suivi des commissions et marges sur le périmètre pays.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-commissions.png" alt="Commissions &amp; bénéfices" loading="lazy" /><figcaption>Capture — /compta/commissions</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Vérifier commissions débitées vs en attente.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-wallets">
+          <header>
+            <span class="module-group">COMPTABILITÉ</span>
+            <h3>Portefeuilles</h3>
+            <p class="path"><code>/compta/wallets</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Soldes portefeuilles des acteurs du pays.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-wallets.png" alt="Portefeuilles" loading="lazy" /><figcaption>Capture — /compta/wallets</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Rechercher un wallet par chauffeur ou partenaire.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-reconciliation">
+          <header>
+            <span class="module-group">COMPTABILITÉ</span>
+            <h3>Réconciliation</h3>
+            <p class="path"><code>/compta/reconciliation</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Écarts de rapprochement cash / paiements.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-reconciliation.png" alt="Réconciliation" loading="lazy" /><figcaption>Capture — /compta/reconciliation</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Traiter les écarts ouverts.</li><li>Justifier ou corriger avant clôture de période.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-periods">
+          <header>
+            <span class="module-group">COMPTABILITÉ</span>
+            <h3>Clôtures &amp; périodes</h3>
+            <p class="path"><code>/compta/periods</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Clôturer et verrouiller une période comptable mensuelle.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-periods.png" alt="Clôtures &amp; périodes" loading="lazy" /><figcaption>Capture — /compta/periods</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Vérifier les contrôles (retraits ouverts, écarts).</li><li>Clôturer la période puis verrouiller définitivement.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">CONSULTATION</h2>
+        
+        <article class="module-card" id="compta-transactions">
+          <header>
+            <span class="module-group">CONSULTATION</span>
+            <h3>Transactions</h3>
+            <p class="path"><code>/compta/transactions</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Liste des transactions du pays (lecture).</p>
+          <figure class="shot"><img src="guide-screenshots/compta-transactions.png" alt="Transactions" loading="lazy" /><figcaption>Capture — /compta/transactions</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Filtrer et exporter pour contrôle.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-withdrawals">
+          <header>
+            <span class="module-group">CONSULTATION</span>
+            <h3>Retraits</h3>
+            <p class="path"><code>/compta/withdrawals</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Demandes de retrait sur le périmètre pays.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-withdrawals.png" alt="Retraits" loading="lazy" /><figcaption>Capture — /compta/withdrawals</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Suivre les retraits en attente de validation admin.</li></ol>
+          </div>
+        </article>
+
+        <article class="module-card" id="compta-recharges">
+          <header>
+            <span class="module-group">CONSULTATION</span>
+            <h3>Recharges chauffeurs</h3>
+            <p class="path"><code>/compta/recharges</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Historique des recharges wallet chauffeurs.</p>
+          <figure class="shot"><img src="guide-screenshots/compta-recharges.png" alt="Recharges chauffeurs" loading="lazy" /><figcaption>Capture — /compta/recharges</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Contrôler les recharges effectuées sur la période.</li></ol>
+          </div>
+        </article>
+      </section>
+
+      <section class="group-section">
+        <h2 class="group-title">ACTIONS</h2>
+        
+        <article class="module-card" id="compta-exports">
+          <header>
+            <span class="module-group">ACTIONS</span>
+            <h3>Rapports &amp; exports</h3>
+            <p class="path"><code>/compta/exports</code></p>
+          </header>
+          <p class="objectif"><strong>Objectif :</strong> Générer des exports comptables (CSV, rapports période).</p>
+          <figure class="shot"><img src="guide-screenshots/compta-exports.png" alt="Rapports &amp; exports" loading="lazy" /><figcaption>Capture — /compta/exports</figcaption></figure>
+          <div class="usage">
+            <h4>Guide d'utilisation</h4>
+            <ol><li>Choisir le type d'export et la période.</li><li>Télécharger le fichier pour archivage ou expert-comptable.</li></ol>
+          </div>
+        </article>
+      </section>
+
+
+
+
+
+    <footer style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);color:var(--muted);font-size:0.85rem;text-align:center;">
+      Document généré automatiquement — UpJunoo Pro · 17 juin 2026
+    </footer>
+  </main>
+</body>
+</html>

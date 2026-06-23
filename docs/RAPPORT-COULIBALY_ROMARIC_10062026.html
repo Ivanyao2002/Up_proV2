@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport du jour — 10 juin 2026 — UPJUNOO PRO</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #e2e8f0; color: #0f172a; line-height: 1.45; }
+.page { width: 210mm; min-height: 297mm; margin: 12px auto; background: #fff; position: relative; page-break-after: always; box-shadow: 0 8px 32px rgba(0,0,0,.12); }
+.page:last-child { page-break-after: auto; }
+@media print { body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+.cover { background: #016d71; color: #fff; min-height: 297mm; padding: 48px 52px; overflow: hidden; }
+.cover::before, .cover::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; min-height: calc(297mm - 96px); display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill { display: inline-block; margin-top: 28px; background: #f8bb10; color: #0f172a; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 999px; }
+.cover h1 { margin-top: 48px; font-size: 38px; font-weight: 800; line-height: 1.15; max-width: 95%; }
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 8px; font-size: 32px; }
+.cover .lead { margin-top: 24px; max-width: 540px; font-size: 14px; opacity: .92; }
+.cover .meta-line { width: 48px; height: 4px; background: #f8bb10; margin: 36px 0 20px; }
+.cover .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; font-size: 12px; }
+.cover .meta-grid label { display: block; font-size: 10px; opacity: .75; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.cover-footer { margin-top: auto; padding-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; opacity: .9; }
+.cover-footer .dv { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px; }
+.inner { padding: 40px 48px 64px; }
+h2.section-title { font-size: 26px; font-weight: 800; color: #016d71; margin-bottom: 8px; }
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.kpi-grid.row2 { grid-template-columns: repeat(2, 1fr); }
+.kpi { background: #fff; border-radius: 12px; padding: 20px 16px; box-shadow: 0 4px 14px rgba(0,0,0,.08); border-top: 4px solid #016d71; }
+.kpi.gold-top { border-top-color: #f8bb10; }
+.kpi .val { font-size: 28px; font-weight: 800; color: #0f172a; }
+.kpi .lbl { font-size: 10px; font-weight: 700; color: #016d71; text-transform: uppercase; letter-spacing: .04em; margin-top: 6px; }
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0 32px; }
+.chart-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+.chart-box h4 { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+.bar-track { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+.bar-fill { height: 100%; background: #016d71; border-radius: 5px; }
+.chart-pct { font-size: 22px; font-weight: 800; color: #016d71; margin-top: 8px; }
+.block-title { display: flex; align-items: center; gap: 10px; margin: 28px 0 12px; font-size: 14px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: .03em; }
+.block-title::before { content: ''; width: 4px; height: 22px; background: #016d71; border-radius: 2px; }
+.warn-banner { background: #ecfdf5; border-left: 4px solid #016d71; padding: 14px 16px; margin-bottom: 20px; font-size: 13px; border-radius: 0 8px 8px 0; }
+.warn-banner strong { color: #016d71; }
+.outlook-banner { background: #fef3c7; border-left: 4px solid #f8bb10; padding: 14px 16px; margin: 20px 0; font-size: 13px; border-radius: 0 8px 8px 0; }
+table.data { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 11px; }
+table.data thead th { background: #016d71; color: #fff; text-align: left; padding: 8px 10px; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; }
+table.data tbody td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-info { background: #e0f2fe; color: #0369a1; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+.badge-err { background: #fecaca; color: #b91c1c; }
+ul.check { list-style: none; margin-bottom: 16px; }
+ul.check li { font-size: 13px; padding: 8px 0 8px 28px; position: relative; border-bottom: 1px solid #f1f5f9; }
+ul.check li::before { content: '✓'; position: absolute; left: 0; color: #016d71; font-weight: 800; }
+ul.pending li::before { content: '○'; color: #f8bb10; }
+.page-foot { position: absolute; bottom: 24px; left: 48px; right: 48px; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; }
+.note-global { font-size: 12px; color: #64748b; font-style: italic; margin-top: 12px; }
+.capture { margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; break-inside: avoid; }
+.capture-head { background: #016d71; color: #fff; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.capture-head h3 { font-size: 12px; font-weight: 700; margin: 0; }
+.capture-num { background: #f8bb10; color: #0f172a; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+.capture-body { padding: 12px 14px 14px; background: #f8fafc; }
+.capture-body p { font-size: 11px; color: #475569; margin-bottom: 8px; }
+.capture-frame { border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; background: #fff; line-height: 0; }
+.capture-frame img { width: 100%; height: auto; max-height: 120mm; object-fit: contain; object-position: top center; display: block; }
+.capture-frame.compact img { max-height: 58mm; }
+.capture-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.capture-tags span { font-size: 9px; background: #fff; border: 1px solid #e2e8f0; padding: 3px 7px; border-radius: 6px; color: #64748b; font-weight: 600; }
+.two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1 — COUVERTURE -->
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="logo">UPJUNOO <span>PRO</span></div>
+    <div class="badge-pill">● RAPPORT DU JOUR — INTÉGRATION API</div>
+    <h1>Back-office v2<span class="gold">10 juin 2026 — Consolidation &amp; calage final</span></h1>
+    <p class="lead">
+      Point d&#x27;avancement sur UpJunoo Pro (Next.js) : actions chauffeur (en ligne / hors ligne / suspension),
+      recharge wallet multi-portails, liens finance → fiche chauffeur, wizard binôme documents,
+      module SOS Guardian et stabilisation UX. L&#x27;essentiel des parcours admin tourne sur l&#x27;API v1 live —
+      documentation backend <code>DEMANDES-2026-06-10.md</code>.
+    </p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Date du rapport</label>10 juin 2026 — 18h00</div>
+      <div><label>API live</label>api.upjunoo-dev.tech</div>
+      <div><label>Config front</label>USE_MOCKS=false · AUTH réelle</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">CZ</span>Coulibaly Zie Dramane Romaric</div>
+      <div>CONFIDENTIEL | 21 captures · pages 5–9</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 — SYNTHÈSE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Synthèse <span class="gold">exécutive</span></h2>
+  <p class="sub">Bilan consolidé des intégrations front ↔ API v1 — session du 10 juin 2026.</p>
+
+  <div class="warn-banner">
+    <strong>Phase actuelle :</strong> <strong>calage final</strong> — les parcours critiques admin (ops, flotte, réseau, finance lecture)
+    sont branchés API live. Les écarts restants concernent surtout l&#x27;upload documents, quelques enrichissements listes
+    et le paramétrage dispatcher (hors scope du jour).
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">18+</div><div class="lbl">Intégrations API livrées (cumul)</div></div>
+    <div class="kpi gold-top"><div class="val">21</div><div class="lbl">Écrans admin documentés</div></div>
+    <div class="kpi"><div class="val">13</div><div class="lbl">Demandes backend ouvertes (P0/P1)</div></div>
+  </div>
+  <div class="kpi-grid row2">
+    <div class="kpi"><div class="val">~92 %</div><div class="lbl">Parcours admin critiques couverts</div></div>
+    <div class="kpi gold-top"><div class="val">6</div><div class="lbl">Livrables front du 10 juin</div></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-box">
+      <h4>Intégration API — ops &amp; flotte</h4>
+      <div class="bar-track"><div class="bar-fill" style="width:94%"></div></div>
+      <div class="chart-pct">~94 %</div>
+      <p style="font-size:11px;color:#64748b;margin-top:8px">Dashboard, live-map, orders, drivers, KYC, actions chauffeur, SOS.</p>
+    </div>
+    <div class="chart-box">
+      <h4>Intégration API — finance, réseau &amp; marketing</h4>
+      <div class="bar-track"><div class="bar-fill" style="width:87%;background:#f8bb10"></div></div>
+      <div class="chart-pct" style="color:#b45309">~87 %</div>
+      <p style="font-size:11px;color:#64748b;margin-top:8px">Finance + réseau largement branchés · bannières POST et uploads en attente API.</p>
+    </div>
+  </div>
+
+  <div class="block-title">État par domaine</div>
+  <table class="data">
+    <thead><tr><th>Domaine</th><th>Front</th><th>API live</th><th>Priorité restante</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Opérations</strong></td><td><span class="badge badge-ok">OK</span></td><td><span class="badge badge-ok">OK</span></td><td>OR-TRACK-01 trajectoire GPS</td></tr>
+      <tr><td><strong>Flotte / KYC</strong></td><td><span class="badge badge-ok">OK</span></td><td><span class="badge badge-ok">OK</span></td><td>FLT-UPLOAD-01, DR-AVAIL-01 routes explicites</td></tr>
+      <tr><td><strong>Réseau</strong></td><td><span class="badge badge-ok">OK</span></td><td><span class="badge badge-warn">Partiel</span></td><td>PA-01/02 libellés, PA-DOC-01</td></tr>
+      <tr><td><strong>Finance</strong></td><td><span class="badge badge-ok">OK</span></td><td><span class="badge badge-warn">Partiel</span></td><td>FN-TRANS-LABELS-01 filtres</td></tr>
+      <tr><td><strong>Marketing</strong></td><td><span class="badge badge-ok">Listes OK</span></td><td><span class="badge badge-warn">Partiel</span></td><td>MK-BAN-01 image + POST</td></tr>
+      <tr><td><strong>Support / Settings</strong></td><td><span class="badge badge-warn">Partiel</span></td><td><span class="badge badge-warn">Partiel</span></td><td>Dispatchers admin (P0 à venir)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 2 / 10</span></div>
+</div>
+
+<!-- PAGE 3 — TÂCHES RÉALISÉES -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Tâches <span class="gold">réalisées</span></h2>
+  <p class="sub">Livrables du 10 juin 2026 — intégrations, corrections et documentation.</p>
+
+  <div class="block-title">Flotte &amp; chauffeurs (focus du jour)</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Tâche</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>DR-ADMIN-01</td><td>Actions chauffeur : en ligne / hors ligne / suspendre / réactiver (liste bulk + fiche détail)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>DR-RECHARGE-01</td><td>Recharge wallet chauffeur v1 — admin, partenaire, franchise (modal 1 ou N chauffeurs)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>DR-UX-01</td><td>Fiche chauffeur allégée — pattern header unifié (pills + action contextuelle)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>BINOME-UPLOAD</td><td>Wizard création binôme — upload recto/verso + extraction IA documents</td><td><span class="badge badge-warn">UI OK · API upload</span></td></tr>
+      <tr><td>SOS-01</td><td>Module SOS Guardian admin (liste + détail incidents)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Finance, Réseau &amp; Ops (consolidation)</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Tâche</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>FN-TRANS-LINK</td><td>Lien fiche chauffeur depuis détail transaction finance</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>FN-TRANS-DETAIL</td><td>Fiche détail transaction + commission breakdown</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>LM-VEHICLE-COLOR</td><td>Icônes véhicule colorées sur carte live</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>DR-FILTERS</td><td>Filtres compte / disponibilité liste chauffeurs</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>KYC-RECTO-VERSO</td><td>Documents KYC recto/verso (CNI, permis)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>OPS-MAP-NAV</td><td>Navigation carte live → course/chauffeur</td><td><span class="badge badge-ok">Fait</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Documentation</div>
+  <ul class="check">
+    <li><code>docs/DEMANDES-2026-06-10.md</code> — 13 demandes backend ouvertes + hors périmètre intégré front.</li>
+    <li>DR-AVAIL-01 documenté — routes explicites suspend/availability chauffeur à formaliser côté API.</li>
+    <li>Rapport visuel 21 écrans — <code>rapport-activite-2026-06-10/screenshots/</code>.</li>
+  </ul>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 3 / 10</span></div>
+</div>
+
+<!-- PAGE 4 — ENDPOINTS INTÉGRÉS -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Endpoints <span class="gold">intégrés</span></h2>
+  <p class="sub">Routes consommées par le front en prod (<code>USE_MOCKS=false</code>).</p>
+
+  <div class="block-title">Finance</div>
+  <table class="data">
+    <thead><tr><th>Route</th><th>Front</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /v1/admin/finance/dashboard</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/admin/finance/transactions</code> · <code>/{id}</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/admin/withdrawals</code> · <code>/{id}</code> · approve/reject</td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/drivers/{id}/wallet</code> · <code>/ledger</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>POST /v1/partners/{id}/wallet/driver-recharge</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>POST /v1/franchise/finance/driver-recharge</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Marketing</div>
+  <table class="data">
+    <thead><tr><th>Route</th><th>HTTP</th><th>Front</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /v1/admin/promotions</code> · POST création</td><td>200/201</td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/admin/marketing/campaigns</code></td><td>200</td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/admin/marketing/banners</code></td><td>200</td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>POST /v1/admin/marketing/banners</code></td><td>400</td><td><span class="badge badge-err">DB cassé</span> — MK-BAN-01</td></tr>
+      <tr><td><code>GET /v1/app-banners</code></td><td>200</td><td><span class="badge badge-info">Lecture mobile</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Réseau · Flotte · Ops</div>
+  <table class="data">
+    <thead><tr><th>Route</th><th>Front</th></tr></thead>
+    <tbody>
+      <tr><td><code>DELETE /v1/admin/partners/{id}</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>DELETE /v1/admin/franchises/{id}</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>PATCH /v1/franchises/{id}</code> · <code>PATCH /v1/partners/{id}</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/admin/live-map</code> · orders · drivers</td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/admin/orders/{id}</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/partners/{id}/vehicles/{vehicleId}</code></td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>GET /v1/admin/kyc/documents</code> · approve/reject</td><td><span class="badge badge-ok">Intégré</span></td></tr>
+      <tr><td><code>PATCH /v1/admin/drivers/{id}</code> (suspend / availability)</td><td><span class="badge badge-warn">Intégré · non doc.</span></td></tr>
+      <tr><td><code>GET /v1/admin/sos-incidents</code> · détail</td><td><span class="badge badge-ok">Intégré</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 4 / 10</span></div>
+</div>
+
+<!-- PAGE 5 — OPÉRATIONS -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Opérations</span></h2>
+  <p class="sub">Dashboard, carte live et courses — API v1 live.</p>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Fig. 1 — Tableau de bord administrateur</h3><span class="capture-num">CAP. 01</span></div>
+    <div class="capture-body">
+      <p><code>GET /v1/admin/dashboard</code> — KPIs temps réel, alertes, filtres franchise.</p>
+      <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/01-dashboard.png" alt="Dashboard admin"/></div>
+      <div class="capture-tags"><span>/admin/dashboard</span><span>API ✓</span></div>
+    </div>
+  </div>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Fig. 2 — Carte live réseau (Mapbox + Socket)</h3><span class="capture-num">CAP. 02</span></div>
+    <div class="capture-body">
+      <p><code>GET /v1/admin/live-map</code> — navigation corrigée vers fiche course/chauffeur.</p>
+      <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/02-carte-live.png" alt="Carte live"/></div>
+      <div class="capture-tags"><span>/admin/ops/map</span><span>API ✓</span><span>Socket ✓</span></div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 3 — Liste courses</h3><span class="capture-num">CAP. 03</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/orders</code></p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/03-courses-liste.png" alt="Liste courses"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 4 — Détail course + véhicule</h3><span class="capture-num">CAP. 04</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/orders/{id}</code> — libellé véhicule corrigé.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/20-course-detail.png" alt="Détail course"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 5 / 10</span></div>
+</div>
+
+<!-- PAGE 6 — RÉSEAU -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Réseau</span></h2>
+  <p class="sub">Franchises et partenaires — CRUD admin v1.</p>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 5 — Liste franchises</h3><span class="capture-num">CAP. 05</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/franchises</code></p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/04-franchises-liste.png" alt="Franchises"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 6 — Détail franchise</h3><span class="capture-num">CAP. 06</span></div>
+      <div class="capture-body">
+        <p>Contact email/tél · suppression <code>DELETE</code>.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/22-franchise-detail.png" alt="Détail franchise"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 7 — Liste partenaires</h3><span class="capture-num">CAP. 07</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/partners</code> — liste rafraîchie après DELETE.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/05-partenaires-liste.png" alt="Partenaires"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 8 — Détail partenaire</h3><span class="capture-num">CAP. 08</span></div>
+      <div class="capture-body">
+        <p>Activer / suspendre / supprimer · wallet partiel.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/21-partenaire-detail.png" alt="Détail partenaire"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 6 / 10</span></div>
+</div>
+
+<!-- PAGE 7 — FLOTTE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Flotte</span></h2>
+  <p class="sub">Chauffeurs, KYC recto/verso, véhicules.</p>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 9 — Liste chauffeurs + actions bulk</h3><span class="capture-num">CAP. 09</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/drivers</code> — filtres compte/disponibilité, barre bulk (en ligne / hors ligne / suspendre / réactiver).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/06-chauffeurs-liste.png" alt="Chauffeurs"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 10 — Détail chauffeur</h3><span class="capture-num">CAP. 10</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/drivers/{id}</code> — header unifié, actions contextuelles, wallet/ledger.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/23-chauffeur-detail.png" alt="Détail chauffeur"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Fig. 11 — File KYC (recto/verso)</h3><span class="capture-num">CAP. 11</span></div>
+    <div class="capture-body">
+      <p><code>GET /v1/admin/kyc/documents</code> — CNI et permis recto/verso.</p>
+      <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/08-kyc-file.png" alt="File KYC"/></div>
+      <div class="capture-tags"><span>KYC ✓</span><span>IMG-01 partiel</span></div>
+    </div>
+  </div>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Fig. 12 — Liste véhicules admin</h3><span class="capture-num">CAP. 12</span></div>
+    <div class="capture-body">
+      <p><code>GET /v1/admin/vehicles</code> · fiche <code>/admin/fleet/vehicles/{id}</code>.</p>
+      <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/07-vehicules-liste.png" alt="Véhicules"/></div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 7 / 10</span></div>
+</div>
+
+<!-- PAGE 8 — FINANCE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Finance</span></h2>
+  <p class="sub">Dashboard, transactions et retraits — nouvelles fiches détail.</p>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Fig. 13 — Dashboard finance admin</h3><span class="capture-num">CAP. 13</span></div>
+    <div class="capture-body">
+      <p><code>GET /v1/admin/finance/dashboard</code></p>
+      <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/09-finance-dashboard.png" alt="Finance dashboard"/></div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 14 — Transactions</h3><span class="capture-num">CAP. 14</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/finance/transactions</code></p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/10-transactions-liste.png" alt="Transactions"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 15 — Détail transaction</h3><span class="capture-num">CAP. 15</span></div>
+      <div class="capture-body">
+        <p>Nouvelle page <code>/admin/finance/transactions/{id}</code>.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/24-transaction-detail.png" alt="Détail transaction"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 16 — Retraits</h3><span class="capture-num">CAP. 16</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/withdrawals</code></p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/11-retraits-liste.png" alt="Retraits"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 17 — Détail retrait</h3><span class="capture-num">CAP. 17</span></div>
+      <div class="capture-body">
+        <p>Nouvelle page <code>/admin/finance/withdrawals/{id}</code>.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/25-retrait-detail.png" alt="Détail retrait"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 8 / 10</span></div>
+</div>
+
+<!-- PAGE 9 — MARKETING -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Marketing</span></h2>
+  <p class="sub">Promos, campagnes, bannières — migration v1.</p>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 18 — Bannières</h3><span class="capture-num">CAP. 18</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/marketing/banners</code></p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/12-marketing-bannieres.png" alt="Bannières"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 19 — Nouvelle bannière</h3><span class="capture-num">CAP. 19</span></div>
+      <div class="capture-body">
+        <p>Formulaire sans image — MK-BAN-01 · POST cassé.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/13-marketing-banniere-new.png" alt="Nouvelle bannière"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 20 — Codes promo</h3><span class="capture-num">CAP. 20</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/promotions</code></p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/14-marketing-promos.png" alt="Promos"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 21 — Campagnes</h3><span class="capture-num">CAP. 21</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/marketing/campaigns</code></p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-10/screenshots/15-marketing-campagnes.png" alt="Campagnes"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="outlook-banner">
+    <strong>MK-BAN-01 :</strong> les bannières sont des <strong>images</strong> pour l&#x27;app mobile client.
+    <code>POST /v1/admin/marketing/banners</code> renvoie 400 (colonne <code>code</code> manquante sur <code>app_banners</code>).
+    Aucun endpoint upload trouvé — champ image à ajouter côté front dès correction API.
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 9 / 10</span></div>
+</div>
+
+<!-- PAGE 10 — RESTE À FAIRE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Reste à faire <span class="gold">&amp; prochaines étapes</span></h2>
+  <p class="sub">Calage final — source <code>DEMANDES-2026-06-10.md</code> (écarts résiduels ~8 %).</p>
+
+  <div class="outlook-banner">
+    <strong>Lecture d&#x27;ensemble :</strong> l&#x27;intégration admin est en <strong>phase de calage final</strong>.
+    Les parcours métier quotidiens (consultation, modération, finance lecture, ops live) sont opérationnels.
+    Le reliquat porte surtout sur l&#x27;upload fichiers, quelques enrichissements listes et le module dispatcher.
+  </div>
+
+  <div class="block-title">Backend — écarts résiduels (P0)</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Demande</th></tr></thead>
+    <tbody>
+      <tr><td>BINOME-UPLOAD-01</td><td>Contrat multipart upload KYC + pièces véhicule (wizard binôme)</td></tr>
+      <tr><td>MK-BAN-01</td><td>Bannières : correction DB + upload image</td></tr>
+      <tr><td>DR-AVAIL-01</td><td>Routes explicites suspend / réactiver / disponibilité chauffeur admin</td></tr>
+      <tr><td>FN-TRANS-LABELS-01</td><td>Libellés franchise/partenaire sur transactions (UUID → nom)</td></tr>
+      <tr><td>OR-TRACK-01</td><td>Trajectoire GPS dynamique course</td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Front — prochain sprint</div>
+  <ul class="check pending">
+    <li><strong>Dispatchers admin</strong> — liste + fiche + règles (<code>/admin/settings/dispatchers</code>) — P0 non démarré.</li>
+    <li>Champ image bannière (dès correction MK-BAN-01).</li>
+    <li>Portails partenaire / franchise — migration complète mock → v1.</li>
+    <li>Zones réseau — carte polygones (ZN-GEO-01).</li>
+  </ul>
+
+  <div class="block-title">Légende captures (récapitulatif)</div>
+  <table class="data">
+    <thead><tr><th>N°</th><th>Écran</th><th>Route API</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>01–04</td><td>Ops (dashboard, carte, courses)</td><td><code>/v1/admin/*</code></td><td><span class="badge badge-ok">API ✓</span></td></tr>
+      <tr><td>05–08</td><td>Réseau franchise/partenaire</td><td><code>/v1/admin/franchises|partners</code></td><td><span class="badge badge-ok">API ✓</span></td></tr>
+      <tr><td>09–12</td><td>Flotte chauffeurs/KYC/véhicules</td><td><code>/v1/admin/drivers</code></td><td><span class="badge badge-ok">API ✓</span></td></tr>
+      <tr><td>13–17</td><td>Finance dashboard/transactions/retraits</td><td><code>/v1/admin/finance/*</code></td><td><span class="badge badge-warn">Partiel</span></td></tr>
+      <tr><td>18–21</td><td>Marketing promos/campagnes/bannières</td><td><code>/v1/admin/marketing/*</code></td><td><span class="badge badge-warn">POST ban —</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="note-global">
+    Captures : <code>docs/rapport-activite-2026-06-10/screenshots/</code> ·
+    PDF : <code>node docs/generate-rapport-pdf.mjs RAPPORT-10062026</code>
+  </p>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport du jour 10/06/2026</span><span>Page 10 / 10</span></div>
+</div>
+
+</body>
+</html>

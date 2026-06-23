@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport — Coulibaly Zie Dramane Romaric — 11 juin 2026 — UPJUNOO PRO</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #e2e8f0; color: #0f172a; line-height: 1.45; }
+.page { width: 210mm; min-height: 297mm; margin: 12px auto; background: #fff; position: relative; page-break-after: always; box-shadow: 0 8px 32px rgba(0,0,0,.12); }
+.page:last-child { page-break-after: auto; }
+@media print { body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+.cover { background: #016d71; color: #fff; min-height: 297mm; padding: 48px 52px; overflow: hidden; }
+.cover::before, .cover::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; min-height: calc(297mm - 96px); display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill { display: inline-block; margin-top: 28px; background: #f8bb10; color: #0f172a; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 999px; }
+.cover h1 { margin-top: 48px; font-size: 34px; font-weight: 800; line-height: 1.15; max-width: 95%; }
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 8px; font-size: 28px; }
+.cover .lead { margin-top: 24px; max-width: 560px; font-size: 14px; opacity: .92; }
+.cover .meta-line { width: 48px; height: 4px; background: #f8bb10; margin: 36px 0 20px; }
+.cover .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; font-size: 12px; }
+.cover .meta-grid label { display: block; font-size: 10px; opacity: .75; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.cover-footer { margin-top: auto; padding-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; opacity: .9; }
+.cover-footer .dv { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px; }
+.inner { padding: 40px 48px 64px; }
+h2.section-title { font-size: 26px; font-weight: 800; color: #016d71; margin-bottom: 8px; }
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.kpi-grid.row2 { grid-template-columns: repeat(2, 1fr); }
+.kpi { background: #fff; border-radius: 12px; padding: 20px 16px; box-shadow: 0 4px 14px rgba(0,0,0,.08); border-top: 4px solid #016d71; }
+.kpi.gold-top { border-top-color: #f8bb10; }
+.kpi .val { font-size: 28px; font-weight: 800; color: #0f172a; }
+.kpi .lbl { font-size: 10px; font-weight: 700; color: #016d71; text-transform: uppercase; letter-spacing: .04em; margin-top: 6px; }
+.block-title { display: flex; align-items: center; gap: 10px; margin: 28px 0 12px; font-size: 14px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: .03em; }
+.block-title::before { content: ''; width: 4px; height: 22px; background: #016d71; border-radius: 2px; }
+.warn-banner { background: #ecfdf5; border-left: 4px solid #016d71; padding: 14px 16px; margin-bottom: 20px; font-size: 13px; border-radius: 0 8px 8px 0; }
+.warn-banner strong { color: #016d71; }
+.privacy-banner { background: #f0fdfa; border: 1px solid #99f6e4; padding: 14px 16px; margin: 16px 0; font-size: 12px; border-radius: 8px; color: #115e59; }
+.outlook-banner { background: #fef3c7; border-left: 4px solid #f8bb10; padding: 14px 16px; margin: 20px 0; font-size: 13px; border-radius: 0 8px 8px 0; }
+table.data { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 11px; }
+table.data thead th { background: #016d71; color: #fff; text-align: left; padding: 8px 10px; font-weight: 700; font-size: 10px; text-transform: uppercase; }
+table.data tbody td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-info { background: #e0f2fe; color: #0369a1; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+ul.check { list-style: none; margin-bottom: 16px; }
+ul.check li { font-size: 13px; padding: 8px 0 8px 28px; position: relative; border-bottom: 1px solid #f1f5f9; }
+ul.check li::before { content: '✓'; position: absolute; left: 0; color: #016d71; font-weight: 800; }
+ul.pending li::before { content: '○'; color: #f8bb10; }
+.page-foot { position: absolute; bottom: 24px; left: 48px; right: 48px; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; }
+.note-global { font-size: 12px; color: #64748b; font-style: italic; margin-top: 12px; }
+.capture { margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; break-inside: avoid; }
+.capture-head { background: #016d71; color: #fff; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.capture-head h3 { font-size: 12px; font-weight: 700; margin: 0; }
+.capture-num { background: #f8bb10; color: #0f172a; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
+.capture-body { padding: 12px 14px 14px; background: #f8fafc; }
+.capture-body p { font-size: 11px; color: #475569; margin-bottom: 8px; }
+.capture-frame { border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; background: #fff; line-height: 0; }
+.capture-frame img { width: 100%; height: auto; max-height: 115mm; object-fit: contain; object-position: top center; display: block; }
+.capture-frame.compact img { max-height: 52mm; }
+.capture-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.capture-tags span { font-size: 9px; background: #fff; border: 1px solid #e2e8f0; padding: 3px 7px; border-radius: 6px; color: #64748b; font-weight: 600; }
+.two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1 — COUVERTURE -->
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="logo">UPJUNOO <span>PRO</span></div>
+    <div class="badge-pill">● RAPPORT D'ACTIVITÉ — 11 JUIN 2026</div>
+    <h1>Coulibaly Zie Dramane Romaric<span class="gold">OCR IA · Inscription · Finance &amp; Mobile</span></h1>
+    <p class="lead">
+      Intégration de modèles d'IA pour faciliter l'inscription chauffeur/véhicule (scan CNI, permis, carte grise).
+      Déploiement d'une <strong>API OCR PaddleOCR sur VPS</strong> pour un traitement local des données clients
+      (modèles cloud payants). OTP téléphone, règles de commission, formulaire chauffeur enrichi et responsive mobile.
+    </p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Date du rapport</label>11 juin 2026</div>
+      <div><label>OCR VPS</label>194.29.101.141:8866</div>
+      <div><label>Captures</label>29 écrans · pages 6–11</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">CZ</span>Coulibaly Zie Dramane Romaric</div>
+      <div>CONFIDENTIEL · RAPPORT_COULIBALY_ZIE_ROMARIC-11062026</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 — SYNTHÈSE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Synthèse <span class="gold">exécutive</span></h2>
+  <p class="sub">Bilan des travaux réalisés le 11 juin 2026 sur UpJunoo Pro (Next.js 15, API v1 live).</p>
+
+  <div class="warn-banner">
+    <strong>Focus du jour :</strong> parcours d'inscription assisté par IA (wizard 4 étapes), double provider OCR
+    (<code>openrouter</code> vision · <code>paddle</code> VPS), OTP création chauffeur, pages dédiées règles de commission,
+    améliorations UX mobile et formulaire chauffeur (indicatif téléphone dynamique).
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Confidentialité &amp; coûts :</strong> les modèles vision OpenRouter sont <strong>payants à l'usage</strong> et reçoivent les images.
+    L'API <strong>PaddleOCR</strong> hébergée sur notre VPS traite les pièces d'identité en local — usage <strong>propre des données clients</strong>.
+    OpenRouter n'est alors utilisé que pour structurer le <em>texte OCR</em> en JSON (mode <code>paddle</code>).
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">8+</div><div class="lbl">Livrables fonctionnels</div></div>
+    <div class="kpi gold-top"><div class="val">29</div><div class="lbl">Captures écran</div></div>
+    <div class="kpi"><div class="val">2</div><div class="lbl">Moteurs OCR commutables</div></div>
+  </div>
+  <div class="kpi-grid row2">
+    <div class="kpi"><div class="val">4</div><div class="lbl">Étapes wizard inscription IA</div></div>
+    <div class="kpi gold-top"><div class="val">1</div><div class="lbl">API OCR self-hosted (VPS)</div></div>
+  </div>
+
+  <div class="block-title">Domaines touchés</div>
+  <table class="data">
+    <thead><tr><th>Domaine</th><th>Livrable</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Flotte / OCR</strong></td><td>Extraction IA CNI, permis, carte grise + VPS PaddleOCR</td><td><span class="badge badge-ok">Livré</span></td></tr>
+      <tr><td><strong>Flotte / Chauffeur</strong></td><td>OTP téléphone, indicatif pays partenaire, e-mail optionnel UI</td><td><span class="badge badge-ok">Livré</span></td></tr>
+      <tr><td><strong>Finance</strong></td><td>Règles commission — pages création/édition, couplage taux</td><td><span class="badge badge-ok">Livré</span></td></tr>
+      <tr><td><strong>UX / Mobile</strong></td><td>Shell responsive, sidebar drawer, composants partagés</td><td><span class="badge badge-ok">Livré</span></td></tr>
+      <tr><td><strong>Documentation</strong></td><td>dispatcher_caracteristique_for_front.md, DEMANDES-2026-06-11.md</td><td><span class="badge badge-ok">Livré</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 2 / 12</span></div>
+</div>
+
+<!-- PAGE 3 — TÂCHES RÉALISÉES -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Tâches <span class="gold">réalisées</span></h2>
+  <p class="sub">Détail des livrables du 11 juin 2026.</p>
+
+  <div class="block-title">OCR &amp; inscription IA</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Tâche</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>OCR-01</td><td>Route <code>POST /api/document-extract</code> — dual provider OpenRouter / Paddle</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>OCR-02</td><td>Client Paddle VPS <code>POST /ocr</code> — parsing <code>full_text</code> + <code>lines[]</code></td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>OCR-03</td><td>Wizard <code>FleetPairCreateWizard</code> — mode IA, extraction, badges « Extrait IA »</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>OCR-04</td><td>UX avertissements — filtrage bruit Paddle, hint année sous le champ</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>OCR-05</td><td>Déploiement <code>deploy/paddleocr-api/</code> — FastAPI PaddleOCR lang=fr</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>OCR-06</td><td>Script captures <code>capture-ocr-screenshots.mjs</code></td><td><span class="badge badge-ok">Fait</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Chauffeur &amp; formulaire</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Tâche</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>DR-OTP-01</td><td>OTP création chauffeur — <code>POST /v1/auth/otp/send|verify</code>, blocage submit</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>DR-FORM-01</td><td>Indicatif téléphone dynamique selon partenaire sélectionné</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>DR-FORM-02</td><td>Zone retirée du formulaire (non envoyée API v1)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>DR-FORM-03</td><td>E-mail optionnel UI — toujours transmis API (placeholder si vide)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Finance &amp; UX</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Tâche</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>FN-COM-01</td><td>Pages <code>/commission-rules/new</code> et <code>/[id]/edit</code> (plus de modal)</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>FN-COM-02</td><td><code>CommissionRuleForm</code> — nom modifiable, couplage franchise ↔ partenaire</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>UX-MOB-01</td><td>Shell mobile — drawer sidebar, topbars, DataTable responsive</td><td><span class="badge badge-ok">Fait</span></td></tr>
+      <tr><td>DOC-01</td><td><code>docs/dispatcher_caracteristique_for_front.md</code> — spec dispatch admin</td><td><span class="badge badge-ok">Fait</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 3 / 12</span></div>
+</div>
+
+<!-- PAGE 4 — ARCHITECTURE OCR -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Architecture <span class="gold">OCR</span></h2>
+  <p class="sub">Bascule provider · flux de données · configuration.</p>
+
+  <div class="block-title">Variables d'environnement</div>
+  <table class="data">
+    <thead><tr><th>Variable</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td><code>DOCUMENT_EXTRACT_PROVIDER</code></td><td><code>openrouter</code> (vision) ou <code>paddle</code> (VPS + structuration texte)</td></tr>
+      <tr><td><code>PADDLE_OCR_BASE_URL</code></td><td><code>http://194.29.101.141:8866</code></td></tr>
+      <tr><td><code>OPENROUTER_API_KEY</code> + <code>OPENROUTER_MODEL</code></td><td>Vision directe ou structuration JSON depuis texte OCR</td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Regroupement des images (wizard)</div>
+  <ul class="check">
+    <li><strong>Par type de document</strong> — une requête HTTP par CNI, permis ou carte grise (recto+verso groupés).</li>
+    <li><strong>Mode Paddle</strong> — OCR VPS <em>image par image</em>, puis fusion texte → un appel OpenRouter texte.</li>
+    <li><strong>Mode OpenRouter</strong> — toutes les images du groupe dans un seul appel vision.</li>
+  </ul>
+
+  <div class="block-title">Comparatif providers</div>
+  <table class="data">
+    <thead><tr><th>Mode</th><th>OCR</th><th>Coût images</th><th>Données client</th></tr></thead>
+    <tbody>
+      <tr><td><code>openrouter</code></td><td>Vision cloud (Gemini Flash)</td><td><span class="badge badge-warn">Payant</span></td><td>Images envoyées au fournisseur</td></tr>
+      <tr><td><code>paddle</code></td><td>VPS PaddleOCR local</td><td><span class="badge badge-ok">Gratuit (VPS)</span></td><td><span class="badge badge-ok">Images sur infra maîtrisée</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="outlook-banner">
+    <strong>API VPS :</strong> <code>POST /ocr</code> (multipart <code>file</code>), <code>GET /health</code>, Swagger
+    <code>/docs</code> — réponse <code>{ full_text, lines[], line_count }</code>.
+  </div>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 4 / 12</span></div>
+</div>
+
+<!-- PAGE 5 — OPÉRATIONS -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Captures <span class="gold">— Opérations</span></h2>
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Dashboard admin</h3><span class="capture-num">01</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/01-dashboard.png" alt="Dashboard"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Carte live</h3><span class="capture-num">02</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/02-carte-live.png" alt="Carte live"/></div></div>
+    </div>
+  </div>
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Liste courses</h3><span class="capture-num">03</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/03-courses-liste.png" alt="Courses"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Détail course</h3><span class="capture-num">20</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/20-course-detail.png" alt="Détail course"/></div></div>
+    </div>
+  </div>
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 5 / 12</span></div>
+</div>
+
+<!-- PAGE 6 — FLOTTE & WIZARD OCR -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Captures <span class="gold">— Inscription IA (wizard)</span></h2>
+  <p class="sub"><code>/admin/fleet/vehicles/new</code> — scan documents et préremplissage formulaire.</p>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Point d'entrée — création paire chauffeur/véhicule</h3><span class="capture-num">18</span></div>
+    <div class="capture-body">
+      <p>Wizard 4 étapes : Mode → Documents → Analyse → Vérification.</p>
+      <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/18-vehicle-create-wizard.png" alt="Wizard entrée"/></div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Choix mode IA</h3><span class="capture-num">30</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/30-wizard-mode.png" alt="Mode IA"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Téléversement pièces</h3><span class="capture-num">31</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/31-wizard-documents.png" alt="Documents"/></div></div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Analyse OCR en cours</h3><span class="capture-num">32</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/32-wizard-extraction.png" alt="Extraction"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Vérification champs IA</h3><span class="capture-num">33</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/33-wizard-review.png" alt="Review"/></div></div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 6 / 12</span></div>
+</div>
+
+<!-- PAGE 7 — VPS OCR -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Captures <span class="gold">— API OCR VPS</span></h2>
+  <p class="sub">Traitement local PaddleOCR — données clients sur infrastructure maîtrisée.</p>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Swagger UpJunoo PaddleOCR API</h3><span class="capture-num">35</span></div>
+    <div class="capture-body">
+      <p><code>POST /ocr</code> — upload image JPEG/PNG. Documentation : <code>194.29.101.141:8866/docs</code></p>
+      <div class="capture-frame"><img src="rapport-activite-2026-06-11/screenshots/35-paddle-ocr-swagger.png" alt="Swagger OCR"/></div>
+    </div>
+  </div>
+
+  <div class="capture">
+    <div class="capture-head"><h3>Health check moteur OCR</h3><span class="capture-num">36</span></div>
+    <div class="capture-body">
+      <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/36-paddle-ocr-health.png" alt="Health OCR"/></div>
+      <div class="capture-tags"><span>engine: paddleocr</span><span>lang: fr</span><span>self-hosted</span></div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 7 / 12</span></div>
+</div>
+
+<!-- PAGE 8 — FLOTTE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Captures <span class="gold">— Flotte</span></h2>
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Liste chauffeurs</h3><span class="capture-num">06</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/06-chauffeurs-liste.png" alt="Chauffeurs"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Détail chauffeur</h3><span class="capture-num">23</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/23-chauffeur-detail.png" alt="Détail chauffeur"/></div></div>
+    </div>
+  </div>
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>File KYC</h3><span class="capture-num">08</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/08-kyc-file.png" alt="KYC"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Liste véhicules</h3><span class="capture-num">07</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/07-vehicules-liste.png" alt="Véhicules"/></div></div>
+    </div>
+  </div>
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 8 / 12</span></div>
+</div>
+
+<!-- PAGE 9 — FINANCE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Captures <span class="gold">— Finance &amp; commissions</span></h2>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Règles de commission — liste</h3><span class="capture-num">16</span></div>
+      <div class="capture-body">
+        <p>Pages dédiées création/édition (remplace les tiroirs modaux).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/16-commission-rules.png" alt="Commission rules"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Nouvelle règle commission</h3><span class="capture-num">17</span></div>
+      <div class="capture-body">
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/17-commission-rule-new.png" alt="Nouvelle règle"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Dashboard finance</h3><span class="capture-num">09</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/09-finance-dashboard.png" alt="Finance"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Transactions</h3><span class="capture-num">10</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/10-transactions-liste.png" alt="Transactions"/></div></div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 9 / 12</span></div>
+</div>
+
+<!-- PAGE 10 — RÉSEAU -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Captures <span class="gold">— Réseau &amp; Marketing</span></h2>
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Franchises</h3><span class="capture-num">04</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/04-franchises-liste.png" alt="Franchises"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Partenaires</h3><span class="capture-num">05</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/05-partenaires-liste.png" alt="Partenaires"/></div></div>
+    </div>
+  </div>
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Promos</h3><span class="capture-num">14</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/14-marketing-promos.png" alt="Promos"/></div></div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Campagnes</h3><span class="capture-num">15</span></div>
+      <div class="capture-body"><div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/15-marketing-campagnes.png" alt="Campagnes"/></div></div>
+    </div>
+  </div>
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 10 / 12</span></div>
+</div>
+
+<!-- PAGE 11 — RESTE À FAIRE BACKEND -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Demandes <span class="gold">backend</span></h2>
+  <p class="sub">Source <code>docs/DEMANDES-2026-06-11.md</code> — sujets ouverts.</p>
+
+  <div class="block-title">Priorité haute — nouveau 11/06</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Demande</th></tr></thead>
+    <tbody>
+      <tr><td><strong>DR-ORDERS-FILTER-01</strong></td><td><code>GET /v1/admin/orders?driverId=</code> — onglet Activité chauffeur (filtre SQL, pas JS)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Reportées — backend</div>
+  <table class="data">
+    <thead><tr><th>ID</th><th>Sujet</th></tr></thead>
+    <tbody>
+      <tr><td>BINOME-UPLOAD-01</td><td>Multipart upload KYC + pièces véhicule à la création</td></tr>
+      <tr><td>DR-AVAIL-01</td><td>Routes suspend / activate chauffeur admin</td></tr>
+      <tr><td>FN-TRANS-LABELS-01</td><td>Libellés franchise (UUID → nom) sur transactions</td></tr>
+      <tr><td>MK-BAN-01</td><td>Upload bannières marketing</td></tr>
+      <tr><td>OR-TRACK-01</td><td>Trajectoire GPS dynamique course</td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Front — prochaines étapes OCR</div>
+  <ul class="check pending">
+    <li>Conversion PDF → image avant envoi Paddle VPS.</li>
+    <li>Parallélisation des appels OCR pour réduire le temps d'analyse.</li>
+    <li>Option structuration 100 % locale (sans OpenRouter).</li>
+  </ul>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 11 / 12</span></div>
+</div>
+
+<!-- PAGE 12 — LÉGENDE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Légende <span class="gold">&amp; commandes</span></h2>
+
+  <div class="block-title">Récapitulatif captures (29)</div>
+  <table class="data">
+    <thead><tr><th>N°</th><th>Écran</th><th>Fichier</th></tr></thead>
+    <tbody>
+      <tr><td>01–03, 20</td><td>Opérations</td><td><code>rapport-activite-2026-06-11/screenshots/</code></td></tr>
+      <tr><td>04–08, 18, 23</td><td>Flotte + wizard inscription</td><td>idem</td></tr>
+      <tr><td>09–11, 16–17, 24–25</td><td>Finance &amp; commissions</td><td>idem</td></tr>
+      <tr><td>12–15</td><td>Marketing</td><td>idem</td></tr>
+      <tr><td>30–33, 35–36</td><td>OCR wizard + API VPS</td><td>idem</td></tr>
+    </tbody>
+  </table>
+
+  <div class="block-title">Régénérer le rapport</div>
+  <ul class="check">
+    <li><code>npm run dev</code></li>
+    <li><code>node scripts/capture-activity-screenshots.mjs 2026-06-11</code></li>
+    <li><code>node scripts/capture-ocr-screenshots.mjs 2026-06-11</code></li>
+    <li><code>node docs/generate-rapport-pdf.mjs RAPPORT_COULIBALY_ZIE_ROMARIC-11062026</code></li>
+  </ul>
+
+  <p class="note-global">
+    Fichier : <code>docs/RAPPORT_COULIBALY_ZIE_ROMARIC-11062026.html</code> ·
+    PDF : <code>docs/RAPPORT_COULIBALY_ZIE_ROMARIC-11062026.pdf</code>
+  </p>
+
+  <div class="page-foot"><span>COULIBALY ZIE DRAMANE ROMARIC — 11/06/2026</span><span>Page 12 / 12</span></div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-06-11T17:54:30.703Z",
+  "baseUrl": "http://localhost:3000",
+  "paddleOcrUrl": "http://194.29.101.141:8866",
+  "topic": "ocr-inscription-ia",
+  "results": [
+    {
+      "slug": "07-vehicules-liste",
+      "label": "Liste véhicules — accès création paire",
+      "file": "screenshots/07-vehicules-liste.png",
+      "ok": true
+    },
+    {
+      "slug": "30-wizard-mode",
+      "label": "Wizard — choix mode IA ou manuel",
+      "file": "screenshots/30-wizard-mode.png",
+      "ok": true
+    },
+    {
+      "slug": "31-wizard-documents",
+      "label": "Wizard — téléversement CNI, permis, carte grise",
+      "file": "screenshots/31-wizard-documents.png",
+      "ok": true
+    },
+    {
+      "slug": "31b-wizard-documents-filled",
+      "label": "Wizard — pièces jointes renseignées",
+      "file": "screenshots/31b-wizard-documents-filled.png",
+      "ok": true
+    },
+    {
+      "slug": "32-wizard-extraction",
+      "label": "Wizard — analyse OCR en cours",
+      "file": "screenshots/32-wizard-extraction.png",
+      "ok": true
+    },
+    {
+      "slug": "33-wizard-review",
+      "label": "Wizard — vérification champs préremplis (IA)",
+      "file": "screenshots/33-wizard-review.png",
+      "ok": true
+    },
+    {
+      "slug": "35-paddle-ocr-swagger",
+      "label": "API PaddleOCR VPS — documentation Swagger",
+      "file": "screenshots/35-paddle-ocr-swagger.png",
+      "ok": true,
+      "url": "http://194.29.101.141:8866/docs"
+    },
+    {
+      "slug": "36-paddle-ocr-health",
+      "label": "API PaddleOCR VPS — health check",
+      "file": "screenshots/36-paddle-ocr-health.png",
+      "ok": true,
+      "url": "http://194.29.101.141:8866/health"
+    }
+  ]
+}

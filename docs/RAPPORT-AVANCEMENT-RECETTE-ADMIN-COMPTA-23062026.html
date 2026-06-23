@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport d'avancement — Conformité recette Admin &amp; Compta — 23/06/2026</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #e2e8f0; color: #0f172a; line-height: 1.45; }
+.page { width: 210mm; min-height: 297mm; margin: 12px auto; background: #fff; position: relative; page-break-after: always; box-shadow: 0 8px 32px rgba(0,0,0,.12); }
+.page:last-child { page-break-after: auto; }
+@media print { body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+
+/* Couverture */
+.cover { background: #016d71; color: #fff; min-height: 297mm; padding: 48px 52px; overflow: hidden; }
+.cover::before, .cover::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; min-height: calc(297mm - 96px); display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill { display: inline-block; margin-top: 28px; background: #f8bb10; color: #0f172a; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 999px; }
+.cover h1 { margin-top: 44px; font-size: 38px; font-weight: 800; line-height: 1.15; max-width: 95%; }
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 8px; font-size: 30px; }
+.cover .lead { margin-top: 24px; max-width: 560px; font-size: 14px; opacity: .92; }
+.cover .meta-line { width: 48px; height: 4px; background: #f8bb10; margin: 36px 0 20px; }
+.cover .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; font-size: 12px; }
+.cover .meta-grid label { display: block; font-size: 10px; opacity: .75; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.cover-footer { margin-top: auto; padding-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; opacity: .9; }
+.cover-footer .dv { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px; }
+
+/* Pages intérieures */
+.inner { padding: 40px 48px 64px; }
+h2.section-title { font-size: 26px; font-weight: 800; color: #016d71; margin-bottom: 8px; }
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 26px; }
+.block-title { display: flex; align-items: center; gap: 10px; margin: 26px 0 12px; font-size: 14px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: .03em; }
+.block-title::before { content: ''; width: 4px; height: 22px; background: #016d71; border-radius: 2px; }
+
+/* KPI */
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+.kpi-grid.row2 { grid-template-columns: repeat(2, 1fr); }
+.kpi-grid.row4 { grid-template-columns: repeat(4, 1fr); }
+.kpi { background: #fff; border-radius: 12px; padding: 18px 14px; box-shadow: 0 4px 14px rgba(0,0,0,.08); border-top: 4px solid #016d71; text-align: center; }
+.kpi.gold-top { border-top-color: #f8bb10; }
+.kpi.err-top { border-top-color: #ef4444; }
+.kpi .val { font-size: 30px; font-weight: 800; color: #0f172a; }
+.kpi.err-top .val { color: #dc2626; }
+.kpi.gold-top .val { color: #b45309; }
+.kpi .lbl { font-size: 10px; font-weight: 700; color: #016d71; text-transform: uppercase; letter-spacing: .04em; margin-top: 6px; }
+
+/* Bannières */
+.warn-banner { background: #ecfdf5; border-left: 4px solid #016d71; padding: 14px 16px; margin-bottom: 20px; font-size: 13px; border-radius: 0 8px 8px 0; }
+.warn-banner strong { color: #016d71; }
+.outlook-banner { background: #fef3c7; border-left: 4px solid #f8bb10; padding: 14px 16px; margin: 20px 0; font-size: 13px; border-radius: 0 8px 8px 0; }
+.danger-banner { background: #fef2f2; border-left: 4px solid #ef4444; padding: 14px 16px; margin: 18px 0; font-size: 13px; border-radius: 0 8px 8px 0; }
+.danger-banner strong { color: #b91c1c; }
+
+/* Tables */
+table.data { width: 100%; border-collapse: collapse; margin-bottom: 22px; font-size: 11px; }
+table.data thead th { background: #016d71; color: #fff; text-align: left; padding: 8px 10px; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; }
+table.data tbody td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+table.data code { background: #eef2f6; padding: 1px 5px; border-radius: 4px; font-size: 10px; }
+
+.badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-info { background: #e0f2fe; color: #0369a1; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+.badge-err { background: #fecaca; color: #b91c1c; }
+.sev { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; }
+.sev-p0 { background: #fecaca; color: #b91c1c; }
+.sev-p1 { background: #fef3c7; color: #92400e; }
+.sev-p2 { background: #e0f2fe; color: #0369a1; }
+
+/* Causes racines */
+.cause { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; border-left: 4px solid #ef4444; }
+.cause h4 { font-size: 13px; color: #0f172a; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 10px; }
+.cause h4 .tag { font-size: 10px; font-weight: 700; color: #b91c1c; }
+.cause p { font-size: 11.5px; color: #475569; }
+.cause .fix { margin-top: 8px; font-size: 11px; color: #166534; }
+.cause .fix strong { color: #15803d; }
+
+ul.clean { list-style: none; }
+ul.clean li { font-size: 12.5px; padding: 7px 0 7px 26px; position: relative; border-bottom: 1px solid #f1f5f9; }
+ul.clean li::before { content: '▸'; position: absolute; left: 4px; color: #016d71; font-weight: 800; }
+
+.page-foot { position: absolute; bottom: 24px; left: 48px; right: 48px; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; }
+.note-global { font-size: 11px; color: #64748b; font-style: italic; margin-top: 12px; }
+
+/* Captures */
+.capture { margin-bottom: 18px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; break-inside: avoid; }
+.capture-head { background: #016d71; color: #fff; padding: 9px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.capture-head h3 { font-size: 12px; font-weight: 700; margin: 0; }
+.capture-num { background: #f8bb10; color: #0f172a; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+.capture-body { padding: 10px 12px 12px; background: #f8fafc; }
+.capture-body p { font-size: 10.5px; color: #475569; margin-bottom: 8px; }
+.capture-frame { border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; background: #fff; line-height: 0; }
+.capture-frame img { width: 100%; height: auto; max-height: 110mm; object-fit: contain; object-position: top center; display: block; }
+.capture-frame.compact img { max-height: 52mm; }
+.capture-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.capture-tags span { font-size: 9px; background: #fff; border: 1px solid #e2e8f0; padding: 3px 7px; border-radius: 6px; color: #64748b; font-weight: 600; }
+.two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1 — COUVERTURE -->
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="logo">UPJUNOO <span>PRO</span></div>
+    <div class="badge-pill">● RAPPORT D'AVANCEMENT — CONFORMITÉ RECETTE</div>
+    <h1>Back-office Admin &amp; Compta<span class="gold">Audit recette v2 — état d'avancement vs Plan de recette</span></h1>
+    <p class="lead">
+      Confrontation du back-office UpJunoo Pro au <strong>Plan de recette &amp; déploiement</strong> (59 slides, v1.0).
+      Audit multi-agents sur 11 dimensions, vérification adversariale de chaque écart, contrôle de complétude :
+      <strong>98 écarts examinés, 97 confirmés</strong>. Chaque écart est prouvé dans le code (fichier:ligne).
+      Ce document présente la synthèse, les matrices d'avancement (18 fonctions Central, 22 rapports) et le plan d'action priorisé.
+    </p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Date du rapport</label>23 juin 2026</div>
+      <div><label>Source de vérité</label>PLAN DE RECETTE ET DEPLOIEMENT.pdf</div>
+      <div><label>Méthode</label>Audit multi-agents vérifié</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">CZ</span>Coulibaly Zie Dramane Romaric</div>
+      <div>CONFIDENTIEL | 24 captures · annexe pages 8–10</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 — SYNTHÈSE EXÉCUTIVE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Synthèse <span class="gold">exécutive</span></h2>
+  <p class="sub">Résultat brut de l'audit : 98 écarts examinés → 97 confirmés, 1 réfuté, + 8 ajouts de complétude.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi err-top"><div class="val">25</div><div class="lbl">P0 — bloquant recette</div></div>
+    <div class="kpi gold-top"><div class="val">40</div><div class="lbl">P1 — couverture recette</div></div>
+    <div class="kpi"><div class="val">32</div><div class="lbl">P2 — hors jalon / défense</div></div>
+  </div>
+  <div class="kpi-grid row2">
+    <div class="kpi"><div class="val">97</div><div class="lbl">Écarts confirmés (preuve code)</div></div>
+    <div class="kpi gold-top"><div class="val">8</div><div class="lbl">Causes racines des 25 P0</div></div>
+  </div>
+
+  <div class="block-title">Les 25 P0 se regroupent en 8 causes racines</div>
+  <table class="data">
+    <thead><tr><th style="width:34px">#</th><th>Cause racine</th><th style="width:120px">Règle / UC</th><th style="width:50px">P0</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Recharge centrale active (admin + compta) — chemin d'écriture wallet live</td><td>slide 15 / UC-FIN01</td><td><span class="sev sev-p0">6 P0</span></td></tr>
+      <tr><td>2</td><td>RBAC factice — permissions codées en dur par portail, rôle serveur ignoré</td><td>fonction #17 / slide 26</td><td><span class="sev sev-p0">4 P0</span></td></tr>
+      <tr><td>3</td><td>Paramétrage tarifs / bonus non conforme — pas de versioning, 2/4 services, moteur bonus absent</td><td>UC-A01 / UC-FR02</td><td><span class="sev sev-p0">6 P0</span></td></tr>
+      <tr><td>4</td><td>Reporting non ventilé par service</td><td>UC-C01 / UC-C02</td><td><span class="sev sev-p0">2 P0</span></td></tr>
+      <tr><td>5</td><td>Journal d'audit — accès non cloisonné (route sans garde)</td><td>UC-AU01</td><td><span class="sev sev-p0">1 P0</span></td></tr>
+      <tr><td>6</td><td>Réclamation → validation finance → crédit wallet absent</td><td>UC-S01</td><td><span class="sev sev-p0">2 P0</span></td></tr>
+      <tr><td>7</td><td>Écran livreur dédié absent (livreurs confondus avec chauffeurs)</td><td>fonction Central #06</td><td><span class="sev sev-p0">1 P0</span></td></tr>
+      <tr><td>8</td><td>Exports serveur tronqués à la page courante</td><td>#22</td><td><span class="sev sev-p0">1 P0</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="danger-banner">
+    <strong>⚠ Aggravant transverse :</strong> aucun harnais de test n'existe dans le projet
+    (<code>package.json</code> sans script <code>test</code>, 0 fichier <code>.spec/.test</code>).
+    Le « test négatif obligatoire » UC-FIN01 ne peut pas être verrouillé en l'état.
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 2 / 10</span></div>
+</div>
+
+<!-- PAGE 3 — P0 (A–D) -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Écarts <span class="gold">P0</span> — bloquants (1/2)</h2>
+  <p class="sub">Causes racines A à D — à corriger avant Go production.</p>
+
+  <div class="cause">
+    <h4>P0-A · Recharge des wallets chauffeurs depuis le central <span class="tag">slide 15 / UC-FIN01 · 6 P0</span></h4>
+    <p>La chaîne d'écriture est <strong>complète et live</strong> (pas un mock) : bouton → modal → mutation →
+      <code>POST /v1/partners/{id}/wallet/driver-recharge</code>. Le rôle compta possède même
+      <code>finance.withdrawals.approve</code> (droit d'exécuter le versement) et ré-exporte les pages admin avec Approuver/Rejeter actifs.</p>
+    <p class="fix"><strong>Correctif :</strong> supprimer (admin + compta) tout chemin d'écriture wallet (bouton, modal, mutation, raccourcis) ; vues lecture seule uniquement ; retirer <code>finance.withdrawals.approve</code> du portail compta ; test négatif après mise en place d'un runner.</p>
+  </div>
+
+  <div class="cause">
+    <h4>P0-B · RBAC factice — gouvernance des droits non fonctionnelle <span class="tag">fonction #17 / slide 26 · 4 P0</span></h4>
+    <p>Permissions déterminées par le <strong>portail</strong> (<code>defaultPermissions(portal)</code>), pas par le rôle serveur :
+      <code>data.role</code>/<code>data.permissions</code> de l'API sont ignorés. Édition des droits d'un rôle non persistée en v1 (le PATCH droppe <code>permission_groups</code> → faux succès UI). Les 7 sous-profils centraux ne sont pas différenciés.</p>
+    <p class="fix"><strong>Correctif :</strong> alimenter <code>user.permissions</code> depuis l'API au login (fallback portail) ; profil « direction » lecture seule ; consommer <code>permission_groups</code> dans le mapper et le PATCH.</p>
+  </div>
+
+  <div class="cause">
+    <h4>P0-C · Paramétrage tarifs / commissions / bonus <span class="tag">UC-A01 / UC-FR02 — slides 42 &amp; 44 · 6 P0</span></h4>
+    <p>Tarifs <strong>sans versioning ni date d'application</strong> (PATCH qui écrase la grille, <code>effective_from/to</code> jamais alimentés). Tarification = <strong>2/4 services</strong> (Fret &amp; Location absents). Gabarit KPI bonus à plages absent, garde-fou central des plages absent, moteur de bonus auto (<code>POST /v1/admin/bonus/run-evaluation</code>) non câblé, rapport <code>GET /v1/admin/bonus-awards</code> jamais consommé.</p>
+    <p class="fix"><strong>Correctif :</strong> versioning + date d'application + couverture 4 services ; gabarit KPI à plages + garde-fou central ; brancher run-evaluation + page bonus-awards.</p>
+  </div>
+
+  <div class="cause">
+    <h4>P0-D · Reporting non ventilé par service <span class="tag">UC-C01 / UC-C02 · 2 P0</span></h4>
+    <p>Aucun filtre SERVICE sur le dashboard central (seul franchise). Aucune ventilation par service dans finance/reporting/compta (GMV, commissions, flux consolidés toutes prestations).</p>
+    <p class="fix"><strong>Correctif :</strong> ajouter une dimension <code>by_service[]</code> aux agrégats dashboard/finance + filtres/colonnes service.</p>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 3 / 10</span></div>
+</div>
+
+<!-- PAGE 4 — P0 (E–H) -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Écarts <span class="gold">P0</span> — bloquants (2/2)</h2>
+  <p class="sub">Causes racines E à H + note conformité commissions.</p>
+
+  <div class="cause">
+    <h4>P0-E · Journal d'audit — accès non cloisonné <span class="tag">UC-AU01 — slide 45 · 1 P0</span></h4>
+    <p>La route <code>/admin/settings/audit</code> n'a <strong>aucune garde de permission</strong> : tout compte du portail admin y accède par URL. <code>PermissionGuard</code> existe mais n'est branché nulle part.</p>
+    <p class="fix"><strong>Correctif :</strong> protéger la route par <code>PermissionGuard</code> (permission audit dédiée).</p>
+  </div>
+
+  <div class="cause">
+    <h4>P0-F · Réclamation → finance → crédit wallet <span class="tag">UC-S01 / UC-C03 · 2 P0</span></h4>
+    <p>Aucune validation FINANCE ni crédit wallet dans la résolution de litige : l'agent support saisit un remboursement et déclenche un POST direct, sans étape d'approbation finance ni matérialisation du crédit. Litiges/remboursements totalement absents du portail compta.</p>
+    <p class="fix"><strong>Correctif :</strong> workflow réclamation → validation finance → crédit wallet + file de validation compta.</p>
+  </div>
+
+  <div class="cause">
+    <h4>P0-G · Écran livreur dédié absent <span class="tag">fonction Central #06 — slide 15/19 · 1 P0</span></h4>
+    <p>Aucune route/page/nav/rôle « livreur » : les livreurs sont confondus avec les chauffeurs. <code>delivery</code> n'existe que comme type de course/véhicule, jamais comme opérateur supervisable. Profil 7 indicateurs livreur absent.</p>
+    <p class="fix"><strong>Correctif :</strong> écran livreur dédié (liste, fiche, profil indicateurs).</p>
+  </div>
+
+  <div class="cause">
+    <h4>P0-H · Exports serveur tronqués <span class="tag">#22 — slide 21 · 1 P0</span></h4>
+    <p>L'export CSV/Excel n'exporte que <strong>la page courante</strong> (pagination serveur) : audit, ledger, transactions… L'utilisateur croit exporter l'intégralité mais n'obtient que ~20-50 lignes. Trompeur pour un export de conformité.</p>
+    <p class="fix"><strong>Correctif :</strong> exports serveur complets (par période/filtre) au lieu de la page courante.</p>
+  </div>
+
+  <div class="outlook-banner">
+    <strong>Note conformité (P1 associé) :</strong> le garde-fou commissions n'est pas un plafond « cumul ≤ 100 % »
+    mais une <strong>égalité forcée à 15 %</strong> excluant la part chauffeur
+    (<code>commissionRateCoupling.ts:56</code>) — à clarifier avec le plan (UC-A01b).
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 4 / 10</span></div>
+</div>
+
+<!-- PAGE 5 — MATRICE 18 FONCTIONS CENTRAL -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Matrice — <span class="gold">18 fonctions Central</span></h2>
+  <p class="sub">État d'avancement par fonction (slide 15).</p>
+
+  <table class="data">
+    <thead><tr><th style="width:30px">#</th><th>Fonction</th><th>Statut</th><th style="width:120px">Détail</th><th style="width:60px">Sév.</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>Administration globale</td><td><span class="badge badge-warn">Partiel</span></td><td>pas de gestion comptes admin</td><td><span class="sev sev-p2">P2</span></td></tr>
+      <tr><td>02</td><td>Supervision tous services</td><td><span class="badge badge-warn">Partiel</span></td><td>pas de ventilation service</td><td><span class="sev sev-p1">P1</span></td></tr>
+      <tr><td>03</td><td>Gestion franchises</td><td><span class="badge badge-warn">Partiel</span></td><td>pas suspend/réactiver</td><td><span class="sev sev-p1">P1</span></td></tr>
+      <tr><td>04</td><td>Gestion partenaires</td><td><span class="badge badge-warn">Partiel</span></td><td>pas de file validation</td><td><span class="sev sev-p2">P2</span></td></tr>
+      <tr><td>05</td><td>Gestion chauffeurs</td><td><span class="badge badge-ok">OK</span></td><td>filtre service manquant</td><td><span class="sev sev-p1">P1</span></td></tr>
+      <tr><td>06</td><td><strong>Gestion livreurs</strong></td><td><span class="badge badge-err">Absent</span></td><td>confondu chauffeurs</td><td><span class="sev sev-p0">P0</span></td></tr>
+      <tr><td>07</td><td>Gestion clients</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td>—</td></tr>
+      <tr><td>08</td><td><strong>Paramétrage tarifs</strong></td><td><span class="badge badge-err">Non conforme</span></td><td>pas versioning, 2/4 services</td><td><span class="sev sev-p0">P0</span></td></tr>
+      <tr><td>09</td><td>Paramétrage commissions</td><td><span class="badge badge-err">Non conforme</span></td><td>garde-fou cumul</td><td><span class="sev sev-p1">P1</span></td></tr>
+      <tr><td>10</td><td><strong>Paramétrage règles bonus</strong></td><td><span class="badge badge-err">Absent</span></td><td>gabarit KPI, garde-fou, moteur</td><td><span class="sev sev-p0">P0</span></td></tr>
+      <tr><td>11</td><td>Paramétrage zones</td><td><span class="badge badge-warn">Partiel</span></td><td>édition hors legacy désactivée</td><td><span class="sev sev-p1">P1</span></td></tr>
+      <tr><td>12</td><td><strong>Supervision wallets (lecture seule)</strong></td><td><span class="badge badge-err">Non conforme</span></td><td>recharge active</td><td><span class="sev sev-p0">P0</span></td></tr>
+      <tr><td>13</td><td>Gestion réclamations</td><td><span class="badge badge-warn">Partiel</span></td><td>tickets lecture seule</td><td><span class="sev sev-p1">P1</span></td></tr>
+      <tr><td>14</td><td>Reporting consolidé</td><td><span class="badge badge-warn">Partiel</span></td><td>hors admin</td><td><span class="sev sev-p2">P2</span></td></tr>
+      <tr><td>15</td><td>Export financier</td><td><span class="badge badge-warn">Partiel</span></td><td>ledger alias, export tronqué</td><td><span class="sev sev-p1">P1</span></td></tr>
+      <tr><td>16</td><td>Audit des opérations</td><td><span class="badge badge-warn">Partiel</span></td><td>accès non protégé</td><td><span class="sev sev-p0">P0</span></td></tr>
+      <tr><td>17</td><td><strong>Gestion droits &amp; rôles</strong></td><td><span class="badge badge-err">Non conforme</span></td><td>RBAC factice + non persisté</td><td><span class="sev sev-p0">P0</span></td></tr>
+      <tr><td>18</td><td>Conformité &amp; logs</td><td><span class="badge badge-err">Absent</span></td><td>aucune surface dédiée</td><td><span class="sev sev-p1">P1</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="kpi-grid row4">
+    <div class="kpi"><div class="val">2</div><div class="lbl">OK</div></div>
+    <div class="kpi gold-top"><div class="val">7</div><div class="lbl">Partiel</div></div>
+    <div class="kpi err-top"><div class="val">6</div><div class="lbl">Non conforme / absent grave</div></div>
+    <div class="kpi err-top"><div class="val">7</div><div class="lbl">Fonctions touchées P0</div></div>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 5 / 10</span></div>
+</div>
+
+<!-- PAGE 6 — MATRICE 22 RAPPORTS -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Matrice — <span class="gold">22 rapports consolidés</span></h2>
+  <p class="sub">Couverture des rapports attendus (slide 21).</p>
+
+  <div class="two-cols">
+    <table class="data">
+      <thead><tr><th style="width:24px">#</th><th>Rapport</th><th>Statut</th><th style="width:42px">Sév.</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>Activité totale plateforme</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>02</td><td>Activité par service</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>03</td><td>Activité par zone</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>04</td><td>Activité par franchise</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>05</td><td>Activité par partenaire</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>06</td><td>Activité par chauffeur</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>07</td><td>Activité par livreur</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>08</td><td>Recettes brutes</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p2">P2</span></td></tr>
+        <tr><td>09</td><td>Commissions plateforme</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>10</td><td>Commissions partenaires</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>11</td><td>Commissions franchises</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p2">P2</span></td></tr>
+      </tbody>
+    </table>
+    <table class="data">
+      <thead><tr><th style="width:24px">#</th><th>Rapport</th><th>Statut</th><th style="width:42px">Sév.</th></tr></thead>
+      <tbody>
+        <tr><td>12</td><td>Wallets &amp; soldes</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p2">P2</span></td></tr>
+        <tr><td>13</td><td>Recharges wallet</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p2">P2</span></td></tr>
+        <tr><td>14</td><td>Débits</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p2">P2</span></td></tr>
+        <tr><td>15</td><td>Transactions</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p2">P2</span></td></tr>
+        <tr><td>16</td><td>Incidents</td><td><span class="badge badge-warn">SOS ok</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>17</td><td>Réclamations</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p2">P2</span></td></tr>
+        <tr><td>18</td><td>Taux d'annulation</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>19</td><td>Taux d'acceptation</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>20</td><td>Taux de finalisation</td><td><span class="badge badge-err">Absent</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>21</td><td>Audit &amp; logs</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="sev sev-p1">P1</span></td></tr>
+        <tr><td>22</td><td>Conformité + exports CSV/Excel</td><td><span class="badge badge-err">Non conforme</span></td><td><span class="sev sev-p0">P0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="outlook-banner">
+    <strong>Écart réfuté (transparence) :</strong> le rapport #16 Incidents existe bien — la page SOS fournit un tableau
+    consolidé des incidents avec export CSV <strong>et</strong> Excel actifs et filtres statut/sévérité
+    (<code>SosIncidentsListView.tsx:200</code>). Le manque réel = pas de rapport incidents dans le module reporting (P1).
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 6 / 10</span></div>
+</div>
+
+<!-- PAGE 7 — PLAN D'ACTION -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Plan d'action <span class="gold">priorisé</span></h2>
+  <p class="sub">Séquencement côté front — source : analyse recette v2 (23 juin 2026).</p>
+
+  <div class="block-title">Sprint conformité — P0 (avant Go production)</div>
+  <ul class="clean">
+    <li>Neutraliser toute recharge/exécution wallet en admin &amp; compta + retirer <code>finance.withdrawals.approve</code> du compta + rendre Retraits/Recharges compta read-only <em>(A1–A8)</em>.</li>
+    <li>Brancher le RBAC sur l'API (<code>data.permissions</code>/<code>data.role</code>) + persister <code>permission_groups</code> <em>(B1–B4)</em>.</li>
+    <li>Tarifs : versioning + date d'application + couverture 4 services <em>(C1–C2)</em>.</li>
+    <li>Bonus : gabarit KPI à plages + garde-fou central + brancher run-evaluation + page bonus-awards <em>(C3–C6)</em>.</li>
+    <li>Dashboard / finance : filtre + ventilation par service <em>(D1–D2)</em>.</li>
+    <li>Protéger la route audit par <code>PermissionGuard</code> <em>(E1)</em>.</li>
+    <li>Workflow réclamation → validation finance → crédit wallet + file compta <em>(F1–F2)</em>.</li>
+    <li>Écran livreur dédié <em>(G1)</em>.</li>
+    <li>Exports serveur complets (par période/filtre) au lieu de la page courante <em>(H1)</em>.</li>
+    <li>Mettre en place un runner de tests + test négatif UC-FIN01 <em>(A7)</em>.</li>
+  </ul>
+
+  <div class="block-title">Sprint couverture — P1</div>
+  <ul class="clean">
+    <li>Supervision par service, tickets éditables (détail/réponse/assignation), SLA (24h/4h/72h/5j).</li>
+    <li>Filtres dashboard zone &amp; partenaire, audit (IP/diff/filtres/PDF), conformité &amp; logs.</li>
+    <li>Rapports de taux #18–20, registre anomalies, reporting consolidé intégré à l'admin.</li>
+  </ul>
+
+  <div class="block-title">Backlog — P2</div>
+  <ul class="clean">
+    <li>Compta exports PDF, permissions de nav fines (#12/#09/#10), file validation partenaires.</li>
+    <li>Gestion centralisée comptes admin, cloisonnement compta (breadcrumbs/liens cross-portail), UC-FIN02 répartition 4 voies.</li>
+  </ul>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 7 / 10</span></div>
+</div>
+
+<!-- PAGE 8 — ANNEXE OPS + RÉSEAU -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Opérations &amp; Réseau</span></h2>
+  <p class="sub">Écrans audités — back-office admin, API v1 live (captures du 11 juin 2026, USE_MOCKS=false).</p>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 1 — Tableau de bord</h3><span class="capture-num">CAP. 01</span></div>
+      <div class="capture-body">
+        <p>Fonction #02 — KPIs non ventilés par service (P0-D).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/01-dashboard.png" alt="Dashboard admin"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 2 — Carte live</h3><span class="capture-num">CAP. 02</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/live-map</code> — Mapbox + socket.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/02-carte-live.png" alt="Carte live"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 3 — Liste courses</h3><span class="capture-num">CAP. 03</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/orders</code> — sans filtre/colonne service.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/03-courses-liste.png" alt="Liste courses"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 4 — Détail course</h3><span class="capture-num">CAP. 04</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/orders/{id}</code> — fret : cargo non affiché.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/20-course-detail.png" alt="Détail course"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 5 — Franchises</h3><span class="capture-num">CAP. 05</span></div>
+      <div class="capture-body">
+        <p>Fonction #03 — pas d'action suspendre/réactiver.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/04-franchises-liste.png" alt="Franchises"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 6 — Partenaires</h3><span class="capture-num">CAP. 06</span></div>
+      <div class="capture-body">
+        <p>Fonction #04 — pas de file de validation centralisée.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/05-partenaires-liste.png" alt="Partenaires"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 8 / 10</span></div>
+</div>
+
+<!-- PAGE 9 — ANNEXE FLOTTE + PARAMÉTRAGE -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Flotte &amp; Paramétrage</span></h2>
+  <p class="sub">Chauffeurs / KYC et paramétrage commissions — zones P0-C / #05-06.</p>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 7 — Liste chauffeurs</h3><span class="capture-num">CAP. 07</span></div>
+      <div class="capture-body">
+        <p>Fonction #05 — pas de filtre service (livreurs non isolables).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/06-chauffeurs-liste.png" alt="Chauffeurs"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 8 — Détail chauffeur</h3><span class="capture-num">CAP. 08</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/drivers/{id}</code> — wallet/ledger, actions.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/23-chauffeur-detail.png" alt="Détail chauffeur"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 9 — File KYC</h3><span class="capture-num">CAP. 09</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/kyc/documents</code> — recto/verso.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/08-kyc-file.png" alt="File KYC"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 10 — Règles de commission</h3><span class="capture-num">CAP. 10</span></div>
+      <div class="capture-body">
+        <p>Fonction #09 — garde-fou cumul = égalité 15 % (P0-C / UC-A01b).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/16-commission-rules.png" alt="Règles commission"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 11 — Nouvelle règle commission</h3><span class="capture-num">CAP. 11</span></div>
+      <div class="capture-body">
+        <p>Paramétrage — pas de versioning ni date d'application.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/17-commission-rule-new.png" alt="Nouvelle règle"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 12 — Liste véhicules</h3><span class="capture-num">CAP. 12</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/vehicles</code> — fret/location sans UI dédiée.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/07-vehicules-liste.png" alt="Véhicules"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 9 / 10</span></div>
+</div>
+
+<!-- PAGE 10 — ANNEXE FINANCE + MARKETING -->
+<div class="page inner" style="position:relative">
+  <h2 class="section-title">Annexe visuelle <span class="gold">— Finance &amp; Marketing</span></h2>
+  <p class="sub">Supervision financière (zone P0-A recharge / #12 wallets lecture seule) et marketing.</p>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 13 — Finance dashboard</h3><span class="capture-num">CAP. 13</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/finance/dashboard</code> — sans ventilation service.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/09-finance-dashboard.png" alt="Finance dashboard"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 14 — Transactions</h3><span class="capture-num">CAP. 14</span></div>
+      <div class="capture-body">
+        <p>Fonction #15 — export = page courante (P0-H).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/10-transactions-liste.png" alt="Transactions"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 15 — Détail transaction</h3><span class="capture-num">CAP. 15</span></div>
+      <div class="capture-body">
+        <p>Commission breakdown — répartition 4 voies à compléter (UC-FIN02).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/24-transaction-detail.png" alt="Détail transaction"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 16 — Retraits</h3><span class="capture-num">CAP. 16</span></div>
+      <div class="capture-body">
+        <p>Fonction #12 — Approuver/Rejeter actifs en compta (P0-A, non conforme).</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/11-retraits-liste.png" alt="Retraits"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-cols">
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 17 — Bannières</h3><span class="capture-num">CAP. 17</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/marketing/banners</code>.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/12-marketing-bannieres.png" alt="Bannières"/></div>
+      </div>
+    </div>
+    <div class="capture">
+      <div class="capture-head"><h3>Fig. 18 — Codes promo</h3><span class="capture-num">CAP. 18</span></div>
+      <div class="capture-body">
+        <p><code>GET /v1/admin/promotions</code>.</p>
+        <div class="capture-frame compact"><img src="rapport-activite-2026-06-11/screenshots/14-marketing-promos.png" alt="Promos"/></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note-global">
+    Captures : <code>docs/rapport-activite-2026-06-11/screenshots/</code> ·
+    Source contenu : <code>ANALYSE-RECETTE-ADMIN-COMPTA-V2.md</code> ·
+    PDF : <code>node docs/generate-rapport-pdf.mjs RAPPORT-AVANCEMENT-RECETTE-ADMIN-COMPTA-23062026</code>
+  </p>
+
+  <div class="page-foot"><span>UPJUNOO PRO — Rapport d'avancement recette 23/06/2026</span><span>Page 10 / 10</span></div>
+</div>
+
+</body>
+</html>
