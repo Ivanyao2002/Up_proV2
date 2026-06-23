@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Button } from "./Button";
 import { ModalPortal } from "./ModalPortal";
+import { useFocusTrap } from "@/shared/hooks/useFocusTrap";
 
 interface RejectReasonModalProps {
   open: boolean;
@@ -28,6 +29,8 @@ export function RejectReasonModal({
   onCancel,
 }: RejectReasonModalProps) {
   const [reason, setReason] = useState(defaultReason);
+  const titleId = useId();
+  const dialogRef = useFocusTrap<HTMLDivElement>(open, onCancel);
 
   useEffect(() => {
     if (open) setReason(defaultReason);
@@ -47,11 +50,16 @@ export function RejectReasonModal({
         onClick={onCancel}
       />
       <div
+        ref={dialogRef}
         role="dialog"
-        aria-modal
-        className="relative w-full max-w-md rounded-card bg-surface p-6 shadow-card animate-fade-up"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="relative w-full max-w-md rounded-card bg-surface p-6 shadow-card outline-none animate-fade-up"
       >
-        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+        <h2 id={titleId} className="text-lg font-semibold text-foreground">
+          {title}
+        </h2>
         <p className="mt-2 text-sm text-muted">{message}</p>
         <textarea
           className="mt-4 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal"

@@ -33,6 +33,7 @@ export function SelectFilter<T extends string>({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
+        aria-label={label}
         className={FILTER_SELECT_CLASS}
       >
         {options.map((opt) => (

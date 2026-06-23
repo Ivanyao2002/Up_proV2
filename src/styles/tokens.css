@@ -18,7 +18,8 @@
 
   --color-text: #212529;
   --color-heading: #212529;
-  --color-muted: #878a99;
+  /* #878a99 = 2,9:1 sur blanc (sous AA). #6b7280 ≈ 4,8:1 → conforme AA. */
+  --color-muted: #6b7280;
 
   --color-border: #e9ebec;
   --color-border-subtle: rgba(233, 235, 236, 0.65);

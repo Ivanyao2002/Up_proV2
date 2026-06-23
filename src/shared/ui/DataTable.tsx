@@ -319,18 +319,26 @@ export function DataTable<T>({
                 return (
                   <th
                     key={col.id}
-                    className={`px-3 py-3 font-medium sm:px-6 ${col.className ?? ""} ${isSortable ? "cursor-pointer select-none hover:text-foreground" : ""}`}
-                    onClick={isSortable ? () => handleSort(col.id) : undefined}
+                    className={`px-3 py-3 font-medium sm:px-6 ${col.className ?? ""}`}
                     aria-sort={isActive ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
                   >
-                    <span className="inline-flex items-center gap-1">
-                      {col.header}
-                      {isSortable && (
+                    {isSortable ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSort(col.id)}
+                        aria-label={`Trier par ${typeof col.header === "string" ? col.header : col.id}`}
+                        className="inline-flex select-none items-center gap-1 rounded outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-teal"
+                      >
+                        {col.header}
                         <span className={`text-[10px] ${isActive ? "text-teal" : "text-muted/40"}`}>
                           {isActive ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}
                         </span>
-                      )}
-                    </span>
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-1">
+                        {col.header}
+                      </span>
+                    )}
                   </th>
                 );
               })}

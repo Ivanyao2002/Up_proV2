@@ -53,6 +53,9 @@ export function PortalShellLayout({
 
   return (
     <div className="flex min-h-screen bg-canvas">
+      <a href="#main-content" className="skip-link">
+        Aller au contenu principal
+      </a>
       {headerSlot}
 
       {mobileNavOpen ? (
@@ -77,7 +80,11 @@ export function PortalShellLayout({
           onMenuToggle: () => setMobileNavOpen((open) => !open),
           mobileNavOpen,
         })}
-        <main className="page-main flex-1 overflow-x-hidden overflow-y-auto">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="page-main flex-1 overflow-x-hidden overflow-y-auto outline-none"
+        >
           {children}
         </main>
       </div>

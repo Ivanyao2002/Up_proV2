@@ -1,7 +1,9 @@
 "use client";
 
+import { useId } from "react";
 import { Button } from "./Button";
 import { ModalPortal } from "./ModalPortal";
+import { useFocusTrap } from "@/shared/hooks/useFocusTrap";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -24,6 +26,9 @@ export function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const titleId = useId();
+  const dialogRef = useFocusTrap<HTMLDivElement>(open, onCancel);
+
   if (!open) return null;
 
   return (
@@ -36,11 +41,16 @@ export function ConfirmModal({
           onClick={onCancel}
         />
         <div
+          ref={dialogRef}
           role="dialog"
-          aria-modal
-          className="relative w-full max-w-md rounded-card bg-surface p-6 shadow-card animate-fade-up"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          tabIndex={-1}
+          className="relative w-full max-w-md rounded-card bg-surface p-6 shadow-card outline-none animate-fade-up"
         >
-          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          <h2 id={titleId} className="text-lg font-semibold text-foreground">
+            {title}
+          </h2>
           <p className="mt-2 text-sm text-muted">{message}</p>
           <div className="mt-6 flex justify-end gap-2">
             <Button variant="secondary" onClick={onCancel}>
