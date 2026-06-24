@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { partnersKeys } from "@/features/network/api/partners.keys";
 import { useScope } from "@/core/auth/useScope";
 import { partnerDriversService } from "./drivers.service";
@@ -23,27 +23,18 @@ export function usePartnerDriversList(params?: ListParams) {
 }
 
 /**
- * Compteurs de disponibilité sur TOUTE la flotte (pas seulement la page courante).
- * L'API ne renvoyant pas d'agrégat, on lit meta.total via un appel léger (per_page:1)
- * par disponibilité.
+ * Compteur « en course » (on_trip) sur toute la flotte. Les totaux online/total/etc.
+ * sont déjà fournis par `counters` de la réponse liste : seul on_trip nécessite un
+ * appel léger (per_page:1) car non agrégé par le backend.
  */
-export function usePartnerDriverAvailabilityCounts() {
-  const availabilities = ["online", "on_trip", "offline"] as const;
-  const results = useQueries({
-    queries: availabilities.map((availability) => ({
-      queryKey: [...partnerDriversKeys.all, "count", availability] as const,
-      queryFn: () =>
-        partnerDriversService.list({ availability, page: 1, per_page: 1 }),
-      staleTime: 30_000,
-    })),
+export function usePartnerDriverOnTripCount() {
+  const result = useQuery({
+    queryKey: [...partnerDriversKeys.all, "count", "on_trip"] as const,
+    queryFn: () =>
+      partnerDriversService.list({ availability: "on_trip", page: 1, per_page: 1 }),
+    staleTime: 30_000,
   });
-
-  return {
-    online: results[0].data?.meta?.total,
-    on_trip: results[1].data?.meta?.total,
-    offline: results[2].data?.meta?.total,
-    isLoading: results.some((r) => r.isLoading),
-  };
+  return { on_trip: result.data?.meta?.total, isLoading: result.isLoading };
 }
 
 export function usePartnerDriverDetail(id: string) {
@@ -52,6 +43,29 @@ export function usePartnerDriverDetail(id: string) {
     queryFn: () => partnerDriversService.getById(id),
     enabled: Boolean(id),
   });
+}
+
+/** Actions de statut sur la fiche d'un chauffeur (disponibilité, suspension, réactivation). */
+export function useDriverStatusActions(driverId: string) {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: partnerDriversKeys.detail(driverId) });
+    void qc.invalidateQueries({ queryKey: partnerDriversKeys.all });
+  };
+  const setAvailability = useMutation({
+    mutationFn: (availability: "online" | "offline") =>
+      partnerDriversService.setAvailability(driverId, availability),
+    onSuccess: invalidate,
+  });
+  const suspend = useMutation({
+    mutationFn: () => partnerDriversService.suspend(driverId),
+    onSuccess: invalidate,
+  });
+  const reactivate = useMutation({
+    mutationFn: () => partnerDriversService.reactivate(driverId),
+    onSuccess: invalidate,
+  });
+  return { setAvailability, suspend, reactivate };
 }
 
 export function useCreatePartnerDriver() {

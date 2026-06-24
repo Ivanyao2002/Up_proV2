@@ -1,6 +1,6 @@
 "use client";
 
-import type { LiveMapData, LiveMapDriver } from "@/shared/types";
+import type { Driver, LiveMapData, LiveMapDriver } from "@/shared/types";
 import { AvailabilityPill } from "@/shared/ui/DriverPills";
 import { usePartnerDriverLive } from "../api/partnerDriverDetail.queries";
 
@@ -14,11 +14,14 @@ import { LIVE_MAP_AVAILABILITY_COLORS } from "@/features/ops/lib/liveMapAvailabi
 interface PartnerDriverLiveMapProps {
   driverId: string;
   driverName: string;
+  /** Disponibilité réelle du chauffeur (l'endpoint position ne la renvoie pas). */
+  availability?: Driver["availability"];
 }
 
 export function PartnerDriverLiveMap({
   driverId,
   driverName,
+  availability,
 }: PartnerDriverLiveMapProps) {
   const { data, isLoading, isError } = usePartnerDriverLive(driverId);
 
@@ -38,7 +41,13 @@ export function PartnerDriverLiveMap({
     );
   }
 
-  const { driver, bounds } = data;
+  const { bounds } = data;
+  // L'endpoint position ne renvoie pas la disponibilité (codée « offline ») : on
+  // privilégie la disponibilité réelle du chauffeur passée par la fiche.
+  const driver: LiveMapDriver = {
+    ...data.driver,
+    availability: availability ?? data.driver.availability,
+  };
   const pos = projectDriver(driver, bounds);
   const isPulsing =
     driver.availability === "online" || driver.availability === "on_trip";

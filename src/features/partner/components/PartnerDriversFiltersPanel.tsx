@@ -65,6 +65,12 @@ export function PartnerDriversFiltersPanel({
 }: PartnerDriversFiltersPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
+  // Le portail partenaire n'expose pas la disponibilité « En pause ».
+  const availabilityOptions = useMemo(
+    () => DRIVER_AVAILABILITY_FILTER_OPTIONS.filter((o) => o.value !== "paused"),
+    []
+  );
+
   const activeSummary = useMemo(() => {
     const items: string[] = [];
 
@@ -197,7 +203,7 @@ export function PartnerDriversFiltersPanel({
 
             <TableFiltersSection title="Disponibilité">
               <FilterChips
-                options={DRIVER_AVAILABILITY_FILTER_OPTIONS}
+                options={availabilityOptions}
                 value={availabilityFilter}
                 onChange={onAvailabilityFilterChange}
               />

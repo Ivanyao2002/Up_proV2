@@ -447,6 +447,9 @@ export interface DriverDetail extends Driver {
   trips_count?: number | null;
   franchise_id?: string | number;
   partner_id?: string | null;
+  /** Permis de conduire — numéro et date d'expiration (depuis metadata.license). */
+  license_number?: string | null;
+  license_expires_at?: string | null;
   stats: {
     trips_total: number;
     trips_completed: number;

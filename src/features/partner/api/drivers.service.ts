@@ -7,8 +7,15 @@ import {
   createDriverWithDocumentsViaV1,
   type CreateDriverV1Context,
 } from "@/features/fleet/api/partnerDrivers.v1.service";
-import { mapAdminDriversToPaginated } from "@/features/fleet/api/adminDrivers.mapper";
-import type { ApiAdminDriversResponse } from "@/features/fleet/api/adminDrivers.api.types";
+import {
+  mapAdminDriversToPaginated,
+  normalizeDriverAccountStatus,
+  normalizeDriverAvailability,
+} from "@/features/fleet/api/adminDrivers.mapper";
+import type {
+  ApiAdminDriversResponse,
+  ApiAdminDriversCounters,
+} from "@/features/fleet/api/adminDrivers.api.types";
 import { useAuthStore } from "@/core/auth/authStore";
 import type { Driver, DriverDetail, Paginated } from "@/shared/types";
 import { buildListQuery, type ListParams } from "@/shared/types/listParams";
@@ -22,6 +29,10 @@ export interface CreateDriverPayload {
   phone: string;
   zone: string;
   email?: string;
+}
+
+export interface PartnerDriversListResult extends Paginated<Driver> {
+  counters?: ApiAdminDriversCounters;
 }
 
 function resolvePartnerIdForDrivers(): string | undefined {
@@ -38,26 +49,33 @@ function normalizePhoneE164(phone: string): string {
 }
 
 export const partnerDriversService = {
-  list: async (params?: ListParams) => {
+  list: async (params?: ListParams): Promise<PartnerDriversListResult> => {
     if (useLegacyPortalApi()) {
-      return apiClient.get<Paginated<Driver>>(
+      const legacy = await apiClient.get<Paginated<Driver>>(
         `/partner/drivers${buildListQuery(params)}`
       );
+      return { ...legacy, counters: undefined };
     }
 
     const partnerId = resolvePartnerIdForDrivers();
     if (!partnerId) {
-      return { data: [], meta: { total: 0, per_page: 25, current_page: 1, last_page: 1 } };
+      return {
+        data: [],
+        meta: { total: 0, per_page: 25, current_page: 1, last_page: 1 },
+        counters: undefined,
+      };
     }
 
     const response = await apiClient.get<ApiAdminDriversResponse>(
       `${LINKS.v1.partners.drivers(partnerId)}${buildV1ListQuery(params)}`
     );
-    return mapAdminDriversToPaginated(
+    const paginated = mapAdminDriversToPaginated(
       response.items ?? [],
       params,
       response.pagination
     );
+    // Compteurs flotte fournis directement par l'API (évite des requêtes d'agrégation séparées).
+    return { ...paginated, counters: response.counters };
   },
 
   getById: async (id: string) => {
@@ -181,12 +199,13 @@ export const partnerDriversService = {
         (p.avatarUrl as string | null) ??
         (p.photo_url as string | null) ??
         null,
-      account_status:
-        ((d.account_status as string) as DriverDetail["account_status"]) ??
-        "pending",
-      availability:
-        ((d.availability_status as string) as DriverDetail["availability"]) ??
-        "offline",
+      account_status: normalizeDriverAccountStatus(
+        d.account_status as string | null,
+        d.approval_status as string | null
+      ),
+      availability: normalizeDriverAvailability(
+        d.availability_status as string | null
+      ),
       kyc_status: (d.kyc_status as string) ?? null,
       approval_status: (d.approval_status as string) ?? null,
       onboarding_status: (d.onboarding_status as string) ?? null,
@@ -222,6 +241,16 @@ export const partnerDriversService = {
         })() ??
         null,
       zone: raw.zoneName ?? null,
+      license_number:
+        ((d.metadata as Record<string, unknown> | undefined)?.license as
+          | Record<string, unknown>
+          | undefined)?.number as string | undefined ?? null,
+      license_expires_at:
+        (() => {
+          const lic = (d.metadata as Record<string, unknown> | undefined)
+            ?.license as Record<string, unknown> | undefined;
+          return (lic?.expiresAt as string) ?? (lic?.expires_at as string) ?? null;
+        })(),
       registered_at:
         (d.created_at as string) ?? new Date().toISOString(),
       approved_at: null,
@@ -384,4 +413,17 @@ export const partnerDriversService = {
       approval_status: "suspended",
     });
   },
+
+  reactivate: async (driverId: string): Promise<void> => {
+    const partnerId = resolvePartnerIdForDrivers();
+    if (!partnerId) {
+      throw new Error("Partenaire introuvable.");
+    }
+
+    await apiClient.patch(LINKS.partner.drivers.getById(partnerId, driverId), {
+      account_status: "active",
+      approval_status: "approved",
+    });
+  },
+
 };

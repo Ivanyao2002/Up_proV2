@@ -32,3 +32,11 @@ export function driverBulkSuspendMessage(count: number): string {
     `${count} chauffeurs suspendus`
   );
 }
+
+export function driverBulkReactivateMessage(count: number): string {
+  return pluralLabel(
+    count,
+    "1 chauffeur réactivé",
+    `${count} chauffeurs réactivés`
+  );
+}

@@ -12,6 +12,7 @@ import { notificationService } from "@/core/http/notificationService";
 import {
   driverBulkStatusMessage,
   driverBulkSuspendMessage,
+  driverBulkReactivateMessage,
 } from "@/shared/lib/bulkLabels";
 import {
   getDriverAccountStatusLabel,
@@ -26,7 +27,7 @@ import type { Driver } from "@/shared/types";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import {
   usePartnerDriversList,
-  usePartnerDriverAvailabilityCounts,
+  usePartnerDriverOnTripCount,
 } from "../api/drivers.queries";
 import { partnerDriversService } from "../api/drivers.service";
 import { PartnerDriversFiltersPanel } from "../components/PartnerDriversFiltersPanel";
@@ -85,14 +86,19 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
   const selectedIds = Array.from(selected).map(String);
   const selectedDrivers = rows.filter((driver) => selected.has(driver.id));
 
-  // Compteurs sur toute la flotte (API), avec repli sur la page courante pendant le chargement.
-  const fleetCounts = usePartnerDriverAvailabilityCounts();
+  // Compteurs flotte : total/online viennent de `counters` (réponse liste) ; on_trip via 1 appel.
+  // offline est déduit (total − online − on_trip). Repli sur la page courante si indisponible.
+  const counters = data?.counters;
+  const { on_trip: onTripCount } = usePartnerDriverOnTripCount();
+  const kpiTotal = counters?.total ?? meta?.total ?? 0;
   const kpiOnline =
-    fleetCounts.online ?? rows.filter((d) => d.availability === "online").length;
+    counters?.online ?? rows.filter((d) => d.availability === "online").length;
   const kpiInTrip =
-    fleetCounts.on_trip ?? rows.filter((d) => d.availability === "on_trip").length;
+    onTripCount ?? rows.filter((d) => d.availability === "on_trip").length;
   const kpiOffline =
-    fleetCounts.offline ?? rows.filter((d) => d.availability === "offline").length;
+    counters?.total != null && counters?.online != null && onTripCount != null
+      ? Math.max(0, counters.total - counters.online - onTripCount)
+      : rows.filter((d) => d.availability === "offline").length;
 
   const runBulkAction = async (
     action: (driverId: string) => Promise<void>,
@@ -139,6 +145,7 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
     {
       id: "vehicle",
       header: "Véhicule affecté",
+      className: "min-w-[180px]",
       cell: (d) => d.vehicle_label ?? "—",
       exportValue: (d) => d.vehicle_label ?? "",
     },
@@ -177,13 +184,21 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
     (driver) =>
       !driver.suspended &&
       driver.account_status !== "suspended" &&
-      driver.account_status !== "banned"
+      driver.account_status !== "banned" &&
+      driver.availability !== "online"
+  );
+  const canSetOffline = selectedDrivers.some(
+    (driver) =>
+      driver.availability === "online" || driver.availability === "on_trip"
   );
   const canSuspend = selectedDrivers.some(
     (driver) =>
       !driver.suspended &&
       driver.account_status !== "suspended" &&
       driver.account_status !== "banned"
+  );
+  const canReactivate = selectedDrivers.some(
+    (driver) => driver.suspended || driver.account_status === "suspended"
   );
 
   return (
@@ -202,7 +217,7 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
 
       {!pendingOnly && (meta || isLoading) && (
         <div className="mb-5 grid gap-3 grid-cols-2 sm:grid-cols-4">
-          <KpiCard index={0} label="Total chauffeurs" value={String(meta?.total ?? 0)} isLoading={isLoading} />
+          <KpiCard index={0} label="Total chauffeurs" value={String(kpiTotal)} isLoading={isLoading} />
           <KpiCard index={1} label="En ligne" value={String(kpiOnline)} isLoading={isLoading} />
           <KpiCard index={2} label="En course" value={String(kpiInTrip)} isLoading={isLoading} />
           <KpiCard index={3} label="Hors ligne" value={String(kpiOffline)} isLoading={isLoading} />
@@ -265,6 +280,20 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
                   },
                 ]
               : []),
+            ...(canSetOffline
+              ? [
+                  {
+                    label: "Mettre hors ligne",
+                    variant: "secondary" as const,
+                    disabled: bulkBusy,
+                    onClick: () =>
+                      void runBulkAction(
+                        (id) => partnerDriversService.setAvailability(id, "offline"),
+                        driverBulkStatusMessage(selected.size, "offline")
+                      ),
+                  },
+                ]
+              : []),
             ...(canSuspend
               ? [
                   {
@@ -275,6 +304,19 @@ export function PartnerDriversListPage({ pendingOnly }: PartnerDriversListPagePr
                       void runBulkAction(
                         (id) => partnerDriversService.suspend(id),
                         driverBulkSuspendMessage(selected.size)
+                      ),
+                  },
+                ]
+              : []),
+            ...(canReactivate
+              ? [
+                  {
+                    label: "Réactiver",
+                    disabled: bulkBusy,
+                    onClick: () =>
+                      void runBulkAction(
+                        (id) => partnerDriversService.reactivate(id),
+                        driverBulkReactivateMessage(selected.size)
                       ),
                   },
                 ]

@@ -14,6 +14,7 @@ import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
 import { getTripStatusLabel } from "@/shared/lib/tripLabels";
+import { getPaymentStatusLabel } from "@/shared/lib/paymentLabels";
 import { notificationService } from "@/core/http/notificationService";
 import type { KycDocument } from "@/shared/types";
 import type { DriverKycDocumentType } from "@/shared/types/driverDocuments";
@@ -21,6 +22,7 @@ import {
   usePartnerDriverDetail,
   useUpdatePartnerDriver,
   useUploadPartnerDriverDocument,
+  useDriverStatusActions,
 } from "../api/drivers.queries";
 import {
   usePartnerDriverTrips,
@@ -60,6 +62,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
     usePartnerDriverWalletTransactions(driverId, showWallet);
   const uploadDoc = useUploadPartnerDriverDocument(driverId);
   const updateDriver = useUpdatePartnerDriver(driverId);
+  const statusActions = useDriverStatusActions(driverId);
 
   const stats = driver?.stats ?? {
     trips_total: 0,
@@ -92,10 +95,24 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
   );
   const kycDisplayItems = organizeDriverKycDocuments(driver.kyc_documents);
 
+  const isSuspendedOrBanned =
+    driver.account_status === "suspended" || driver.account_status === "banned";
+  const isOnline =
+    driver.availability === "online" || driver.availability === "on_trip";
+  const statusBusy =
+    statusActions.setAvailability.isPending ||
+    statusActions.suspend.isPending ||
+    statusActions.reactivate.isPending;
+  const notifyStatus = (msg: string) => ({
+    onSuccess: () => notificationService.success(msg),
+    onError: () => notificationService.error("Action impossible."),
+  });
+
   const tripColumns: Column<PartnerDriverTripRow>[] = [
     {
       id: "ref",
       header: "Réf.",
+      className: "min-w-[130px]",
       cell: (t) => (
         <Link
           href={`/partner/bookings/${t.id}`}
@@ -109,6 +126,7 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
     {
       id: "route",
       header: "Trajet",
+      className: "min-w-[320px]",
       cell: (t) => (
         <span className="text-sm">
           {t.from_label} → {t.to_label}
@@ -119,19 +137,28 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
     {
       id: "amount",
       header: "Montant",
-      className: "tabular-nums",
+      className: "min-w-[160px] tabular-nums",
       cell: (t) => formatFCFA(t.amount_fcfa),
       exportValue: (t) => t.amount_fcfa,
     },
     {
+      id: "payment",
+      header: "Paiement",
+      className: "min-w-[120px]",
+      cell: (t) => getPaymentStatusLabel(t.payment_status),
+      exportValue: (t) => getPaymentStatusLabel(t.payment_status),
+    },
+    {
       id: "status",
       header: "Statut",
+      className: "min-w-[120px]",
       cell: (t) => <StatusPill status={t.status} />,
       exportValue: (t) => getTripStatusLabel(t.status),
     },
     {
       id: "date",
       header: "Date",
+      className: "min-w-[180px]",
       cell: (t) => formatDateTime(t.created_at),
       exportValue: (t) => t.created_at,
     },
@@ -183,6 +210,63 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
             </Button>
             <AccountStatusPill status={driver.account_status} />
             <AvailabilityPill status={driver.availability} />
+
+            {!isSuspendedOrBanned &&
+              (isOnline ? (
+                <Button
+                  variant="secondary"
+                  disabled={statusBusy}
+                  onClick={() =>
+                    statusActions.setAvailability.mutate(
+                      "offline",
+                      notifyStatus("Chauffeur mis hors ligne")
+                    )
+                  }
+                >
+                  Mettre hors ligne
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  disabled={statusBusy}
+                  onClick={() =>
+                    statusActions.setAvailability.mutate(
+                      "online",
+                      notifyStatus("Chauffeur mis en ligne")
+                    )
+                  }
+                >
+                  Mettre en ligne
+                </Button>
+              ))}
+
+            {isSuspendedOrBanned ? (
+              <Button
+                disabled={statusBusy}
+                onClick={() =>
+                  statusActions.reactivate.mutate(
+                    undefined,
+                    notifyStatus("Chauffeur réactivé")
+                  )
+                }
+              >
+                Réactiver
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                disabled={statusBusy}
+                onClick={() =>
+                  statusActions.suspend.mutate(
+                    undefined,
+                    notifyStatus("Chauffeur suspendu")
+                  )
+                }
+              >
+                Suspendre
+              </Button>
+            )}
+
             {showLiveMap && (
               <Link href="/partner/map">
                 <Button variant="secondary">Carte live flotte</Button>
@@ -207,9 +291,10 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
         }}
       />
       <p className="-mt-4 mb-6 text-sm text-muted">
-        {driver.phone}
-        {driver.email ? ` · ${driver.email}` : ""} · {driver.zone}
-        {driver.vehicle_label ? ` · ${driver.vehicle_label}` : ""}
+        {[driver.phone, driver.email, driver.zone, driver.vehicle_label]
+          .map((part) => (part ?? "").toString().trim())
+          .filter(Boolean)
+          .join(" · ")}
       </p>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
@@ -250,29 +335,12 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
                 </div>
 
                 {showLiveMap && (
-                  <PartnerDriverLiveMap driverId={driverId} driverName={fullName} />
+                  <PartnerDriverLiveMap
+                    driverId={driverId}
+                    driverName={fullName}
+                    availability={driver.availability}
+                  />
                 )}
-
-                <div className="rounded-card border border-border bg-surface shadow-card overflow-hidden">
-                  <div className="border-b border-border px-6 py-4">
-                    <h2 className="text-sm font-semibold text-heading">Courses récentes</h2>
-                    <p className="mt-0.5 text-xs text-muted">
-                      Historique des trajets effectués par ce chauffeur
-                    </p>
-                  </div>
-                  <div className="px-2 pb-2">
-                    <DataTable
-                      columns={tripColumns}
-                      data={tripsData?.data ?? []}
-                      rowKey={(t) => t.id}
-                      isLoading={tripsLoading}
-                      exportFileName={`partenaire-chauffeur-${driverId}-courses`}
-                      emptyTitle="Aucune course"
-                      emptyDescription="Ce chauffeur n'a pas encore de course enregistrée."
-                      pagination={{ pageSize: 10 }}
-                    />
-                  </div>
-                </div>
               </>
             )}
 
@@ -378,6 +446,18 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
                   <dd className="text-foreground">{formatDateTime(driver.approved_at)}</dd>
                 </div>
               )}
+              {driver.license_number && (
+                <div className="flex justify-between gap-2">
+                  <dt>Permis</dt>
+                  <dd className="text-right text-foreground">{driver.license_number}</dd>
+                </div>
+              )}
+              {driver.license_expires_at && (
+                <div className="flex justify-between gap-2">
+                  <dt>Expiration permis</dt>
+                  <dd className="text-right text-foreground">{driver.license_expires_at}</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-2">
                 <dt>Véhicule</dt>
                 <dd className="text-right text-foreground">
@@ -399,6 +479,29 @@ export function PartnerDriverDetailPage({ driverId }: PartnerDriverDetailPagePro
           </div>
         </aside>
       </div>
+
+      {tab === "overview" && (
+        <div className="mt-6 rounded-card border border-border bg-surface shadow-card overflow-hidden">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-sm font-semibold text-heading">Courses récentes</h2>
+            <p className="mt-0.5 text-xs text-muted">
+              Historique des trajets effectués par ce chauffeur
+            </p>
+          </div>
+          <div className="px-2 pb-2">
+            <DataTable
+              columns={tripColumns}
+              data={tripsData?.data ?? []}
+              rowKey={(t) => t.id}
+              isLoading={tripsLoading}
+              exportFileName={`partenaire-chauffeur-${driverId}-courses`}
+              emptyTitle="Aucune course"
+              emptyDescription="Ce chauffeur n'a pas encore de course enregistrée."
+              pagination={{ pageSize: 10 }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ export interface PartnerDriverTripRow {
   to_label: string;
   status: TripStatus;
   amount_fcfa: number;
+  payment_status?: string | null;
   created_at: string;
 }
 
@@ -41,6 +42,7 @@ interface TripsApiResponse {
     pickup_address?: string;
     dropoff_address?: string;
     status?: string;
+    payment_status?: string | null;
     estimated_price_xof?: number;
     final_price_xof?: number | null;
     created_at?: string;
@@ -92,6 +94,7 @@ export const partnerDriverDetailService = {
         to_label: t.dropoff_address ?? "—",
         status: (t.status ?? "cancelled") as import("@/shared/types").TripStatus,
         amount_fcfa: t.final_price_xof ?? t.estimated_price_xof ?? 0,
+        payment_status: t.payment_status ?? null,
         created_at: t.created_at ?? "",
       }));
       return {

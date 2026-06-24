@@ -75,9 +75,20 @@ export interface ApiAdminDriverItem {
   } | null;
 }
 
+export interface ApiAdminDriversCounters {
+  total?: number;
+  approved?: number;
+  pending?: number;
+  rejected?: number;
+  online?: number;
+  with_vehicle?: number;
+  pending_kyc?: number;
+}
+
 export interface ApiAdminDriversResponse {
   status: string;
   generatedAt?: string;
   items?: ApiAdminDriverItem[];
   pagination?: ApiV1Pagination;
+  counters?: ApiAdminDriversCounters;
 }

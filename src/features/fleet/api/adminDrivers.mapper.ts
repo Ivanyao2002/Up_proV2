@@ -6,21 +6,31 @@ import { paginateClientList } from "@/shared/lib/clientList";
 import type { Paginated } from "@/shared/types";
 import type { ApiAdminDriverItem } from "./adminDrivers.api.types";
 
-function mapAccountStatus(item: ApiAdminDriverItem): Driver["account_status"] {
-  const direct = String(item.account_status ?? "").toLowerCase();
-  if (direct === "approved" || direct === "active") return "approved";
-  if (direct === "suspended") return "suspended";
-  if (direct === "banned") return "banned";
-  if (direct === "pending") return "pending";
-  const approval = String(item.approval_status ?? "").toLowerCase();
-  if (approval === "approved") return "approved";
-  if (approval === "suspended") return "suspended";
-  if (approval === "banned") return "banned";
+/**
+ * Statut chauffeur avec précédence (du plus au moins restrictif) :
+ * banni > suspendu > en attente > approuvé. Combine account_status ET approval_status
+ * (qui peuvent diverger) pour ne pas masquer une suspension/attente derrière « active ».
+ */
+export function normalizeDriverAccountStatus(
+  accountStatus?: string | null,
+  approvalStatus?: string | null
+): Driver["account_status"] {
+  const account = String(accountStatus ?? "").toLowerCase();
+  const approval = String(approvalStatus ?? "").toLowerCase();
+  const has = (...values: string[]) =>
+    values.includes(account) || values.includes(approval);
+
+  if (has("banned")) return "banned";
+  if (has("suspended")) return "suspended";
+  if (has("pending")) return "pending";
+  if (has("approved", "active")) return "approved";
   return "pending";
 }
 
-function mapAvailability(item: ApiAdminDriverItem): Driver["availability"] {
-  const key = String(item.availability_status ?? "").toLowerCase();
+export function normalizeDriverAvailability(
+  availabilityStatus?: string | null
+): Driver["availability"] {
+  const key = String(availabilityStatus ?? "").toLowerCase();
   if (key === "on_trip" || key === "on-trip" || key === "busy") {
     return "on_trip";
   }
@@ -28,6 +38,14 @@ function mapAvailability(item: ApiAdminDriverItem): Driver["availability"] {
   if (key === "offline") return "offline";
   if (key === "online" || key === "available") return "online";
   return "online";
+}
+
+function mapAccountStatus(item: ApiAdminDriverItem): Driver["account_status"] {
+  return normalizeDriverAccountStatus(item.account_status, item.approval_status);
+}
+
+function mapAvailability(item: ApiAdminDriverItem): Driver["availability"] {
+  return normalizeDriverAvailability(item.availability_status);
 }
 
 function mapDocumentsSummary(
