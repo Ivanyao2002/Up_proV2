@@ -1,0 +1,35 @@
+{
+  "period": { "date_from": "2026-06-01", "date_to": "2026-06-30", "timezone": "Africa/Abidjan" },
+  "scope": { "service": null, "country_code": null, "zone_id": null, "franchise_id": null, "partner_id": null },
+  "generated_at": "2026-06-20T10:45:00Z",
+  "summary": {
+    "created": 12450,
+    "accepted": 11620,
+    "in_progress": 180,
+    "completed": 10840,
+    "cancelled": 790,
+    "acceptance_rate": 84.2,
+    "cancellation_rate": 6.79,
+    "completion_rate": 93.29
+  },
+  "series": [
+    { "bucket": "2026-06-01", "created": 420, "accepted": 391, "completed": 372, "cancelled": 28 },
+    { "bucket": "2026-06-02", "created": 395, "accepted": 368, "completed": 348, "cancelled": 24 },
+    { "bucket": "2026-06-03", "created": 438, "accepted": 410, "completed": 389, "cancelled": 31 },
+    { "bucket": "2026-06-04", "created": 512, "accepted": 480, "completed": 460, "cancelled": 35 },
+    { "bucket": "2026-06-05", "created": 486, "accepted": 455, "completed": 432, "cancelled": 29 },
+    { "bucket": "2026-06-06", "created": 401, "accepted": 374, "completed": 352, "cancelled": 22 },
+    { "bucket": "2026-06-07", "created": 375, "accepted": 348, "completed": 328, "cancelled": 20 }
+  ],
+  "ranking": {
+    "dimension": "franchise",
+    "data": [
+      { "id": "FR-001", "label": "Franchise Cocody", "activity": 4200, "completed": 3810, "gmv": 62000000, "currency": "XOF", "acceptance_rate": 87.4, "cancellation_rate": 5.8, "completion_rate": 94.1 },
+      { "id": "FR-002", "label": "Franchise Plateau", "activity": 3100, "completed": 2750, "gmv": 45800000, "currency": "XOF", "acceptance_rate": 85.0, "cancellation_rate": 6.5, "completion_rate": 92.8 },
+      { "id": "FR-003", "label": "Franchise Yopougon", "activity": 2800, "completed": 2410, "gmv": 38200000, "currency": "XOF", "acceptance_rate": 81.2, "cancellation_rate": 12.4, "completion_rate": 90.1 },
+      { "id": "FR-004", "label": "Franchise Abobo", "activity": 1520, "completed": 1340, "gmv": 21500000, "currency": "XOF", "acceptance_rate": 82.8, "cancellation_rate": 7.2, "completion_rate": 91.4 },
+      { "id": "FR-005", "label": "Franchise Marcory", "activity": 830, "completed": 530, "gmv": 17000000, "currency": "XOF", "acceptance_rate": 79.6, "cancellation_rate": 8.1, "completion_rate": 88.9 }
+    ],
+    "meta": { "total": 5, "per_page": 25, "current_page": 1, "last_page": 1 }
+  }
+}

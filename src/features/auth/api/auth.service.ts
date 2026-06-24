@@ -80,4 +80,12 @@ export const authService = {
         : LINKS.auth.v1.forgotPassword,
       useLegacyAuth() ? { email, portal } : { email: email.trim() }
     ),
+
+  resetPassword: (token: string, newPassword: string) =>
+    apiClient.post<{ ok: boolean; message: string }>(
+      useLegacyAuth()
+        ? LINKS.auth.legacy.resetPassword
+        : LINKS.auth.v1.resetPassword,
+      { token, new_password: newPassword }
+    ),
 };

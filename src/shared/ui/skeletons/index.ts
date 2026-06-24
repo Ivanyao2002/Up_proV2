@@ -17,4 +17,5 @@ export {
   ZoneMapSkeleton,
   EntityListSkeleton,
   SimplePageSkeleton,
+  SupportDashboardSkeleton,
 } from "./PageSkeletons";

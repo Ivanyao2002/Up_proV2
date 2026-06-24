@@ -106,9 +106,11 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
               </ul>
             )}
 
-            <time className="mt-1 block text-xs text-muted">
-              {formatDateTime(item.at)}
-            </time>
+            {item.at && (
+              <time className="mt-1 block text-xs text-muted">
+                {formatDateTime(item.at)}
+              </time>
+            )}
           </div>
         </li>
       ))}

@@ -134,8 +134,11 @@ export function PricingNewPage() {
               base_fare_fcfa: values.base_fare_fcfa,
               per_km_fcfa: values.per_km_fcfa,
               min_fare_fcfa: values.min_fare_fcfa,
+              waiting_per_minute_fcfa: values.waiting_per_minute_fcfa,
+              cancellation_fee_fcfa: values.cancellation_fee_fcfa,
               surge_multiplier: values.surge_multiplier,
               status: values.status,
+              effectiveFrom: values.effectiveFrom,
             },
             { onSuccess: () => router.push("/admin/settings/pricing") }
           );

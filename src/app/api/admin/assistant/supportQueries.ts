@@ -9,7 +9,7 @@ export async function buildDisputeSummaryReport(
   authHeader: string
 ): Promise<AssistantApiResponse> {
   const list = await assistantApiGet<{ items?: Record<string, unknown>[] }>(
-    `${LINKS.admin.v1.supportTickets}${buildV1ListQuery({ per_page: 50, page: 1 })}`,
+    `${LINKS.support.tickets.list}${buildV1ListQuery({ per_page: 50, page: 1 })}`,
     authHeader
   );
   const items = (list?.items ?? []).filter(
@@ -70,7 +70,7 @@ export async function buildSupportTicketSummaryReport(
   authHeader: string
 ): Promise<AssistantApiResponse> {
   const list = await assistantApiGet<{ items?: Record<string, unknown>[] }>(
-    `${LINKS.admin.v1.supportTickets}${buildV1ListQuery({ per_page: 50, page: 1 })}`,
+    `${LINKS.support.tickets.list}${buildV1ListQuery({ per_page: 50, page: 1 })}`,
     authHeader
   );
   const items = list?.items ?? [];

@@ -530,14 +530,14 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
         onCancel={() => setConfirmApprove(false)}
       />
 
-      <ConfirmModal
+      <RejectReasonModal
         open={confirmReject}
         title="Rejeter la demande ?"
-        message="Le chauffeur devra corriger ses documents avant une nouvelle validation."
+        message="Le chauffeur devra corriger ses documents avant une nouvelle validation. Indiquez le motif communiqué au chauffeur."
         confirmLabel="Rejeter"
-        variant="danger"
-        onConfirm={() => {
-          rejectKyc.mutate("Documents non conformes");
+        placeholder="Motif du rejet (obligatoire) — ex. CNI illisible, permis expiré…"
+        onConfirm={(reason) => {
+          rejectKyc.mutate(reason);
           setConfirmReject(false);
         }}
         onCancel={() => setConfirmReject(false)}

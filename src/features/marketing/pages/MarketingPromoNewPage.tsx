@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { useUnsavedChanges } from "@/shared/hooks/useUnsavedChanges";
 import type { MarketingPromo } from "../api/marketing.service";
 import { useCreateMarketingPromo } from "../api/marketing.queries";
 
@@ -20,6 +21,12 @@ export function MarketingPromoNewPage() {
     expires_at: new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10),
   });
   const [useFixed, setUseFixed] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
+  const today = new Date().toISOString().slice(0, 10);
+
+  const isDirty =
+    !create.isSuccess && (values.code.trim() !== "" || values.label.trim() !== "");
+  useUnsavedChanges(isDirty);
 
   const set = (patch: Partial<typeof values>) => setValues((v) => ({ ...v, ...patch }));
 
@@ -34,6 +41,11 @@ export function MarketingPromoNewPage() {
         className="space-y-4 rounded-card border border-border bg-surface p-6 shadow-card"
         onSubmit={(e) => {
           e.preventDefault();
+          if (values.expires_at < today) {
+            setDateError("La date d'expiration ne peut pas être dans le passé.");
+            return;
+          }
+          setDateError(null);
           create.mutate(
             {
               code: values.code,
@@ -112,10 +124,20 @@ export function MarketingPromoNewPage() {
           <input
             type="date"
             required
+            min={today}
             value={values.expires_at}
-            onChange={(e) => set({ expires_at: e.target.value })}
+            onChange={(e) => {
+              set({ expires_at: e.target.value });
+              setDateError(null);
+            }}
+            aria-invalid={dateError ? true : undefined}
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
           />
+          {dateError && (
+            <p className="mt-1 text-sm text-red-600" role="alert">
+              {dateError}
+            </p>
+          )}
         </label>
         <label className="block">
           <span className="text-sm font-medium">Statut</span>

@@ -13,6 +13,7 @@ export interface PortalShellTopbarProps {
 interface PortalShellLayoutProps {
   nav: NavGroup[];
   subtitle: string;
+  sidebarAppearance?: "default" | "support" | "reporting";
   topbar: (props: PortalShellTopbarProps) => ReactNode;
   children: ReactNode;
   headerSlot?: ReactNode;
@@ -22,6 +23,7 @@ interface PortalShellLayoutProps {
 export function PortalShellLayout({
   nav,
   subtitle,
+  sidebarAppearance = "default",
   topbar,
   children,
   headerSlot,
@@ -53,6 +55,9 @@ export function PortalShellLayout({
 
   return (
     <div className="flex min-h-screen bg-canvas">
+      <a href="#main-content" className="skip-link">
+        Aller au contenu principal
+      </a>
       {headerSlot}
 
       {mobileNavOpen ? (
@@ -67,6 +72,7 @@ export function PortalShellLayout({
       <PortalSidebar
         nav={nav}
         subtitle={subtitle}
+        appearance={sidebarAppearance}
         filterByPermission={filterByPermission}
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
@@ -77,7 +83,11 @@ export function PortalShellLayout({
           onMenuToggle: () => setMobileNavOpen((open) => !open),
           mobileNavOpen,
         })}
-        <main className="page-main flex-1 overflow-x-hidden overflow-y-auto">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="page-main flex-1 overflow-x-hidden overflow-y-auto outline-none"
+        >
           {children}
         </main>
       </div>

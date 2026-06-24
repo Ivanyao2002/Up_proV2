@@ -1,0 +1,1598 @@
+--- PAGE 1 ---
+U P J U N O O  P R OD o c u m e n t  d e  r é f é r e n c e  p r o j e tPlan complet derecette, test réel,déploiement &migration en productionNouvelle version multiservices de la plateforme UPJUNOO PRO— Transport VTC, Livraison, Fret urbain, Location, Partenaires, Franchises & Central.
+Version 1.0 Préparation • Recette • Test réel • Migration Juin 2026
+JALON CLÉ : DIMANCHE 21 JUIN 2026 — JOURNÉE DE TEST RÉEL — 40 ENGINS
+01 / 59
+
+--- PAGE 3 ---
+UPJUNOO PROSommaire général
+S o m m a i r eStructure du document — 15 parties, 59 sectionsIObjectifs & principes
+§2 à §4 · Slides 04 → 07
+IIPérimètre multiservices
+§5 · Slides 08 → 15
+IIIProfils utilisateurs
+§6 à §11 · Slides 16 → 21
+IVEnvironnement préproduction
+§12 à §14 · Slides 22 → 26
+VOrganisation recette
+§15 à §16 · Slides 27 → 29
+VIUse cases de recette
+§17 · Slides 30 → 45 · 29 use cases
+VIIJournée test réel — 40 engins
+§18 à §20 · Slides 46 → 48 · 21 juin 2026
+VIIIPlanning détaillé J-3 → J+4
+§21 · Slides 49 → 50
+IXCritères de validation
+§22 à §25 · Slide 51
+XGestion des anomalies
+§26 à §27 · Slides 52 → 53
+XIPlan de migration production
+§28 à §30 · Slides 54 → 55
+XIIBasculement sans impact
+§31 à §33 · Slides 56 → 57
+XIIISuivi post-déploiement
+§34 · Slide 58 · Hypercare 15-30 j
+XIVLivrables attendus
+§35 à §36 · Slide 58
+XVConclusion & feuille de route
+Slide 59
+J0Jalon clé du document — Dimanche 21 juin 2026Journée de test réel multiservices avec 40 engins, 30-40 clients testeurs, partenaires, franchise, équipes support, finance, technique & direction.
+20 taxis · 10 motos · 5 location · 5 fret
+UPJUNOO PRO · Plan de recette & migration 03 / 59
+
+--- PAGE 4 ---
+UPJUNOO PROPartie I — §2 Objectifs
+2 .  O b j e c t i f s  d u  d o c u m e n t14 objectifs structurant la démarche de recette & migration.
+01
+Organiser la recette complète de la nouvelle version
+02
+Définir les prérequis techniques et infrastructures préprod
+03
+Prendre en compte tous les services de la plateforme
+04
+Détailler les fonctionnalités à tester par profil utilisateur
+05
+Formaliser les scénarios de recette en use cases
+06
+Organiser une journée de test réel avec ~40 engins
+07
+T ester les parcours clients, chauffeurs, livreurs, partenaires
+08
+Vérifier la fiabilité des modules de reporting
+09
+Vérifier commissions, wallet, paiement, recharge & traçabilité
+10
+Préparer le plan de migration des données existantes
+11
+Garantir un basculement sans perte de données utilisateurs
+12
+Réduire les risques de rupture de service
+13
+Mettre en place une démarche progressive, contrôlée & réversible
+14
+Produire une base de décision claire pour la mise en production
+P é r i m è t r e  c o u v e r t
+Transport / Taxi / VTC Livraison Fret urbain Location véhicules Chauffeurs Livreurs Clients Partenaires Franchises Central / Siège Support Finances Wallet & recharge Reporting Notifications
+UPJUNOO PRO · Plan de recette & migration 04 / 59
+
+--- PAGE 5 ---
+UPJUNOO PROPartie I — §3 Objectifs opérationnels
+3 .  O b j e c t i f s  o p é r a t i o n n e l s  s p é c i f i q u e sCe que la nouvelle version doit confirmer en sortie de recette.La démarche de recette doit permettre de confirmer formellement, élément par élément, que la nouvelle version :Corrigeles dysfonctionnements de la version actuelleRépondaux besoins réels de UPJUNOO PROEst techniquement stableen exploitation continuePermet l'exploitation multiservices(transport, livraison, fret, location)Permet le suivi des activités par profil(client, chauffeur, livreur, partenaire, franchise)Permet le suivi financier des commissions& leur répartitionPermet la gestion des partenaireset de leurs flottesPermet la gestion des franchiseset de leurs zonesPermet une supervision centrale efficacePermet un reporting fiable, exportable et consolidéPermet la migration sécuriséedes données existantes
+C r i t è r e  f i n a l
+0⁄blocageLa plateforme peut être utilisée en exploitation réelle sans blocage majeur.Aucun parcours critique ne doit s'interrompre — un client lance une course, un chauffeur l'accepte et la termine, la commission est débitée correctement, le partenaire voit son chauffeur, la franchise voit sa zone, le central voit le total. De bout en bout. Sans intervention manuelle.
+UPJUNOO PRO · Plan de recette & migration 05 / 59
+
+--- PAGE 6 ---
+UPJUNOO PROPartie I — §4 Princ ipes (1/2)
+4 .  P r i n c i p e s  d i r e c t e u r s  ·  1 / 2Quatre garde-fous structurels avant tout passage en production.4.1Recette obligatoire avant productionAucune mise en production complète ne doit être réalisée sans recette fonctionnelle, technique, financière et opérationnellevalidée en environnement préproduction. La validation s'appuie sur des livrables traçables et un procès-verbal Go / No-Go signé.4.2Préproduction représentative de la productionL'environnement de préproduction doit être un miroir contrôlé de la production: mêmes logiques de données, mêmes accès et rôles, mêmes services externes (SMS, push, paiement), mêmes flux et reporting — uniquement isolé pour ne pas impacter les utilisateurs réels.4.3Simulation réelle contrôléeAvant toute généralisation, une journée de test réelest organisée avec ~40 engins, des clients clients testeurs, des chauffeurs, des livreurs, des partenaires et l'équipe centrale. Elle simule simule l'exploitation sans engagement commercial.
+Dimanche 21 juin 2026
+4.4Protection des données existantesLes utilisateurs déjà inscrits ne doivent subir ni perte de compte, ni perte de données, ni perte de solde, ni obligation injustifiéede recréer leur profil. Les rattachements partenaires / franchises et les historiques critiques sont conservés.
+UPJUNOO PRO · Plan de recette & migration 06 / 59
+
+--- PAGE 8 ---
+UPJUNOO PROPartie II — §5 Périmètre global
+5 .  P é r i m è t r e  m u l t i s e r v i c e sUPJUNOO PRO est une plateforme intégrée — sept domaines à recetter conjointement.
+La recette doit traiter la plateforme comme un système cohérent — chaque service partage le wallet, la commission, la géolocalisation, l'authentification et le reporting central.
+5.1Transport · T axi numérique · VTC
+5.2Livraison
+5.3Fret urbain
+5.4Location de véhicules
+5.5Gestion des partenaires
+5.6Gestion des franchises
+5.7Central · Siège
+UPJUNOO PRO · Plan de recette & migration 08 / 59
+
+--- PAGE 11 ---
+UPJUNOO PROService 5.3 — Fret urbain
+5 . 3  ·  S e r v i c e  à  r e c e t t e rFret urbain — circuit partenaire-centrique avec devis avant affectation.La demande de fret est reçue et traitée par le partenaire flotte fret(et non directement par un chauffeur). Le partenaire analyse la demande, envoie un devisau client, puis affecte un chauffeur de sa propre flotte une fois le devis accepté.
+Fig. 11.1 —Workﬂow fret : demande client → récepƟon partenaire → devis → aﬀectaƟon chauﬀeur ﬂoƩe14 fonctionnalités à tester
+01Création demande fret (client) 02Type de m archandise
+03Volume / poids estimatif 04Type véhicule requis
+05Adresse d'enlèvement 06A d resse d e livraison
+07 Réception côté partenaire 08 Analyse & traitement partenaire
+09 Envoi du devis au client 10 Acceptation devis (client)
+11Affectation chauffeur flotte 12S uivi transport
+13Clôture mission 14Rep orting  &  co m m issio n
+S p é c i f i c i t é  d u  c i r c u i t  f r e t
+Contrairement au transport VTC où la demande est diffusée directement aux chauffeurs, le fret passe d'abord par le partenairequi 
+maîtrise sa flotte, ses capacités véhicule et sa tarification. Le devis est une étape obligatoire.
+U s e  c a s e s  a s s o c i é s
+UC-F01 UC-F02
+Criticité : Majeure 5 véhicules fret en test
+UPJUNOO PRO · Plan de recette & migration 11 / 59
+
+--- PAGE 12 ---
+UPJUNOO PROService 5.4 — Location
+5 . 4  ·  S e r v i c e  à  r e c e t t e rLocation de véhicules — 10 fonctionnalités, avec ou sans chauffeur.Mise à disposition de véhicules selon le modèle opérationnel retenu — réservation simple ou avec chauffeur, validée par le partenaire flotte ou l'administrateur.
+Fig. 12.1 — Cycle de réservation et validation d'une location de véhicule10 fonctionnalités principales à tester01Consultation véhicules02D em ande de location03Choix de durée04C hoix de catég orie05Avec/sans chauffeur06Validation adm in/partenaire07Suivi de réservation08S tatut de location09Paiement / acompte10R eporting  &  historique
+U s e  c a s e s  a s s o c i é s
+UC-LO01 UC-LO02
+Voir slide 36 pour le détail des scénarios.
+Criticité : Majeure 5 véhicules location en test réel
+UPJUNOO PRO · Plan de recette & migration 12 / 59
+
+--- PAGE 13 ---
+UPJUNOO PROService 5.5 — Partenaires
+5 . 5  ·  S e r v i c e  à  r e c e t t e rPartenaires — portefeuille propre rechargeable par mobile money ou carte.Les partenaires disposent de leur propre portefeuillerechargeable par mobile money OU carte bancaire, puis utilisent ce wallet pour recharger les chauffeurs de leur flotte en cascade.
+Fig. 13.1 —Recharge cascade : Mobile Money / Carte bancaire → Wallet partenaire → Wallets chauﬀeurs de la ﬂoƩe13 fonctionnalités principalesCréation du compte partenaireValidation par l'admin centralRattachement chauffeurs & véhiculesSuivi d'activité chauffeurs & flotteSuivi revenus, commissions, performanceReporting par période & serviceGestion documents véhicule / chauffeur
+Recharge wallet partenaire — Mobile Money
+Recharge wallet partenaire — Carte bancaire (CB / Visa)
+Recharge chauffeurs de la flotte (cascade)Réception & traitement demandes fret + devisValidation demandes locationCommunication avec central & réclamations
+2  m o y e n s  d ' a l i m e n t a t i o n
+Mobile Money Carte bancaire
+UC-P01 UC-P02 UC-FIN01
+UPJUNOO PRO · Plan de recette & migration 13 / 59
+
+--- PAGE 14 ---
+UPJUNOO PROService 5.6 — Franchises
+5 . 6  ·  S e r v i c e  à  r e c e t t e rFranchises — supervision de zone + reversement automatique de bonus.La franchise supervise sa zone géographique, perçoit ses commissions et reverse automatiquement des bonus de performance aux chauffeursselon des indicateurs prédéfinis (notation, taux acceptation, volume).13 fonctionnalités principales à tester
+01Gestion & paramétrage de zone 02S uivi d es partenaires
+03Suivi des chauffeurs 04S uivi d es livreurs
+05Suivi des clients 06S uivi co urses &  livraiso ns
+07Perception des commissions zone 08Rep orting  o pérationnel
+09Reporting financier 10 Paramétrage règles bonus performance
+11 Reversement bonus automatique 12Gestion incidents zone
+13Escalade vers central
+M o t e u r  d e  b o n u s  — i n d i c a t e u r s  p r é d é f i n i s
+→Nombre de courses ≥ seuil →Note moyenne ≥ 4.5 / 5
+→Taux acceptation ≥ 90 % →Taux annulation ≤ 5 %
+Le moteur évalue automatiquement les chauffeurs en fin de période et crédite leur wallet sans intervention manuelle.
+Criticité : Critique UC-FR01 · UC-FR02
+Fig. 14.1 — Reversement automatique des bonus aux chauffeurs selon indicateurs prédéfinis
+UPJUNOO PRO · Plan de recette & migration 14 / 59
+
+--- PAGE 15 ---
+UPJUNOO PROService 5.7 — Central / Siège
+5 . 7  ·  S e r v i c e  à  r e c e t t e rCentral / Siège — supervision globale & paramétrage · 18 fonctionnalités.Le central paramètre tarifs, commissions et règles de bonus, supervise toutes les opérations, gère les wallets, audite les transactions et arbitre les escalades. Il NE recharge PAS les wallets des chauffeurs— cette opération relève exclusivement du partenaire ou de l'auto-recharge.
+01
+Administration globale
+02
+Supervision tous services
+03
+Gestion des franchises
+04
+Gestion des partenaires
+05
+Gestion des chauffeurs
+06
+Gestion des livreurs
+07
+Gestion des clients
+08
+Paramétrage des tarifs
+09
+Paramétrage commissions
+10
+Paramétrage règles bonus
+11
+Paramétrage zones
+12
+Supervision wallets (lecture seule)
+13
+Gestion réclamations
+14
+Reporting consolidé
+15
+Export financier
+16
+Audit des opérations
+17
+Gestion des droits & rôles
+18
+Conformité & logs⊘
+R è g l e  s t r i c t e  — s é p a r a t i o n  d e s  r e s p o n s a b i l i t é s
+Le central NE recharge PAS les wallets des chauffeurs ni des livreurs.
+Sa supervision financière est en lecture seule. Les recharges sont l'affaire des partenaires (cascade) ou des chauffeurs eux-mêmes (auto-recharge).
+UC-C01 · UC-C02 · UC-A01
+UPJUNOO PRO · Plan de recette & migration 15 / 59
+
+--- PAGE 16 ---
+UPJUNOO PROPartie III — Profils utilisateurs
+D i a g r a m m e  u s e  c a s e  ·  v u e  g l o b a l eSix acteurs interagissent avec la plateforme — cartographie des cas d'usage.
+6 acteurs principauxClient
+Consomme les services
+Chauffeur
+Transport / location avec chauffeur
+Livreur
+Missions de livraison
+Partenaire
+Flotte chauffeurs & véhicules
+Franchise
+Supervision zone géographique
+Central / Siège
+Vue globale, paramétrage, audit
++ P r ofi ls  t echni ques
+Support · Finance · Conformité · Reporting · Direction
+UPJUNOO PRO · Plan de recette & migration 16 / 59
+
+--- PAGE 18 ---
+UPJUNOO PRO§7 Profil Chauffeur
+7 .  P r o f i l  C h a u f f e u r  ·  C o n d u c t e u r
+Le chauffeur — wallet, commission, recharge : un parcours intégralement financier.Affecté aux courses VTC, au fret ou aux locations avec chauffeur. Peut se recharger lui-même, recevoir une recharge par son partenaire, sa franchise ou le central.
+7 . 1  ·  F o n c t i o n n a l i t é s  c l é s  à  t e s t e r
+18 fonctionnalités
+01Inscription 02S oum issio n d ocum ents
+03Validation administrative 04Gestion du véhicule
+05Disponibilité on/off 06Réception des dem andes
+07Acceptation/refus course 08N avig ation vers client
+09Démarrage de course 10Fin d e course
+11Encaissement client 12D ébit de com m ission
+13 Consultation wallet 14 Recharge wallet
+15Historique d'activité 16Réclam ations
+17Notifications 18S usp ensio n / réactivation
+3  v o i e s  d ' a l i m e n t a t i o n w a l l e t  c h a u f f e u r
+1 · Auto-recharge mobile money 2 · Par son partenaire (cascade) 3 · Bonus franchise auto
+Le partenaire recharge son propre wallet (mobile money / carte) puis crédite ses chauffeurs en cascade. La franchise reverse desbonus de performance 
+automatiques. Le central ne recharge pas les chauffeurs.
+7 . 2  ·  R e p o r t i n g  a t t e n d u  c ô t é  c h a u f f e u r
+9 indicateurs financiers & opérationnels
+01
+Nombre de courses réalisées
+02
+Montant brut encaissé
+03
+Commissions prélevées
+04
+Solde wallet temps réel
+05
+Historique recharges
+06
+Historique des débits
+07
+Notes reçues
+08
+Annulations
+09
+Statut du compte (actif / suspendu / en attente document)
+UC-FIN01 UC-FIN02 UC-FIN04
+UPJUNOO PRO · Plan de recette & migration 18 / 59
+
+--- PAGE 19 ---
+UPJUNOO PRO§8 Profil L ivreur
+8 .  P r o f i l  L i v r e u r
+Le livreur — un parcours dédié, du retrait à la preuve de livraison.Affecté aux missions de livraison. Wallet et recharge identiques au chauffeur ; les voies de recharge incluent l'auto-recharge, le partenaire, la franchise et le central.
+8 . 1  ·  F o n c t i o n n a l i t é s  c l é s  à  t e s t e r
+14 fonctionnalités
+01Inscription 02Validation du profil
+03Disponibilité on/off 04Réception dem ande
+05Acceptation mission 06Vers expéd iteur
+07Confirmation récupération 08Vers destinataire
+09Confirmation livraison 10Preuve de livraison
+11Paiement 12C o m m ission
+13Historique 14Réclam ations
+W a l l e t  l i v r e u r  — 3  v o i e s  d ' a l i m e n t a t i o n
+Auto-recharge mobile money Depuis wallet partenaire Bonus franchise auto
+Le partenaire recharge son propre wallet (mobile money / carte), puis crédite ses livreurs. La franchise reverse automatiquement des bonus de performance. 
+Le central ne recharge pas les livreurs.
+8 . 2  ·  R e p o r t i n g  a t t e n d u  c ô t é  l i v r e u r
+7 indicateurs clés01Nombre de livraisons02Montants encaissés03Commissions04Solde wallet05Statuts des livraisons06Historique07Réclamations
+UC-L01 UC-L02 UC-L03
+UPJUNOO PRO · Plan de recette & migration 19 / 59
+
+--- PAGE 20 ---
+UPJUNOO PRO§9 & §10 Partenaire / Franc hise
+9 .  &  1 0 .  P a r t e n a i r e  ·  F r a n c h i s e
+Deux profils superviseurs — flotte directe versus zone géographique.9Profil PartenairePropriétaire de flotte, entreprise, coopérative — il rattache chauffeurs et véhicules à la plateforme.
+Fonctionnalités à tester
+Création de compte partenaireValidation par l'administration centraleAjout / rattachement de chauffeurs & véhiculesSuivi des chauffeurs actifs & véhicules actifsSuivi des courses, livraisons, revenus, commissionsRecharge wallet d'un chauffeur de sa flotteExport des rapports & performance par période
+Reporting attendu
+Nb chauffeurs / véhicules rattachésNb de courses par chauffeurMontant total d'activité & commissions dues/prélevéesPerformance par période · activité par serviceStatuts chauffeurs / véhicules · indicateurs de conformité
+UC-P01 UC-P02
+10Profil FranchiseEntité de gestion locale, régionale ou nationale. Supervise tous les partenairesde sa zone.
+Fonctionnalités à tester
+Gestion d'une zone & paramétrageSuivi partenaires, chauffeurs, livreurs, clientsSuivi des services actifs · revenus · commissionsReporting opérationnel & financier par zoneRecharge wallets chauffeurs / partenaires de sa zoneGestion des incidents & escalade vers central
+Reporting attendu (14 indicateurs)
+Activité globale zone · Nb partenaires, chauffeurs, livreurs, clients actifs · Courses, livraisons, fret, locations · Chiffre d'activité · Commissions · Taux 
+Commissions · Taux d'annulation · Incidents · Réclamations
+UC-FR01
+UPJUNOO PRO · Plan de recette & migration 20 / 59
+
+--- PAGE 21 ---
+UPJUNOO PRO§11 Profil Central
+1 1 .  P r o f i l  C e n t r a l  ·  S i è g e
+Le Central — vue consolidée & 22 indicateurs de reporting global.
+P é r i m è t r e
+7profils
++ comptes techniques (super-admin, exploitation, finance, support, conformité, reporting, 
+direction)
+F o n c t i o n n a l i t é s  à  t e s t e r
+19fonctions
+Admin, supervision, paramétrage, finance, audit (voir slide 15)
+R e p o r t i n g  c o n s o l i d é
+22indicateurs
+Activité, finance, opérationnel, qualité
+11 . 2  ·  22 r a p p o r t s  c o n s o l i d é s  à  d i s p o s i ti o n  d u  cen t r a l
+01
+Activité totale plateforme
+02
+Activité par service
+03
+Activité par zone
+04
+Activité par franchise
+05
+Activité par partenaire
+06
+Activité par chauffeur
+07
+Activité par livreur
+08
+Recettes brutes
+09
+Commissions plateforme
+10
+Commissions partenaires
+11
+Commissions franchises
+12
+Wallets & soldes
+13
+Recharges wallet
+14
+Débits
+15
+Transactions
+16
+Incidents
+17
+Réclamations
+18
+Taux d'annulation
+19
+Taux d'acceptation
+20
+Taux finalisation
+21
+Audit & logs
+22
+Conformité globale → Exports comptables & financiers — formats CSV / Excel
+UPJUNOO PRO · Plan de recette & migration 21 / 59
+
+--- PAGE 23 ---
+UPJUNOO PRO§13.2 Base de données préprod
+1 3 . 2  ·  B a s e  d e  d o n n é e s  p r é p r o d u c t i o n
+17 tables — structure identique ou proche de la future production.
+Fig. 23.1 — Cartographie des 17 tables relationnelles de la base préproduction
+17 tables à préparer
+01Clients 02C hauffeurs
+03Livreurs 04Partenaires
+05Franchises 06Véhicules
+07Courses 08Livraisons
+09Fret 10Location
+11 Wallet 12 Commissions
+13 Transactions 14Réclamations
+15N otifications 16Logs
+17D ocum ents
+D o n n é e s  p e u p l a n t  l a  b a s e
+· Données de test contrôlées
+· Copie anonymisée d'échantillons production
+· Comptes pilotes pour tous les profils
+· Soldes et historiques initiaux
+UPJUNOO PRO · Plan de recette & migration 23 / 59
+
+--- PAGE 24 ---
+UPJUNOO PRO§13.3 & §13.4 Applications
+1 3 . 3  &  1 3 . 4  ·  A p p l i c a t i o n s  m o b i l e s  &  b a c k - o f f i c e
+2 applications mobiles + 8 interfaces web disponibles en préproduction.13.3Applications mobiles préproduction
+App Client
+Multiservices : transport, livraison, fret, location
+App Chauffeur / Livreur
+Mission, wallet, recharge, historique
+Disponibilité requise
+Version Android installableFichier APK ou lien de testNuméro de version clairement identifiéJournal des changements par versionProcédure d'installation / mise à jour / désinstallation13.48 interfaces back-office & web
+01
+Administrateur central
+02
+Support
+03
+Finance
+04
+Partenaire
+05
+Franchise
+06
+Reporting
+07
+Paramétrage
+08
+Suivi anomalies
+S é c u r i t é  &  a c c è s  — § 1 3 . 6
+· Accès administrateur sécurisé · Gestion des rôles
+· OTP / mots de passe fonctionnels · Limitation accès techniques
+· Journalisation connexions & actions sensibles
+· Protection documents · Sauvegarde & restauration
+UPJUNOO PRO · Plan de recette & migration 24 / 59
+
+--- PAGE 25 ---
+UPJUNOO PRO§13.5 Services externes
+1 3 . 5  ·  S e r v i c e s  e x t e r n e s  à  c o n n e c t e r
+12 services externes à configurer en mode test ou contrôlé.Chaque service est connecté avec des clés de test, des numéros simulés ou des passerelles sandbox. Aucune transaction réelle ni envoi production.
+01
+SMS OTP
+Authentification client & chauffeur. Numéros test Orange, MTN, 
+MTN, Moov, Wave.
+02
+Notifications push
+Affectations, statuts, alertes. Test mobile en condition réelle.
+03
+Email transactionnel
+Confirmations, factures, rapports périodiques.
+04
+Cartographie
+Visualisation des itinéraires, calcul de distance & ETA.
+05
+Géolocalisation
+Position client / chauffeur temps réel. Mode test & GPS réel.
+06
+Mobile Money
+Paiement client & recharge wallet — Orange Money, MTN MoMo, 
+MoMo, Moov, Wave.
+07
+Recharge wallet
+Service interne de gestion des recharges (4 voies : auto, partenaire, 
+partenaire, franchise, central).
+08
+Passerelle paiement test
+Mode sandbox sans débit réel — simulation des cas nominaux et 
+nominaux et d'échec.
+09
+Stockage documents
+Documents chauffeur, véhicule, partenaire — bucket dédié préprod.
+préprod.
+10
+Service de logs
+Centralisation des journaux serveurs & APIs pour debug.
+11
+Monitoring serveur
+CPU, mémoire, temps de réponse, disponibilité applicative.
+12
+Outil d'alerte technique
+Remontée automatique des incidents critiques vers l'équipe 
+d'astreinte.
+UPJUNOO PRO · Plan de recette & migration 25 / 59
+
+--- PAGE 26 ---
+UPJUNOO PRO§14 Données de test néc essaires
+1 4 .  D o n n é e s  d e  t e s t  n é c e s s a i r e s
+~90 comptes test couvrant tous les profils et opérateurs mobiles.
+Catégorie de compte Nombre Détail / objectif
+Clients internes20 Testeurs de l'équipe projet, exécutent les use cases en suivi rapproché.Clients testeurs externes20 Utilisateurs sélectionnés hors équipe — feedback ergonomie.Clients Orange / MTN / Moov / WaveTous opérateurs Diversité OTP & recharge mobile money — couverture complète.Clients par serviceMix 4 services Transport · livraison · location · fret — répartition équilibrée.Chauffeurs taxi / VTC20 Tester le transport de personnes — service principal.Livreurs10 Tester la livraison (motos / petits véhicules).Véhicules location avec chauffeur5 Tester la réservation et la mise à disposition.Véhicules fret urbain5 Tester les demandes de transport de marchandises.Partenaires pilotes3 à 5 Plusieurs chauffeurs, plusieurs véhicules, 1 par type d'activité.Compte franchise test1 Zone Abidjan principale (+1 zone secondaire optionnelle).Comptes central7 Super-admin · exploitation · finance · support · conformité · reporting · lecture seule direction.40 ENGINST otal flotte de test réel20 taxis/VTC + 10 motos livreurs + 5 location + 5 fret = couverture multiservices intégrale.
+~90 comptes test au total
+UPJUNOO PRO · Plan de recette & migration 26 / 59
+
+--- PAGE 27 ---
+UPJUNOO PROPartie V — §15 Gouvernanc e
+1 5 .  G o u v e r n a n c e  d e  l a  r e c e t t e
+11 acteurs avec rôles et responsabilités dédiés.
+R ES PO N S A BIL ITÉS  PR IN C IPA L ESA C TEU R
+Validation stratég ique · arbitrag e · d écisio n finale G o / N o - G o  en p ro d uctio n.Direction UPJUNOO PROC o o rd inatio n g lob ale · p lanning  · suivi des valid atio ns · g estio n d u reg istre d 'anom alies.Chef de projetLivraiso n d e la version · co rrections techniq ues · sup p ort d e niveau 3 · d o cum entatio n technique.ÉditeurC o ntrôle technique · tests A PI · enviro nnem ent · log s · m onito ring  · sécurité.Équipe technique interneTests m étiers · supervisio n terrain · anim atio n chauffeurs / livreurs.Équipe exploitationTests wallet · co m m issio ns · rap po rts financiers · rép artitio ns plateform e / partenaire / franchise / central.Équipe financeTests réclam atio ns · assistance utilisateurs · g estio n des incid ents en jo urnée test.Équipe supportTests rattachem ent chauffeurs / véhicules · sup ervision flotte · recharg e wallet d e leurs chauffeurs.Partenaires pilotesTests rep orting  zone · supervisio n locale · escalad e vers central.Franchises pilotesExécutio n terrain · acceptatio n co urses / m issio ns · feedb ack utilisab ilité.Chauffeurs / livreurs pilotesSim ulatio n d es d em andes m ultiservices · no tation · réclam ation.Clients testeurs
+UPJUNOO PRO · Plan de recette & migration 27 / 59
+
+--- PAGE 28 ---
+UPJUNOO PRO§16 Méthode de rec ette
+1 6 .  M é t h o d e  d e  r e c e t t e
+5 niveaux de recette — exécutés séquentiellement, validés en parallèle.
+16 . 1
+T echnique
+Vérifie l'environnement et l'infrastructure.
+· Installation des applications
+· Connexion serveur
+· Disponibilité APIs
+· Stabilité BDD
+· Logs
+· Performance
+· Notifications
+· Paiement
+· Sauvegarde
+· Sécurité
+16 . 2
+Fonctionnelle
+Vérifie les parcours métier.
+· Parcours clients
+· Parcours chauffeurs
+· Parcours livreurs
+· Parcours partenaires
+· Parcours franchises
+· Parcours central
+· Règles métier
+· Statuts
+· Notifications
+· Historiques
+16 . 3
+Financière
+Vérifie wallet, commission, répartition.
+· Wallet chauffeur
+· Wallet livreur
+· Recharge (4 voies)
+· Débit commission
+· Solde
+· Historique transaction
+· Part plateforme
+· Part partenaire
+· Part franchise
+· Export comptable
+16 . 4
+Opérationnelle
+Vérifie la capacité d'exploitation.
+· Capacité terrain
+· Formation utilisateurs
+· Réactivité support
+· Suivi des incidents
+· Clarté procédures
+· Supervision temps réel
+· Qualité des rapports
+16 . 5
+Reporting
+Vérifie tableaux de bord et exports.
+· Tableaux de bord
+· Données par profil
+· Données par service
+· Données par période
+· Données par zone
+· Données par partenaire
+· Données par franchise
+· Exports
+· Cohérence financière
+· Cohérence opérationnelle
+UPJUNOO PRO · Plan de recette & migration 28 / 59
+
+--- PAGE 29 ---
+UPJUNOO PROPartie VI — §17 Format use c ase
+1 7 .  F o r m a t  s t a n d a r d  d ' u n  u s e  c a s e
+12 champs structurés — gabarit appliqué à chacun des 29 use cases.Chaque scénario de test est documenté avec le même squelette pour permettre une exécution répétable, traçable et auditable.UC-XXIntitulé du scénarioModèle
+0 1 · R ÉFÉR EN C E
+Code unique UC-XX
+0 2 · SER VIC E C ON C ERN É
+Transport, livraison, fret, location, finance, central…
+0 3 · P R OFIL C ON C ERN É
+Client, chauffeur, livreur, partenaire, franchise, central
+0 4 · OB JEC TIF
+Hypothèse à vérifier en une phrase
+0 5 · P R ÉC ON D ITION S
+État du système avant le test
+0 6 · ÉTA P ES D E TEST
+Séquence numérotée d'actions
+0 7 · R ÉSULTA TS A TTEN D US
+Sortie observable du système
+0 8 · C R ITÈRES D 'A C C EP TA TION
+Conditions à remplir pour valider
+0 9 · C R ITIC ITÉ
+Critique · Majeure · Moyenne · Mineure
+1 0 · STA TUT
+À tester · En cours · Validé · KO
+1 1 · OB SER VA TIONS
+Notes du testeur, contexte
+1 2 · A N OMA LIES D ÉTEC TÉES
+Référence dans le registre
+29 use cases couverts
+UC-01 → UC-03
+Transversaux 3
+UC-T01 → UC-T05
+Transport / VTC 5
+UC-L01 → UC-L04
+Livraison 4
+UC-F01 → UC-F02
+Fret urbain 2
+UC-LO01 → UC-LO02
+Location 2
+UC-FIN01 → UC-FIN04
+Finance · Wallet 4
+UC-P01 → UC-P02
+Partenaires 2
+UC-FR01 · UC-FR02
+Franchise & bonus 2
+UC-C01 → UC-C03
+Central · Reporting 3
+UC-S01
+Support 1
+UC-A01 (a · b · c)
+Admin · Paramétrage 3
+UC-AU01
+Audit · Conformité 1
+UPJUNOO PRO · Plan de recette & migration 29 / 59
+
+--- PAGE 30 ---
+UPJUNOO PROUC transversaux · A.
+A .  U s e  c a s e s  t r a n s v e r s a u x
+UC-01 · UC-02 · UC-03 — authentification, comptes, droits.UC-01Critique
+Création d'un compte client
+Service : tous · Profil : Client
+OB JEC TIF
+Vérifier qu'un client peut créer un compte et accéder à la plateforme.
+ÉTA P ES
+Ouvrir l'application client
+Saisir le numéro de téléphone
+Recevoir le code OTP
+Valider le code
+Renseigner profil & enregistrer
+Vérifier le compte dans le back-office
+R ÉSULTATS A TTEN D US
+OTP reçu · compte créé · profil enregistré · compte visible au back-office · client en statut actif.
+actif.
+CRITÈRE D'ACCEPTATION
+Le client se connecte et accède aux services sans blocage.
+UC-02Critique
+Connexion utilisateur existant
+Service : tous · Profils : tous
+OB JEC TIF
+Vérifier que les utilisateurs déjà créés ou migrés peuvent se reconnecter sans perte de données.
+ÉTA P ES
+Ouvrir l'application ou l'interface web
+Saisir les identifiants
+Valider l'authentification
+Accéder au tableau de bord
+Vérifier les données du profil
+R ÉSULTATS A TTEN D US
+Connexion réussie · données du profil conservées · aucun doublon · droits correctement appliqués.
+CRITÈRE D'ACCEPTATION
+L'utilisateur existant accède à son profil sans perte de données.
+UC-03Critique
+Gestion des rôles et droits
+Service : administration · Profils : central, franchise, partenaire, support, finance
+OB JEC TIF
+Vérifier que chaque profil accède uniquement aux fonctions autorisées.
+ÉTA P ES
+Connexion compte central · vérifier droits globaux
+Connexion franchise · droits limités à la zone
+Connexion partenaire · droits limités à sa flotte
+Connexion support · accès incidents
+Connexion finance · accès données financières
+R ÉSULTATS A TTEN D US
+Droits cloisonnés · aucun partenaire ne voit les données d'un autre · franchise voit sa zone seulement · 
+central a la vue globale.
+CRITÈRE D'ACCEPTATION
+Aucun profil n'accède à des données non autorisées.
+UPJUNOO PRO · Plan de recette & migration 30 / 59
+
+--- PAGE 35 ---
+UPJUNOO PROUC Fret · D.
+D .  F r e t  u r b a i n
+UC-F01 · UC-F02 — réception & devis partenaire, puis affectation chauffeur.UC-F01Majeure
+Création demande & réception partenaire
+Service : Fret urbain · Profils : Client, Partenaire fret
+OBJECTIF
+Vérifier que la demande de fret du client est reçue par le partenaire(jamais directement par un chauffeur) et qu'elle apparaît dans son tableau de 
+bord pour traitement.
+ÉTAPES
+Le client choisit le service Fret
+Il indique type de marchandise, volume / poids, type véhicule requis
+Il renseigne l'adresse d'enlèvement et l'adresse de livraison
+Il valide la demande —aucune estimation automatique affichée(le prix dépendra du devis partenaire)
+La demande est routée au(x) partenaire(s) fret de la zone
+Le partenaire reçoit une notification & voit la demande dans son back-office
+RÉSULTATS ATTENDUS
+Demande créée · client en statut "en attente de devis" · partenaire(s) notifié(s) · demande visible au back-office central.
+CRITÈRE D'ACCEPTATION
+Aucune demande de fret ne doit être diffusée directement aux chauffeurs avant validation et devis du partenaire.
+UC-F02Majeure
+Devis partenaire & affectation chauffeur
+Service : Fret urbain · Profils : Partenaire, Client, Chauffeur de la flotte
+OBJECTIF
+Vérifier le circuit complet : traitement partenaire, envoi devis, acceptation client, affectation chauffeur, démarrage mission.
+ÉTAPES
+Le partenaire consulte la demande dans son back-office
+Il analyse : type marchandise, distance, véhicule disponible, calendrier
+Il saisit le devis(prix, délai, conditions) et l'envoie au client
+Le client reçoit le devis (notification + détail) et l'accepte ou refuse
+Si accepté : le partenaire affecte un chauffeur de sa flotte
+Le chauffeur reçoit la mission & accepte
+Le suivi mission démarre ; clôture & commission à la fin
+RÉSULTATS ATTENDUS
+Devis enregistré · client notifié · acceptation tracée · chauffeur affecté uniquement après acceptation · véhicule conforme au besoin · reporting OK.
+CRITÈRE D'ACCEPTATION
+Aucune affectation possible avant acceptation du devis par le client. Le chauffeur affecté appartient obligatoirement à la flotte du partenaire émetteur.
+UPJUNOO PRO · Plan de recette & migration 35 / 59
+
+--- PAGE 36 ---
+UPJUNOO PROUC Loc ation · E.
+E .  L o c a t i o n  d e  v é h i c u l e s
+UC-LO01 · UC-LO02 — demande et validation d'une réservation de location.UC-LO01Majeure
+Demande de location de véhicule
+Service : Location · Profil : Client
+OBJECTIF
+Vérifier qu'un client peut faire une demande de location avec ou sans chauffeur.
+ÉTAPES
+Le client choisit le service Location
+Il choisit le type de véhicule
+Il choisit la période
+Il indique avec ou sans chauffeur
+Il valide la demande
+Le système enregistre la demande
+Le partenaire ou central reçoit la demande
+RÉSULTATS ATTENDUS
+Demande enregistrée · disponibilité vérifiable · notification envoyée · statut visible.
+CRITÈRE D'ACCEPTATION
+La demande est routée correctement vers le partenaire propriétaire du véhicule.
+UC-LO02Majeure
+Validation d'une demande de location
+Service : Location · Profils : Partenaire, Central, Client
+OBJECTIF
+Tester la validation d'une location par le central ou le partenaire propriétaire.
+ÉTAPES
+Le partenaire consulte la demande
+Il vérifie la disponibilité du véhicule
+Il accepte ou rejette
+Le client est informé
+Le statut est mis à jour
+RÉSULTATS ATTENDUS
+Validation possible · client notifié · véhicule réservé · reporting mis à jour.
+CRITÈRE D'ACCEPTATION
+Le véhicule est bloqué dans le calendrier dès la validation, pas de double réservation possible.
+UPJUNOO PRO · Plan de recette & migration 36 / 59
+
+--- PAGE 37 ---
+UPJUNOO PROUC Finance · F. (1/2)
+F .  W a l l e t ,  c o m m i s s i o n s  &  r e c e t t e s  — p a r t i e  1
+UC-FIN01 · UC-FIN02 — recharge wallet et débit commission.UC-FIN01Critique
+Recharge wallet chauffeur / livreur
+Service : Finance · Profils : Chauffeur, Livreur, Partenaire, Franchise, Central
+OBJECTIF
+Vérifier les 3 voies d'alimentationdu wallet chauffeur / livreur. Le central ne recharge PAS.
+ÉTAPES — TESTER LES 3 VOIES
+Voie 1 — Auto-recharge chauffeur: le chauffeur ouvre son wallet, choisit le montant, paie en mobile money, valide.
+Voie 2.a — Recharge wallet partenaire (Mobile Money): le partenaire crédite son propre wallet via Orange/MTN/Moov/Wave.
+Voie 2.b — Recharge wallet partenaire (Carte bancaire): le partenaire crédite son wallet via CB/Visa.
+Voie 2.c — Cascade partenaire → chauﬀeur: le partenaire sélectionne un de ses chauffeurs et transfère un montant depuis son wallet. Pur transfert interne, 
+aucun mobile money sollicité.
+Voie 3 — Bonus franchise (automatique): en fin de période, la franchise applique son moteur de bonus. Les chauffeurs éligibles voient leur wallet crédité 
+automatiquement (voir UC-FR02).
+RÉSULTATS ATTENDUS
+Chaque voie crédite correctement le wallet cible · historique trace l'iniƟateur · cohérence débit/crédit partenaire→chauﬀeur · bonus franchise crédité sans 
+intervention manuelle.
+RÈGLE STRICTE
+Aucune action de recharge ne doit être disponible depuis l'interface centrale. Test négatif obligatoire.
+UC-FIN02Critique
+Débit de commission après course
+Service : Finance · Profils : Chauffeur, Plateforme, Central
+OBJECTIF
+Vérifier que la commission plateforme est calculée et débitée correctement du wallet chauffeur après chaque course.
+ÉTAPES
+Un chauffeur réalise une course
+Le client paie le chauffeur
+La plateforme calcule la commission selon le taux paramétré
+Le wallet chauffeur est débité
+Le reporting financier est mis à jour
+RÉSULTATS ATTENDUS
+Recette chauffeur distincte de la commission plateforme · commission selon le taux paramétré · solde wallet exact · historique disponible.
+CRITÈRE D'ACCEPTATION
+Aucune confusion entre recette course, recharge wallet et commission plateforme dans les rapports.
+UPJUNOO PRO · Plan de recette & migration 37 / 59
+
+--- PAGE 38 ---
+UPJUNOO PROUC Finance · F. (2/2)
+F .  W a l l e t ,  c o m m i s s i o n s  &  r e c e t t e s  — p a r t i e  2
+UC-FIN03 · UC-FIN04 — répartition financière et solde insuffisant.UC-FIN03Critique
+Répartition plateforme / partenaire / franchise / central
+Vérifier la logique de répartition financière du modèle UPJUNOO PRO
+ÉTAPES
+Course par chauffeur rattaché partenaire
+Vérifier la commission plateforme
+Vérifier les parts partenaire / franchise / central
+Consulter le reporting financier
+CRITÈRE
+Les parts sont correctement calculées et tracées · les rapports affichent les bonnes répartitions · aucune 
+confusion recette/recharge/commission.
+UC-FIN04Critique
+Solde insuffisant
+Cas non nominal — bloquant pour exploitation
+OBJECTIF
+Vérifier le comportement plateforme quand le solde chauffeur est insuffisant pour accepter une course.
+ÉTAPES
+Créer un chauffeur avec solde faible
+Le mettre en ligne
+Tenter d'accepter une course
+Vérifier le message d'alerte / blocage
+Effectuer une recharge (par n'importe quelle voie)
+Réessayer d'accepter
+RÉSULTATS ATTENDUS
+Chauffeur alerté ou bloqué selon les règles · recharge permet la reprise d'activité immédiate · solde 
+immédiate · solde fiable · historique complet.
+CRITÈRE
+Aucune course ne peut être acceptée avec un solde insuffisant.
+UPJUNOO PRO · Plan de recette & migration 38 / 59
+
+--- PAGE 39 ---
+UPJUNOO PROUC Partenaires · G.
+G .  P a r t e n a i r e s
+UC-P01 · UC-P02 — création / validation et rattachement chauffeur+véhicule.UC-P01Majeure
+Création & validation partenaire
+Service : Administration · Profils : Central, Partenaire
+OBJECTIF
+Tester la création d'un partenaire et sa validation par le central.
+ÉTAPES
+Créer un compte partenaire
+Ajouter les informations entreprise / propriétaire
+Soumettre les documents (KBIS, identité, autorisations)
+Valider depuis le central
+Vérifier l'accès partenaire au back-office
+RÉSULTATS ATTENDUS
+Compte partenaire créé · statut visible · accès fonctionnel · données visibles au central.
+CRITÈRE D'ACCEPTATION
+Le partenaire accède à son espace dès validation, avec son périmètre cloisonné.
+UC-P02Critique
+Rattachement chauffeur / véhicule
+Service : Administration · Profil : Partenaire
+OBJECTIF
+Vérifier qu'un partenaire peut rattacher ses chauffeurs et véhicules — et que les données restent cloisonnées entre partenaires.
+ÉTAPES
+Sélectionner un partenaire (admin / central)
+Rattacher des chauffeurs au partenaire
+Rattacher des véhicules au partenaire
+Réaliser des courses avec ces chauffeurs
+Vérifier le reporting partenaire
+Vérifier qu'un autre partenaire ne voit pas ces données
+RÉSULTATS ATTENDUS
+Rattachement correct · activité visible côté partenaire · aucun mélange de données entre partenaires · reporting cohérent.
+CRITÈRE D'ACCEPTATION
+Cloisonnement strict des données — un partenaire ne voit pas la flotte d'un autre, même au sein de la même franchise.
+UPJUNOO PRO · Plan de recette & migration 39 / 59
+
+--- PAGE 40 ---
+UPJUNOO PROUC Franchise · H.
+H .  F r a n c h i s e
+UC-FR01 — supervision d'une zone franchise & cloisonnement.UC-FR01Critique
+Supervision d'une zone franchise
+Service : Franchise · Profil : Franchise
+OBJECTIF
+Vérifier que la franchise suit uniquement son périmètre géographique, sans accès aux autres 
+zones, et que ses indicateurs sont cohérents avec l'activité terrain.
+PRÉCONDITIONS
+· Franchise pilote créée et validée
+· Zone configurée (Abidjan principale)
+· Partenaires & chauffeurs rattachés à la zone
+· Données d'activité existantes
+ÉTAPES
+Se connecter avec un compte franchise
+Consulter les partenaires rattachés
+Consulter les chauffeurs & livreurs
+Consulter les courses
+Consulter les commissions
+Exporter un rapport (CSV / Excel)
+Tenter d'accéder à une autre franchise (test négatif)
+RÉSULTATS ATTENDUS
+✓La franchise voit uniquement sa zone
+✓Les données sont cohérentes avec le terrain
+✓Les indicateurs sont disponibles en temps réel
+✓Les exports sont exploitables
+✓Aucun accès aux autres franchises possible
+CRITÈRE D'ACCEPTATION
+Cloisonnement strict des données. Toute tentative d'accès à une zone non autorisée doit 
+être bloquée et journalisée dans les logs d'audit.
+FOC US — R EC H A RG E WALLETS Z ON E
+Tester la capacité de la franchise à recharger les wallets des chauffeurs et partenaires de sa zone. Cette 
+opération est tracée comme initiateur = franchise dans l'historique transactionnel.
+14  i n d i c a te u r s  zo n e
+Reporting franchise attendu
+Activité globale zone Nb partenaires actifs
+Nb chauffeurs actifs Nb livreurs actifs
+Nb clients actifs Courses réalisées
+Livraisons réalisées Demandes fret
+Locations Chiffre d'activité
+Commissions zone Taux d'annulation
+Incidents Réclamations
+EXP OR TS
+CSV · Excel · PDF — par jour, semaine, mois, période personnalisée.
+UPJUNOO PRO · Plan de recette & migration 40 / 59
+
+--- PAGE 41 ---
+UPJUNOO PROUC Central · I.
+I .  C e n t r a l  &  r e p o r t i n g
+UC-C01 · UC-C02 · UC-C03 — dashboard, reporting multiservices, réclamations.UC-C01Critique
+T ableau de bord central
+Profil : Central · Direction
+OBJECTIF
+Vérifier que le central dispose d'une vue globale et filtrable sur toute la plateforme.
+ÉTAPES
+Se connecter au central
+Consulter les statistiques globales
+Filtrer par service
+Filtrer par zone
+Filtrer par partenaire
+Filtrer par franchise
+Exporter les données
+RÉSULTATS
+Données consolidées · filtres fonctionnels · exports exploitables · chiffres cohérents avec les tests 
+terrain.
+UC-C02Critique
+Reporting multiservices
+Profil : Central · Finance
+OBJECTIF
+Vérifier le reporting par service et la cohérence des données.
+ÉTAPES
+Réaliser des courses, livraisons, fret, locations
+Consulter le reporting central
+Comparer les données réelles & affichées
+Vérifier la ventilation par service
+Vérifier les montants
+Vérifier les statuts
+RÉSULTATS
+Chaque service est correctement comptabilisé · montants cohérents · statuts exacts · rapports lisibles.
+rapports lisibles.
+CRITÈRE
+Aucun écart entre les chiffres affichés et le terrain.
+UC-C03Majeure
+Gestion des réclamations
+Profil : Support · Central
+OBJECTIF
+Tester la gestion support des réclamations remontées par tous les profils.
+ÉTAPES
+Créer une réclamation client
+Créer une réclamation chauffeur
+Créer une réclamation partenaire
+Traiter depuis le support
+Changer le statut
+Clôturer
+RÉSULTATS
+Réclamations visibles · traitement possible · historique conservé · reporting support disponible.
+disponible.
+CRITÈRE
+SLA support : prise en charge sous 24h en condition de test.
+UPJUNOO PRO · Plan de recette & migration 41 / 59
+
+--- PAGE 43 ---
+UPJUNOO PROUC Support · J.
+J .  S u p p o r t  — t r a i t e m e n t  r é c l a m a t i o n
+UC-S01 — Traitement d'une réclamation multiservices.UC-S01Majeure
+Cycle complet d'une réclamation
+Service : Support · Profils : Client / Chauffeur / Livreur / Partenaire (émetteur), Support, Finance, Central
+OBJECTIF
+Tester le cycle complet de prise en charge d'une réclamation, de sa création par un utilisateur 
+jusqu'à sa résolution avec éventuel remboursement ou crédit wallet.
+PRÉCONDITIONS
+· Compte utilisateur actif
+· Historique de course / livraison disponible
+· Agent support connecté
+· Catégories de réclamation paramétrées
+ÉTAPES DE TEST
+Émetteur crée une réclamation (catégorie, course concernée, description, pièces jointes)
+jointes)
+Le support reçoit la notification & voit la réclamation dans sa file
+Agent support assigne la réclamaƟon et change le statut → "En cours"
+Agent communique avec l'émetteur (chat interne, mail)
+Si dédommagement : validation finance + crédit wallet du client
+Si rejet : motif documenté, notification émetteur
+Clôture : changement de statut → "Résolue" + horodatage
+Émetteur reçoit notification de résolution et peut noter le service
+CATÉGORIES À TESTER
+Course non effectuée Surfacturation
+Comportement chauffeur Colis endommagé
+Colis perdu Wallet incorrect
+Commission contestée Autre
+SLA SUPPORT — RÈGLES DE TEST
+· Prise en charge sous 24h
+· Première réponse sous 4h ouvrées
+· Résolution sous 72h(catégorie standard)
+· Escalade central si non résolu sous 5j
+RÉSULTATS ATTENDUS
+Tous les statuts changent correctement · notifications reçues · crédit wallet effectif si 
+dédommagement · historique conservé · reporting support alimenté.
+CRITÈRE
+Aucune réclamation ne peut être clôturée sans motif documenté ET sans notification à l'émetteur.
+à l'émetteur.
+C i n é m a t i q u e  m u l t i - p r o f i l s
+Qui fait quoi
+ÉMETTEUR
+Client · Chauffeur · Livreur · Partenaire
+Crée la réclamation, fournit les pièces, suit l'avancement, note le traitement.
+SUPPORT N1
+Agent support
+Qualifie, instruit, communique, propose une solution ou escalade.
+FINANCE
+Équipe finance
+Valide les remboursements / crédits wallet de plus de N FCFA.
+CENTRAL (escalade)
+Direction projet
+Tranche les cas non résolus ou contestés > 5 jours.
+UPJUNOO PRO · Plan de recette & migration 43 / 59
+
+--- PAGE 44 ---
+UPJUNOO PROUC Admin · K.
+K .  C e n t r a l  — p a r a m é t r a g e  a d m i n i s t r a t i f
+UC-A01 — Paramétrage tarifs, commissions & règles de bonus.UC-A01aCritique
+Paramétrage des tarifs
+Profil : Central · Service : Tous
+ÉTAPES
+Accès interface paramétrage
+Sélection service (VTC / livraison / fret / location)
+Saisie tarif de base, prix km, attente, surcharge nuit
+Définition zone & catégorie véhicule
+Activation à date
+Vérification application sur nouvelles courses
+RÉSULTATS
+Tarifs appliqués aux nouvelles courses · anciens tarifs conservés pour les courses en cours · historique 
+cours · historique versionné.
+CRITÈRE
+Versioning obligatoire avec date d'application.
+UC-A01bCritique
+Paramétrage des commissions
+Profil : Central · Service : Tous
+ÉTAPES
+Saisie % commission plateforme
+Saisie % commission partenaire
+Saisie % commission franchise
+Vérification cumul ≤ 100 %
+Application différenciée par service
+Test sur une course : vérifier la ventilation
+EXEMPLE DE RÉPARTITION
+Chauffeur 75 %
+Plateforme 10 %
+Partenaire 10 %
+Franchise 5 %
+CRITÈRE
+Validation arithmétique sur chaque transaction de test.
+UC-A01cCritique
+Règles de bonus de performance
+Profil : Central · Cible : Franchises
+ÉTAPES
+Définition gabarit de KPI globaux
+Définition plage acceptable par KPI
+Définition fréquence d'évaluation
+Validation par direction
+Publication aux franchises
+Les franchises personnalisent dans la plage
+GABARIT KPI
+· Nb courses (plage 30–80 / sem)
+· Note (plage 4.0 – 5.0)
+· Acceptation (plage 80–95 %)
+· Annulation (plage 2–10 %)
+CRITÈRE
+Les franchises ne peuvent pas sortir des plages globales (garde-fou central).
+VOIR AUSSI
+UC-FR02
+UPJUNOO PRO · Plan de recette & migration 44 / 59
+
+--- PAGE 45 ---
+UPJUNOO PROUC Audit · L.
+L .  A u d i t  &  c o n f o r m i t é
+UC-AU01 — Audit des transactions et journalisation des actions sensibles.UC-AU01Critique
+Audit transactions & journalisation
+Service : Conformité · Profils : Auditeur, Direction, Central
+OBJECTIF
+Vérifier que toute action sensibleest journalisée de manière inviolable et que le profil 
+auditeur peut consulter, filtrer et exporter l'historique pour contrôle ou enquête.
+ÉTAPES DE TEST
+Réaliser une action sensible (connexion admin, modification tarif, recharge wallet, suspension 
+chauffeur)
+Se connecter avec un profil auditeur
+Ouvrir le journal d'audit
+Filtrer par : type d'action, profil, période, IP
+Identifier l'action de test
+Vérifier les attributs (qui, quoi, quand, depuis où, valeur avant/après)
+Exporter (PDF / CSV) un extrait
+Tenter une modification rétroactive : doit être impossible
+TEST NÉGATIF OBLIGATOIRE
+Vérifier que les logs d'audit ne sont jamais modifiables, même par un super-administrateur. Toute 
+tentative doit être bloquée et générer elle-même un événement d'audit.
+ÉVÉNEMENTS À JOURNALISER
+· Connexions administrateurs (réussies / échecs)
+· Modifications tarifs & commissions
+· Recharges wallets (toutes voies)
+· Reversements bonus franchise
+· Suspensions / réactivations comptes
+· Validations partenaires / franchises
+· Modifications de rôles & droits
+· Exports financiers
+· Suppressions de données
+· Accès à des données personnelles
+· Acceptation / rejet réclamation avec dédommagement
+RÉSULTATS ATTENDUS
+✓Toute action sensible apparaît dans le journal
+✓Champs complets : qui, quoi, quand, IP, valeur avant/après
+✓Filtres & recherche fonctionnels
+✓Export CSV/PDF opérationnel
+✓Aucune modification rétroactive possible
+✓Rétention conforme à la politique (min. 12 mois)
+CRITÈRE
+Inviolabilité des logs + traçabilité complète + capacité d'export pour audit externe.
+P r o f i l  A u d i t e u r
+Droits & périmètre
+PEUT
+✓Consulter tous les logs d'audit
+✓Filtrer, rechercher, exporter
+✓Consulter (lecture seule) toutes les transactions
+✓Voir l'historique d'un compte
+✓Générer un rapport d'enquête
+NE PEUT PAS
+✗Modifier un log
+✗Supprimer un log
+✗Modifier des tarifs / commissions
+✗Recharger ou débiter un wallet
+✗Suspendre un compte
+RÉTENTION
+Logs conservés ≥ 12 mois· sauvegardés sur 2 sites distincts.
+UPJUNOO PRO · Plan de recette & migration 45 / 59
+
+--- PAGE 46 ---
+UPJUNOO PROPartie VII — §19.1 Composition
+1 9 . 1  ·  J o u r n é e  t e s t  r é e l
+40 engins répartis sur 4 services — couverture multiservices intégrale.
+S e r v i c e  p r i n c i p a l
+20T axis / VTC
+Courses clients · cycle complet transport · paiement & commission.
+commission.
+L i v r a i s o n
+10Motos / livreurs
+Missions colis · récupération · livraison · preuve.
+L o c a t i o n
+5Véhicules location
+Avec ou sans chauffeur · réservation · validation.
+F r e t  u r b a i n
+5Véhicules fret
+Marchandises · volume / poids · véhicule adapté.
+Type d'engin Nombre Usage en journée test
+Taxis / VTC20Courses clients · tester UC-T01 à UC-T05Motos / livreurs10Livraisons · tester UC-L01 à UC-L04Véhicules location5Réservations & location avec/sans chauffeur · tester UC-LO01, UC-LO02Véhicules fret5Transport de marchandises · tester UC-F01, UC-F02TOTAL40 enginsCouverture multiservices intégrale — tous les services en simultané
+UPJUNOO PRO · Plan de recette & migration 46 / 59
+
+--- PAGE 47 ---
+UPJUNOO PROPartie VII — §19.2 Participants
+1 9 . 2  ·  P a r t i c i p a n t s  à  m o b i l i s e r
+~90 participants — 5 catégories d'acteurs terrain et équipes pilotes.
+C A T É G O R I E  0 1
+40Chauffeurs / livreurs
+20 taxis + 10 motos + 5 location + 5 fret. Formés samedi 20 
+samedi 20 juin.
+C A T É G O R I E  0 2
+30-40Clients testeurs
+Mix interne & externe — répartition équilibrée sur les 4 
+services.
+C A T É G O R I E  0 3
+3-5Partenaires
+Propriétaires de flotte pilotes — tester rattachement, 
+supervision, recharge wallet.
+C A T É G O R I E  0 4
+1Franchise pilote
+Zone Abidjan · supervision & reporting zone · 
+cloisonnement testé.
+C A T É G O R I E  0 5
+7+Équipes centrales
+Central · support · finance · technique · éditeur · direction 
+projet.
+Composition détaillée des équipes encadrantesCôté éditeur & techniqueÉditeur (livraison version & support N3)Équipe technique interneRéférent monitoring & logsCôté métier & exploitationÉquipe exploitation (animation terrain)Équipe support (incidents & réclamations)Équipe finance (wallet & commissions)Côté pilotageDirection projet UPJUNOO PROChef de projet (coordination)Direction (validation Go / No-Go)
+UPJUNOO PRO · Plan de recette & migration 47 / 59
+
+--- PAGE 48 ---
+UPJUNOO PRO§20 Déroulement dimanche 21 j uin 2026
+2 0 .  D é r o u l e m e n t  j o u r n é e  t e s t
+Dimanche 21 juin 2026 — chronogramme 08h00 → 19h00.
+11 séquences chronométrées
+08h00-08h30 Briefing général
+Chef de projet · Direction
+08h30-09h00 Vérification applications & connexions
+Technique · Support
+09h00-10h00 Mise en ligne des 40 engins
+Exploitation — 40 visibles en ligne
+10h00-12h00 Tests Transport · Taxi · VTC
+Clients · Chauffeurs (20 engins)
+12h00-13h00 Tests Livraison
+Clients · Livreurs (10 motos)
+13h00-14h00 Pause + collecte anomalies intermédiaire
+Support · Technique
+14h00-15h00 Tests Wallet · Commission · Solde insuffisant
+Finance · Chauffeurs
+15h00-16h00 Tests Partenaires
+Partenaires · Central
+16h00-17h00 Tests Franchise & reporting zone
+Franchise · Central
+17h00-18h00 Tests Reporting central consolidé
+Direction · Finance
+18h00-19h00 Débriefing général — synthèse anomalies
+Tous les participants
+UPJUNOO PRO · Plan de recette & migration 48 / 59
+
+--- PAGE 49 ---
+UPJUNOO PROPartie VIII — §21 Planning J-3 → J0
+2 1 .  P l a n n i n g  d é t a i l l é  — P h a s e  1 / 2
+Du jeudi 18 juin au dimanche 21 juin 2026 — préparation & test réel.
+J-3
+JEUDI
+18 juin 2026Préparation & cadrage
+· Validation du plan de recette
+· Confirmation version éditeur
+· Vérification accès préprod
+· Préparation comptes tests
+· Définition zones de test
+· Confirmation 40 engins
+· Mise en place registre anomalies
+LIVRABLES
+Liste testeurs · liste engins · accès préprod · grille recette · planning confirmé.
+J-2
+VENDREDI
+19 juin 2026Recette interne préprod
+· Installation applis pilotes
+· Tests OTP client / chauffeur
+· Tests création comptes
+· Tests validation administrative
+· Tests demandes 4 services
+· Tests wallet · commission
+· Tests reporting · réclamations
+· Correction anomalies bloquantes
+LIVRABLES
+Rapport recette interne · listes anomalies critiques & majeures · décision 
+poursuite.
+J-1
+SAMEDI
+20 juin 2026Pré-test terrain & formation
+· Formation chauffeurs
+· Formation livreurs
+· Formation partenaires
+· Briefing franchise
+· Briefing support & finance
+· Test connexion tous participants
+· Vérification GPS · data · wallet
+· Tests courses & livraisons à blanc
+LIVRABLES + DÉCISION
+Feuille de présence · checklist validée · Go / No-Go pour J0.
+J0
+DIMANCHE ★
+21 juin 2026Journée de test réel
+· Mise en ligne des 40 engins
+· Tests Transport · Livraison
+· Tests Fret · Location
+· Tests Partenaires & Franchise
+· Tests Wallet · Commission
+· Tests Reporting central
+· Tests Réclamations
+· Suivi anomalies · débriefing
+LIVRABLES
+Rapport test réel · listes activités · rapports wallet · rapports partenaires & 
+franchise · recommandations.
+UPJUNOO PRO · Plan de recette & migration 49 / 59
+
+--- PAGE 50 ---
+UPJUNOO PRO§21 Planning J+1 → J+4
+2 1 .  P l a n n i n g  d é t a i l l é  — P h a s e  2 / 2
+Du lundi 22 juin au jeudi 25 juin 2026 — analyse, retest, migration à blanc, Go/No-Go.J+1
+LUNDI
+22 juin 2026Analyse résultats & correction prioritaire
+ACTIVITÉS
+· Consolidation des anomalies
+· Classement par criticité
+· Analyse technique avec éditeur
+· Analyse métier avec exploitation
+· Analyse financière
+· Correction des anomalies critiques
+· Préparation des retests
+LIVRABLES
+· Rapport d'analyse
+· Plan de correction
+· Liste anomalies bloquantes
+· Liste anomalies acceptables
+· Planning de retest
+J+2
+MARDI
+23 juin 2026Retest des corrections
+ACTIVITÉS
+· Retest anomalies critiques
+· Retest wallet
+· Retest commission
+· Retest reporting
+· Retest connexion utilisateurs
+· Retest partenaires
+· Retest franchise
+· Validation ou rejet des corrections
+LIVRABLES
+· Rapport de retest
+· Anomalies clôturées
+· Anomalies restantes
+· Avis technique provisoire
+J+3
+MERCREDI
+24 juin 2026Migration à blanc
+ACTIVITÉS
+· Extraction données production
+· Copie contrôlée → préprod
+· Mapping anciennes/nouvelles
+· Migration test
+· Contrôle clients · chauffeurs
+· Contrôle partenaires · véhicules
+· Contrôle soldes wallet
+· Contrôle historiques · documents
+LIVRABLES
+· Rapport migration à blanc
+· Écarts détectés
+· Temps de migration estimé
+· Points de correction
+· Recommandation basculement
+J+4
+JEUDI 
+25 juin 2026Go / No-Go migration production
+ACTIVITÉS
+· Revue des rapports
+· Revue des anomalies
+· Revue rapport financier
+· Revue rapport technique
+· Revue rapport exploitation
+· Validation plan retour arrière
+· Validation plan communication
+· Décision mise en production
+LIVRABLES DÉCISION
+· Procès-verbal Go / No-Go
+· Liste des réserves
+· Plan d'action final
+· Décision direction
+UPJUNOO PRO · Plan de recette & migration 50 / 59
+
+--- PAGE 51 ---
+UPJUNOO PROPartie IX — §22 à §25 Validation
+C r i t è r e s  d e  v a l i d a t i o n  d e  l a  r e c e t t e
+4 familles de critères — la recette est validée si toutes le sont.
+§ 2 2
+Fonctionnels
+La recette fonctionnelle est validée si :
+✓Clients utilisent les services
+✓Chauffeurs terminent leurs courses
+✓Livreurs terminent leurs livraisons
+✓Partenaires suivent leurs engins
+✓Franchises suivent leur zone
+✓Central supervise tout
+✓Statuts cohérents
+✓Historiques disponibles
+✓Notifications reçues
+✓Réclamations traitables
+§ 2 3
+Techniques
+La recette technique est validée si :
+✓Pas de crashs répétés
+✓APIs répondent correctement
+✓Temps de réponse acceptables
+✓Géolocalisation fonctionne
+✓Notifications fonctionnent
+✓Logs exploitables
+✓Accès sécurisés
+✓Sauvegardes disponibles
+✓Préproduction stable
+§ 2 4
+Financiers
+La recette financière est validée si :
+✓Recharges wallet correctes
+✓Soldes exacts
+✓Commissions calculées
+✓Parts plateforme exactes
+✓Parts partenaire exactes
+✓Parts franchise exactes
+✓Parts central exactes
+✓Rapports cohérents
+✓Exports exploitables
+✓Aucune confusion recette/recharge/commission
+§ 2 5
+Reporting
+La recette reporting est validée si :
+✓Tableaux de bord cohérents
+✓Données par service fiables
+✓Données par profil visibles
+✓Données par partenaire exactes
+✓Données par franchise exactes
+✓Données centrales consolidées
+✓Filtres fonctionnels
+✓Exports exploitables
+UPJUNOO PRO · Plan de recette & migration 51 / 59
+
+--- PAGE 54 ---
+UPJUNOO PROPartie XI — §28-30 Migration
+2 8 - 3 0 .  P l a n  d e  m i g r a t i o n  e n  p r o d u c t i o n
+6 étapes — de l'audit des données jusqu'au contrôle post-migration.Objectif : transférer les données de la version actuelle vers la nouvelle sans perte, sans corruption, sans doublonet sans impact majeur sur les utilisateurs déjà inscrits.
+01
+Audit données existantes
+Comptage clients, chauffeurs, livreurs, partenaires, 
+partenaires, franchises, véhicules, wallets, 
+transactions. Détection doublons, comptes incomplets, 
+incomplets, soldes incohérents.
+02
+Mapping des données
+Anciennes vs nouvelles tables, champs équivalents, 
+transformations, valeurs par défaut, règles de 
+rattachement.
+03
+Nettoyage des données
+Correction formats téléphone, suppression doublons, 
+doublons, correction statuts, vérification 
+rattachements, contrôle soldes.
+04
+Sauvegarde complète
+BDD · documents · images · logs · exports financiers · 
+financiers · configurations · scripts · paramétrages.
+paramétrages.
+05
+Migration à blanc
+Exécution en préprod : temps de migration, nb lignes, 
+lignes, erreurs, écarts, soldes, comptes, historiques.
+historiques.
+06
+Contrôle post-migration
+Comparaison ligne à ligne : clients, chauffeurs, 
+partenaires, soldes wallet, transactions, documents, 
+documents, statuts.
+→  P r o g r a m m aƟ o nLa migration à blanc est exécutée le mercredi 24 juin 2026en préproduction · la migration réelle suit après validation Go/No-Go du jeudi 25 juin.
+UPJUNOO PRO · Plan de recette & migration 54 / 59
+
+--- PAGE 55 ---
+UPJUNOO PRO§29 & §30.6 Données à migrer
+2 9 .  &  3 0 . 6  ·  P é r i m è t r e  d e s  d o n n é e s
+5 grands ensembles de données à migrer — chacun contrôlé en post-migration.
+01
+Clients
+· Identifiants
+· Noms
+· Téléphones
+· Emails
+· Statuts
+· Historique courses / livraisons
+· Réclamations
+· Préférences (si disponibles)
+CONTRÔLE
+Nombre identique ou écart justifié
+02
+Chauffeurs & Livreurs
+· Identifiants
+· Infos personnelles
+· Téléphones · emails
+· Documents (permis, CNI…)
+· Statuts
+· Véhicules associés
+· Wallet & soldes
+· Transactions
+· Historique d'activité
+CONTRÔLE
+Soldes wallet identiques · documents accessibles
+03
+Partenaires
+· Identité
+· Contacts
+· Chauffeurs rattachés
+· Véhicules rattachés
+· Activité historique
+· Commissions perçues
+· Statuts
+CONTRÔLE
+Rattachements conservés intégralement
+04
+Franchises
+· Zones géographiques
+· Partenaires rattachés
+· Chauffeurs / livreurs
+· Données financières
+· Historique reporting
+· Configurations zone
+CONTRÔLE
+Zones conservées intégralement
+05
+Données financières
+· Wallets & soldes
+· Recharges (4 voies)
+· Débits commissions
+· Transactions complètes
+· Soldes & exports
+· Rapports historiques
+CONTRÔLE
+Cohérence financière 100% — aucun écart toléré
+Contrôle post-migration — tableau de référence (§30.6)
+Clients
+✓Nb identique
+Chauffeurs
+✓Nb identique
+Livreurs
+✓Nb identique
+Partenaires
+✓Rattachements OK
+Franchises
+✓Zones OK
+Véhicules
+✓Liens conservés
+Wallets
+✓Soldes identiques
+Transactions
+✓Historiques OK
+Documents
+✓Fichiers accessibles
+Statuts
+✓Statuts conservés
+UPJUNOO PRO · Plan de recette & migration 55 / 59
+
+--- PAGE 56 ---
+UPJUNOO PROPartie XII — §31 & §32 Basculement
+3 1 .  &  3 2 .  B a s c u l e m e n t  s a n s  i m p a c t  u t i l i s a t e u r
+10 mesures obligatoires pour préserver les utilisateurs déjà inscrits.
+31 .  Me s u r e s  o b l i g a t o i r es
+10 garde-fous pour les utilisateurs existants
+01 Numéros de téléphone
+conservés comme identifiants principaux 02 Pas de recréation forcée
+des comptes — l'utilisateur ne refait pas son inscription
+03 Soldes wallet préservés
+au centime près, source de la recharge tracée 04 Statuts préservés
+actif · suspendu · documents en attente
+05 Rattachements partenaires
+conservés — un chauffeur reste lié à son partenaire 06 Historiques critiques préservés
+courses, livraisons, transactions, recharges
+07 Documents préservés
+permis, CNI, KBIS — accessibles dans la nouvelle version 08 Reconnexion simple par OTP
+— pas de mot de passe à recréer
+09 Assistance dédiée
+renforcée sur les 7 premiers jours post-bascule 10 Message d'information clair
+envoyé à tous (in-app, SMS, email)
+32 .  C o m m u n i ca t i o n  u ti l i s a te u r s
+Message officiel recommandé
+EXTR A IT
+« Cher utilisateur, UPJUNOO PRO procède à une mise à jour majeure de sa plateforme afin 
+d'améliorer la stabilité, la qualité du service et l'expérience utilisateur.
+Votre compte reste conservé. Il pourra vous être demandé de mettre à jour l'application ou 
+de vous reconnecter par OTP.
+Notre assistance reste disponible pour vous accompagner. »
+C A N A UX D 'EN VOI
+In-app banner SMS Email Notification push
+C A LEN D R IER
+· J-7 : information préalable
+· J-1 : rappel + lien APK nouvelle version
+· J0 : confirmation + assistance dédiée
+· J+7 : bilan satisfaction
+UPJUNOO PRO · Plan de recette & migration 56 / 59
+
+--- PAGE 58 ---
+UPJUNOO PROParties XIII & XIV — §34-36
+3 4 .  à  3 6 .  ·  H y p e r c a r e  &  l i v r a b l e s
+Hypercare 15-30 jours post-bascule & livrables complets de recette + migration.
+34 .  P ér i o d e  d 'h y p e r c a r e — 15  à  3 0 j o u r s  a p r ès  m i s e  en  p r o d u cti o n
+Indicateurs techniques
+· Disponibilité plateforme
+· Crashs application
+· Erreurs API
+· Temps de réponse
+· Échec OTP
+· Échec notification
+· Erreurs paiement
+· Erreurs GPS
+Indicateurs opérationnels
+· Chauffeurs / livreurs connectés
+· Courses demandées
+· Courses acceptées
+· Courses terminées
+· Livraisons terminées
+· Demandes annulées
+· Réclamations
+· Temps moyen d'affectation
+Indicateurs financiers
+· Recharges wallet
+· Débits commissions
+· Soldes
+· Transactions échouées
+· Écarts financiers
+· Commissions plateforme
+· Commissions partenaires
+· Commissions franchises
+35 .  &  36.  L i v r a b l e s  a tte n d u s  — r ece tte  +  m i g r a ti o n
+§35 — Livrables de recette (14)
+· Plan de recette · Liste des use cases
+· Liste des comptes test · Liste des engins
+· Liste des partenaires · Liste des franchises
+· Grille de test · Registre anomalies
+· Rapport recette interne · Rapport test réel
+· Rapport financier · Rapport reporting
+· Rapport technique · Rapport de validation
+§36 — Livrables de migration (11)
+· Cartographie des données · Script de migration
+· Rapport migration à blanc · Rapport de sauvegarde
+· Rapport contrôle soldes · Rapport contrôle utilisateurs
+· Rapport contrôle partenaires · Rapport contrôle franchises
+· Procès-verbal Go / No-Go · Plan de retour arrière
+· Rapport post-déploiement (hypercare)
+T o t a l25 livrables documentairestracés, signés et archivés à l'issue de l'opération.
+UPJUNOO PRO · Plan de recette & migration 58 / 59

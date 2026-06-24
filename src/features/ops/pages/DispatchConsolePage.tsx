@@ -31,6 +31,26 @@ import {
 
 export type DispatchConsoleVariant = "admin" | "dispatch" | "franchise";
 
+/** Seuil d'urgence : au-delà, la course passe en alerte rouge (#72 audit UX). */
+const QUEUE_URGENT_WAIT_MIN = 10;
+
+/** Tri par durée d'attente décroissante : la course la plus urgente en tête (#72). */
+function sortQueueByUrgency(queue: DispatchQueueItem[]): DispatchQueueItem[] {
+  return [...queue].sort((a, b) => b.waiting_min - a.waiting_min);
+}
+
+/** Candidat assignable = en ligne ; on remonte ces candidats puis on trie par ETA (#73). */
+function sortCandidatesByEta(
+  candidates: DispatchDriverCandidate[]
+): DispatchDriverCandidate[] {
+  return [...candidates].sort((a, b) => {
+    const aAssignable = a.availability === "online" ? 0 : 1;
+    const bAssignable = b.availability === "online" ? 0 : 1;
+    if (aAssignable !== bAssignable) return aAssignable - bAssignable;
+    return a.eta_min - b.eta_min;
+  });
+}
+
 function QueueCard({
   item,
   selected,
@@ -40,6 +60,8 @@ function QueueCard({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const isUrgent = item.waiting_min >= QUEUE_URGENT_WAIT_MIN;
+
   return (
     <button
       type="button"
@@ -47,7 +69,9 @@ function QueueCard({
       className={`w-full rounded-lg border px-4 py-3 text-left transition-colors ${
         selected
           ? "border-teal bg-teal/5 shadow-sm"
-          : "border-border bg-surface hover:border-teal/40"
+          : isUrgent
+            ? "border-red-300 bg-red-50 hover:border-red-400"
+            : "border-border bg-surface hover:border-teal/40"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -56,8 +80,10 @@ function QueueCard({
       </div>
       <p className="mt-1 text-xs text-muted line-clamp-1">{item.trip.from_label}</p>
       <p className="mt-2 flex items-center justify-between text-xs">
-        <span className="text-amber-700 font-medium">
-          Attente {item.waiting_min} min
+        <span
+          className={`font-medium ${isUrgent ? "text-red-700" : "text-amber-700"}`}
+        >
+          {isUrgent ? "⚠ " : ""}Attente {item.waiting_min} min
         </span>
         <span className="text-muted">{item.candidates.length} chauffeurs</span>
       </p>
@@ -161,12 +187,37 @@ export function DispatchConsolePage({
     "queue"
   );
 
-  const selected = useMemo(
-    () => data?.queue.find((q) => q.trip.id === selectedTripId) ?? data?.queue[0] ?? null,
-    [data?.queue, selectedTripId]
+  // File triée par urgence : la course attendant le plus longtemps remonte (#72).
+  const sortedQueue = useMemo(
+    () => (data?.queue ? sortQueueByUrgency(data.queue) : []),
+    [data?.queue]
   );
 
-  const selectedDriver = selected?.candidates.find((c) => c.id === selectedDriverId);
+  // Présélection automatique de la course la plus urgente (tête de file triée).
+  const selected = useMemo(
+    () =>
+      sortedQueue.find((q) => q.trip.id === selectedTripId) ??
+      sortedQueue[0] ??
+      null,
+    [sortedQueue, selectedTripId]
+  );
+
+  // Candidats triés par ETA croissant, assignables (en ligne) en tête (#73).
+  const sortedCandidates = useMemo(
+    () => (selected ? sortCandidatesByEta(selected.candidates) : []),
+    [selected]
+  );
+
+  // Présélection du meilleur candidat assignable (le premier de la liste triée).
+  const bestCandidateId = useMemo(() => {
+    if (!canAssign) return null;
+    const best = sortedCandidates.find((c) => c.availability === "online");
+    return best?.id ?? null;
+  }, [sortedCandidates, canAssign]);
+
+  const effectiveDriverId = selectedDriverId ?? bestCandidateId;
+
+  const selectedDriver = sortedCandidates.find((c) => c.id === effectiveDriverId);
 
   if (isLoading) {
     return <MapPageSkeleton />;
@@ -184,14 +235,16 @@ export function DispatchConsolePage({
   });
 
   const handleAssign = () => {
-    if (!selected || !selectedDriverId) return;
+    if (!selected || !effectiveDriverId) return;
     assignMutation.mutate(
-      { tripId: selected.trip.id, driverId: selectedDriverId },
+      { tripId: selected.trip.id, driverId: effectiveDriverId },
       {
         onSuccess: () => {
           setConfirmOpen(false);
           setSelectedDriverId(null);
-          const remaining = data.queue.filter((q) => q.trip.id !== selected.trip.id);
+          const remaining = sortedQueue.filter(
+            (q) => q.trip.id !== selected.trip.id
+          );
           setSelectedTripId(remaining[0]?.trip.id ?? null);
         },
       }
@@ -297,7 +350,7 @@ export function DispatchConsolePage({
             <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
               File d&apos;attente
             </h2>
-            {data.queue.map((item) => (
+            {sortedQueue.map((item) => (
               <QueueCard
                 key={item.trip.id}
                 item={item}
@@ -358,11 +411,11 @@ export function DispatchConsolePage({
                     Chauffeurs disponibles
                   </h3>
                   <div className="space-y-2">
-                    {selected.candidates.map((c) => (
+                    {sortedCandidates.map((c) => (
                       <CandidateRow
                         key={c.id}
                         candidate={c}
-                        selected={selectedDriverId === c.id}
+                        selected={effectiveDriverId === c.id}
                         canAssign={canAssign}
                         onSelect={() => setSelectedDriverId(c.id)}
                       />
@@ -373,7 +426,7 @@ export function DispatchConsolePage({
                 {canAssign && (
                   <Button
                     className="w-full sm:w-auto"
-                    disabled={!selectedDriverId || assignMutation.isPending}
+                    disabled={!effectiveDriverId || assignMutation.isPending}
                     onClick={() => setConfirmOpen(true)}
                   >
                     {assignMutation.isPending
@@ -391,7 +444,7 @@ export function DispatchConsolePage({
             <DispatchMapPreview
               map={data.map}
               selected={selected}
-              highlightDriverId={selectedDriverId}
+              highlightDriverId={effectiveDriverId}
             />
             {selectedDriver && (
               <p className="mt-3 text-center text-xs text-muted">

@@ -39,9 +39,12 @@ export interface CreatePricingPayload {
   base_fare_fcfa?: number;
   per_km_fcfa?: number;
   min_fare_fcfa?: number;
+  waiting_per_minute_fcfa?: number;
+  cancellation_fee_fcfa?: number;
   surge_multiplier?: number;
   status?: PricingRule["status"];
   city_label?: string;
+  effectiveFrom?: string;
 }
 
 export type UpdatePricingPayload = Omit<

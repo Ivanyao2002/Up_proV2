@@ -162,8 +162,8 @@ export function ReconciliationListPage({
 
       {!embedded && !legacy && (
         <p className="mb-4 text-sm text-muted">
-          POST /v1/admin/payments/reconcile-batch — relance les paiements PayDunya bloqués.
-          Le tableau ci-dessous reste alimenté par le mock v2 en attendant une liste admin payments.
+          Rapprochement automatique des paiements PayDunya. Le bouton relance les
+          paiements en attente et tente de réconcilier les écarts détectés.
         </p>
       )}
 

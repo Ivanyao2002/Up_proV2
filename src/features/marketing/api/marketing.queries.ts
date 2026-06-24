@@ -34,6 +34,11 @@ export function useCreateMarketingPromo() {
       void qc.invalidateQueries({ queryKey: [...marketingKeys.all, "promos"] });
       notificationService.success("Code promo créé");
     },
+    onError: (error) => {
+      notificationService.error(
+        error instanceof Error ? error.message : "Création du code promo impossible."
+      );
+    },
   });
 }
 
@@ -53,6 +58,11 @@ export function useCreateMarketingCampaign() {
       void qc.invalidateQueries({ queryKey: [...marketingKeys.all, "campaigns"] });
       notificationService.success("Campagne créée");
     },
+    onError: (error) => {
+      notificationService.error(
+        error instanceof Error ? error.message : "Création de la campagne impossible."
+      );
+    },
   });
 }
 
@@ -71,6 +81,11 @@ export function useCreateMarketingBanner() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: [...marketingKeys.all, "banners"] });
       notificationService.success("Bannière créée");
+    },
+    onError: (error) => {
+      notificationService.error(
+        error instanceof Error ? error.message : "Création de la bannière impossible."
+      );
     },
   });
 }

@@ -1,95 +1,161 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { KpiCard } from "@/shared/ui/KpiCard";
-import { NavIcon, type NavIconName } from "@/portals/shared/NavIcon";
+import { useReportingOverview } from "@/features/reporting/api/reporting.queries";
+import { fmt, formatTrend, formatReportingMoney } from "@/features/reporting/utils/reportingFormatters";
+import { SERVICE_LABEL, SEVERITY_COLOR, SEVERITY_DOT } from "@/features/reporting/lib/dashboardConstants";
+import { ReportingPeriodFilter, defaultPeriod } from "@/features/reporting/components/ReportingPeriodFilter";
+import type { ReportingPeriod } from "@/features/reporting/api/reporting.types";
 
-const QUICK_ACCESS: {
-  href: string;
-  label: string;
-  description: string;
-  icon: NavIconName;
-}[] = [
-  {
-    href: "/reporting/activity",
-    label: "Activité consolidée",
-    description: "KPIs plateforme, franchises et services",
-    icon: "trips",
-  },
-  {
-    href: "/reporting/exports",
-    label: "Rapports & exports",
-    description: "CSV journal, synthèses mensuelles et exports modules",
-    icon: "reports",
-  },
-  {
-    href: "/admin/dashboard",
-    label: "Dashboard opérationnel",
-    description: "Vue globale courses, chauffeurs et alertes",
-    icon: "dashboard",
-  },
-  {
-    href: "/admin/finance",
-    label: "Finance consolidée",
-    description: "GMV, commissions, wallets — lecture seule",
-    icon: "finance",
-  },
+const FR_MONTHS_SHORT = [
+  "jan.", "fév.", "mar.", "avr.", "mai", "juin",
+  "juil.", "août", "sep.", "oct.", "nov.", "déc.",
 ];
 
+function comparisonHint(period: ReportingPeriod): string {
+  if (period.comparison_date_from && period.comparison_date_to) {
+    const [, fromM, fromD] = period.comparison_date_from.split("-");
+    const [toY, toM, toD] = period.comparison_date_to.split("-");
+    const from = `${parseInt(fromD, 10)} ${FR_MONTHS_SHORT[parseInt(fromM, 10) - 1]}`;
+    const to = `${parseInt(toD, 10)} ${FR_MONTHS_SHORT[parseInt(toM, 10) - 1]} ${toY}`;
+    return `vs ${from} – ${to}`;
+  }
+  return "vs période précédente";
+}
+
 export function ReportingDashboardPage() {
+  const [period, setPeriod] = useState<ReportingPeriod>(defaultPeriod);
+
+  const { data, isLoading } = useReportingOverview({
+    date_from: period.date_from,
+    date_to: period.date_to,
+    timezone: period.timezone,
+    comparison_date_from: period.comparison_date_from,
+    comparison_date_to: period.comparison_date_to,
+  });
+
+  const hint = comparisonHint(period);
+
   return (
     <div className="animate-fade-up">
-      <PageHeader title="Tableau de bord reporting" breadcrumb={["Reporting"]} />
+      <PageHeader
+        title="Tableau de bord reporting"
+        breadcrumb={["Reporting"]}
+        actions={<ReportingPeriodFilter value={period} onChange={setPeriod} />}
+      />
       <p className="-mt-2 mb-6 text-sm text-muted">
-        Synthèses multi-services, exports financiers et indicateurs de performance pour la
-        direction et le contrôle de gestion.
+        Synthèses multi-services, indicateurs de performance et alertes qualité.
       </p>
 
-      <div className="kpi-card mb-6 rounded-card border border-border bg-gradient-to-br from-navy to-navy/90 p-6 text-white shadow-card">
-        <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
-          Périmètre analyste reporting
-        </p>
-        <h2 className="mt-2 text-xl font-bold">Lecture &amp; export</h2>
-        <p className="mt-2 max-w-2xl text-sm text-white/85">
-          Consultation des tableaux consolidés et téléchargement des rapports — sans actions
-          d&apos;exploitation ni validation financière.
-        </p>
-      </div>
-
-      <div className="animate-stagger mb-8 grid gap-4 sm:grid-cols-3">
-        <KpiCard label="GMV du jour" value="—" hint="Tous services" index={0} />
-        <KpiCard label="Courses terminées" value="—" hint="24 h glissantes" index={1} />
-        <KpiCard label="Exports disponibles" value="4+" hint="CSV serveur & local" index={2} />
-      </div>
-
-      <section>
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-heading">Accès rapides</h2>
-          <p className="mt-0.5 text-xs text-muted">Modules du portail reporting</p>
+      {isLoading || !data ? (
+        <div className="animate-stagger grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => <KpiCard key={i} label="—" value="…" index={i} />)}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {QUICK_ACCESS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group flex gap-3 rounded-card border border-border bg-surface p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/35 hover:shadow-lg"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal/10 text-teal-dark transition-colors group-hover:bg-teal/15">
-                <NavIcon name={item.icon} className="h-5 w-5" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="text-sm font-semibold text-foreground group-hover:text-teal-dark">
-                  {item.label}
+      ) : (
+        <>
+          {/* KPIs principaux */}
+          <div className="animate-stagger mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <KpiCard
+              label="Demandes créées"
+              value={fmt(data.kpis.total_activity.value)}
+              trend={formatTrend(data.kpis.total_activity.change_pct)}
+              trendTone={
+                (data.kpis.total_activity.change_pct ?? 0) >= 0
+                  ? "positive"
+                  : "negative"
+              }
+              hint={hint}
+              index={0}
+            />
+            <KpiCard
+              label="Montant brut des prestations (GMV)"
+              value={formatReportingMoney(
+                data.kpis.gmv.value,
+                data.kpis.gmv.currency
+              )}
+              trend={formatTrend(data.kpis.gmv.change_pct)}
+              trendTone="neutral"
+              hint={hint}
+              index={1}
+            />
+            <KpiCard
+              label="Clients actifs"
+              value={fmt(data.kpis.active_clients.value)}
+              trend={formatTrend(data.kpis.active_clients.change_pct)}
+              trendTone={
+                (data.kpis.active_clients.change_pct ?? 0) >= 0
+                  ? "positive"
+                  : "negative"
+              }
+              hint={hint}
+              index={2}
+            />
+            <KpiCard
+              label="Taux de réclamation"
+              value={`${data.kpis.complaint_rate.value} %`}
+              trend={formatTrend(data.kpis.complaint_rate.change_pct)}
+              trendTone={
+                (data.kpis.complaint_rate.change_pct ?? 0) <= 0
+                  ? "positive"
+                  : "negative"
+              }
+              hint={hint}
+              index={3}
+            />
+          </div>
+
+          {/* Répartition par service */}
+          {data.service_breakdown.length > 0 && (
+            <section className="mb-8">
+              <h2 className="mb-3 text-sm font-semibold text-heading">Répartition par service</h2>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {data.service_breakdown.map((s, i) => (
+                  <KpiCard
+                    key={s.service}
+                    label={SERVICE_LABEL[s.service] ?? s.service}
+                    value={fmt(s.completed) + " terminées"}
+                    hint={formatReportingMoney(s.gmv, s.currency)}
+                    index={i}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Alertes */}
+          {data.alerts.length > 0 && (
+            <section className="mb-8">
+              <h2 className="mb-3 text-sm font-semibold text-heading">
+                Alertes qualité
+                <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                  {data.alerts.length}
                 </span>
-                <span className="mt-1 block text-xs leading-relaxed text-muted">
-                  {item.description}
-                </span>
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+              </h2>
+              <div className="space-y-2">
+                {data.alerts.map((alert) => (
+                  <div
+                    key={alert.code}
+                    className={`flex items-center justify-between rounded-card border px-4 py-3 ${SEVERITY_COLOR[alert.severity]}`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={`h-2 w-2 shrink-0 rounded-full ${SEVERITY_DOT[alert.severity]}`} />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{alert.label}</p>
+                        <p className="text-xs opacity-75">{alert.dimension.label}</p>
+                      </div>
+                    </div>
+                    <span className="ml-4 shrink-0 text-sm font-bold">
+                      {alert.value} % <span className="text-xs font-normal opacity-60">/ seuil {alert.threshold} %</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
     </div>
   );
 }

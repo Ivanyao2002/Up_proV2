@@ -30,6 +30,15 @@ import {
   type PartnerType,
 } from "../lib/partnerType";
 import {
+  DEFAULT_PARTNER_LEGAL_FORM,
+  PARTNER_LEGAL_FORM_OPTIONS,
+  type PartnerLegalForm,
+} from "../lib/partnerLegalForm";
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MIN_MESSAGE,
+} from "@/shared/lib/passwordPolicy";
+import {
   EMPTY_PARTNER_CREATE_DOCUMENTS,
   PartnerCreateDocumentsSection,
   partnerCreateDocumentsComplete,
@@ -76,6 +85,11 @@ export function PartnerCreateForm({
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [partnerType, setPartnerType] = useState<PartnerType>(DEFAULT_PARTNER_TYPE);
+  const [legalForm, setLegalForm] = useState<PartnerLegalForm>(
+    DEFAULT_PARTNER_LEGAL_FORM
+  );
+  const [managerFirstName, setManagerFirstName] = useState("");
+  const [managerLastName, setManagerLastName] = useState("");
   const [commissionRate, setCommissionRate] = useState("");
   const [documents, setDocuments] =
     useState<PartnerCreateDocumentsState>(EMPTY_PARTNER_CREATE_DOCUMENTS);
@@ -195,15 +209,13 @@ export function PartnerCreateForm({
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       next.push("Un email valide est requis.");
     }
-    if (password.length < 6) {
-      next.push("Le mot de passe doit contenir au moins 6 caractères.");
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      next.push(PASSWORD_MIN_MESSAGE);
     }
     if (password !== passwordConfirm) {
       next.push("Les mots de passe ne correspondent pas.");
     }
-    if (isAdmin && !legacy && !phoneLocal.trim() && !phone.trim()) {
-      next.push("Le téléphone est recommandé.");
-    }
+    // Téléphone optionnel côté admin (ne bloque pas) ; requis côté self-service.
     if (!isAdmin && !phone.trim()) {
       next.push("Le téléphone est requis.");
     }
@@ -213,8 +225,16 @@ export function PartnerCreateForm({
         next.push("Le taux de commission doit être entre 0 et 100 %.");
       }
     }
-    if (!partnerCreateDocumentsComplete(documents)) {
-      next.push("Le recto et le verso de la pièce d'identité sont obligatoires.");
+    if (legalForm === "COMPANY") {
+      if (!managerFirstName.trim()) next.push("Le prénom du gérant est requis.");
+      if (!managerLastName.trim()) next.push("Le nom du gérant est requis.");
+    }
+    if (!partnerCreateDocumentsComplete(documents, legalForm)) {
+      next.push(
+        legalForm === "COMPANY"
+          ? "Pour une société : pièce du gérant (recto/verso), registre de commerce, statuts et DFE sont obligatoires."
+          : "Le recto et le verso de la pièce d'identité sont obligatoires."
+      );
     }
     return next;
   };
@@ -224,7 +244,14 @@ export function PartnerCreateForm({
     setErrors(next);
     if (next.length) return;
 
-    const uploads = buildPartnerCreateDocumentUploads(documents);
+    const uploads = buildPartnerCreateDocumentUploads(documents, legalForm);
+    const managerFields =
+      legalForm === "COMPANY"
+        ? {
+            manager_first_name: managerFirstName.trim(),
+            manager_last_name: managerLastName.trim(),
+          }
+        : {};
     setIsSubmitting(true);
 
     try {
@@ -244,6 +271,8 @@ export function PartnerCreateForm({
               : "",
           address: address.trim() || undefined,
           partner_type: partnerType,
+          legal_form: legalForm,
+          ...managerFields,
           commission_rate: commissionRate.trim()
             ? Number(commissionRate.replace(",", "."))
             : undefined,
@@ -267,6 +296,8 @@ export function PartnerCreateForm({
         contact_phone: phone.trim(),
         city: city.trim(),
         address: address.trim() || undefined,
+        legal_form: legalForm,
+        ...managerFields,
       };
       const partner = await franchisePartnersService.createWithDocuments(payload, uploads);
       notificationService.success(
@@ -286,7 +317,7 @@ export function PartnerCreateForm({
 
   const submitDisabled =
     isSubmitting ||
-    !partnerCreateDocumentsComplete(documents) ||
+    !partnerCreateDocumentsComplete(documents, legalForm) ||
     (isAdmin &&
       locked &&
       lockedFranchiseLoading) ||
@@ -324,6 +355,62 @@ export function PartnerCreateForm({
             required
           />
         </label>
+
+        <label className="block">
+          <span className={labelClass}>Forme juridique *</span>
+          <select
+            value={legalForm}
+            onChange={(event) =>
+              setLegalForm(event.target.value as PartnerLegalForm)
+            }
+            className={inputClass}
+            required
+          >
+            {PARTNER_LEGAL_FORM_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <span className="mt-1 block text-xs text-muted">
+            {
+              PARTNER_LEGAL_FORM_OPTIONS.find((o) => o.value === legalForm)
+                ?.hint
+            }
+          </span>
+        </label>
+
+        {legalForm === "COMPANY" ? (
+          <fieldset className="space-y-4 rounded-lg border border-border bg-canvas/40 p-4">
+            <legend className="px-1 text-sm font-semibold text-foreground">
+              Gérant / représentant légal
+            </legend>
+            <p className="text-xs text-muted">
+              Personne physique qui dirige la société (distincte du compte de
+              connexion au portail).
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className={labelClass}>Prénom du gérant *</span>
+                <input
+                  value={managerFirstName}
+                  onChange={(event) => setManagerFirstName(event.target.value)}
+                  className={inputClass}
+                  required
+                />
+              </label>
+              <label className="block">
+                <span className={labelClass}>Nom du gérant *</span>
+                <input
+                  value={managerLastName}
+                  onChange={(event) => setManagerLastName(event.target.value)}
+                  className={inputClass}
+                  required
+                />
+              </label>
+            </div>
+          </fieldset>
+        ) : null}
 
         {!isAdmin ? (
           <label className="block">
@@ -513,7 +600,7 @@ export function PartnerCreateForm({
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            minLength={6}
+            minLength={PASSWORD_MIN_LENGTH}
             className={inputClass}
             required
           />
@@ -568,6 +655,7 @@ export function PartnerCreateForm({
         documents={documents}
         onChange={setDocuments}
         disabled={isSubmitting}
+        legalForm={legalForm}
       />
 
       <div className="flex justify-end gap-3 pt-2">

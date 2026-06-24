@@ -431,8 +431,8 @@ export const partnerHandlers = [
         query.search,
         v.plate,
         v.label,
-        v.brand,
-        v.model,
+        (v as { brand?: string }).brand,
+        (v as { model?: string }).model,
         v.category,
         v.driver_name,
         v.approval_status

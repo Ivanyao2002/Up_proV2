@@ -22,7 +22,6 @@ guide-pdf/
 
 # testing
 /coverage
-docs/
 
 # next.js
 /.next/
@@ -47,8 +46,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-# msw
-public/mockServiceWorker.js
 
 .vercel
 .env*
+
+# msw
+public/mockServiceWorker.js
+
+# Claude Code
+CLAUDE.md
+.claude/
+skills-lock.json
+

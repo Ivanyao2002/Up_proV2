@@ -94,6 +94,10 @@ export interface TripTimelineEvent {
   label: string;
   description?: string;
   at: string;
+  /** Étape non encore atteinte (pas de date) — affichée en muted */
+  pending?: boolean;
+  /** Étape courante (current: true côté backend) */
+  is_current?: boolean;
   /** Chauffeurs contactés pendant la recherche (détail par nom + issue) */
   matching_drivers?: TripMatchingDriver[];
 }
@@ -141,6 +145,20 @@ export interface TripDetail extends Trip {
   franchise_name?: string;
   estimated_arrival_at?: string;
   timeline: TripTimelineEvent[];
+  /** Type service API (`RIDE`, `DELIVERY_CARGO`, …) pour routes dispatch. */
+  api_service_type?: string;
+  /** Données spécifiques aux courses FREIGHT */
+  freight_cargo?: {
+    description?: string;
+    weight_kg?: number;
+    volume_m3?: number;
+    vehicle_type_code?: string;
+    package_type_code?: string;
+    customs_required?: boolean;
+    distance_km?: number;
+    payment_status?: string;
+    order_reference?: string;
+  };
 }
 
 export interface Franchise {
@@ -167,6 +185,13 @@ export interface Partner {
   /** FLEET | FREIGHT | RENTAL | MIXED — `GET /v1/partners/{id}` */
   partner_type?: string | null;
   commission_rate?: number | null;
+  /** Forme juridique — INDIVIDUAL (personne physique) | COMPANY (personne morale). */
+  legal_form?: "INDIVIDUAL" | "COMPANY" | null;
+  /** Gérant / représentant légal (renseigné uniquement pour une personne morale). */
+  manager_first_name?: string | null;
+  manager_last_name?: string | null;
+  /** « Prénom Nom » du gérant, calculé côté API. */
+  manager_display_name?: string | null;
 }
 
 export type TransactionType =
@@ -189,6 +214,7 @@ export interface Transaction {
   status: TransactionStatus;
   payment_method: Trip["payment_method"];
   franchise_name: string;
+  service_type?: string;
   created_at: string;
 }
 
@@ -670,6 +696,8 @@ export interface PricingRule {
   base_fare_fcfa: number;
   per_km_fcfa: number;
   min_fare_fcfa: number;
+  waiting_per_minute_fcfa?: number;
+  cancellation_fee_fcfa?: number;
   surge_multiplier: number;
   status: "active" | "draft";
 }

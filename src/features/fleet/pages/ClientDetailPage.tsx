@@ -38,8 +38,8 @@ export function ClientDetailPage({
 }: ClientDetailPageProps) {
   const paths = getFleetClientsPaths(portal);
   const [confirmSuspend, setConfirmSuspend] = useState(false);
-  const adminDetail = useClientDetail(clientId);
-  const franchiseDetail = useFranchiseClientDetail(clientId);
+  const adminDetail = useClientDetail(clientId, portal === "admin");
+  const franchiseDetail = useFranchiseClientDetail(clientId, portal === "franchise");
   const { data, isLoading, isError } =
     portal === "franchise" ? franchiseDetail : adminDetail;
   const adminSuspend = useSuspendClient(clientId);

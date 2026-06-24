@@ -1,17 +1,11 @@
 import type { Driver } from "@/shared/types";
+import { Badge, type BadgeTone } from "./Badge";
 
-const ACCOUNT_LABELS: Record<Driver["account_status"], string> = {
-  pending: "En attente",
-  approved: "Approuvé",
-  suspended: "Suspendu",
-  banned: "Banni",
-};
-
-const ACCOUNT_STYLES: Record<Driver["account_status"], string> = {
-  pending: "bg-amber-50 text-amber-700",
-  approved: "bg-teal/15 text-teal-dark",
-  suspended: "bg-orange-50 text-orange-700",
-  banned: "bg-red-50 text-red-600",
+const ACCOUNT_MAP: Record<Driver["account_status"], { label: string; tone: BadgeTone }> = {
+  pending: { label: "En attente", tone: "warning" },
+  approved: { label: "Approuvé", tone: "success" },
+  suspended: { label: "Suspendu", tone: "danger" },
+  banned: { label: "Banni", tone: "danger" },
 };
 
 const AVAIL_LABELS: Record<Driver["availability"], string> = {
@@ -22,13 +16,8 @@ const AVAIL_LABELS: Record<Driver["availability"], string> = {
 };
 
 export function AccountStatusPill({ status }: { status: Driver["account_status"] }) {
-  return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ACCOUNT_STYLES[status]}`}
-    >
-      {ACCOUNT_LABELS[status]}
-    </span>
-  );
+  const { label, tone } = ACCOUNT_MAP[status];
+  return <Badge tone={tone}>{label}</Badge>;
 }
 
 export function AvailabilityPill({

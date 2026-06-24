@@ -3,9 +3,11 @@ import {
   mapApiPaymentMethod,
   mapApiServiceType,
 } from "@/features/admin/api/adminOrder.shared";
-import type { ApiAdminOrderDetailPayload } from "@/features/ops/api/adminOrderDetail.api.types";
+import type {
+  ApiAdminOrderDetailPayload,
+  ApiAdminOrderDetailResponse,
+} from "@/features/ops/api/adminOrderDetail.api.types";
 import { mapAdminOrderDetailToTripDetail } from "@/features/ops/api/adminOrderDetail.mapper";
-import type { ApiLiveMapOrderBase } from "@/features/ops/api/liveMap.api.types";
 import {
   mapFranchiseOrderToTripDetail,
 } from "@/features/franchise/api/franchisePortal.mapper";
@@ -321,9 +323,11 @@ export function mapPartnerOrderDetailResponse(
       ) as PartnerTripDetail;
     }
     if (order.id || order.pickup_address || order.pickup_latitude) {
+      // mapFranchiseOrderToTripDetail ne lit que response.order (avec fallbacks défensifs).
       return mapFranchiseOrderToTripDetail({
-        order: order as unknown as ApiLiveMapOrderBase,
-      }) as PartnerTripDetail;
+        status: "ok",
+        order: order as unknown as ApiAdminOrderDetailPayload,
+      } as ApiAdminOrderDetailResponse) as PartnerTripDetail;
     }
     return mapPartnerTripPayloadToTripDetail(order, response);
   }

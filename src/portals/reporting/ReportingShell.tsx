@@ -7,6 +7,7 @@ export function ReportingShell({ children }: { children: React.ReactNode }) {
     <PortalShellLayout
       nav={REPORTING_NAV}
       subtitle="Reporting"
+      sidebarAppearance="reporting"
       topbar={(props) => <ReportingTopbar {...props} />}
     >
       {children}

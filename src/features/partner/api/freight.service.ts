@@ -58,6 +58,12 @@ export interface FreightOffer {
   vehicle_id?: string;
 }
 
+/** Détail d'une offre de fret — superset de la liste (statut élargi).
+ *  Les champs géoloc / notes / vehicle_id sont déjà portés par FreightOffer. */
+export interface FreightOfferDetail extends Omit<FreightOffer, "status"> {
+  status: string;
+}
+
 export interface CreateFreightOfferPayload {
   origin_label: string;
   origin_lat: number;
@@ -101,6 +107,12 @@ export const partnerFreightService = {
 
   create: (partnerId: string | number, data: CreateFreightOfferPayload) =>
     apiClient.post<FreightOffer>(LINKS.partner.freight.create(partnerId), data),
+
+  updateStatus: (partnerId: string | number, offerId: string, status: string) =>
+    apiClient.patch<FreightOffer>(
+      LINKS.partner.freight.update(partnerId, offerId),
+      { status }
+    ),
 
 
   update: (partnerId: string | number, offerId: string, data: UpdateFreightOfferPayload) =>

@@ -1,4 +1,5 @@
 import { apiClient } from "@/core/http/apiClient";
+import { resolveFranchiseId } from "@/core/api/franchiseContext.service";
 import { LINKS, appendQuery } from "@/core/api/links";
 import { buildV1ListQuery } from "@/core/api/v1Pagination";
 import { useLegacyPortalApi } from "@/core/api/portalApiMode";
@@ -17,8 +18,17 @@ interface V1ClientsResponse {
 
 interface V1ClientDetailResponse {
   status?: string;
+  client?: Record<string, any>;
   user?: Record<string, any>;
   profile?: Record<string, any>;
+  stats?: {
+    trips_count?: number;
+    trips_completed_count?: number;
+    trips_cancelled_count?: number;
+    total_spent_xof?: number;
+  };
+  wallet?: { balance_xof?: number; balance_fcfa?: number } | null;
+  recent_orders?: Record<string, any>[];
   recentOrders?: Record<string, any>[];
 }
 
@@ -54,17 +64,19 @@ function mapV1ClientItem(item: Record<string, any>): FleetClient {
 }
 
 function mapV1ClientDetail(res: V1ClientDetailResponse): FleetClientDetail {
-  const u = res.user ?? {};
+  const u = res.client ?? res.user ?? {};
   const base = mapV1ClientItem(u);
-  const profile = res.profile ?? {};
+  const s = res.stats ?? {};
+  const walletBalance =
+    res.wallet?.balance_xof ?? res.wallet?.balance_fcfa ??
+    u.wallet_balance_xof ?? u.walletBalanceXof ?? 0;
 
-  const tripsTotal =
-    u.trips_count ?? u.tripsCount ?? profile.orders_completed_count ?? base.trips_count;
-  const wallet = u.wallet_balance_xof ?? u.walletBalanceXof ?? base.wallet_balance_fcfa;
-  const totalSpent = profile.total_spent_xof ?? profile.total_spent_fcfa ?? 0;
-  const cancelled = profile.cancelled_trips_count ?? profile.trips_cancelled ?? 0;
+  const tripsTotal = s.trips_count ?? u.trips_count ?? base.trips_count;
+  const tripsCancelled = s.trips_cancelled_count ?? 0;
+  const totalSpent = s.total_spent_xof ?? 0;
 
-  const recent_trips = (res.recentOrders ?? []).map((o: Record<string, any>) => ({
+  const orders = res.recent_orders ?? res.recentOrders ?? [];
+  const recent_trips = orders.map((o: Record<string, any>) => ({
     id: o.id ?? "",
     ref:
       o.orderReference?.trim() ||
@@ -80,17 +92,17 @@ function mapV1ClientDetail(res: V1ClientDetailResponse): FleetClientDetail {
   const pricedTrips = recent_trips.filter((t) => t.amount_fcfa > 0);
   const avgFare =
     pricedTrips.length > 0
-      ? Math.round(pricedTrips.reduce((s, t) => s + t.amount_fcfa, 0) / pricedTrips.length)
+      ? Math.round(pricedTrips.reduce((acc, t) => acc + t.amount_fcfa, 0) / pricedTrips.length)
       : 0;
 
   return {
     ...base,
     trips_count: tripsTotal,
-    wallet_balance_fcfa: wallet,
+    wallet_balance_fcfa: walletBalance,
     stats: {
       trips_total: tripsTotal,
-      trips_cancelled: cancelled,
-      wallet_balance_fcfa: wallet,
+      trips_cancelled: tripsCancelled,
+      wallet_balance_fcfa: walletBalance,
       total_spent_fcfa: totalSpent,
       avg_fare_fcfa: avgFare,
     },
@@ -124,23 +136,11 @@ export const franchiseClientsService = {
     if (useLegacyPortalApi()) {
       return apiClient.get<FleetClientDetail>(`/franchise/fleet/clients/${id}`);
     }
-    try {
-      const res = await apiClient.get<V1ClientDetailResponse>(
-        `${LINKS.franchise.v1.clients}/${id}`
-      );
-      const errorCode = (res as any)?.error?.code ?? (res as any)?.code;
-      if (errorCode === "ADMIN_REQUIRED") throw new Error("ADMIN_REQUIRED");
-      return mapV1ClientDetail(res);
-    } catch (err: any) {
-      const isAdminRequired =
-        err?.code === "ADMIN_REQUIRED" ||
-        err?.message === "ADMIN_REQUIRED" ||
-        err?.status === 403;
-      if (isAdminRequired) {
-        return apiClient.get<FleetClientDetail>(`/franchise/fleet/clients/${id}`);
-      }
-      throw err;
-    }
+    const franchiseId = await resolveFranchiseId();
+    const res = await apiClient.get<V1ClientDetailResponse>(
+      LINKS.franchise.v1.clientById(franchiseId, id)
+    );
+    return mapV1ClientDetail(res);
   },
 
   suspend: (id: string) =>

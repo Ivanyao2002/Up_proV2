@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
     // MSW mocks + helpers nommés useLegacy* déclenchent rules-of-hooks au build
     ignoreDuringBuilds: true,
   },
+  async headers() {
+    if (process.env.NODE_ENV !== "development") return [];
+    return [
+      {
+        source: "/_next/static/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

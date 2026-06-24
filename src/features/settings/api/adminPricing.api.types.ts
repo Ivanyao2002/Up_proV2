@@ -57,8 +57,11 @@ export interface ApiV1PricingRuleCreateBody {
   per_km_xof: number;
   minimum_fare_xof: number;
   per_minute_xof?: number;
+  waiting_per_minute_xof?: number | null;
+  cancellation_fee_xof?: number | null;
   night_multiplier?: number | null;
   rain_multiplier?: number | null;
+  effective_from?: string | null;
   active: boolean;
 }
 
@@ -70,8 +73,11 @@ export interface ApiV1PricingRulePatchBody {
   per_km_xof?: number;
   minimum_fare_xof?: number;
   per_minute_xof?: number;
+  waiting_per_minute_xof?: number | null;
+  cancellation_fee_xof?: number | null;
   night_multiplier?: number | null;
   rain_multiplier?: number | null;
+  effective_from?: string | null;
   active?: boolean;
   zone_id?: string | null;
 }

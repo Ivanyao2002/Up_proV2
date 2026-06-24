@@ -1,11 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { adminPaths } from "@/core/routes/adminPaths";
-import type { LiveMapData, LiveMapDriver } from "@/shared/types";
+import type { Driver, LiveMapData, LiveMapDriver } from "@/shared/types";
 import { AvailabilityPill } from "@/shared/ui/DriverPills";
 import { formatLiveMapVehicleLine } from "../lib/liveMapDriverDisplay";
 import { LiveMapVehicleColorInfo } from "./LiveMapVehicleColorInfo";
+
+type AvailabilityFilter = "all" | Driver["availability"];
+
+const AVAILABILITY_FILTER_OPTIONS: { value: AvailabilityFilter; label: string }[] = [
+  { value: "all", label: "Toutes dispos" },
+  { value: "online", label: "En ligne" },
+  { value: "on_trip", label: "En course" },
+  { value: "paused", label: "En pause" },
+  { value: "offline", label: "Hors ligne" },
+];
+
+function matchesDriverSearch(driver: LiveMapDriver, query: string): boolean {
+  const haystack = `${driver.name} ${driver.vehicle ?? ""}`.toLowerCase();
+  return haystack.includes(query);
+}
 
 function DriverRow({
   driver,
@@ -107,7 +123,25 @@ export function LiveMapDriversPanel({
   franchiseDriverLinks = false,
   partnerDriverLinks = false,
 }: LiveMapDriversPanelProps) {
-  const online = data.drivers.filter(
+  const [search, setSearch] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] =
+    useState<AvailabilityFilter>("all");
+
+  // Recherche (nom / immatriculation) + filtre disponibilité (#76 audit UX).
+  const filteredDrivers = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return data.drivers.filter((d) => {
+      if (availabilityFilter !== "all" && d.availability !== availabilityFilter) {
+        return false;
+      }
+      if (query && !matchesDriverSearch(d, query)) return false;
+      return true;
+    });
+  }, [data.drivers, search, availabilityFilter]);
+
+  const hasActiveFilter = search.trim() !== "" || availabilityFilter !== "all";
+
+  const online = filteredDrivers.filter(
     (d) => d.availability === "online" || d.availability === "on_trip"
   ).length;
   const showMeta = Boolean(
@@ -135,7 +169,9 @@ export function LiveMapDriversPanel({
       ? data.franchise_summary
           .map((s) => ({
             ...s,
-            drivers: data.drivers.filter((d) => d.franchise_id === s.franchise_id),
+            drivers: filteredDrivers.filter(
+              (d) => d.franchise_id === s.franchise_id
+            ),
           }))
           .filter((g) => g.drivers.length > 0)
       : null;
@@ -147,7 +183,7 @@ export function LiveMapDriversPanel({
             string | number,
             { partner_name: string; drivers: LiveMapDriver[]; active: number }
           >();
-          for (const d of data.drivers) {
+          for (const d of filteredDrivers) {
             const pid = d.partner_id ?? 0;
             const row = map.get(pid) ?? {
               partner_name: d.partner_name ?? "Partenaire",
@@ -183,7 +219,7 @@ export function LiveMapDriversPanel({
             <span className="font-semibold tabular-nums text-heading">
               {data.drivers.filter((d) => d.has_location !== false).length}
             </span>{" "}
-            géolocalisés
+            {hasActiveFilter ? "filtrés" : "géolocalisés"}
           </span>
           {(data.order_markers?.length ?? 0) > 0 && (
             <span>
@@ -193,6 +229,31 @@ export function LiveMapDriversPanel({
               points course
             </span>
           )}
+        </div>
+
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher (nom, immatriculation)…"
+            aria-label="Rechercher un chauffeur"
+            className="min-w-0 flex-1 rounded-lg border border-border bg-canvas px-3 py-2 text-xs text-foreground placeholder:text-muted outline-none ring-teal/30 focus:ring-2"
+          />
+          <select
+            value={availabilityFilter}
+            onChange={(e) =>
+              setAvailabilityFilter(e.target.value as AvailabilityFilter)
+            }
+            aria-label="Filtrer par disponibilité"
+            className="rounded-lg border border-border bg-canvas px-3 py-2 text-xs text-foreground outline-none ring-teal/30 focus:ring-2"
+          >
+            {AVAILABILITY_FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
         {data.drivers.length === 0 && online > 0 && (
           <p className="mt-2 text-xs leading-relaxed text-muted">
@@ -266,7 +327,7 @@ export function LiveMapDriversPanel({
                   ))}
                 </div>
               ))
-            : data.drivers.map((d) => (
+            : filteredDrivers.map((d) => (
                 <DriverRow
                   key={d.id}
                   driver={d}
@@ -275,6 +336,11 @@ export function LiveMapDriversPanel({
                   showTripLinks={showTripLinks}
                 />
               ))}
+        {hasActiveFilter && filteredDrivers.length === 0 && (
+          <p className="py-6 text-center text-xs text-muted">
+            Aucun chauffeur ne correspond à la recherche.
+          </p>
+        )}
       </div>
     </aside>
   );

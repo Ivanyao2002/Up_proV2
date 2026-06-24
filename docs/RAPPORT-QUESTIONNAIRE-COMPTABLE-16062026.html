@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Questionnaire métier — Interface Comptabilité UpJunoo</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #e2e8f0;
+  color: #0f172a;
+  line-height: 1.5;
+}
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 12px auto;
+  background: #fff;
+  position: relative;
+  page-break-after: always;
+  padding: 48px 52px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.page:last-child { page-break-after: auto; }
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; }
+}
+
+.cover {
+  background: #016d71;
+  color: #fff;
+  min-height: 297mm;
+  margin: -48px -52px;
+  padding: 48px 52px;
+  overflow: hidden;
+  position: relative;
+}
+.cover::before, .cover::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; min-height: calc(297mm - 96px); display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill {
+  display: inline-block;
+  margin-top: 28px;
+  background: #f8bb10;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+.cover h1 {
+  margin-top: 48px;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.15;
+  max-width: 92%;
+}
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 8px; font-size: 30px; }
+.cover .lead {
+  margin-top: 24px;
+  max-width: 540px;
+  font-size: 14px;
+  opacity: .92;
+  line-height: 1.6;
+}
+.cover .meta-line {
+  width: 48px;
+  height: 4px;
+  background: #f8bb10;
+  margin: 36px 0 20px;
+}
+.cover .meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  font-size: 12px;
+}
+.cover .meta-grid label {
+  display: block;
+  font-size: 10px;
+  opacity: .75;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 4px;
+}
+.cover-footer {
+  margin-top: auto;
+  padding-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 11px;
+  opacity: .9;
+}
+
+.header {
+  background: #016d71;
+  color: #fff;
+  margin: -48px -52px 28px -52px;
+  padding: 28px 52px;
+}
+.header h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.header .meta { font-size: 12px; opacity: .9; }
+
+.section { margin-bottom: 22px; }
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #016d71;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #016d71;
+}
+
+.summary-box {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  font-size: 12px;
+}
+.summary-box h4 {
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.summary-box ul { margin-left: 18px; }
+.summary-box li { margin-bottom: 5px; }
+
+.alert-box {
+  background: #fefce8;
+  border: 1px solid #fde047;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  font-size: 12px;
+}
+.alert-box strong { color: #713f12; }
+
+.done-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+.done-box h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #016d71;
+  margin-bottom: 10px;
+}
+.done-box ul { margin-left: 18px; font-size: 12px; }
+.done-box li { margin-bottom: 6px; }
+
+.question {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.question:last-child { border-bottom: none; }
+.question-num {
+  display: inline-block;
+  background: #016d71;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 6px;
+  margin-right: 8px;
+  vertical-align: top;
+}
+.question-text {
+  display: inline-block;
+  width: calc(100% - 36px);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+  vertical-align: top;
+}
+.answer-zone {
+  margin-top: 10px;
+  margin-left: 32px;
+  min-height: 36px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.footer {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+}
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1 : COUVERTURE -->
+<div class="page" style="padding:0; box-shadow:none;">
+  <div class="cover">
+    <div class="cover-inner">
+      <div class="logo">Up<span>Junoo</span> Pro</div>
+      <div class="badge-pill">Recueil de besoins métier</div>
+      <h1>Interface Comptabilité<span class="gold">Questionnaire métier</span></h1>
+      <div class="meta-line"></div>
+      <p class="lead">
+        Dans l'ancienne application UpJunoo, il n'existait pas d'espace dédié à la comptabilité.
+        Nous construisons ce module pour la première fois. Ce document présente ce qui a déjà été
+        préparé et recueille <strong>votre retour écrit</strong> sur vos pratiques actuelles afin
+        d'aligner l'outil sur votre métier.
+      </p>
+      <div class="meta-grid" style="margin-top:32px;">
+        <div>
+          <label>Date</label>
+          <div>16 juin 2026</div>
+        </div>
+        <div>
+          <label>Émetteur</label>
+          <div>Équipe Produit / Dev — UpJunoo</div>
+        </div>
+        <div>
+          <label>Destinataire</label>
+          <div>Service Comptabilité</div>
+        </div>
+      </div>
+      <div class="cover-footer">
+        <div>Document confidentiel — Usage interne</div>
+        <div>Réf. RAPPORT-QUESTIONNAIRE-COMPTABLE-16062026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 : CONTEXTE + CE QUI EST FAIT -->
+<div class="page">
+  <div class="header">
+    <h2>Contexte &amp; périmètre</h2>
+    <div class="meta">Page 2 — Modèle économique et fonctionnalités déjà prévues dans l'application</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Pourquoi ce document ?</div>
+    <div class="summary-box">
+      <p style="margin-bottom:10px;">
+        L'objectif n'est pas de valider une maquette technique, mais de comprendre
+        <strong>comment vous travaillez aujourd'hui</strong> (Excel, logiciel compta, relevés Mobile Money, etc.)
+        et de vérifier si ce que nous avons imaginé correspond à votre besoin réel.
+      </p>
+      <p>
+        Merci de répondre <strong>librement par écrit</strong> aux questions des pages suivantes.
+        Les exemples concrets (dernière clôture, dernier export mensuel…) nous aident énormément.
+        Si quelque chose dans la liste « déjà prévu » vous semble inadapté ou incomplet,
+        signalez-le simplement dans vos réponses — pas besoin de tableau de notation.
+      </p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Rappel — modèle UpJunoo (3 notions)</div>
+    <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:16px;">
+      <tr style="background:#f1f5f9;">
+        <th style="padding:8px; text-align:left; border:1px solid #e2e8f0;">Notion</th>
+        <th style="padding:8px; text-align:left; border:1px solid #e2e8f0;">Signification</th>
+        <th style="padding:8px; text-align:left; border:1px solid #e2e8f0;">Exemple (course 10 000 F)</th>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #e2e8f0;"><strong>Recette chauffeur</strong></td>
+        <td style="padding:8px; border:1px solid #e2e8f0;">Cash reçu du client</td>
+        <td style="padding:8px; border:1px solid #e2e8f0;">10 000 FCFA</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #e2e8f0;"><strong>Recharge wallet</strong></td>
+        <td style="padding:8px; border:1px solid #e2e8f0;">Prépaiement pour couvrir les commissions</td>
+        <td style="padding:8px; border:1px solid #e2e8f0;">+5 000 F crédités</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; border:1px solid #e2e8f0;"><strong>Commission UPJUNOO</strong></td>
+        <td style="padding:8px; border:1px solid #e2e8f0;">Prélevée du wallet prépayé du chauffeur</td>
+        <td style="padding:8px; border:1px solid #e2e8f0;">15 % = 1 500 F débités</td>
+      </tr>
+    </table>
+    <div class="alert-box">
+      <strong>Séparation des rôles :</strong> la comptabilité <strong>constate, rapproche, clôture et exporte</strong>.
+      La trésorerie / l'admin <strong>exécute</strong> les paiements (approuver un retrait, recharger un wallet, etc.).
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Ce qui est déjà prévu dans l'application</div>
+    <div class="done-box">
+      <h4>Portail Comptabilité (<code>/compta</code>) — premier jet</h4>
+      <ul>
+        <li><strong>Tableau de bord</strong> — crédits / débits du jour, commissions du mois, retraits en attente (information seulement)</li>
+        <li><strong>Flux entrées / sorties</strong> — vue agrégée par nature de mouvement</li>
+        <li><strong>Journal comptable (ledger)</strong> — consultation, filtres (période, franchise, nature, type de solde), export, extourne</li>
+        <li><strong>Commissions &amp; bénéfices</strong> — liste et consultation</li>
+        <li><strong>Portefeuilles</strong> — soldes chauffeur / partenaire / franchise (solde retirable et solde service si disponible)</li>
+        <li><strong>Réconciliation</strong> — paiements et rapprochement cash</li>
+        <li><strong>Clôtures &amp; périodes</strong> — clôture journalière et mensuelle</li>
+        <li><strong>Transactions, retraits, recharges</strong> — consultation seule (sans approbation des paiements)</li>
+        <li><strong>Rapports &amp; exports</strong> — export du journal et rapports</li>
+      </ul>
+      <p style="font-size:11px; color:#64748b; margin-top:10px;">
+        Si un point ci-dessus ne correspond pas à votre pratique, ou s'il manque quelque chose d'essentiel,
+        merci de nous le signaler dans vos réponses.
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">UpJunoo Pro — Questionnaire Comptabilité — 16/06/2026 — Page 2/5</div>
+</div>
+
+<!-- PAGE 3 : QUESTIONS A + B + C -->
+<div class="page">
+  <div class="header">
+    <h2>Questionnaire — Partie 1</h2>
+    <div class="meta">Votre rôle · L'argent · Le journal comptable (questions 1 à 11)</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">A — Votre rôle au quotidien</div>
+
+    <div class="question">
+      <span class="question-num">1</span>
+      <span class="question-text">Travaillez-vous plutôt en central (toutes les franchises) ou par franchise / pays ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">2</span>
+      <span class="question-text">Quelle est la frontière avec la trésorerie / l'admin ? Qu'est-ce que vous faites et que vous ne faites jamais (ex. approuver un retrait, lancer un virement) ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">3</span>
+      <span class="question-text">Qui vous demande des chiffres en priorité, et à quelle fréquence ? (Direction, franchise, expert-comptable, fiscalité…)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">B — Comment vous voyez l'argent (courses, cash, commissions)</div>
+
+    <div class="question">
+      <span class="question-num">4</span>
+      <span class="question-text">Quand un chauffeur reçoit le paiement cash d'une course, comment le comptabilisez-vous aujourd'hui ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">5</span>
+      <span class="question-text">La commission UPJUNOO prélevée sur le wallet du chauffeur : vous la constatez à chaque course, en fin de journée ou en fin de mois ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">6</span>
+      <span class="question-text">Faites-vous la différence entre l'argent rechargé par le chauffeur (Mobile Money) et les crédits offerts par la plateforme (bonus, promo, non retirable) ? Si oui, pourquoi c'est important pour vous ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">7</span>
+      <span class="question-text">Que faites-vous quand le wallet d'un chauffeur est insuffisant ou négatif ? Est-ce un sujet comptable pour vous ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">C — Journal comptable (ledger)</div>
+
+    <div class="question">
+      <span class="question-num">8</span>
+      <span class="question-text">Aujourd'hui, votre journal des écritures, c'est quoi concrètement ? (Export, Excel, logiciel — lequel ?)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">9</span>
+      <span class="question-text">Quelles colonnes ou informations sont indispensables sur chaque ligne ? (date, libellé, débit, crédit, compte, tiers, n° course, franchise, référence…)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">10</span>
+      <span class="question-text">À quelle fréquence consultez-vous ce journal ? (temps réel, fin de journée, hebdomadaire, mensuel)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">11</span>
+      <span class="question-text">Par quoi filtrez-vous le plus souvent ? (période, franchise, nature du mouvement, chauffeur, partenaire…)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="footer">UpJunoo Pro — Questionnaire Comptabilité — 16/06/2026 — Page 3/5</div>
+</div>
+
+<!-- PAGE 4 : QUESTIONS D + E + F -->
+<div class="page">
+  <div class="header">
+    <h2>Questionnaire — Partie 2</h2>
+    <div class="meta">Commissions · Portefeuilles · Réconciliation (questions 12 à 21)</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">D — Commissions et répartition</div>
+
+    <div class="question">
+      <span class="question-num">12</span>
+      <span class="question-text">Comment ventilez-vous la commission entre centrale, franchise, partenaire et fiscalité ? Utilisez-vous les taux du type 5,7 % / 3 % / 4 % / 2,3 % ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">13</span>
+      <span class="question-text">Avez-vous besoin du détail course par course, ou seulement des totaux par période ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">14</span>
+      <span class="question-text">Comment comptabilisez-vous les bonus chauffeurs (performance, bienvenue) ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">E — Portefeuilles (wallets)</div>
+
+    <div class="question">
+      <span class="question-num">15</span>
+      <span class="question-text">Suivez-vous les soldes chauffeur, partenaire et franchise séparément ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">16</span>
+      <span class="question-text">Les retraits en attente doivent-ils apparaître comme déjà déduits du solde disponible dans votre vue ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">F — Réconciliation</div>
+
+    <div class="question">
+      <span class="question-num">17</span>
+      <span class="question-text">Décrivez étape par étape votre processus de réconciliation Mobile Money (relevé opérateur → compte → écritures).</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">18</span>
+      <span class="question-text">À quelle fréquence faites-vous cette réconciliation ? (quotidien, hebdomadaire…)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">19</span>
+      <span class="question-text">Comment traitez-vous un écart (montant, date, doublon) ? Qui valide ? Faut-il un justificatif ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">20</span>
+      <span class="question-text">Faites-vous aussi une réconciliation cash terrain (courses) ou uniquement digital / Mobile Money ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">21</span>
+      <span class="question-text">Avant de clôturer un mois, qu'est-ce qui doit être 100 % rapproché ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="footer">UpJunoo Pro — Questionnaire Comptabilité — 16/06/2026 — Page 4/5</div>
+</div>
+
+<!-- PAGE 5 : QUESTIONS G + H + I + CLÔTURE -->
+<div class="page">
+  <div class="header">
+    <h2>Questionnaire — Partie 3</h2>
+    <div class="meta">Clôtures · Corrections · Exports · Votre retour libre (questions 22 à 32)</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">G — Clôtures</div>
+
+    <div class="question">
+      <span class="question-num">22</span>
+      <span class="question-text">À quel rythme clôturez-vous ? (jour, semaine, mois)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">23</span>
+      <span class="question-text">Quelle est votre checklist avant une clôture mensuelle ? (listez les points dans l'ordre si possible.)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">24</span>
+      <span class="question-text">Après clôture, peut-on encore modifier des écritures, ou toute correction passe par une extourne (écriture inverse) ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">25</span>
+      <span class="question-text">Qui valide une clôture chez vous ? (vous seule, double validation, direction…)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">H — Corrections (extournes)</div>
+
+    <div class="question">
+      <span class="question-num">26</span>
+      <span class="question-text">Donnez un exemple récent d'erreur corrigée : comment l'avez-vous traitée ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">27</span>
+      <span class="question-text">Une correction = nouvelle écriture inverse sans effacer l'ancienne : est-ce conforme à votre pratique ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">28</span>
+      <span class="question-text">À partir de quel cas exigez-vous une double validation ou un motif écrit obligatoire ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">I — Exports et reporting</div>
+
+    <div class="question">
+      <span class="question-num">29</span>
+      <span class="question-text">Quels fichiers ou rapports produisez-vous chaque mois ? (format : Excel, CSV, PDF, autre)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">30</span>
+      <span class="question-text">Pour qui sont ces exports ? (expert-comptable, direction, franchise, administration fiscale…)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">31</span>
+      <span class="question-text">Quels filtres doivent être possibles à l'export ? (période, franchise, nature des mouvements…)</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+    <div class="question">
+      <span class="question-num">32</span>
+      <span class="question-text">Quels sont vos 5 contrôles les plus importants au quotidien ?</span>
+      <div class="answer-zone">Votre réponse…</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Votre retour libre</div>
+    <div class="summary-box">
+      <p style="margin-bottom:12px;">Merci de compléter ces trois points si possible :</p>
+      <ul>
+        <li><strong>Ce qui vous semble manquer ou bizarre</strong> dans la liste « déjà prévu » (page 2)</li>
+        <li><strong>Ce que vous faites encore en dehors</strong> de tout outil UpJunoo</li>
+        <li><strong>La priorité n°1</strong> si on ne devait développer qu'une seule chose pour vous</li>
+        <li><strong>Tout autre besoin ou vision</strong> que nous n'avons pas évoqué</li>
+      </ul>
+    </div>
+    <div class="answer-zone" style="min-height:120px; margin-left:0;">Votre réponse libre…</div>
+  </div>
+
+  <div class="footer">UpJunoo Pro — Questionnaire Comptabilité — 16/06/2026 — Page 5/5 — Merci pour votre collaboration</div>
+</div>
+
+</body>
+</html>

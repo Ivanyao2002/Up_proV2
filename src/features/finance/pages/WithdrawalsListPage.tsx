@@ -37,7 +37,7 @@ const STATUS_FILTERS: { value: WithdrawalStatus | "all"; label: string }[] = [
   { value: "rejected", label: "Rejetés" },
 ];
 
-export function WithdrawalsListPage() {
+export function WithdrawalsListPage({ readOnly = false }: { readOnly?: boolean }) {
   const [statusFilter, setStatusFilter] = useState<WithdrawalStatus | "all">(
     "pending"
   );
@@ -142,31 +142,35 @@ export function WithdrawalsListPage() {
       cell: (w) => formatDateTime(w.requested_at),
       exportValue: (w) => formatDateTime(w.requested_at),
     },
-    {
-      id: "actions",
-      header: "",
-      exportValue: () => "",
-      cell: (w) =>
-        w.status === "pending" ? (
-          <div className="flex gap-1">
-            <Button
-              className="!py-1 !px-2 !text-xs"
-              onClick={() => setConfirmId(w.id)}
-            >
-              Approuver
-            </Button>
-            <Button
-              variant="secondary"
-              className="!py-1 !px-2 !text-xs"
-              onClick={() => setRejectId(w.id)}
-            >
-              Rejeter
-            </Button>
-          </div>
-        ) : (
-          <span className="text-xs text-muted">—</span>
-        ),
-    },
+    ...(readOnly
+      ? []
+      : [
+          {
+            id: "actions",
+            header: "",
+            exportValue: () => "",
+            cell: (w) =>
+              w.status === "pending" ? (
+                <div className="flex gap-1">
+                  <Button
+                    className="!py-1 !px-2 !text-xs"
+                    onClick={() => setConfirmId(w.id)}
+                  >
+                    Approuver
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="!py-1 !px-2 !text-xs"
+                    onClick={() => setRejectId(w.id)}
+                  >
+                    Rejeter
+                  </Button>
+                </div>
+              ) : (
+                <span className="text-xs text-muted">—</span>
+              ),
+          } satisfies Column<Withdrawal>,
+        ]),
   ];
 
   if (isError) {
@@ -225,34 +229,38 @@ export function WithdrawalsListPage() {
         )}
       />
 
-      <ConfirmModal
-        open={Boolean(confirmId)}
-        title="Approuver ce retrait ?"
-        message={
-          pendingWithdrawal
-            ? `${formatFCFA(pendingWithdrawal.amount_fcfa)} seront versés à ${pendingWithdrawal.owner_name} via ${WITHDRAWAL_METHOD_LABELS[pendingWithdrawal.method]}.`
-            : ""
-        }
-        confirmLabel="Approuver"
-        onConfirm={() => {
-          if (confirmId) approve.mutate(confirmId);
-          setConfirmId(null);
-        }}
-        onCancel={() => setConfirmId(null)}
-      />
+      {!readOnly && (
+        <>
+          <ConfirmModal
+            open={Boolean(confirmId)}
+            title="Approuver ce retrait ?"
+            message={
+              pendingWithdrawal
+                ? `${formatFCFA(pendingWithdrawal.amount_fcfa)} seront versés à ${pendingWithdrawal.owner_name} via ${WITHDRAWAL_METHOD_LABELS[pendingWithdrawal.method]}.`
+                : ""
+            }
+            confirmLabel="Approuver"
+            onConfirm={() => {
+              if (confirmId) approve.mutate(confirmId);
+              setConfirmId(null);
+            }}
+            onCancel={() => setConfirmId(null)}
+          />
 
-      <ConfirmModal
-        open={Boolean(rejectId)}
-        title="Rejeter ce retrait ?"
-        message="Le bénéficiaire sera notifié et les fonds resteront sur le portefeuille."
-        confirmLabel="Rejeter"
-        variant="danger"
-        onConfirm={() => {
-          if (rejectId) reject.mutate(rejectId);
-          setRejectId(null);
-        }}
-        onCancel={() => setRejectId(null)}
-      />
+          <ConfirmModal
+            open={Boolean(rejectId)}
+            title="Rejeter ce retrait ?"
+            message="Le bénéficiaire sera notifié et les fonds resteront sur le portefeuille."
+            confirmLabel="Rejeter"
+            variant="danger"
+            onConfirm={() => {
+              if (rejectId) reject.mutate(rejectId);
+              setRejectId(null);
+            }}
+            onCancel={() => setRejectId(null)}
+          />
+        </>
+      )}
     </div>
   );
 }

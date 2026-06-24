@@ -8,11 +8,69 @@ import {
   mapApiServiceType,
   orderRef,
 } from "@/features/admin/api/adminOrder.shared";
+import { liveMapOrderStatusLabel } from "@/features/ops/api/liveMap.labels";
+import { mapEventsToTimeline, mapDispatchOffers } from "@/features/ops/api/adminOrderDetail.mapper";
+import type { ApiAdminOrderDispatchOffer } from "@/features/ops/api/adminOrderDetail.api.types";
+export type { ApiAdminOrderDetailResponse as ApiFranchiseOrderDetailResponse } from "@/features/ops/api/adminOrderDetail.api.types";
+import type { ApiAdminOrderDetailResponse } from "@/features/ops/api/adminOrderDetail.api.types";
 import type { ApiLiveMapOrderBase } from "@/features/ops/api/liveMap.api.types";
 import type { ApiV1FranchisePartnersResponse } from "@/features/network/api/adminFranchises.api.types";
-import type { Driver, Paginated, Trip, TripDetail, TripsListResponse } from "@/shared/types";
+import type { Driver, Paginated, Trip, TripDetail, TripTimelineEvent, TripStatus, TripsListResponse } from "@/shared/types";
 import type { ListParams } from "@/shared/types/listParams";
 import { paginateClientList } from "@/shared/lib/clientList";
+
+/** Format retourné par le backend franchise pour la timeline d'une course. */
+interface ApiFranchiseTimelineStep {
+  status: string;
+  at: string | null;
+  done: boolean;
+  current: boolean;
+}
+
+interface ApiFranchiseTimeline {
+  current: string;
+  steps: ApiFranchiseTimelineStep[];
+  statusChain?: string[];
+}
+
+/**
+ * Convertit le format timeline backend franchise `{ current, steps[], statusChain[] }`
+ * vers `TripTimelineEvent[]` attendu par le composant `<Timeline>`.
+ *
+ * Logique identique à l'admin (`mapTimelineSteps`) avec extension pour les étapes futures :
+ * - Étapes avec une date (`at` non null) → affichées normalement (done ou non)
+ * - Étapes sans date (`at` null) → affichées en muted (étapes non atteintes)
+ * - Étape courante (`current: true`) → variante "warning" (amber)
+ * - Tri : passées du plus récent au plus ancien, puis futures dans l'ordre du statusChain
+ */
+export function mapFranchiseTimelineStepsToEvents(
+  timeline: ApiFranchiseTimeline | null | undefined
+): TripTimelineEvent[] {
+  if (!timeline?.steps?.length) return [];
+
+  const done = timeline.steps
+    .filter((s) => s.at != null)
+    .map((s, i): TripTimelineEvent => ({
+      id: `step-${s.status}-${i}`,
+      type: mapApiOrderStatus(s.status) as TripStatus,
+      label: liveMapOrderStatusLabel(s.status),
+      at: s.at!,
+      is_current: s.current || undefined,
+    }))
+    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+
+  const pending = timeline.steps
+    .filter((s) => s.at == null)
+    .map((s, i): TripTimelineEvent => ({
+      id: `step-pending-${s.status}-${i}`,
+      type: mapApiOrderStatus(s.status) as TripStatus,
+      label: liveMapOrderStatusLabel(s.status),
+      at: "",
+      pending: true,
+    }));
+
+  return [...done, ...pending];
+}
 
 export interface ApiFranchiseOrdersResponse {
   status?: string;
@@ -20,10 +78,6 @@ export interface ApiFranchiseOrdersResponse {
   pagination?: ApiV1Pagination;
 }
 
-export interface ApiFranchiseOrderDetailResponse {
-  status?: string;
-  order?: ApiLiveMapOrderBase;
-}
 
 export function mapFranchiseDriversToPaginated(
   items: ApiAdminDriverItem[],
@@ -109,43 +163,87 @@ export function mapFranchiseOrdersToTripsList(
 }
 
 export function mapFranchiseOrderToTripDetail(
-  response: ApiFranchiseOrderDetailResponse
+  response: ApiAdminOrderDetailResponse
 ): TripDetail {
-  const order = response.order;
-  if (!order) {
+  const payload = response.order;
+  if (!payload) {
     throw new Error("Order not found in response");
   }
 
-  const baseTrip = mapFranchiseOrderToTrip(order);
-  const amount = order.final_price_xof ?? order.estimated_price_xof ?? 0;
+  // Le ride principal est dans payload.ride, avec fallback sur les champs plats
+  const ride = payload.ride ?? ({} as ApiLiveMapOrderBase);
+  const rideAny = ride as any;
+  const payAny = payload as any;
+
+  // Normalise service_type: la réponse freight utilise `serviceType` (camelCase) ou `service` (flat)
+  const serviceTypeNormalized = payAny.service_type ?? payAny.serviceType ?? payAny.service ?? ride.service_type;
+  const baseTrip = mapFranchiseOrderToTrip({ ...ride, ...payAny, service_type: serviceTypeNormalized } as ApiLiveMapOrderBase);
+  const amount = payload.amountXof ?? ride.final_price_xof ?? ride.estimated_price_xof ?? 0;
+
+  // Coordonnées : d'abord tracking, puis champs directs du ride
+  const tracking = payload.tracking as any;
+  const fromCoords = tracking?.pickup
+    ? { lat: tracking.pickup.latitude ?? 0, lng: tracking.pickup.longitude ?? 0 }
+    : ride.pickup_latitude != null && ride.pickup_longitude != null
+      ? { lat: ride.pickup_latitude, lng: ride.pickup_longitude }
+      : undefined;
+  const toCoords = tracking?.dropoff
+    ? { lat: tracking.dropoff.latitude ?? 0, lng: tracking.dropoff.longitude ?? 0 }
+    : ride.dropoff_latitude != null && ride.dropoff_longitude != null
+      ? { lat: ride.dropoff_latitude, lng: ride.dropoff_longitude }
+      : undefined;
+
+  // Timeline : priorité events[] → steps[] → fallback
+  let timeline = mapEventsToTimeline(payload.events);
+  if (timeline.length === 0 && payload.timeline?.steps?.length) {
+    timeline = mapFranchiseTimelineStepsToEvents(payload.timeline as ApiFranchiseTimeline);
+  }
+
+  // Attacher les chauffeurs contactés (offers) à l'event dispatch/matching
+  const offers = payload.dispatch?.dispatch?.offers ?? payload.dispatch?.dispatch?.candidates as ApiAdminOrderDispatchOffer[] | undefined;
+  const matchingDrivers = mapDispatchOffers(
+    offers as ApiAdminOrderDispatchOffer[],
+    payload.driverName ?? undefined,
+    ride.driver_id ?? undefined
+  );
+  if (matchingDrivers?.length) {
+    const matchingEvent = timeline.find((e) => e.type === "matching");
+    if (matchingEvent) matchingEvent.matching_drivers = matchingDrivers;
+  }
+
+  // Données fret — champ `cargo` (normalisé) ou `freight` (raw)
+  const cargoRaw = payAny.cargo ?? payAny.freight ?? null;
+  const metaEstimate = payAny.freight?.metadata?.estimate ?? payAny.metadata?.estimate ?? null;
+  const isFreight = (payAny.serviceType ?? payAny.service_type ?? payAny.service ?? "").toLowerCase() === "freight";
+  const freightCargo = isFreight && cargoRaw ? {
+    description: cargoRaw.description ?? cargoRaw.cargo_description ?? undefined,
+    weight_kg: cargoRaw.weightKg ?? cargoRaw.cargo_weight_kg ?? undefined,
+    volume_m3: cargoRaw.volumeM3 ?? cargoRaw.cargo_volume_m3 ?? undefined,
+    vehicle_type_code: cargoRaw.vehicleTypeCode ?? cargoRaw.freight_vehicle_type_code ?? cargoRaw.vehicle_type_code ?? undefined,
+    package_type_code: cargoRaw.packageTypeCode ?? cargoRaw.freight_package_type_code ?? undefined,
+    customs_required: cargoRaw.customsRequired ?? cargoRaw.customs_required ?? false,
+    distance_km: metaEstimate?.distanceKm ?? undefined,
+    payment_status: payAny.freight?.payment_status ?? payAny.pricing?.paymentStatus ?? undefined,
+    order_reference: payAny.freight?.order_reference ?? undefined,
+  } : undefined;
 
   return {
     ...baseTrip,
-    // Use type assertion for fields that may exist but aren't in the base type
-    from_coords: (order as any).pickup_location
-      ? {
-          lat: (order as any).pickup_location.lat ?? (order as any).pickup_location.latitude ?? 0,
-          lng: (order as any).pickup_location.lng ?? (order as any).pickup_location.longitude ?? 0,
-        }
-      : undefined,
-    to_coords: (order as any).dropoff_location
-      ? {
-          lat: (order as any).dropoff_location.lat ?? (order as any).dropoff_location.latitude ?? 0,
-          lng: (order as any).dropoff_location.lng ?? (order as any).dropoff_location.longitude ?? 0,
-        }
-      : undefined,
-    client_phone: order.client?.phone ?? undefined,
-    driver_id: order.driver_id ?? undefined,
-    driver_phone: order.driver?.phone ?? undefined,
-    vehicle_id: (order as any).vehicle_id ? String((order as any).vehicle_id) : undefined,
-    vehicle_label: (order as any).vehicle?.label ?? undefined,
-    vehicle_plate: (order as any).vehicle?.plate ?? undefined,
-    driver_location: (order as any).driver_location,
-    commission_fcfa: (order as any).commission_xof ?? Math.round(amount * 0.15),
-    driver_earning_fcfa: (order as any).driver_earning_xof ?? (order as any).driver_gain_xof ?? Math.round(amount * 0.7),
-    zone_name: (order as any).zone_name ?? undefined,
-    franchise_name: (order as any).franchise_name ?? (order as any).franchiseName ?? undefined,
-    estimated_arrival_at: (order as any).estimated_arrival_at ?? undefined,
-    timeline: Array.isArray((order as any).timeline) ? (order as any).timeline : [],
+    from_coords: fromCoords,
+    to_coords: toCoords,
+    client_phone: payload.clientPhone ?? rideAny.client?.phone ?? undefined,
+    driver_id: ride.driver_id ?? undefined,
+    driver_phone: payload.driverPhone ?? rideAny.driver?.phone ?? undefined,
+    vehicle_id: rideAny.vehicle_id ? String(rideAny.vehicle_id) : undefined,
+    vehicle_label: rideAny.vehicle?.label ?? undefined,
+    vehicle_plate: rideAny.vehicle?.plate ?? undefined,
+    driver_location: tracking?.driverLocation ?? undefined,
+    commission_fcfa: payload.commissionXof ?? Math.round(amount * 0.15),
+    driver_earning_fcfa: payload.driverEarningXof ?? ride.driver_gain_xof ?? Math.round(amount * 0.7),
+    zone_name: rideAny.zone_name ?? undefined,
+    franchise_name: payload.franchiseName ?? rideAny.franchiseName ?? undefined,
+    estimated_arrival_at: rideAny.estimated_arrival_at ?? undefined,
+    timeline,
+    freight_cargo: freightCargo,
   };
 }

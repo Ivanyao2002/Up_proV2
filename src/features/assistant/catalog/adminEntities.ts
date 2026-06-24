@@ -377,7 +377,7 @@ export const ENTITY_LIST_API: Partial<
   promos: LINKS.admin.v1.marketing.promos,
   campaigns: LINKS.admin.v1.marketing.campaigns,
   banners: LINKS.admin.v1.marketing.banners,
-  tickets: LINKS.admin.v1.supportTickets,
+  tickets: LINKS.support.tickets.list,
   roles: LINKS.admin.v1.roles,
   pricing: LINKS.admin.v1.pricingRules,
   "commission-rules": LINKS.admin.v1.commissionRules,

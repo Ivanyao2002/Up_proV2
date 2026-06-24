@@ -1,17 +1,19 @@
-function resolvePeriodStatus(status: string): { label: string; className: string } {
+import { Badge, type BadgeTone } from "@/shared/ui/Badge";
+
+function resolvePeriodStatus(status: string): { label: string; tone: BadgeTone } {
   const key = status.toLowerCase();
   if (key === "open") {
-    return { label: "Ouverte", className: "bg-teal/15 text-teal-dark" };
+    return { label: "Ouverte", tone: "success" };
   }
   if (key === "closed") {
-    return { label: "Clôturée", className: "bg-slate-100 text-slate-700 dark:bg-slate-800/50 dark:text-slate-300" };
+    return { label: "Clôturée", tone: "neutral" };
   }
   if (key === "locked") {
-    return { label: "Verrouillée", className: "bg-navy/10 text-navy dark:text-slate-200" };
+    return { label: "Verrouillée", tone: "info" };
   }
   return {
     label: status.charAt(0).toUpperCase() + status.slice(1),
-    className: "bg-canvas text-muted",
+    tone: "neutral",
   };
 }
 
@@ -24,12 +26,6 @@ export function formatPeriodType(type?: string): string {
 }
 
 export function ComptaPeriodStatusPill({ status }: { status: string }) {
-  const resolved = resolvePeriodStatus(status);
-  return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${resolved.className}`}
-    >
-      {resolved.label}
-    </span>
-  );
+  const { label, tone } = resolvePeriodStatus(status);
+  return <Badge tone={tone}>{label}</Badge>;
 }

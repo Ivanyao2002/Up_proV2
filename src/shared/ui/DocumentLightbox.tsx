@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { isRemoteKycPreviewUrl } from "@/shared/lib/documentPreview";
+import { useFocusTrap } from "@/shared/hooks/useFocusTrap";
 
 const ZOOM_LEVELS = [1, 1.25, 1.5, 2] as const;
 
@@ -52,6 +53,16 @@ export function DocumentLightbox({
     height: number;
   } | null>(null);
   const [mounted, setMounted] = useState(false);
+  const dialogRef = useFocusTrap<HTMLDivElement>(open && mounted, onClose);
+
+  const zoomIn = useCallback(
+    () => setZoomIndex((i) => Math.min(ZOOM_LEVELS.length - 1, i + 1)),
+    []
+  );
+  const zoomOut = useCallback(
+    () => setZoomIndex((i) => Math.max(0, i - 1)),
+    []
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -64,7 +75,14 @@ export function DocumentLightbox({
       return;
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (isPdf) return;
+      if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        zoomIn();
+      } else if (e.key === "-" || e.key === "_") {
+        e.preventDefault();
+        zoomOut();
+      }
     };
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -73,7 +91,7 @@ export function DocumentLightbox({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose]);
+  }, [open, isPdf, zoomIn, zoomOut]);
 
   useEffect(() => {
     setNaturalSize(null);
@@ -92,7 +110,9 @@ export function DocumentLightbox({
 
   const content = (
     <div
-      className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black/85 backdrop-blur-sm"
+      ref={dialogRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] flex flex-col overflow-hidden bg-black/85 outline-none backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -110,7 +130,7 @@ export function DocumentLightbox({
               <button
                 type="button"
                 disabled={zoomIndex === 0}
-                onClick={() => setZoomIndex((i) => Math.max(0, i - 1))}
+                onClick={zoomOut}
                 className={toolbarBtn}
                 aria-label="Zoom arrière"
               >
@@ -122,9 +142,7 @@ export function DocumentLightbox({
               <button
                 type="button"
                 disabled={zoomIndex === ZOOM_LEVELS.length - 1}
-                onClick={() =>
-                  setZoomIndex((i) => Math.min(ZOOM_LEVELS.length - 1, i + 1))
-                }
+                onClick={zoomIn}
                 className={toolbarBtn}
                 aria-label="Zoom avant"
               >

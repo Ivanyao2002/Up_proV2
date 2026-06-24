@@ -7,6 +7,11 @@ import type { Paginated } from "@/shared/types";
 import type { ApiAdminDriverItem } from "./adminDrivers.api.types";
 
 function mapAccountStatus(item: ApiAdminDriverItem): Driver["account_status"] {
+  const direct = String(item.account_status ?? "").toLowerCase();
+  if (direct === "approved" || direct === "active") return "approved";
+  if (direct === "suspended") return "suspended";
+  if (direct === "banned") return "banned";
+  if (direct === "pending") return "pending";
   const approval = String(item.approval_status ?? "").toLowerCase();
   if (approval === "approved") return "approved";
   if (approval === "suspended") return "suspended";
@@ -53,6 +58,20 @@ function driverDisplayName(item: ApiAdminDriverItem): {
   first_name: string;
   last_name: string;
 } {
+  // Format /v1/franchises/{id}/partners/{id}/drivers — fullName plat
+  const fullName = item.fullName?.trim();
+  if (fullName && fullName !== "Chauffeur") {
+    const parts = fullName.split(/\s+/);
+    if (parts.length <= 1) return { first_name: fullName, last_name: "" };
+    return { first_name: parts[0], last_name: parts.slice(1).join(" ") };
+  }
+  // Champs plats first_name / last_name
+  const flatFirst = item.first_name?.trim();
+  const flatLast = item.last_name?.trim();
+  if (flatFirst || flatLast) {
+    return { first_name: flatFirst || "Chauffeur", last_name: flatLast ?? "" };
+  }
+  // Format /v1/admin/drivers — profile.displayName
   const profileName = item.profile?.displayName?.trim();
   if (profileName) {
     const parts = profileName.split(/\s+/);
@@ -135,6 +154,13 @@ function driverMatchesFilters(driver: Driver, params?: ListParams): boolean {
     return false;
   }
   if (params?.availability && driver.availability !== params.availability) {
+    return false;
+  }
+  if (
+    params?.service &&
+    params.service !== "all" &&
+    driver.ride_category_code !== params.service
+  ) {
     return false;
   }
   if (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { buildInternationalPhone } from "@/core/api/catalogLookup.service";
@@ -14,6 +14,18 @@ import { getAdminStaffConfig, type AdminStaffKind } from "../api/adminStaff.conf
 import { useCreateStaff } from "../api/adminStaff.queries";
 
 const PORTAL_PASSWORD_MIN = 8;
+
+type StaffFieldKey =
+  | "firstName"
+  | "lastName"
+  | "email"
+  | "countryCode"
+  | "password"
+  | "passwordConfirm";
+
+type FieldErrors = Partial<Record<StaffFieldKey, string>>;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function StaffCreatePage({ kind }: { kind: AdminStaffKind }) {
   const config = getAdminStaffConfig(kind);
@@ -29,12 +41,56 @@ export function StaffCreatePage({ kind }: { kind: AdminStaffKind }) {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const countryRef = useRef<HTMLSelectElement>(null);
+
+  // #47 — autofocus sur le premier champ pertinent.
+  useEffect(() => {
+    firstNameRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (!countries.length || countryCode) return;
     const ci = countries.find((c) => c.code === "CI");
     setCountryCode(ci?.code ?? countries[0]!.code);
   }, [countries, countryCode]);
+
+  const clearFieldError = (field: StaffFieldKey) =>
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+
+  const validateEmailField = () => {
+    const value = email.trim();
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      if (!value || !EMAIL_PATTERN.test(value)) {
+        next.email = "Un email valide est requis.";
+      } else {
+        delete next.email;
+      }
+      return next;
+    });
+  };
+
+  const validatePasswordField = () => {
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      if (password.length < PORTAL_PASSWORD_MIN) {
+        next.password = `Le mot de passe doit contenir au moins ${PORTAL_PASSWORD_MIN} caractères.`;
+      } else {
+        delete next.password;
+      }
+      return next;
+    });
+  };
 
   const selectedCountry = useMemo(
     () => countries.find((country) => country.code === countryCode) ?? null,
@@ -44,21 +100,42 @@ export function StaffCreatePage({ kind }: { kind: AdminStaffKind }) {
   const dialCode = selectedCountry?.dial_code ?? "+225";
 
   const submit = () => {
-    const next: string[] = [];
-    if (!firstName.trim()) next.push("Le prénom est requis.");
-    if (!lastName.trim()) next.push("Le nom est requis.");
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      next.push("Un email valide est requis.");
+    const fields: FieldErrors = {};
+    if (!firstName.trim()) fields.firstName = "Le prénom est requis.";
+    if (!lastName.trim()) fields.lastName = "Le nom est requis.";
+    if (!email.trim() || !EMAIL_PATTERN.test(email)) {
+      fields.email = "Un email valide est requis.";
     }
-    if (!countryCode.trim()) next.push("Sélectionnez un pays.");
+    if (!countryCode.trim()) fields.countryCode = "Sélectionnez un pays.";
     if (password.length < PORTAL_PASSWORD_MIN) {
-      next.push(`Le mot de passe doit contenir au moins ${PORTAL_PASSWORD_MIN} caractères.`);
+      fields.password = `Le mot de passe doit contenir au moins ${PORTAL_PASSWORD_MIN} caractères.`;
     }
     if (password !== passwordConfirm) {
-      next.push("Les mots de passe ne correspondent pas.");
+      fields.passwordConfirm = "Les mots de passe ne correspondent pas.";
     }
+
+    setFieldErrors(fields);
+    const next = Object.values(fields);
     setErrors(next);
-    if (next.length) return;
+
+    if (next.length) {
+      // #42 — focus sur le premier champ invalide.
+      const focusOrder: [StaffFieldKey, () => HTMLElement | null][] = [
+        ["firstName", () => firstNameRef.current],
+        ["lastName", () => lastNameRef.current],
+        ["email", () => emailRef.current],
+        ["countryCode", () => countryRef.current],
+        ["password", () => document.getElementById("staff-password")],
+        ["passwordConfirm", () => document.getElementById("staff-password-confirm")],
+      ];
+      for (const [key, getEl] of focusOrder) {
+        if (fields[key]) {
+          getEl()?.focus();
+          break;
+        }
+      }
+      return;
+    }
 
     const fullPhone = phoneLocal.trim()
       ? buildInternationalPhone(dialCode, phoneLocal)
@@ -95,7 +172,10 @@ export function StaffCreatePage({ kind }: { kind: AdminStaffKind }) {
       </p>
 
       {errors.length > 0 && (
-        <ul className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul
+          role="alert"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}
@@ -113,29 +193,57 @@ export function StaffCreatePage({ kind }: { kind: AdminStaffKind }) {
           <label className="block">
             <span className="text-sm font-medium">Prénom</span>
             <input
+              ref={firstNameRef}
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                clearFieldError("firstName");
+              }}
+              aria-invalid={fieldErrors.firstName ? true : undefined}
+              aria-describedby={fieldErrors.firstName ? "staff-firstName-error" : undefined}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
             />
+            {fieldErrors.firstName && (
+              <p id="staff-firstName-error" className="mt-1 text-xs text-red-600">
+                {fieldErrors.firstName}
+              </p>
+            )}
           </label>
           <label className="block">
             <span className="text-sm font-medium">Nom</span>
             <input
+              ref={lastNameRef}
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={(e) => {
+                setLastName(e.target.value);
+                clearFieldError("lastName");
+              }}
+              aria-invalid={fieldErrors.lastName ? true : undefined}
+              aria-describedby={fieldErrors.lastName ? "staff-lastName-error" : undefined}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
             />
+            {fieldErrors.lastName && (
+              <p id="staff-lastName-error" className="mt-1 text-xs text-red-600">
+                {fieldErrors.lastName}
+              </p>
+            )}
           </label>
         </div>
 
         <label className="block">
           <span className="text-sm font-medium">Pays géré</span>
           <select
+            ref={countryRef}
             value={countryCode}
-            onChange={(e) => setCountryCode(e.target.value)}
+            onChange={(e) => {
+              setCountryCode(e.target.value);
+              clearFieldError("countryCode");
+            }}
             disabled={countriesLoading || !countries.length}
+            aria-invalid={fieldErrors.countryCode ? true : undefined}
+            aria-describedby={fieldErrors.countryCode ? "staff-country-error" : undefined}
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
             required
           >
@@ -148,6 +256,11 @@ export function StaffCreatePage({ kind }: { kind: AdminStaffKind }) {
               </option>
             ))}
           </select>
+          {fieldErrors.countryCode && (
+            <p id="staff-country-error" className="mt-1 text-xs text-red-600">
+              {fieldErrors.countryCode}
+            </p>
+          )}
           <p className="mt-1 text-xs text-muted">{config.countryHint}</p>
         </label>
 
@@ -182,32 +295,69 @@ export function StaffCreatePage({ kind }: { kind: AdminStaffKind }) {
           <label className="block">
             <span className="text-sm font-medium">Email de connexion</span>
             <input
+              ref={emailRef}
               type="email"
               autoComplete="username"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                clearFieldError("email");
+              }}
+              onBlur={validateEmailField}
+              aria-invalid={fieldErrors.email ? true : undefined}
+              aria-describedby={fieldErrors.email ? "staff-email-error" : undefined}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
               required
             />
+            {fieldErrors.email && (
+              <p id="staff-email-error" className="mt-1 text-xs text-red-600">
+                {fieldErrors.email}
+              </p>
+            )}
           </label>
           <label className="block">
             <span className="text-sm font-medium">Mot de passe portail</span>
             <PasswordInput
+              id="staff-password"
               autoComplete="new-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearFieldError("password");
+              }}
+              onBlur={validatePasswordField}
+              aria-invalid={fieldErrors.password ? true : undefined}
+              aria-describedby={fieldErrors.password ? "staff-password-error" : undefined}
               minLength={PORTAL_PASSWORD_MIN}
               required
             />
+            {fieldErrors.password && (
+              <p id="staff-password-error" className="mt-1 text-xs text-red-600">
+                {fieldErrors.password}
+              </p>
+            )}
           </label>
           <label className="block">
             <span className="text-sm font-medium">Confirmer le mot de passe</span>
             <PasswordInput
+              id="staff-password-confirm"
               autoComplete="new-password"
               value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
+              onChange={(e) => {
+                setPasswordConfirm(e.target.value);
+                clearFieldError("passwordConfirm");
+              }}
+              aria-invalid={fieldErrors.passwordConfirm ? true : undefined}
+              aria-describedby={
+                fieldErrors.passwordConfirm ? "staff-password-confirm-error" : undefined
+              }
               required
             />
+            {fieldErrors.passwordConfirm && (
+              <p id="staff-password-confirm-error" className="mt-1 text-xs text-red-600">
+                {fieldErrors.passwordConfirm}
+              </p>
+            )}
             <PasswordMatchIndicator
               className="mt-1"
               password={password}

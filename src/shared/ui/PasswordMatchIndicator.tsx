@@ -1,6 +1,8 @@
 "use client";
 
-const DEFAULT_MIN_LENGTH = 6;
+import { PASSWORD_MIN_LENGTH } from "@/shared/lib/passwordPolicy";
+
+const DEFAULT_MIN_LENGTH = PASSWORD_MIN_LENGTH;
 
 function ruleTextClass(state: "idle" | "ok" | "fail") {
   if (state === "ok") return "text-teal-dark";

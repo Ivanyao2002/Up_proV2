@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Rapport — Plan de recette vs Admin &amp; Compta — 16/06/2026</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #e2e8f0; color: #0f172a; line-height: 1.45; }
+.page { width: 210mm; min-height: 297mm; margin: 12px auto; background: #fff; position: relative; page-break-after: always; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+.page:last-child { page-break-after: auto; }
+@media print { body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+
+/* Couverture */
+.cover { background: #016d71; color: #fff; min-height: 297mm; padding: 48px 52px; overflow: hidden; }
+.cover::before, .cover::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill { display: inline-block; margin-top: 28px; background: #f8bb10; color: #0f172a; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 999px; }
+.cover h1 { margin-top: 40px; font-size: 38px; font-weight: 800; line-height: 1.15; max-width: 92%; }
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 10px; font-size: 32px; }
+.cover .lead { margin-top: 22px; max-width: 540px; font-size: 14px; opacity: .92; }
+.cover .meta-line { width: 48px; height: 4px; background: #f8bb10; margin: 32px 0 18px; }
+.cover .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; font-size: 12px; }
+.cover .meta-grid label { display: block; font-size: 10px; opacity: .75; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.cover-footer { margin-top: auto; padding-top: 36px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; opacity: .9; }
+.cover-footer .dv { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px; }
+
+/* Pages intérieures */
+.inner { padding: 40px 48px 56px; }
+.header { background: #016d71; color: #fff; margin: -40px -48px 28px -48px; padding: 28px 48px; }
+.header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.header .meta { font-size: 12px; opacity: .9; }
+
+h2.section-title { font-size: 22px; font-weight: 800; color: #016d71; margin-bottom: 6px; }
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 22px; }
+.section { margin-bottom: 24px; }
+.section-title-inner { font-size: 15px; font-weight: 700; color: #016d71; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #016d71; }
+
+.finition-band { display: flex; align-items: center; gap: 16px; background: #f0fdfa; border: 1px solid #5eead4; border-radius: 12px; padding: 16px 22px; margin-bottom: 22px; }
+.finition-number { font-size: 44px; font-weight: 800; color: #016d71; line-height: 1; flex-shrink: 0; }
+.finition-desc { font-size: 12px; color: #0f172a; }
+.finition-desc strong { display: block; font-size: 14px; margin-bottom: 4px; color: #016d71; }
+
+.kpi-grid, .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+.kpi, .stat-card { background: #f8fafc; border-radius: 12px; padding: 16px 12px; text-align: center; border: 1px solid #e2e8f0; border-top: 4px solid #016d71; }
+.kpi.gold-top, .stat-card.warning { border-top-color: #f8bb10; }
+.kpi.err-top, .stat-card.error { border-top-color: #ef4444; }
+.kpi .val, .stat-card h3 { font-size: 28px; font-weight: 800; color: #016d71; }
+.stat-card.success h3 { color: #16a34a; }
+.stat-card.error h3 { color: #dc2626; }
+.stat-card.warning h3 { color: #d97706; }
+.kpi .lbl, .stat-card p { font-size: 11px; color: #64748b; margin-top: 4px; font-weight: 600; }
+
+.progress-bar-wrap { background: #e2e8f0; border-radius: 999px; height: 12px; margin: 4px 0 10px 0; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #016d71, #22c55e); }
+.progress-bar.warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.progress-bar.err { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+table.data, table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 16px; }
+table.data thead th, th { background: #016d71; color: #fff; text-align: left; padding: 9px 10px; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; }
+table.data tbody td, td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+th.light { background: #f1f5f9; color: #475569; border-bottom: 2px solid #cbd5e1; }
+
+.badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-err { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+
+.priority { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.priority-high { background: #ef4444; color: #fff; }
+.priority-medium { background: #f59e0b; color: #fff; }
+.priority-low { background: #22c55e; color: #fff; }
+
+.summary-box { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 16px 18px; margin-bottom: 18px; }
+.summary-box h4 { color: #0f766e; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.summary-box ul { margin-left: 18px; font-size: 11px; }
+.summary-box li { margin-bottom: 4px; }
+
+.alert-box { background: #fefce8; border-left: 4px solid #f8bb10; padding: 12px 16px; margin-bottom: 16px; font-size: 11px; border-radius: 0 8px 8px 0; }
+.error-box { background: #fee2e2; border-left: 4px solid #dc2626; padding: 12px 16px; margin-bottom: 16px; font-size: 11px; border-radius: 0 8px 8px 0; }
+.success-box { background: #dcfce7; border-left: 4px solid #16a34a; padding: 12px 16px; margin-bottom: 16px; font-size: 11px; border-radius: 0 8px 8px 0; }
+
+code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-family: 'SF Mono', monospace; font-size: 10px; }
+.page-foot, .footer { font-size: 10px; color: #94a3b8; text-align: center; margin-top: 28px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+.page-foot { position: absolute; bottom: 24px; left: 48px; right: 48px; display: flex; justify-content: space-between; }
+.checklist { font-size: 11px; margin-left: 4px; }
+.checklist li { margin-bottom: 6px; list-style: none; padding-left: 22px; position: relative; }
+.checklist li::before { content: '☐'; position: absolute; left: 0; color: #016d71; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- COUVERTURE -->
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="logo">UPJUNOO <span>PRO</span></div>
+    <div class="badge-pill">● ANALYSE RECETTE &amp; DÉPLOIEMENT</div>
+    <h1>Rapport d'analyse<span class="gold">Plan de recette vs Back-office Admin &amp; Compta</span></h1>
+    <p class="lead">
+      Comparaison détaillée entre le document « Plan complet de recette, test réel, déploiement &amp; migration » (59 slides, jalon 21 juin 2026)
+      et l'état réel du front <code>Up_prov2</code> — portails <strong>/admin</strong> et <strong>/compta</strong>.
+    </p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Auteur</label>COULIBALY ZIE ROMARIC</div>
+      <div><label>Date</label>16 Juin 2026</div>
+      <div><label>Environnement</label>api.upjunoo-dev.tech</div>
+      <div><label>Sources</label>PLAN DE RECETTE ET DEPLOIEMENT.pdf</div>
+      <div><label>Analyse</label>ANALYSE-PLAN-RECETTE-ADMIN-COMPTA.md</div>
+      <div><label>Version</label>1.0 — Confidentiel technique</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">CZ</span>Équipe Développement Frontend — UpJunoo Pro</div>
+      <div>Jalon test réel : Dimanche 21 Juin 2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1 : SYNTHÈSE -->
+<div class="page inner">
+  <h2 class="section-title">Synthèse <span class="gold">exécutive</span></h2>
+  <p class="sub">Couverture globale du plan de recette côté interfaces Central et Finance — lecture au 16/06/2026.</p>
+
+  <div class="finition-band">
+    <div class="finition-number">74%</div>
+    <div class="finition-desc">
+      <strong>Niveau de préparation recette — Admin + Compta</strong>
+      Le back-office couvre le socle opérationnel (réseau, flotte, finance, support, paramétrage). Environ <strong>70 %</strong> des 18 fonctions Central et <strong>85 %</strong> du profil Finance sont adressés en UI.
+      <strong>3 écarts P0</strong> bloquants avant le 21/06 : recharge chauffeur depuis admin (UC-FIN01), dispatch masqué dans la nav, règles dispatch encore sur mock legacy.
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">70%</div><div class="lbl">Fonctions Central (18)</div></div>
+    <div class="kpi gold-top"><div class="val">85%</div><div class="lbl">Profil Finance / Compta</div></div>
+    <div class="kpi err-top"><div class="val">3</div><div class="lbl">Écarts P0 critiques</div></div>
+    <div class="kpi"><div class="val">29</div><div class="lbl">Use cases plan recette</div></div>
+  </div>
+
+  <div class="section-title-inner">Score par portail</div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Portail ADMIN (/admin)</span><span>7/10 — 70%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar warn" style="width:70%"></div></div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Portail COMPTA (/compta)</span><span>8.5/10 — 85%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar" style="width:85%"></div></div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Reporting consolidé (22 rapports slide 21)</span><span>5.5/10 — 55%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar warn" style="width:55%"></div></div>
+  <div style="font-size:11px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;"><span>Multiservices (VTC + livraison + fret + location)</span><span>4.5/10 — 45%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar err" style="width:45%"></div></div>
+
+  <div class="error-box">
+    <strong>Écart métier #1 — UC-FIN01 :</strong> Le plan interdit toute recharge wallet chauffeur/livreur depuis le central.
+    L'admin expose <code>/admin/finance/driver-transfers</code> avec <code>AdminDriverRechargeModal</code> → <strong>non conforme</strong>. Test négatif recette en échec si non arbitré.
+  </div>
+
+  <div class="summary-box">
+    <h4>Points forts identifiés</h4>
+    <ul>
+      <li>Réseau complet : franchises, zones, partenaires, comptables</li>
+      <li>Flotte : chauffeurs, véhicules, KYC, clients</li>
+      <li>Finance admin riche + portail compta structuré (journal, périodes, réconciliation)</li>
+      <li>Support tickets + chat ; paramétrage tarifs, commissions, bonus, audit</li>
+      <li>Compta : retraits en lecture seule, philosophie « sans exécution des paiements »</li>
+    </ul>
+  </div>
+
+  <div class="page-foot"><span>COULIBALY ZIE ROMARIC — UpJunoo Pro</span><span>Page 1 / 6</span></div>
+</div>
+
+<!-- PAGE 2 : MAPPING INTERFACES -->
+<div class="page inner">
+  <div class="header">
+    <h1>Correspondance — 8 interfaces plan vs portails Up_prov2</h1>
+    <div class="meta">Slide 24 du plan · Architecture back-office web attendue</div>
+  </div>
+
+  <table class="data">
+    <thead>
+      <tr><th>#</th><th>Interface plan</th><th>Implémentation</th><th>URL</th><th>Statut</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>01</td><td>Administrateur central</td><td>Portail Admin</td><td><code>/admin</code></td><td><span class="badge badge-ok">OK — fusionné paramétrage</span></td></tr>
+      <tr><td>02</td><td>Support</td><td>Module admin support</td><td><code>/admin/support/*</code></td><td><span class="badge badge-warn">OK — pas de silo dédié</span></td></tr>
+      <tr><td>03</td><td>Finance</td><td>Portail Compta</td><td><code>/compta</code></td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>04</td><td>Partenaire</td><td>Portail Partner</td><td><code>/partner</code></td><td><span class="badge badge-neutral">Hors périmètre</span></td></tr>
+      <tr><td>05</td><td>Franchise</td><td>Portail Franchise</td><td><code>/franchise</code></td><td><span class="badge badge-neutral">Hors périmètre</span></td></tr>
+      <tr><td>06</td><td>Reporting</td><td>Dashboards + exports</td><td><code>/admin/dashboard</code>, <code>/compta/exports</code></td><td><span class="badge badge-warn">Partiel — pas de /reporting</span></td></tr>
+      <tr><td>07</td><td>Paramétrage</td><td>Admin Settings</td><td><code>/admin/settings/*</code></td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>08</td><td>Suivi anomalies</td><td>Audit partiel</td><td><code>/admin/settings/audit</code></td><td><span class="badge badge-err">Manquant — registre recette</span></td></tr>
+      <tr><td>—</td><td>Exploitation dispatch</td><td>Portail Dispatch + page admin</td><td><code>/dispatch</code>, <code>/admin/ops/dispatch</code></td><td><span class="badge badge-warn">Existe — nav admin masquée</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title-inner">18 fonctions Central (slide 15)</div>
+  <table class="data">
+    <thead><tr><th>#</th><th>Fonction</th><th>Admin</th><th>Compta</th><th>Commentaire</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>Administration globale</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td><code>settings/general</code></td></tr>
+      <tr><td>02</td><td>Supervision tous services</td><td><span class="badge badge-warn">Partiel</span></td><td>—</td><td>Fret/location/livreurs absents</td></tr>
+      <tr><td>03–07</td><td>Franchises, partenaires, chauffeurs, clients</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td>Livreurs (#06) : <span class="badge badge-err">Absent</span></td></tr>
+      <tr><td>08–11</td><td>Tarifs, commissions, bonus, zones</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td>Bonus auto UC-FR02 à valider API</td></tr>
+      <tr><td>12</td><td>Wallets lecture seule</td><td><span class="badge badge-err">Écart</span></td><td><span class="badge badge-ok">OK</span></td><td>Admin peut recharger chauffeurs</td></tr>
+      <tr><td>13</td><td>Réclamations</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td>SLA non implémenté</td></tr>
+      <tr><td>14–15</td><td>Reporting + exports</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="badge badge-warn">Partiel</span></td><td>22 rapports incomplets</td></tr>
+      <tr><td>16–18</td><td>Audit, rôles, conformité</td><td><span class="badge badge-warn">Partiel</span></td><td>—</td><td>RBAC API partiel</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>COULIBALY ZIE ROMARIC — UpJunoo Pro</span><span>Page 2 / 6</span></div>
+</div>
+
+<!-- PAGE 3 : INVENTAIRE ADMIN -->
+<div class="page inner">
+  <div class="header">
+    <h1>Inventaire écrans — Portail Admin</h1>
+    <div class="meta">Réf. <code>src/portals/admin/adminNav.ts</code> · 75 routes page.tsx</div>
+  </div>
+
+  <table class="data">
+    <thead><tr><th>Groupe</th><th>Écran</th><th>Route</th><th>Plan / UC</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>OPÉRATIONS</td><td>Tableau de bord</td><td><code>/admin/dashboard</code></td><td>UC-C01</td><td><span class="badge badge-warn">Filtre franchise seul</span></td></tr>
+      <tr><td>OPÉRATIONS</td><td>Carte live</td><td><code>/admin/ops/map</code></td><td>Supervision</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>OPÉRATIONS</td><td>Courses</td><td><code>/admin/ops/trips</code></td><td>UC-T02/T03</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>OPÉRATIONS</td><td>SOS Guardian</td><td><code>/admin/ops/sos</code></td><td>Incidents</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>OPÉRATIONS</td><td>Dispatch / Crise</td><td><code>/admin/ops/dispatch</code></td><td>Exploitation</td><td><span class="badge badge-warn">Hors sidebar</span></td></tr>
+      <tr><td>RÉSEAU</td><td>Franchises · Zones · Partenaires</td><td><code>/admin/network/*</code></td><td>#03–04, #11</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>FLOTTE</td><td>Chauffeurs · Véhicules · KYC · Clients</td><td><code>/admin/fleet/*</code></td><td>#05, #07</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>FLOTTE</td><td>Livreurs</td><td>—</td><td>#06</td><td><span class="badge badge-err">Absent</span></td></tr>
+      <tr><td>FINANCE</td><td>Hub + transactions + retraits</td><td><code>/admin/finance/*</code></td><td>UC-FIN</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>FINANCE</td><td>Recharges chauffeurs</td><td><code>/admin/finance/driver-transfers</code></td><td>UC-FIN01</td><td><span class="badge badge-err">Non conforme plan</span></td></tr>
+      <tr><td>FINANCE</td><td>Commissions · règles · réconciliation</td><td><code>/admin/finance/…</code></td><td>UC-A01b</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>SUPPORT</td><td>Tickets · Chat</td><td><code>/admin/support/*</code></td><td>UC-C03, UC-S01</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>PARAMÈTRES</td><td>Dispatch rules · rôles · pricing</td><td><code>/admin/settings/*</code></td><td>UC-A01</td><td><span class="badge badge-warn">Dispatch = mock</span></td></tr>
+      <tr><td>PARAMÈTRES</td><td>Dispatchers</td><td><code>/admin/settings/dispatchers</code></td><td>Exploitation</td><td><span class="badge badge-warn">Hors sidebar</span></td></tr>
+      <tr><td>PARAMÈTRES</td><td>Audit · météo · intégrations</td><td><code>/admin/settings/*</code></td><td>UC-AU01</td><td><span class="badge badge-warn">Partiel</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert-box">
+    <strong>Pages existantes mais masquées dans la navigation :</strong>
+    <code>/admin/ops/dispatch</code>, <code>/admin/ops/crisis</code>, <code>/admin/settings/dispatchers</code>, <code>/admin/support/disputes/[id]</code>.
+    Accessibles par URL directe uniquement.
+  </div>
+
+  <div class="page-foot"><span>COULIBALY ZIE ROMARIC — UpJunoo Pro</span><span>Page 3 / 6</span></div>
+</div>
+
+<!-- PAGE 4 : INVENTAIRE COMPTA -->
+<div class="page inner">
+  <div class="header">
+    <h1>Inventaire écrans — Portail Compta</h1>
+    <div class="meta">Réf. <code>src/portals/compta/comptaNav.ts</code> · Login <code>/compta/login</code></div>
+  </div>
+
+  <div class="success-box">
+    <strong>Alignement plan Finance (UC-03) :</strong> le dashboard compta précise « consultation et clôture comptable — sans exécution des paiements ».
+    Retraits en <code>readOnly</code> — cohérent avec le rôle Finance du plan de recette.
+  </div>
+
+  <table class="data">
+    <thead><tr><th>Groupe</th><th>Écran</th><th>Route</th><th>Plan</th><th>Statut</th></tr></thead>
+    <tbody>
+      <tr><td>COMPTABILITÉ</td><td>Tableau de bord</td><td><code>/compta</code></td><td>UC-C02</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>COMPTABILITÉ</td><td>Flux entrées / sorties</td><td><code>/compta/flows</code></td><td>Export #15</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>COMPTABILITÉ</td><td>Journal comptable</td><td><code>/compta/ledger</code></td><td>Export comptable</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>COMPTABILITÉ</td><td>Commissions &amp; bénéfices</td><td><code>/compta/commissions</code></td><td>UC-FIN03</td><td><span class="badge badge-ok">OK — valider terrain</span></td></tr>
+      <tr><td>COMPTABILITÉ</td><td>Portefeuilles</td><td><code>/compta/wallets</code></td><td>#12 consultation</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>COMPTABILITÉ</td><td>Réconciliation</td><td><code>/compta/reconciliation</code></td><td>Cohérence fin.</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>COMPTABILITÉ</td><td>Clôtures &amp; périodes</td><td><code>/compta/periods</code></td><td>—</td><td><span class="badge badge-ok">OK</span></td></tr>
+      <tr><td>CONSULTATION</td><td>Transactions · Retraits · Recharges</td><td><code>/compta/…</code></td><td>UC-FIN01</td><td><span class="badge badge-ok">Consultation seule</span></td></tr>
+      <tr><td>ACTIONS</td><td>Rapports &amp; exports</td><td><code>/compta/exports</code></td><td>#22 CSV/Excel</td><td><span class="badge badge-warn">CSV local surtout</span></td></tr>
+      <tr><td>ACTIONS</td><td>Finance opérationnelle</td><td><code>/admin/finance</code></td><td>—</td><td><span class="badge badge-warn">Lien cross-portail</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title-inner">Écarts spécifiques Compta</div>
+  <table class="data">
+    <thead><tr><th>Écart</th><th>Impact recette</th><th>Priorité</th></tr></thead>
+    <tbody>
+      <tr><td>Pas de portail auditeur / conformité dédié</td><td>UC-AU01 testé côté admin</td><td><span class="priority priority-medium">P1</span></td></tr>
+      <tr><td>Pas de reporting opérationnel multiservices</td><td>UC-C02 partiel</td><td><span class="priority priority-medium">P1</span></td></tr>
+      <tr><td>Workflow réclamation → remboursement invisible</td><td>UC-S01 incomplet</td><td><span class="priority priority-medium">P1</span></td></tr>
+      <tr><td>Exports Excel/PDF non systématiques</td><td>Slide 21 #22</td><td><span class="priority priority-low">P2</span></td></tr>
+      <tr><td>7 sous-comptes centraux non différenciés UI</td><td>UC-03</td><td><span class="priority priority-low">P2</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>COULIBALY ZIE ROMARIC — UpJunoo Pro</span><span>Page 4 / 6</span></div>
+</div>
+
+<!-- PAGE 5 : USE CASES -->
+<div class="page inner">
+  <div class="header">
+    <h1>Matrice — 29 use cases recette × back-office</h1>
+    <div class="meta">Slide 29 · Criticité plan · Couverture Admin / Compta</div>
+  </div>
+
+  <table class="data">
+    <thead><tr><th>UC</th><th>Intitulé</th><th>Crit.</th><th>Admin</th><th>Compta</th><th>Écart principal</th></tr></thead>
+    <tbody>
+      <tr><td>UC-01</td><td>Création compte client</td><td>C</td><td><span class="badge badge-warn">Partiel</span></td><td>—</td><td>Création = app mobile</td></tr>
+      <tr><td>UC-02</td><td>Reconnexion</td><td>C</td><td><span class="badge badge-ok">OK</span></td><td><span class="badge badge-ok">OK</span></td><td>Logins séparés</td></tr>
+      <tr><td>UC-03</td><td>Rôles &amp; droits</td><td>C</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="badge badge-ok">OK</span></td><td>RBAC API</td></tr>
+      <tr><td>UC-T01–05</td><td>Transport VTC</td><td>C/M</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td>Suivi back-office OK</td></tr>
+      <tr><td>UC-L01–04</td><td>Livraison</td><td>—</td><td><span class="badge badge-warn">Partiel</span></td><td>—</td><td>Pas de vue livreur</td></tr>
+      <tr><td>UC-F01–02</td><td>Fret</td><td>—</td><td>—</td><td>—</td><td>Portail partenaire</td></tr>
+      <tr><td>UC-LO01–02</td><td>Location</td><td>—</td><td><span class="badge badge-err">KO</span></td><td>—</td><td>Pas d'UI admin</td></tr>
+      <tr><td>UC-FIN01</td><td>Recharge wallet</td><td>C</td><td><span class="badge badge-err">KO</span></td><td><span class="badge badge-ok">OK</span></td><td>Admin recharge = violation</td></tr>
+      <tr><td>UC-FIN02–03</td><td>Commission &amp; répartition</td><td>C</td><td><span class="badge badge-ok">OK</span></td><td><span class="badge badge-ok">OK</span></td><td>Valider chiffres terrain</td></tr>
+      <tr><td>UC-FIN04</td><td>Solde insuffisant</td><td>C</td><td><span class="badge badge-warn">Partiel</span></td><td>—</td><td>Règle dispatch wallet</td></tr>
+      <tr><td>UC-P01–02</td><td>Partenaires</td><td>C/M</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td>—</td></tr>
+      <tr><td>UC-FR01–02</td><td>Franchise &amp; bonus</td><td>C</td><td><span class="badge badge-warn">Partiel</span></td><td>—</td><td>Portail /franchise</td></tr>
+      <tr><td>UC-C01–02</td><td>Dashboard &amp; reporting</td><td>C</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="badge badge-warn">Partiel</span></td><td>Filtres &amp; 4 services</td></tr>
+      <tr><td>UC-C03 / UC-S01</td><td>Réclamations</td><td>M</td><td><span class="badge badge-warn">Partiel</span></td><td><span class="badge badge-warn">Partiel</span></td><td>SLA &amp; workflow finance</td></tr>
+      <tr><td>UC-A01</td><td>Param tarifs / comm / bonus</td><td>C</td><td><span class="badge badge-ok">OK</span></td><td>—</td><td>Fret/location à valider</td></tr>
+      <tr><td>UC-AU01</td><td>Audit inviolable</td><td>C</td><td><span class="badge badge-warn">Partiel</span></td><td>—</td><td>Backend + export</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title-inner">22 rapports consolidés (slide 21) — taux de couverture</div>
+  <div class="stats-grid">
+    <div class="stat-card success"><h3>11</h3><p>Rapports couverts (✅)</p></div>
+    <div class="stat-card warning"><h3>8</h3><p>Partiels (⚠️)</p></div>
+    <div class="stat-card error"><h3>3</h3><p>Absents (❌)</p></div>
+    <div class="stat-card warning"><h3>50%</h3><p>Taux annulation / accept. / fin.</p></div>
+  </div>
+
+  <div class="page-foot"><span>COULIBALY ZIE ROMARIC — UpJunoo Pro</span><span>Page 5 / 6</span></div>
+</div>
+
+<!-- PAGE 6 : ACTIONS -->
+<div class="page inner">
+  <div class="header">
+    <h1>Écarts critiques &amp; plan d'action — avant le 21 juin 2026</h1>
+    <div class="meta">Priorisation P0 / P1 / P2 · Checklist jour de test</div>
+  </div>
+
+  <table class="data">
+    <thead><tr><th>Prio</th><th>Écart</th><th>Action recommandée</th><th>Responsable</th></tr></thead>
+    <tbody>
+      <tr><td><span class="priority priority-high">P0</span></td><td>Recharge chauffeur admin (UC-FIN01)</td><td>Désactiver <code>AdminDriverRechargeModal</code> OU dérogation produit écrite</td><td>Produit + Front</td></tr>
+      <tr><td><span class="priority priority-high">P0</span></td><td>Dispatch masqué sidebar</td><td>Réactiver nav dispatch + dispatchers ; tester console</td><td>Front</td></tr>
+      <tr><td><span class="priority priority-high">P0</span></td><td>Dispatch-rules sur mock</td><td>Brancher <code>/v1/admin/dispatch-config</code></td><td>Front + API</td></tr>
+      <tr><td><span class="priority priority-medium">P1</span></td><td>Dashboard filtres UC-C01</td><td>Ajouter service, zone, partenaire</td><td>Front</td></tr>
+      <tr><td><span class="priority priority-medium">P1</span></td><td>Taux annulation / acceptation</td><td>KPI reporting slide 21 #18–20</td><td>Front + API</td></tr>
+      <tr><td><span class="priority priority-medium">P1</span></td><td>Workflow réclamation → finance</td><td>UC-S01 guidé support + compta</td><td>Front</td></tr>
+      <tr><td><span class="priority priority-medium">P1</span></td><td>Exports compta Excel/PDF</td><td>Compléter <code>/compta/exports</code></td><td>Front</td></tr>
+      <tr><td><span class="priority priority-low">P2</span></td><td>Livreurs · location · fret central</td><td>Écrans admin ou doc de contournement</td><td>Produit</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title-inner">Checklist recette — Admin + Compta (21/06)</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <strong style="font-size:12px;color:#016d71;">Scénarios ADMIN</strong>
+      <ul class="checklist">
+        <li>UC-03 : menus selon permissions</li>
+        <li>UC-T02/T03 : course visible pendant cycle mobile</li>
+        <li>UC-P01 : validation partenaire</li>
+        <li>UC-A01 : tarif / commission sur nouvelle course</li>
+        <li>UC-C03 : ticket support → clôture</li>
+        <li>UC-FIN01 test négatif : pas de recharge central</li>
+        <li>UC-AU01 : trace audit après action sensible</li>
+      </ul>
+    </div>
+    <div>
+      <strong style="font-size:12px;color:#016d71;">Scénarios COMPTA</strong>
+      <ul class="checklist">
+        <li>Login + périmètre pays affiché</li>
+        <li>UC-FIN02/03 : commission visible ledger</li>
+        <li>Réconciliation sans écart lot test</li>
+        <li>Clôture période (dry-run)</li>
+        <li>Export CSV flows / ledger</li>
+        <li>Retraits lecture seule confirmée</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="summary-box" style="margin-top:20px;">
+    <h4>Documents de référence</h4>
+    <ul>
+      <li><code>docs/PLAN DE RECETTE ET DEPLOIEMENT.pdf</code> — source exigences</li>
+      <li><code>docs/ANALYSE-PLAN-RECETTE-ADMIN-COMPTA.md</code> — analyse détaillée (457 lignes)</li>
+      <li><code>docs/BACKEND-RESPONSES-DISPATCH-METEO.md</code> — dispatch-config API</li>
+      <li><code>src/portals/admin/adminNav.ts</code> · <code>src/portals/compta/comptaNav.ts</code></li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Rapport généré le 16/06/2026 — COULIBALY ZIE ROMARIC | UPJUNOO PRO — Équipe Frontend<br/>
+    Ouvrir dans le navigateur → Imprimer → PDF pour archivage
+  </div>
+</div>
+
+</body>
+</html>

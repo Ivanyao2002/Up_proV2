@@ -38,3 +38,10 @@ export function formatDate(iso: string | null | undefined): string {
     dateStyle: "short",
   }).format(d);
 }
+
+export function timeAgo(iso: string): string {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60)   return "à l'instant";
+  if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
+  return `il y a ${Math.floor(diff / 3600)} h`;
+}

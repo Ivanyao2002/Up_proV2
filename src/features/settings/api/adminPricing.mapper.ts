@@ -21,14 +21,32 @@ export interface PricingLookupMaps {
 const CATEGORY_OPTIONS = ["ECO", "CONFORT", "CONFORT+", "PREMIUM"] as const;
 
 export function mapUiServiceToApi(service: PricingRule["service"]): string {
-  return service === "delivery" ? "DELIVERY" : "RIDE";
+  switch (service) {
+    case "delivery":
+      return "DELIVERY";
+    case "freight":
+      return "FREIGHT";
+    case "rental":
+      return "RENTAL";
+    default:
+      return "RIDE";
+  }
 }
 
 export function mapApiServiceToUi(
   serviceType?: string | null
 ): PricingRule["service"] {
   const key = String(serviceType ?? "").toUpperCase();
-  return key === "DELIVERY" ? "delivery" : "taxi";
+  switch (key) {
+    case "DELIVERY":
+      return "delivery";
+    case "FREIGHT":
+      return "freight";
+    case "RENTAL":
+      return "rental";
+    default:
+      return "taxi";
+  }
 }
 
 export function resolveSurgeMultiplier(item: ApiV1PricingRuleItem): number {
@@ -77,6 +95,8 @@ export function mapApiPricingRuleToUi(
     base_fare_fcfa: item.base_fare_xof ?? 0,
     per_km_fcfa: item.per_km_xof ?? 0,
     min_fare_fcfa: item.minimum_fare_xof ?? 0,
+    waiting_per_minute_fcfa: item.waiting_per_minute_xof ?? undefined,
+    cancellation_fee_fcfa: item.cancellation_fee_xof ?? undefined,
     surge_multiplier: resolveSurgeMultiplier(item),
     status: item.active ? "active" : "draft",
   };
@@ -173,8 +193,11 @@ export function mapCreatePayloadToApi(
     base_fare_xof: payload.base_fare_fcfa ?? 0,
     per_km_xof: payload.per_km_fcfa ?? 0,
     minimum_fare_xof: payload.min_fare_fcfa ?? 0,
+    waiting_per_minute_xof: payload.waiting_per_minute_fcfa ?? null,
+    cancellation_fee_xof: payload.cancellation_fee_fcfa ?? null,
     night_multiplier:
       (payload.surge_multiplier ?? 1) > 1 ? payload.surge_multiplier : null,
+    effective_from: payload.effectiveFrom?.trim() || null,
     active: payload.status === "active",
   };
 }
@@ -191,11 +214,20 @@ export function mapUpdatePayloadToApi(
   if (payload.base_fare_fcfa != null) body.base_fare_xof = payload.base_fare_fcfa;
   if (payload.per_km_fcfa != null) body.per_km_xof = payload.per_km_fcfa;
   if (payload.min_fare_fcfa != null) body.minimum_fare_xof = payload.min_fare_fcfa;
+  if (payload.waiting_per_minute_fcfa != null) {
+    body.waiting_per_minute_xof = payload.waiting_per_minute_fcfa;
+  }
+  if (payload.cancellation_fee_fcfa != null) {
+    body.cancellation_fee_xof = payload.cancellation_fee_fcfa;
+  }
   if (payload.surge_multiplier != null) {
     body.night_multiplier =
       payload.surge_multiplier > 1 ? payload.surge_multiplier : null;
   }
   if (payload.status != null) body.active = payload.status === "active";
+  if (payload.effectiveFrom != null) {
+    body.effective_from = payload.effectiveFrom.trim() || null;
+  }
   return body;
 }
 

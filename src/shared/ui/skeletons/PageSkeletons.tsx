@@ -249,6 +249,51 @@ export function EntityListSkeleton({ title }: { title: string }) {
   );
 }
 
+/** Support — tableau de bord (KPI + tickets en attente + anomalies) */
+export function SupportDashboardSkeleton() {
+  return (
+    <div className="animate-fade-up" aria-busy="true" aria-label="Chargement du tableau de bord">
+      <PageHeaderSkeleton title="Tableau de bord" breadcrumb={["Support"]} />
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {KPI_DARK_VARIANTS.map((variant) => (
+          <KpiCardSkeleton key={variant} variant={variant} compact />
+        ))}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+        <div className="rounded-card border border-border bg-surface shadow-card">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+            <Bone className="h-4 w-40" />
+            <Bone className="h-3 w-16" />
+          </div>
+          <TableBlockSkeleton rows={4} />
+        </div>
+        <div className="space-y-4">
+          <div className="rounded-card border border-border bg-surface shadow-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <Bone className="h-4 w-36" />
+              <Bone className="h-3 w-14" />
+            </div>
+            <div className="divide-y divide-border">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-start gap-3 px-4 py-3">
+                  <Bone className="mt-1.5 h-2 w-2 shrink-0 rounded-full" />
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <Bone className="h-3 w-36" />
+                    <Bone className="h-3 w-48" />
+                    <Bone className="h-3 w-24" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Bone className="h-[66px] w-full rounded-card" />
+          <Bone className="h-[66px] w-full rounded-card" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Bloc simple remplaçant l'ancien `h-64 bg-border` */
 export function SimplePageSkeleton({ title }: { title?: string }) {
   return (

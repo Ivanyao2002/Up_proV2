@@ -1,0 +1,26 @@
+{
+  "services": [
+    { "value": "taxi", "label": "VTC" },
+    { "value": "delivery", "label": "Livraison" },
+    { "value": "freight", "label": "Fret" },
+    { "value": "rental", "label": "Location" }
+  ],
+  "countries": [
+    { "code": "CI", "name": "Côte d'Ivoire" }
+  ],
+  "zones": [
+    { "id": "zone-01", "name": "Abidjan", "country_code": "CI" },
+    { "id": "zone-02", "name": "Bouaké", "country_code": "CI" }
+  ],
+  "franchises": [
+    { "id": "FR-001", "name": "Franchise Cocody", "zone_id": "zone-01" },
+    { "id": "FR-002", "name": "Franchise Plateau", "zone_id": "zone-01" },
+    { "id": "FR-003", "name": "Franchise Yopougon", "zone_id": "zone-01" },
+    { "id": "FR-004", "name": "Franchise Abobo", "zone_id": "zone-01" },
+    { "id": "FR-005", "name": "Franchise Marcory", "zone_id": "zone-01" }
+  ],
+  "partners": [
+    { "id": "PT-001", "name": "Cocody Express", "franchise_id": "FR-001" },
+    { "id": "PT-007", "name": "Abobo Express", "franchise_id": "FR-004" }
+  ]
+}

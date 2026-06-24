@@ -1,0 +1,32 @@
+{
+  "2": {
+    "trip_id": "2",
+    "ref": "TR-88421",
+    "status": "completed",
+    "from_address": "Cocody Angré, Abidjan",
+    "to_address": "Plateau, Abidjan",
+    "distance_km": 4.2,
+    "duration_min": 12,
+    "amount_fcfa": 3500,
+    "driver_name": "Traoré Aminata",
+    "started_at": "2026-06-02T14:20:00Z",
+    "ended_at": "2026-06-02T14:32:00Z",
+    "anomaly_flagged": true,
+    "anomaly_count": 1
+  },
+  "14": {
+    "trip_id": "14",
+    "ref": "TR-91101",
+    "status": "completed",
+    "from_address": "Riviera Palmeraie, Abidjan",
+    "to_address": "Yopougon Selmer, Abidjan",
+    "distance_km": 8.5,
+    "duration_min": 25,
+    "amount_fcfa": 4200,
+    "driver_name": "Koné Dramane",
+    "started_at": "2026-06-03T07:10:00Z",
+    "ended_at": "2026-06-03T07:35:00Z",
+    "anomaly_flagged": false,
+    "anomaly_count": 0
+  }
+}

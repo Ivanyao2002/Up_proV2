@@ -104,6 +104,12 @@ export function SosIncidentDetailView({
 
   const lat = incident.last_latitude ?? incident.latitude;
   const lng = incident.last_longitude ?? incident.longitude;
+  const staleGps = (incident.last_location_age_minutes ?? 0) > 5;
+
+  // Notes obligatoires pour les clôtures « fausse alerte » et « autre » : elles
+  // exigent une justification traçable (#78 audit UX).
+  const notesRequired = resolution === "false_alarm" || resolution === "other";
+  const resolveNotesMissing = notesRequired && resolveNotes.trim() === "";
 
   return (
     <div className="animate-fade-up">
@@ -157,6 +163,62 @@ export function SosIncidentDetailView({
           Déclenché {formatDateTime(incident.triggered_at)}
         </span>
       </div>
+
+      {!isClosed ? (
+        <div
+          className={`mb-6 rounded-card border p-4 shadow-card ${
+            incident.status === "escalated" || incident.severity === "critical"
+              ? "border-red-300 bg-red-50"
+              : "border-amber-300 bg-amber-50"
+          }`}
+        >
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+            <div>
+              <p className="text-[11px] uppercase tracking-wide text-muted">
+                Déclenché
+              </p>
+              <p className="text-lg font-semibold text-foreground">
+                {incident.age_minutes != null
+                  ? `il y a ${incident.age_minutes} min`
+                  : formatDateTime(incident.triggered_at)}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-wide text-muted">
+                Dernier point GPS
+              </p>
+              <p
+                className={`text-lg font-semibold ${
+                  staleGps ? "text-red-600" : "text-foreground"
+                }`}
+              >
+                {incident.last_location_age_minutes != null
+                  ? `il y a ${incident.last_location_age_minutes} min`
+                  : "inconnu"}
+                {staleGps ? " · GPS perdu" : ""}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-wide text-muted">
+                Score risque
+              </p>
+              <p className="text-lg font-semibold text-foreground">
+                {incident.risk_score}
+              </p>
+            </div>
+            {canAcknowledge ? (
+              <div className="ml-auto">
+                <Button
+                  disabled={acknowledge.isPending}
+                  onClick={() => setShowAcknowledge(true)}
+                >
+                  Prendre en charge
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
@@ -250,6 +312,72 @@ export function SosIncidentDetailView({
               </ul>
             ) : null}
           </section>
+
+          {incident.client_id || incident.driver_id ? (
+            <section className="rounded-card border border-border bg-surface p-5 shadow-card">
+              <h2 className="text-sm font-semibold text-heading">
+                Contacts d&apos;urgence
+              </h2>
+              <div className="mt-4 space-y-2">
+                {incident.client_id ? (
+                  incident.client_phone ? (
+                    <a
+                      href={`tel:${incident.client_phone}`}
+                      className="flex items-center justify-between gap-2 rounded-lg bg-teal px-3 py-2.5 text-sm font-medium text-white hover:bg-teal-dark"
+                    >
+                      <span>
+                        Appeler le client
+                        {incident.client_name ? ` · ${incident.client_name}` : ""}
+                      </span>
+                      <span className="font-mono">{incident.client_phone}</span>
+                    </a>
+                  ) : (
+                    <p className="rounded-lg border border-dashed border-border px-3 py-2.5 text-xs text-muted">
+                      Client{" "}
+                      {incident.client_name ?? `${incident.client_id.slice(0, 8)}…`} —
+                      numéro non communiqué par l&apos;API
+                    </p>
+                  )
+                ) : null}
+                {incident.driver_id ? (
+                  incident.driver_phone ? (
+                    <a
+                      href={`tel:${incident.driver_phone}`}
+                      className="flex items-center justify-between gap-2 rounded-lg bg-navy px-3 py-2.5 text-sm font-medium text-white hover:opacity-90"
+                    >
+                      <span>
+                        Appeler le chauffeur
+                        {incident.driver_name ? ` · ${incident.driver_name}` : ""}
+                      </span>
+                      <span className="font-mono">{incident.driver_phone}</span>
+                    </a>
+                  ) : (
+                    <p className="rounded-lg border border-dashed border-border px-3 py-2.5 text-xs text-muted">
+                      Chauffeur{" "}
+                      {incident.driver_name ?? `${incident.driver_id.slice(0, 8)}…`} —
+                      numéro non communiqué par l&apos;API
+                    </p>
+                  )
+                ) : null}
+                {incident.emergency_contact_phone ? (
+                  <a
+                    href={`tel:${incident.emergency_contact_phone}`}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700 hover:bg-red-100"
+                  >
+                    <span>
+                      Contact d&apos;urgence
+                      {incident.emergency_contact_name
+                        ? ` · ${incident.emergency_contact_name}`
+                        : ""}
+                    </span>
+                    <span className="font-mono">
+                      {incident.emergency_contact_phone}
+                    </span>
+                  </a>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
 
           <section className="rounded-card border border-border bg-surface p-5 shadow-card">
             <h2 className="text-sm font-semibold text-heading">Contexte</h2>
@@ -381,13 +509,27 @@ export function SosIncidentDetailView({
                 </select>
               </label>
               <label className="block">
-                <span className="font-medium text-foreground">Notes</span>
+                <span className="font-medium text-foreground">
+                  Notes{notesRequired ? " (obligatoire)" : " (optionnel)"}
+                </span>
                 <textarea
-                  className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 outline-none ring-teal/30 focus:ring-2"
+                  className={`mt-1 w-full rounded-lg border px-3 py-2.5 outline-none ring-teal/30 focus:ring-2 ${
+                    resolveNotesMissing ? "border-red-300" : "border-border"
+                  }`}
                   rows={3}
                   value={resolveNotes}
                   onChange={(e) => setResolveNotes(e.target.value)}
+                  placeholder={
+                    notesRequired
+                      ? "Justifiez la clôture (fausse alerte / autre)…"
+                      : undefined
+                  }
                 />
+                {resolveNotesMissing ? (
+                  <span className="mt-1 block text-xs text-red-600">
+                    Une justification est requise pour ce type de clôture.
+                  </span>
+                ) : null}
               </label>
             </div>
             <div className="mt-6 flex justify-end gap-2">
@@ -395,7 +537,7 @@ export function SosIncidentDetailView({
                 Annuler
               </Button>
               <Button
-                disabled={resolve.isPending}
+                disabled={resolve.isPending || resolveNotesMissing}
                 onClick={() => {
                   resolve.mutate(
                     {

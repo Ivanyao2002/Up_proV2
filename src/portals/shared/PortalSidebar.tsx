@@ -12,6 +12,7 @@ import { isNavGroupActive, isNavItemActive } from "./navActive";
 interface PortalSidebarProps {
   nav: NavGroup[];
   subtitle: string;
+  appearance?: "default" | "support" | "reporting";
   filterByPermission?: boolean;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
@@ -20,6 +21,7 @@ interface PortalSidebarProps {
 export function PortalSidebar({
   nav,
   subtitle,
+  appearance = "default",
   filterByPermission = true,
   mobileOpen = false,
   onMobileClose,
@@ -27,6 +29,9 @@ export function PortalSidebar({
   const pathname = usePathname();
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const isSupport = appearance === "support";
+  const isReporting = appearance === "reporting";
+  const isWorkspace = isSupport || isReporting;
 
   useEffect(() => {
     setOpenGroups((prev) => {
@@ -52,14 +57,41 @@ export function PortalSidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex h-screen max-h-screen w-60 max-w-[85vw] shrink-0 flex-col overflow-hidden border-r border-border bg-surface transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-50 flex h-screen max-h-screen max-w-[85vw] shrink-0 flex-col overflow-hidden border-r border-border bg-surface transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:z-auto lg:max-w-none lg:translate-x-0 ${
+        isWorkspace ? "w-64" : "w-60"
+      } ${
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}
     >
-      <div className="shrink-0 border-b border-border px-5 py-5">
-        <AppLogo size="md" subtitle={subtitle} />
+      <div
+        className={`shrink-0 border-b border-border ${
+          isWorkspace
+            ? "bg-gradient-to-br from-teal/10 via-surface to-surface px-5 py-5"
+            : "px-5 py-5"
+        }`}
+      >
+        <AppLogo size="md" subtitle={isWorkspace ? undefined : subtitle} />
+        {isWorkspace && (
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-heading">
+                {isSupport ? "Centre support" : "Centre reporting"}
+              </p>
+              <p className="text-xs text-muted">
+                {isSupport ? "Espace agents" : "Pilotage & analyses"}
+              </p>
+            </div>
+            <span className="rounded-full border border-teal/20 bg-teal/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-teal-dark">
+              Pro
+            </span>
+          </div>
+        )}
       </div>
-      <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4">
+      <nav
+        className={`min-h-0 flex-1 overflow-y-auto overscroll-contain ${
+          isWorkspace ? "px-3 py-5" : "px-3 py-4"
+        }`}
+      >
         {nav.map((section) => {
           const items = filterByPermission
             ? section.items.filter((item) => hasPermission(item.permission))
@@ -68,16 +100,22 @@ export function PortalSidebar({
 
           const isOpen = openGroups[section.group] ?? true;
           const groupActive = isNavGroupActive(pathname, items);
+          const groupId = `nav-group-${section.group
+            .replace(/\s+/g, "-")
+            .toLowerCase()}`;
 
           return (
-            <div key={section.group} className="mb-2">
+            <div key={section.group} className={isWorkspace ? "mb-5" : "mb-2"}>
               <button
                 type="button"
                 onClick={() => toggleGroup(section.group)}
-                className={`mb-1 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-surface-hover ${
+                className={`mb-1 flex w-full items-center justify-between gap-2 rounded-lg text-left transition-colors hover:bg-surface-hover ${
+                  isWorkspace ? "px-3 py-2" : "px-2 py-2"
+                } ${
                   groupActive ? "text-teal-dark" : "text-muted"
                 }`}
                 aria-expanded={isOpen}
+                aria-controls={groupId}
               >
                 <span className="text-[10px] font-semibold uppercase tracking-widest">
                   {section.group}
@@ -89,8 +127,20 @@ export function PortalSidebar({
                   }`}
                 />
               </button>
-              {isOpen && (
-                <ul className="space-y-0.5 border-l border-border/60 pl-2 ml-1">
+              <div
+                className={`nav-group-collapse grid transition-[grid-template-rows] duration-200 ease-out ${
+                  isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                }`}
+              >
+                <ul
+                  id={groupId}
+                  aria-hidden={!isOpen}
+                  className={
+                    isWorkspace
+                      ? "space-y-1.5 overflow-hidden"
+                      : "ml-1 space-y-0.5 overflow-hidden border-l border-border/60 pl-2"
+                  }
+                >
                   {items.map((item) => {
                     const active = isNavItemActive(pathname, item.path);
                     return (
@@ -98,37 +148,86 @@ export function PortalSidebar({
                         <Link
                           href={item.path}
                           onClick={() => onMobileClose?.()}
-                          className={`relative flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
+                          className={`relative flex items-center text-sm font-medium transition-all duration-150 ${
+                            isWorkspace
+                              ? "gap-3 rounded-xl border px-3 py-3"
+                              : "gap-2.5 rounded-lg px-3 py-2.5"
+                          } ${
                             active
-                              ? "bg-teal/10 text-teal-dark"
-                              : "text-muted hover:bg-surface-hover hover:text-foreground"
+                              ? isWorkspace
+                                ? "border-teal/25 bg-teal/10 text-teal-dark shadow-sm"
+                                : "bg-teal/10 text-teal-dark"
+                              : isWorkspace
+                                ? "border-transparent text-muted hover:border-border hover:bg-surface-hover hover:text-foreground"
+                                : "text-muted hover:bg-surface-hover hover:text-foreground"
                           }`}
                         >
-                          {active && (
+                          {active && !isWorkspace && (
                             <span
                               className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-teal"
                               aria-hidden
                             />
                           )}
                           {item.icon ? (
-                            <NavIcon
-                              name={item.icon}
-                              className={`h-[18px] w-[18px] shrink-0 ${
-                                active ? "text-teal-dark" : "text-muted"
-                              }`}
-                            />
+                            <span
+                              className={
+                                isWorkspace
+                                  ? `flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                                      active
+                                        ? "bg-teal text-white"
+                                        : "bg-canvas text-muted"
+                                    }`
+                                  : ""
+                              }
+                            >
+                              <NavIcon
+                                name={item.icon}
+                                className={`h-[18px] w-[18px] shrink-0 ${
+                                  active && !isWorkspace
+                                    ? "text-teal-dark"
+                                    : !isWorkspace
+                                      ? "text-muted"
+                                      : ""
+                                }`}
+                              />
+                            </span>
                           ) : null}
-                          <span className="min-w-0 truncate">{item.label}</span>
+                          <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                          {active && isWorkspace && (
+                            <span className="h-2 w-2 shrink-0 rounded-full bg-teal" />
+                          )}
                         </Link>
                       </li>
                     );
                   })}
                 </ul>
-              )}
+              </div>
             </div>
           );
         })}
       </nav>
+      {isWorkspace && (
+        <div className="shrink-0 border-t border-border p-3">
+          <div className="rounded-xl border border-border bg-canvas/70 p-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal/10 text-teal-dark">
+                <NavIcon
+                  name={isSupport ? "support" : "reports"}
+                  className="h-4 w-4"
+                />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-foreground">
+                  {isSupport ? "File partagée" : "Données consolidées"}
+                </p>
+                <p className="text-[11px] text-muted">
+                  {isSupport ? "Premier agent assigné" : "Consultation en lecture seule"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

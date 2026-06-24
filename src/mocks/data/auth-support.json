@@ -1,0 +1,16 @@
+{
+  "token": "mock-jwt-support-agent",
+  "user": {
+    "id": 10,
+    "name": "Aya Koné Support",
+    "email": "support@upjunoo.ci",
+    "role": "support",
+    "scope": "platform",
+    "permissions": [
+      "support.tickets.view",
+      "support.chat.view",
+      "support.anomalies.view",
+      "ops.trips.view"
+    ]
+  }
+}
