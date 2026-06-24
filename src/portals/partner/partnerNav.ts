@@ -99,20 +99,20 @@ export const PARTNER_NAV: NavGroup[] = [
   {
     group: "ACTIVITÉ",
     items: [
+      // {
+      //   label: "Nouvelle course",
+      //   path: "/partner/bookings/new",
+      //   icon: "booking-new",
+      //   permission: "ops.trips.view",
+      // },
+      // {
+      //   label: "Courses récurrentes",
+      //   path: "/partner/bookings/recurring",
+      //   icon: "recurring",
+      //   permission: "ops.trips.view",
+      // },
       {
-        label: "Nouvelle course",
-        path: "/partner/bookings/new",
-        icon: "booking-new",
-        permission: "ops.trips.view",
-      },
-      {
-        label: "Courses récurrentes",
-        path: "/partner/bookings/recurring",
-        icon: "recurring",
-        permission: "ops.trips.view",
-      },
-      {
-        label: "Planning shifts",
+        label: "Planification des heures de travail",
         path: "/partner/shifts",
         icon: "shifts",
         permission: "fleet.drivers.view",

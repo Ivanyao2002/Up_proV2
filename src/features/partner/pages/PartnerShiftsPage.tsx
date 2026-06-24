@@ -76,9 +76,9 @@ export function PartnerShiftsPage() {
   return (
     <div className="animate-fade-up">
       <PageHeader
-        title="Planning des shifts"
+        title="Planification des heures de travail"
         breadcrumb={["Partenaire", "Activité"]}
-        actions={<Button onClick={() => setShowCreate(true)}>Nouveau shift</Button>}
+        actions={<Button onClick={() => setShowCreate(true)}>Nouveau créneau</Button>}
       />
 
       <TableFiltersBar
