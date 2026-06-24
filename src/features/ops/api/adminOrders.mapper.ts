@@ -62,6 +62,7 @@ export function mapApiOrderToTrip(
     id: order.id,
     ref: orderRef(order),
     service: mapApiServiceType(order.service_type),
+    category_code: order.category_code ?? undefined,
     from_label: order.pickup_address ?? "—",
     to_label: order.dropoff_address ?? "—",
     client_name:

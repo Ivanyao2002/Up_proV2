@@ -86,7 +86,7 @@ interface DataTableProps<T> {
 }
 
 const DEFAULT_PAGE_SIZE = 25;
-const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 250, 500];
 
 function SkeletonRows({
   cols,

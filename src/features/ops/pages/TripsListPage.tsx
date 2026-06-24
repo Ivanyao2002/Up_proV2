@@ -113,6 +113,12 @@ export function TripsListPage() {
       exportValue: (t) => getServiceLabel(t.service),
     },
     {
+      id: "category",
+      header: "Catégorie",
+      cell: (t) => t.category_code ?? "—",
+      exportValue: (t) => t.category_code ?? "",
+    },
+    {
       id: "route",
       header: "Trajet",
       cell: (t) => (

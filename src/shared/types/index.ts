@@ -58,6 +58,8 @@ export interface Trip {
   id: string;
   ref: string;
   service: "taxi" | "delivery" | "rental" | "freight";
+  /** Catégorie de service de la course (`ECO`, `COMFORT`, …) — `ride.category_code`. */
+  category_code?: string | null;
   from_label: string;
   to_label: string;
   client_name: string;

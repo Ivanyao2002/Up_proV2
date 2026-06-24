@@ -100,6 +100,8 @@ export interface ApiLiveMapOrderBase {
   franchise?: { id?: string; name?: string | null } | null;
   status?: string;
   service_type?: string;
+  /** Catégorie de service demandée (ECO, COMFORT, …) — `ride.category_code`. */
+  category_code?: string | null;
   pickup_address?: string | null;
   pickup_latitude?: number | null;
   pickup_longitude?: number | null;

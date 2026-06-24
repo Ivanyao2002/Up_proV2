@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Compte rendu — Tests terrain VTC UpJunoo Pro — 23/06/2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #e2e8f0; color: #0f172a; line-height: 1.45; }
+.page { width: 210mm; min-height: 297mm; margin: 12px auto; background: #fff; position: relative; page-break-after: always; box-shadow: 0 8px 32px rgba(0,0,0,.12); }
+.page:last-child { page-break-after: auto; }
+@media print { body { background: #fff; } .page { margin: 0; box-shadow: none; min-height: auto; } }
+
+/* Couverture */
+.cover { background: #016d71; color: #fff; min-height: 297mm; padding: 48px 52px; overflow: hidden; }
+.cover::before, .cover::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.06); }
+.cover::before { width: 420px; height: 420px; top: -120px; right: -80px; }
+.cover::after { width: 280px; height: 280px; bottom: 60px; left: -60px; }
+.cover-inner { position: relative; z-index: 1; min-height: calc(297mm - 96px); display: flex; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; }
+.logo span { color: #f8bb10; }
+.badge-pill { display: inline-block; margin-top: 28px; background: #f8bb10; color: #0f172a; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 999px; align-self: flex-start; }
+.cover h1 { margin-top: 44px; font-size: 38px; font-weight: 800; line-height: 1.15; max-width: 95%; }
+.cover h1 .gold { color: #f8bb10; display: block; margin-top: 8px; font-size: 28px; }
+.cover .lead { margin-top: 24px; max-width: 580px; font-size: 14px; opacity: .92; }
+.cover .meta-line { width: 48px; height: 4px; background: #f8bb10; margin: 36px 0 20px; }
+.cover .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; font-size: 12px; }
+.cover .meta-grid label { display: block; font-size: 10px; opacity: .75; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.cover-footer { margin-top: auto; padding-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; opacity: .9; }
+.cover-footer .dv { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.2); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px; }
+
+/* Pages intérieures */
+.inner { padding: 40px 48px 56px; }
+h2.section-title { font-size: 25px; font-weight: 800; color: #016d71; margin-bottom: 8px; }
+h2.section-title .gold { color: #f8bb10; }
+.sub { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+.block-title { display: flex; align-items: center; gap: 10px; margin: 24px 0 12px; font-size: 14px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: .03em; }
+.block-title::before { content: ''; width: 4px; height: 22px; background: #016d71; border-radius: 2px; }
+p.txt { font-size: 12.5px; color: #334155; margin-bottom: 10px; }
+p.txt strong { color: #0f172a; }
+
+/* KPI */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+.kpi-grid.row2 { grid-template-columns: repeat(2, 1fr); }
+.kpi { background: #fff; border-radius: 12px; padding: 16px 12px; box-shadow: 0 4px 14px rgba(0,0,0,.08); border-top: 4px solid #016d71; text-align: center; }
+.kpi.gold-top { border-top-color: #f8bb10; }
+.kpi.err-top { border-top-color: #ef4444; }
+.kpi.ok-top { border-top-color: #16a34a; }
+.kpi .val { font-size: 28px; font-weight: 800; color: #0f172a; }
+.kpi.err-top .val { color: #dc2626; }
+.kpi.gold-top .val { color: #b45309; }
+.kpi.ok-top .val { color: #15803d; }
+.kpi .lbl { font-size: 10px; font-weight: 700; color: #016d71; text-transform: uppercase; letter-spacing: .03em; margin-top: 6px; }
+
+/* Bannières */
+.warn-banner { background: #ecfdf5; border-left: 4px solid #016d71; padding: 13px 16px; margin: 14px 0; font-size: 12.5px; border-radius: 0 8px 8px 0; color: #334155; }
+.warn-banner strong { color: #016d71; }
+.outlook-banner { background: #fef3c7; border-left: 4px solid #f8bb10; padding: 13px 16px; margin: 14px 0; font-size: 12.5px; border-radius: 0 8px 8px 0; color: #334155; }
+.outlook-banner strong { color: #92400e; }
+.danger-banner { background: #fef2f2; border-left: 4px solid #ef4444; padding: 13px 16px; margin: 14px 0; font-size: 12.5px; border-radius: 0 8px 8px 0; color: #334155; }
+.danger-banner strong { color: #b91c1c; }
+
+/* Tables */
+table.data { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11.5px; }
+table.data thead th { background: #016d71; color: #fff; text-align: left; padding: 8px 10px; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; }
+table.data tbody td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+table.data tbody tr:nth-child(even) td { background: #f8fafc; }
+table.data code { background: #eef2f6; padding: 1px 5px; border-radius: 4px; font-size: 10.5px; }
+
+.badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-info { background: #e0f2fe; color: #0369a1; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+.badge-err { background: #fecaca; color: #b91c1c; }
+
+ul.clean { list-style: none; margin: 6px 0 10px; }
+ul.clean li { font-size: 12px; padding: 6px 0 6px 26px; position: relative; border-bottom: 1px solid #f1f5f9; color: #334155; }
+ul.clean li::before { content: '▸'; position: absolute; left: 4px; color: #016d71; font-weight: 800; }
+
+.reco { list-style: none; margin: 6px 0 10px; }
+.reco li { font-size: 12px; padding: 7px 0 7px 28px; position: relative; color: #334155; }
+.reco li::before { content: '✓'; position: absolute; left: 6px; color: #16a34a; font-weight: 800; }
+
+.page-foot { margin-top: 34px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; }
+
+/* Captures */
+.cap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.cap-grid.cols2 { grid-template-columns: repeat(2, 1fr); }
+.capture { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; break-inside: avoid; background: #fff; }
+.capture-head { background: #016d71; color: #fff; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.capture-head h3 { font-size: 11px; font-weight: 700; margin: 0; line-height: 1.25; }
+.capture-num { background: #f8bb10; color: #0f172a; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+.capture-body { padding: 10px; background: #f8fafc; }
+.cap-frame { position: relative; min-height: 40mm; display: flex; align-items: center; justify-content: center; background: #eef2f6; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; }
+.cap-frame .ph { position: absolute; z-index: 0; color: #94a3b8; font-size: 10px; font-weight: 700; letter-spacing: .04em; }
+.cap-frame img { position: relative; z-index: 1; width: 100%; height: auto; max-height: 130mm; object-fit: contain; object-position: top center; display: block; background: #fff; }
+.cap-cap { font-size: 10px; color: #475569; margin-top: 8px; line-height: 1.35; }
+.cap-cap b { color: #016d71; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 — COUVERTURE -->
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="logo">UPJUNOO <span>PRO</span></div>
+    <div class="badge-pill">● COMPTE RENDU — TESTS TERRAIN VTC</div>
+    <h1>Tests à échelle humaine<span class="gold">Application chauffeur UpJunoo Pro — campagne du 23 juin 2026</span></h1>
+    <p class="lead">
+      Campagne de tests terrain de l'application VTC UpJunoo Pro : 4 véhicules, 1 contrôleur par véhicule,
+      6 clients. Sept scénarios exécutés (commandes simultanées, refus / redistribution, hors ligne,
+      annulations passager et chauffeur, rechargement portefeuille, réception en cours de course).
+      Ce document présente le déroulé, les observations UX, les anomalies et les recommandations,
+      illustrés par <strong>13 captures d'écran</strong>.
+    </p>
+    <div class="meta-line"></div>
+    <div class="meta-grid">
+      <div><label>Date du test</label>23 juin 2026</div>
+      <div><label>Application</label>UpJunoo Pro (chauffeur)</div>
+      <div><label>Affectation</label>Véhicule du Chauffeur 3</div>
+    </div>
+    <div class="cover-footer">
+      <div><span class="dv">CR</span>Contrôleur — véhicule Chauffeur 3</div>
+      <div>INTERNE | 13 captures · annexe en fin de document</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2 — CONTEXTE + SYNTHÈSE -->
+<div class="page inner">
+  <h2 class="section-title">Contexte &amp; <span class="gold">synthèse</span></h2>
+  <p class="sub">Campagne de tests à échelle humaine — Abidjan (Cocody / Rosiers — Y4), 23 juin 2026.</p>
+
+  <div class="block-title">Dispositif</div>
+  <ul class="clean">
+    <li>4 véhicules, chacun avec un chauffeur.</li>
+    <li>1 contrôleur par véhicule : collecte des captures, observations et transmission des consignes.</li>
+    <li>6 clients participant aux différents scénarios.</li>
+    <li>Rédacteur affecté au véhicule du <strong>Chauffeur 3</strong>.</li>
+  </ul>
+
+  <div class="block-title">Indicateurs</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">7</div><div class="lbl">Scénarios exécutés</div></div>
+    <div class="kpi ok-top"><div class="val">5</div><div class="lbl">Réussis</div></div>
+    <div class="kpi gold-top"><div class="val">1</div><div class="lbl">À rejouer (réseau)</div></div>
+    <div class="kpi err-top"><div class="val">1</div><div class="lbl">Non terminé (solde)</div></div>
+  </div>
+  <div class="kpi-grid row2">
+    <div class="kpi"><div class="val">13</div><div class="lbl">Captures d'écran</div></div>
+    <div class="kpi err-top"><div class="val">1</div><div class="lbl">Anomalie applicative (message USSD)</div></div>
+  </div>
+
+  <div class="block-title">Synthèse des scénarios</div>
+  <table class="data">
+    <thead><tr><th style="width:34px">#</th><th>Scénario</th><th style="width:110px">Résultat</th><th>Points marquants</th></tr></thead>
+    <tbody>
+      <tr><td>2</td><td>Commandes simultanées</td><td><span class="badge badge-ok">Réussi</span></td><td>Course complète exécutée ; observations UX carte &amp; voix</td></tr>
+      <tr><td>3</td><td>Refus et redistribution</td><td><span class="badge badge-warn">À rejouer</span></td><td>Chauffeur 3 sans demande (hypothèse réseau)</td></tr>
+      <tr><td>4</td><td>Chauffeurs hors ligne</td><td><span class="badge badge-ok">Réussi</span></td><td>Aucune commande reçue hors ligne</td></tr>
+      <tr><td>5</td><td>Annulation par le passager</td><td><span class="badge badge-ok">Réussi</span></td><td>Notification d'annulation correcte</td></tr>
+      <tr><td>6</td><td>Annulation par le chauffeur</td><td><span class="badge badge-ok">Réussi</span></td><td>Choix du motif + mention des frais</td></tr>
+      <tr><td>7</td><td>Rechargement du portefeuille</td><td><span class="badge badge-err">Non terminé</span></td><td>Solde insuffisant + message USSD incomplet</td></tr>
+      <tr><td>+</td><td>Réception de commande pendant une course</td><td><span class="badge badge-ok">Réussi</span></td><td>Aucune nouvelle demande en course</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+<!-- PAGE 3 — SCÉNARIO 2 (texte) -->
+<div class="page inner">
+  <h2 class="section-title">Scénario 2 — <span class="gold">Commandes simultanées</span></h2>
+  <p class="sub">Plusieurs commandes lancées simultanément ; le véhicule du Chauffeur 3 a déroulé une course complète.</p>
+
+  <div class="block-title">Déroulement</div>
+  <ul class="clean">
+    <li>Le chauffeur était en ligne, en recherche de commande.</li>
+    <li>Une commande a été reçue, puis acceptée.</li>
+    <li>Trajet jusqu'au point de récupération du client.</li>
+    <li>Embarquement du passager, course menée jusqu'à destination, puis notation du client.</li>
+  </ul>
+
+  <div class="block-title">Observation — Navigation vocale</div>
+  <p class="txt">Le guidage vocal était fonctionnel et indiquait les changements de direction. Cependant,
+  <strong>les distances annoncées vocalement étaient exprimées en miles</strong> alors que le kilomètre est
+  l'unité utilisée en Côte d'Ivoire (l'affichage à l'écran, lui, est bien en m/km).</p>
+  <div class="outlook-banner"><strong>Recommandation :</strong> aligner le guidage vocal sur le système métrique — distances en <strong>kilomètres (km)</strong>.</div>
+
+  <div class="block-title">Observation — Lisibilité de la carte</div>
+  <ul class="clean">
+    <li>L'itinéraire apparaissait en <strong>noir sur un fond de carte sombre</strong>, difficile à lire.</li>
+    <li>Le <strong>marqueur du client</strong> était peu visible.</li>
+    <li>Les <strong>icônes de véhicules</strong> du chauffeur et du client étaient très similaires.</li>
+    <li>Le marqueur du client semblait <strong>trop intégré à la carte</strong>, compliquant son repérage.</li>
+  </ul>
+  <div class="outlook-banner"><strong>Recommandations :</strong>
+    <ul class="reco" style="margin-top:6px">
+      <li>Utiliser une couleur plus visible pour l'itinéraire (par exemple jaune).</li>
+      <li>Remplacer l'icône du véhicule chauffeur par une <b>grande flèche de navigation</b> identifiable.</li>
+      <li>Améliorer la visibilité du marqueur client.</li>
+    </ul>
+  </div>
+
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+<!-- PAGE 4 — SCÉNARIO 2 (captures) -->
+<div class="page inner">
+  <div class="block-title">Scénario 2 — Captures (course complète)</div>
+  <div class="cap-grid">
+
+    <figure class="capture">
+      <div class="capture-head"><h3>En recherche de commande</h3><span class="capture-num">IS2</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">IS2.jpeg</span><img src="screenshots/IS2.jpeg" alt="IS2" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>IS2</b> · 18:01 — Chauffeur en ligne : « Recherche de commande… », avant réception.</div>
+      </div>
+    </figure>
+
+    <figure class="capture">
+      <div class="capture-head"><h3>Réception nouvelle course</h3><span class="capture-num">I2S2</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I2S2.jpeg</span><img src="screenshots/I2S2.jpeg" alt="I2S2" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I2S2</b> · 18:22 — 4 250 FCFA, client à 2,8 km, « Glissez pour accepter ».</div>
+      </div>
+    </figure>
+
+    <figure class="capture">
+      <div class="capture-head"><h3>Navigation (tournez à droite)</h3><span class="capture-num">I3S2</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I3S2.jpeg</span><img src="screenshots/I3S2.jpeg" alt="I3S2" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I3S2</b> · 18:23 — Récupération du passager (7 min · 2,8 km) : tracé sombre sur fond sombre.</div>
+      </div>
+    </figure>
+
+    <figure class="capture">
+      <div class="capture-head"><h3>Navigation (Rue Enor)</h3><span class="capture-num">I4S2</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I4S2.jpeg</span><img src="screenshots/I4S2.jpeg" alt="I4S2" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I4S2</b> · 18:41 — « Tournez à gauche sur Rue Enor Gilbert Baya Epichi » (2 min · 810 m).</div>
+      </div>
+    </figure>
+
+    <figure class="capture">
+      <div class="capture-head"><h3>Embarquement passager</h3><span class="capture-num">I5S2</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I5S2.jpeg</span><img src="screenshots/I5S2.jpeg" alt="I5S2" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I5S2</b> · 18:48 — « Le passager vous rejoint », « Glissez : passager à bord ».</div>
+      </div>
+    </figure>
+
+    <figure class="capture">
+      <div class="capture-head"><h3>Arrivée à destination</h3><span class="capture-num">I6S2</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I6S2.jpeg</span><img src="screenshots/I6S2.jpeg" alt="I6S2" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I6S2</b> · 18:51 — « Vous êtes arrivé à votre destination », « Glissez pour terminer ».</div>
+      </div>
+    </figure>
+
+    <figure class="capture">
+      <div class="capture-head"><h3>Notation du client</h3><span class="capture-num">I8S2</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I8S2.jpeg</span><img src="screenshots/I8S2.jpeg" alt="I8S2" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I8S2</b> · 18:35 — Notation du client en fin de course (« Comment s'est passée la commande ? »).</div>
+      </div>
+    </figure>
+
+  </div>
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+<!-- PAGE 5 — SCÉNARIOS 3 & 4 -->
+<div class="page inner">
+  <h2 class="section-title">Scénarios 3 &amp; 4 — <span class="gold">Redistribution &amp; hors ligne</span></h2>
+  <p class="sub">Refus / redistribution de commande, puis comportement hors ligne.</p>
+
+  <div class="block-title">Scénario 3 — Refus et redistribution</div>
+  <p class="txt"><strong>Objectif :</strong> Chauffeurs 1 &amp; 2 laissent expirer la demande, Chauffeur 3 refuse, Chauffeur 4 accepte.</p>
+  <p class="txt"><strong>Observation :</strong> le Chauffeur 3 était positionné juste derrière les locaux de l'entreprise
+  (point de départ des tests). Malgré sa proximité, il <strong>n'a reçu aucune demande</strong>, restant en
+  « Recherche de commande… » (état identique à la capture <b>IS2</b>).</p>
+  <div class="warn-banner"><strong>Hypothèse :</strong> mauvaise couverture réseau dans la zone.
+  <strong>Recommandation :</strong> rejouer le scénario depuis une zone à meilleure couverture pour confirmer ou écarter la cause réseau et valider la logique de refus / redistribution.</div>
+  <p class="txt" style="font-style:italic;color:#64748b">Aucune capture spécifique pour ce scénario : l'écran restait sur l'état « En ligne / Recherche de commande… » (cf. IS2).</p>
+
+  <div class="block-title">Scénario 4 — Chauffeurs hors ligne</div>
+  <p class="txt"><strong>Objectif :</strong> mettre tous les chauffeurs hors ligne et vérifier qu'aucune commande ne leur soit transmise.</p>
+  <div class="warn-banner"><strong>Résultat : test réussi.</strong> Le chauffeur étant hors ligne, aucune commande n'a été reçue.</div>
+
+  <div class="cap-grid cols2" style="margin-top:6px">
+    <figure class="capture">
+      <div class="capture-head"><h3>Chauffeur hors ligne</h3><span class="capture-num">IS4</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">IS4.jpeg</span><img src="screenshots/IS4.jpeg" alt="IS4" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>IS4</b> · 19:44 — État « Hors ligne » : bouton « Passer en ligne », aucune commande transmise.</div>
+      </div>
+    </figure>
+  </div>
+
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+<!-- PAGE 6 — SCÉNARIOS 5 & 6 -->
+<div class="page inner">
+  <h2 class="section-title">Scénarios 5 &amp; 6 — <span class="gold">Annulation de course</span></h2>
+  <p class="sub">Annulation à l'initiative du passager, puis à l'initiative du chauffeur.</p>
+
+  <div class="block-title">Scénario 5 — Annulation par le passager</div>
+  <p class="txt">Le client commande, le chauffeur accepte, puis le client annule. <strong>Résultat : succès.</strong>
+  Le chauffeur a été correctement notifié de l'annulation et est revenu en recherche de commande.</p>
+
+  <div class="cap-grid cols2" style="margin-top:6px">
+    <figure class="capture">
+      <div class="capture-head"><h3>Course annulée (passager)</h3><span class="capture-num">I2S5</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I2S5.jpeg</span><img src="screenshots/I2S5.jpeg" alt="I2S5" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I2S5</b> · 19:50 — « Course annulée — Le passager a annulé la course », retour en « Recherche de commande… ».</div>
+      </div>
+    </figure>
+  </div>
+
+  <div class="block-title">Scénario 6 — Annulation par le chauffeur</div>
+  <p class="txt">Le chauffeur accepte une course, navigue vers le client, puis annule en sélectionnant un motif.
+  <strong>Résultat : succès.</strong> L'application propose une liste de motifs, avec mention explicite des
+  <strong>frais</strong> pour certains motifs (« Annulation tardive », « Client absent »).</p>
+
+  <div class="cap-grid" style="margin-top:6px">
+    <figure class="capture">
+      <div class="capture-head"><h3>Navigation vers le client</h3><span class="capture-num">I3S6</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I3S6.jpeg</span><img src="screenshots/I3S6.jpeg" alt="I3S6" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I3S6</b> · 19:50 — Course acceptée : navigation vers le client (1 min · 370 m) avant annulation.</div>
+      </div>
+    </figure>
+    <figure class="capture">
+      <div class="capture-head"><h3>Choix du motif</h3><span class="capture-num">IS6</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">IS6.jpeg</span><img src="screenshots/IS6.jpeg" alt="IS6" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>IS6</b> · 19:54 — « Annuler la course / Indiquez la raison » : motifs et indication « Frais ».</div>
+      </div>
+    </figure>
+    <figure class="capture">
+      <div class="capture-head"><h3>Retour en recherche</h3><span class="capture-num">I4S6</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">I4S6.jpeg</span><img src="screenshots/I4S6.jpeg" alt="I4S6" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>I4S6</b> · 19:54 — Après annulation : retour en « En ligne / Recherche de commande… ».</div>
+      </div>
+    </figure>
+  </div>
+
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+<!-- PAGE 7 — SCÉNARIO 7 + SUPPLÉMENTAIRE -->
+<div class="page inner">
+  <h2 class="section-title">Scénario 7 — <span class="gold">Rechargement du portefeuille</span></h2>
+  <p class="sub">Rechargement du portefeuille chauffeur via Orange Money CI.</p>
+
+  <div class="block-title">Observation</div>
+  <p class="txt">Le test n'a pas pu être mené à son terme : le <strong>solde Orange Money</strong> utilisé pour l'opération
+  était insuffisant. Nous avons néanmoins constaté l'affichage de l'interface USSD de validation de l'opérateur
+  (rechargement de 500 FCFA via <strong>Orange Money CI</strong>, frais 0 FCFA, bénéficiaire « DUNYA DIGITAL PAYMENT CI »).</p>
+
+  <div class="block-title">Anomalie constatée</div>
+  <p class="txt">Le message affiché par l'interface de l'opérateur était <strong>incomplet</strong> :
+  « <em>Veuillez saisir votre</em> » — le libellé s'interrompait avant l'élément à saisir.</p>
+  <div class="danger-banner"><strong>Recommandation :</strong> compléter le message pour qu'il soit explicite, par exemple
+  « Veuillez saisir votre <strong>code secret Orange Money</strong> » ou « Veuillez saisir votre <strong>mot de passe</strong> ».</div>
+
+  <div class="cap-grid cols2" style="margin-top:6px">
+    <figure class="capture">
+      <div class="capture-head"><h3>Recharge + message USSD tronqué</h3><span class="capture-num">IS7</span></div>
+      <div class="capture-body">
+        <div class="cap-frame"><span class="ph">IS7.jpeg</span><img src="screenshots/IS7.jpeg" alt="IS7" onerror="this.remove()"/></div>
+        <div class="cap-cap"><b>IS7</b> · 19:56 — « Recharger mon portefeuille » (500 FCFA, Orange Money CI) : pop-up affichant « Veuillez saisir votre ».</div>
+      </div>
+    </figure>
+  </div>
+
+  <h2 class="section-title" style="margin-top:28px">Scénario supplémentaire — <span class="gold">Réception en course</span></h2>
+  <p class="sub">Scénario non prévu dans la fiche de test, réalisé en complément.</p>
+  <p class="txt"><strong>Objectif :</strong> vérifier qu'un chauffeur déjà engagé dans une course ne reçoive pas de nouvelles demandes.</p>
+  <div class="warn-banner"><strong>Résultat : test réussi.</strong> Le chauffeur n'a reçu aucune nouvelle commande pendant l'exécution de sa course.</div>
+
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+<!-- PAGE 8 — RECOMMANDATIONS + CONCLUSION -->
+<div class="page inner">
+  <h2 class="section-title">Recommandations pour les <span class="gold">futurs tests</span></h2>
+  <p class="sub">Organisation et logistique des prochaines campagnes.</p>
+
+  <div class="block-title">1 — Réaliser les tests en journée</div>
+  <p class="txt">Effectuer les tests entre <strong>08h00 et 14h00</strong> pour bénéficier de :</p>
+  <ul class="reco">
+    <li>une meilleure visibilité ;</li>
+    <li>un repérage plus facile des lieux ;</li>
+    <li>de meilleures conditions d'observation.</li>
+  </ul>
+
+  <div class="block-title">2 — Choisir des points de référence connus</div>
+  <p class="txt">Certaines positions choisies sur la carte se sont révélées difficiles d'accès, ce qui peut introduire un léger biais.</p>
+  <ul class="reco"><li>Utiliser des lieux connus et accessibles (stations-service, supermarchés, carrefours, écoles, etc.).</li></ul>
+
+  <div class="block-title">3 — Optimiser le positionnement des chauffeurs</div>
+  <p class="txt">Certains chauffeurs sont arrivés avant d'autres à cause des distances à parcourir.</p>
+  <ul class="reco"><li>Prévoir des <b>départs décalés</b> selon l'éloignement de chaque point afin que tous soient positionnés au bon moment.</li></ul>
+
+  <div class="block-title">4 — Mutualiser certains scénarios</div>
+  <p class="txt">Les points de destination du scénario 2 pourraient servir de points de départ au scénario 3.</p>
+  <ul class="reco">
+    <li>Réduire les déplacements inutiles.</li>
+    <li>Optimiser le temps d'exécution.</li>
+    <li>Améliorer la fluidité de la campagne de tests.</li>
+  </ul>
+
+  <div class="block-title">Conclusion</div>
+  <p class="txt">Dans l'ensemble, les scénarios testés ont été exécutés avec succès et les fonctionnalités principales se
+  sont comportées conformément aux attentes. Les principales améliorations concernent <strong>la lisibilité de la
+  navigation, l'affichage cartographique, certains messages utilisateur</strong> et <strong>l'organisation logistique</strong>
+  des futures campagnes. Le scénario 3 (Chauffeur 3 sans demande) reste à rejouer pour confirmer l'hypothèse réseau,
+  et le scénario 7 (rechargement) à reconduire avec un solde suffisant.</p>
+
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+<!-- PAGE 9 — ANNEXE : INDEX DES CAPTURES -->
+<div class="page inner">
+  <h2 class="section-title">Annexe — <span class="gold">Index des captures</span></h2>
+  <p class="sub">Nomenclature <code>I&lt;n&gt;S&lt;scénario&gt;</code> · dossier <code>screenshots/</code> (13 fichiers <code>.jpeg</code>).</p>
+
+  <table class="data">
+    <thead><tr><th style="width:80px">Fichier</th><th style="width:46px">Scén.</th><th style="width:54px">Heure</th><th>Contenu de la capture</th></tr></thead>
+    <tbody>
+      <tr><td><code>IS2.jpeg</code></td><td>2</td><td>18:01</td><td>Chauffeur en ligne, « Recherche de commande… »</td></tr>
+      <tr><td><code>I2S2.jpeg</code></td><td>2</td><td>18:22</td><td>Réception d'une nouvelle course (4 250 FCFA, 2,8 km)</td></tr>
+      <tr><td><code>I3S2.jpeg</code></td><td>2</td><td>18:23</td><td>Navigation vers le client (« Tournez à droite », carte sombre)</td></tr>
+      <tr><td><code>I4S2.jpeg</code></td><td>2</td><td>18:41</td><td>Navigation (« Tournez à gauche sur Rue Enor », 810 m)</td></tr>
+      <tr><td><code>I5S2.jpeg</code></td><td>2</td><td>18:48</td><td>Arrivée au point de prise en charge / embarquement</td></tr>
+      <tr><td><code>I6S2.jpeg</code></td><td>2</td><td>18:51</td><td>Arrivée à destination (« Glissez pour terminer »)</td></tr>
+      <tr><td><code>I8S2.jpeg</code></td><td>2</td><td>18:35</td><td>Notation du client en fin de course</td></tr>
+      <tr><td><code>IS4.jpeg</code></td><td>4</td><td>19:44</td><td>Chauffeur hors ligne (« Passer en ligne »)</td></tr>
+      <tr><td><code>I2S5.jpeg</code></td><td>5</td><td>19:50</td><td>« Course annulée — Le passager a annulé la course »</td></tr>
+      <tr><td><code>I3S6.jpeg</code></td><td>6</td><td>19:50</td><td>Navigation vers le client avant annulation (370 m)</td></tr>
+      <tr><td><code>IS6.jpeg</code></td><td>6</td><td>19:54</td><td>Annulation chauffeur : sélection du motif (« Frais »)</td></tr>
+      <tr><td><code>I4S6.jpeg</code></td><td>6</td><td>19:54</td><td>Retour en « En ligne / Recherche de commande… »</td></tr>
+      <tr><td><code>IS7.jpeg</code></td><td>7</td><td>19:56</td><td>Rechargement portefeuille (Orange Money) + message USSD incomplet</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-foot"><span>UpJunoo Pro — Compte rendu des tests terrain VTC</span><span>23 juin 2026</span></div>
+</div>
+
+</body>
+</html>
