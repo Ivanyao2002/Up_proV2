@@ -78,7 +78,17 @@ function mapApiResponse(raw: PartnerDashboardApiResponse): DashboardPartnerKpi {
     drivers_online: readNumber(d, "driversOnline", "drivers_online") ?? 0,
     drivers_pending_kyc:
       readNumber(d, "driversPendingKyc", "drivers_pending_kyc") ?? 0,
+    drivers_with_vehicle:
+      readNumber(d, "driversWithVehicle", "drivers_with_vehicle"),
     vehicles_total: readNumber(d, "vehiclesCount", "vehicles_count") ?? 0,
+    vehicles_assigned:
+      readNumber(d, "vehiclesAssigned", "vehicles_assigned"),
+    vehicles_pending:
+      readNumber(d, "vehiclesPending", "vehicles_pending"),
+    cash_reconciliations_count:
+      readNumber(d, "cashReconciliationsCount", "cash_reconciliations_count"),
+    freight_offers_count:
+      readNumber(d, "freightOffersCount", "freight_offers_count"),
     revenue_today_fcfa:
       readNumber(d, "revenueToday", "revenue_today", "revenueTodayFcfa") ?? 0,
     revenue_trend_pct:

@@ -44,9 +44,32 @@ export function PartnerDashboardPage() {
       <div className="animate-stagger space-y-5">
         <HeroKpi
           amount={data.revenue_today_fcfa}
-          trendPct={data.revenue_trend_pct}
+          // Pas de tendance trompeuse (« -100% ») tant qu'aucun revenu n'est encore enregistré aujourd'hui.
+          trendPct={data.revenue_today_fcfa > 0 ? data.revenue_trend_pct : undefined}
           label="Revenus du jour"
         />
+
+        {data.cash_reconciliations_count != null && data.cash_reconciliations_count > 0 && (
+          <Link
+            href="/partner/wallet"
+            className="flex items-center justify-between gap-3 rounded-card border border-amber-200 bg-amber-50 px-5 py-3.5 shadow-card transition-colors hover:border-amber-300"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-amber-900">
+                  {data.cash_reconciliations_count} rapprochement{data.cash_reconciliations_count > 1 ? "s" : ""} cash à traiter
+                </p>
+                <p className="text-xs text-amber-700">
+                  Des encaissements espèces de vos chauffeurs sont en attente de validation.
+                </p>
+              </div>
+            </div>
+            <span className="shrink-0 text-sm font-medium text-amber-800">Traiter →</span>
+          </Link>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/partner/orders" className="block">
@@ -61,7 +84,16 @@ export function PartnerDashboardPage() {
             <KpiCard
               label="Chauffeurs en ligne"
               value={`${data.drivers_online} / ${data.drivers_total}`}
-              hint={data.drivers_pending_kyc > 0 ? `${data.drivers_pending_kyc} en attente KYC` : undefined}
+              hint={
+                [
+                  data.drivers_with_vehicle != null
+                    ? `${data.drivers_with_vehicle} équipé${data.drivers_with_vehicle > 1 ? "s" : ""}`
+                    : null,
+                  data.drivers_pending_kyc > 0 ? `${data.drivers_pending_kyc} en attente KYC` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || undefined
+              }
               className="cursor-pointer hover:border-teal/50 transition-colors"
             />
           </Link>
@@ -69,7 +101,13 @@ export function PartnerDashboardPage() {
             <KpiCard
               label="Véhicules"
               value={String(data.vehicles_total)}
-              hint="Voir la flotte"
+              hint={
+                data.vehicles_pending && data.vehicles_pending > 0
+                  ? `${data.vehicles_pending} en attente de validation`
+                  : data.vehicles_assigned != null
+                    ? `${data.vehicles_assigned} affecté${data.vehicles_assigned > 1 ? "s" : ""} à un chauffeur`
+                    : "Voir la flotte"
+              }
               className="cursor-pointer hover:border-teal/50 transition-colors"
             />
           </Link>

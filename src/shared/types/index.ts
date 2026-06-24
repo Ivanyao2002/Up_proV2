@@ -755,7 +755,12 @@ export interface DashboardPartnerKpi {
   drivers_total: number;
   drivers_online: number;
   drivers_pending_kyc: number;
+  drivers_with_vehicle?: number;
   vehicles_total: number;
+  vehicles_assigned?: number;
+  vehicles_pending?: number;
+  cash_reconciliations_count?: number;
+  freight_offers_count?: number;
   revenue_today_fcfa: number;
   revenue_trend_pct: number;
   wallet_balance_fcfa: number;
