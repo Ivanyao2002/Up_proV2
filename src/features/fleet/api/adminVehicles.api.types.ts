@@ -22,6 +22,9 @@ export interface ApiV1VehicleItem {
   brandLabel?: string | null;
   modelLabel?: string | null;
   categoryCode?: string | null;
+  categoryLabel?: string | null;
+  colorLabel?: string | null;
+  colorHex?: string | null;
   partnerName?: string | null;
   partner_name?: string | null;
   label?: string | null;

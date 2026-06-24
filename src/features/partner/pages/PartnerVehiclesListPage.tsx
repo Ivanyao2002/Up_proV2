@@ -12,10 +12,7 @@ import { useDateRangeFilter } from "@/shared/hooks/useDateRangeFilter";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
 import { IvorianPlateBadge } from "@/shared/ui/IvorianPlateBadge";
 import { VehicleTypeBadge } from "@/shared/ui/VehicleTypeBadge";
-import {
-  serverPaginationFromMeta,
-  useServerTableState,
-} from "@/shared/hooks/useServerTableState";
+import { useServerTableState } from "@/shared/hooks/useServerTableState";
 import type { Vehicle, VehicleApprovalStatus } from "@/shared/types";
 import { usePartnerVehiclesList } from "../api/vehicles.queries";
 import { PartnerListFiltersPanel } from "../components/PartnerListFiltersPanel";
@@ -66,12 +63,42 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
     ],
   });
 
+  const searchTerm = table.search.trim().toLowerCase();
+  const isSearching = searchTerm.length > 0;
+
+  // Flotte chargée en entier (côté client) pour permettre tri + recherche multi-champs
+  // (le backend ne filtre que sur la plaque et ne trie pas de façon fiable par page).
+  // Le statut et la période restent filtrés côté serveur.
+  const serverParams = {
+    ...table.listParams,
+    search: undefined,
+    page: 1,
+    per_page: 200,
+  };
+
   const { data, isLoading, isError } = usePartnerVehiclesList(
     effectiveStatus,
-    table.listParams
+    serverParams
   );
 
-  const rows = data?.data ?? [];
+  const allRows = data?.data ?? [];
+  const rows = isSearching
+    ? allRows.filter((v) =>
+        [
+          v.plate,
+          v.brand,
+          v.model,
+          v.driver_name,
+          v.color,
+          v.category_label,
+          v.category_code,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(searchTerm)
+      )
+    : allRows;
   const meta = data?.meta;
 
   const columns: Column<Vehicle>[] = [
@@ -84,6 +111,7 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
         </Link>
       ),
       exportValue: (v) => v.plate ?? "",
+      sortKey: (v) => v.plate ?? "",
     },
     {
       id: "brand",
@@ -95,6 +123,7 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
     {
       id: "model",
       header: "Modèle",
+      className: "min-w-[140px]",
       cell: (v) => v.model ?? "—",
       exportValue: (v) => v.model ?? "",
       sortKey: (v) => v.model ?? "",
@@ -102,6 +131,7 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
     {
       id: "driver",
       header: "Chauffeur affecté",
+      className: "min-w-[220px]",
       cell: (v) => v.driver_name ?? "—",
       exportValue: (v) => v.driver_name ?? "",
       sortKey: (v) => v.driver_name ?? "",
@@ -110,8 +140,8 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
       id: "year",
       header: "Année",
       className: "tabular-nums",
-      cell: (v) => v.year,
-      exportValue: (v) => String(v.year),
+      cell: (v) => (v.year > 0 ? v.year : "—"),
+      exportValue: (v) => (v.year > 0 ? String(v.year) : ""),
       sortKey: (v) => v.year ?? 0,
     },
     {
@@ -119,19 +149,23 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
       header: "Couleur",
       cell: (v) => v.color,
       exportValue: (v) => v.color,
+      sortKey: (v) => v.color ?? "",
     },
     {
       id: "type",
       header: "Type & service",
-      cell: (v) => <VehicleTypeBadge vehicle={v} />,
+      className: "min-w-[200px]",
+      cell: (v) => <VehicleTypeBadge vehicle={v} categoryDisplay="code" />,
       exportValue: (v) =>
         [v.category_code, v.category_label, v.category].filter(Boolean).join(" · "),
+      sortKey: (v) => v.category_label ?? v.category_code ?? v.category ?? "",
     },
     {
       id: "status",
       header: "Statut",
       cell: (v) => <VehicleApprovalPill status={v.approval_status} />,
       exportValue: (v) => getVehicleApprovalLabel(v.approval_status),
+      sortKey: (v) => getVehicleApprovalLabel(v.approval_status),
     },
   ];
 
@@ -169,8 +203,14 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
         dateRange={dateRange}
         search={table.search}
         onSearchChange={table.setSearch}
-        searchPlaceholder="Marque, plaque, chauffeur…"
-        totalLabel={meta ? `${meta.total} véhicules enregistrés` : undefined}
+        searchPlaceholder="Plaque, chauffeur, marque…"
+        totalLabel={
+          isSearching
+            ? `${rows.length} résultat${rows.length > 1 ? "s" : ""}`
+            : meta
+              ? `${meta.total} véhicules enregistrés`
+              : undefined
+        }
         hasActiveFilters={hasActiveFilters}
         onResetAll={resetAll}
       />
@@ -189,12 +229,9 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
             ? "Tous vos véhicules sont à jour."
             : "Ajoutez un véhicule puis téléversez la carte grise."
         }
-        pagination={false}
-        serverPagination={serverPaginationFromMeta(
-          meta,
-          table.setPage,
-          table.setPageSize
-        )}
+        hasActiveFilters={hasActiveFilters}
+        onResetFilters={resetAll}
+        pagination={{ pageSize: 25 }}
       />
     </div>
   );

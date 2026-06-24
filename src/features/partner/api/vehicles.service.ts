@@ -11,6 +11,7 @@ import type { ApiAdminVehiclesListResponse } from "@/features/fleet/api/adminVeh
 import {
   mapAdminVehiclesToPaginated,
   mapApiVehicleToVehicleDetail,
+  mapCategoryCode,
   mapPartnerFreeTextToApiBody,
   mapUiCategoryToApiCode,
 } from "@/features/fleet/api/adminVehicles.mapper";
@@ -23,7 +24,11 @@ import {
   assignDriverV1,
   legacyPartnerDocumentsPath,
 } from "@/features/fleet/api/vehicleCreateFlow";
-import { attachPartnerVehicleRegistration } from "@/features/fleet/api/kycDocumentUpload.v1.service";
+import {
+  attachPartnerVehicleRegistration,
+  attachPartnerVehicleDocument,
+} from "@/features/fleet/api/kycDocumentUpload.v1.service";
+import { mapVehicleDocumentTypeToApiCode } from "@/features/fleet/api/documentTypeCodes.v1";
 import { partnerDriversService, type CreateDriverPayload } from "./drivers.service";
 import type { DriverDocumentFile } from "@/shared/types/driverDocuments";
 import type { VehiclePieceFile } from "../components/VehicleCreatePiecesSection";
@@ -166,7 +171,19 @@ async function listV1(params?: ListParams): Promise<VehiclesListResponse> {
     }
   >(`${LINKS.v1.partners.vehicles(partnerId)}${buildV1ListQuery(params)}`);
   const items = response.items ?? [];
-  const lookups = await fetchVehicleCatalogLookupsForItems(items);
+  // Le backend renvoie désormais les labels inline (brandLabel, modelLabel, colorLabel,
+  // categoryLabel/categoryCode). On ne charge le catalogue que pour les items qui ont un id
+  // de référence mais aucun label inline (anciens payloads) → évite 4 appels catalogue inutiles.
+  const needsCatalog = items.some(
+    (it) =>
+      (it.brand_id && !it.brandLabel && !it.brand?.label) ||
+      (it.model_id && !it.modelLabel && !it.model?.label) ||
+      (it.color_id && !it.colorLabel && !it.color?.label) ||
+      (it.category_id && !it.categoryLabel && !it.categoryCode && !it.category?.label)
+  );
+  const lookups = needsCatalog
+    ? await fetchVehicleCatalogLookupsForItems(items)
+    : undefined;
   const paginated = mapAdminVehiclesToPaginated(
     items,
     params,
@@ -202,13 +219,9 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
     const categoryCode = categoryObj?.code ?? (v.categoryCode as string) ?? "";
     const categoryLabel = categoryObj?.label ?? categoryCode;
 
-    // Mapping category vers VehicleCategory
-    const categoryMap: Record<string, Vehicle["category"]> = {
-      "taxi": "taxi",
-      "ECO": "taxi",
-      "standard": "taxi",
-    };
-    const category = categoryMap[categoryCode] || (categoryCode as Vehicle["category"]) || "taxi";
+    // Mapping catégorie API → UI (couvre les 8 codes : ECO, MOTO, FOURGON, CAMION…),
+    // cohérent avec la liste véhicules.
+    const category = mapCategoryCode(categoryCode);
 
     // Driver peut être dans raw.driver ou v.driver
     const driver = (raw.driver ?? v.driver) as {
@@ -221,7 +234,7 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
         `${driver.profile?.firstName ?? ""} ${driver.profile?.lastName ?? ""}`.trim())
       : null;
 
-    // Document d'enregistrement (carte grise) dans documents[]
+    // Documents véhicule (carte grise + assurance) dans documents[]
     const docs = (v.documents ?? []) as Array<{
       id?: string;
       document_type_code?: string;
@@ -233,29 +246,41 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
       reviewed_at?: string | null;
       file_url?: string;
     }>;
-    const reg = docs.find((d) => d.document_type_code === "REGISTRATION_CARD");
-    const registrationDoc = reg
-      ? {
-          id: (reg.id as string) ?? "registration",
-          type: "registration" as const,
-          label: (reg.document_type_label as string) ?? "Carte grise",
-          status: ((reg.status as string) ?? "pending") as "pending" | "approved" | "rejected",
-          uploaded_at:
-            (reg.uploaded_at as string) ??
-            (reg.submitted_at as string) ??
-            (reg.created_at as string) ??
-            "",
-          reviewed_at: (reg.reviewed_at as string | null) ?? null,
-          preview_url: (reg.file_url as string) ?? undefined,
-        }
-      : {
-          id: "pending",
-          type: "registration" as const,
-          label: "Carte grise",
-          status: "pending" as const,
-          uploaded_at: "",
-          reviewed_at: null,
+
+    const buildDoc = (
+      typeCode: "REGISTRATION_CARD" | "INSURANCE",
+      fallbackLabel: string
+    ): import("@/shared/types").KycDocument => {
+      const found = docs.find((d) => d.document_type_code === typeCode);
+      if (found) {
+        return {
+          id: found.id ?? typeCode,
+          type: "registration",
+          label: found.document_type_label ?? fallbackLabel,
+          status: ((found.status as string) ?? "pending") as "pending" | "approved" | "rejected",
+          uploaded_at: found.uploaded_at ?? found.submitted_at ?? found.created_at ?? "",
+          reviewed_at: found.reviewed_at ?? null,
+          preview_url: found.file_url ?? undefined,
+          document_type_code: typeCode,
         };
+      }
+      return {
+        id: `missing-${typeCode}`,
+        type: "registration",
+        label: fallbackLabel,
+        status: "pending",
+        uploaded_at: "",
+        reviewed_at: null,
+        document_type_code: typeCode,
+      };
+    };
+
+    const registrationDoc = buildDoc("REGISTRATION_CARD", "Carte grise");
+    const insuranceDoc = buildDoc("INSURANCE", "Assurance");
+
+    const summaryRaw = v.documentsSummary as
+      | import("@/shared/types").VehicleDocumentsSummary
+      | undefined;
 
     return {
       id: Number((v.id as string) ?? id),
@@ -265,7 +290,8 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
       category,
       category_code: categoryCode,
       category_label: categoryLabel,
-      year: (v.manufacture_year as number) ?? (v.year as number) ?? new Date().getFullYear(),
+      // Ne pas fabriquer l'année courante quand l'API ne la fournit pas : 0 → affiché « — ».
+      year: (v.manufacture_year as number) ?? (v.year as number) ?? 0,
       color,
       plate: (v.plate_number as string) ?? (v.plate as string) ?? "",
       seats: (v.seats_count as number) ?? (v.seats as number) ?? 0,
@@ -273,6 +299,8 @@ async function getByIdV1(id: string): Promise<VehicleDetail> {
       driver_id: (v.driver_id as string | null) ?? driver?.id ?? null,
       driver_name: driverName,
       registration_document: registrationDoc,
+      insurance_document: insuranceDoc,
+      documents_summary: summaryRaw,
       owner_id: partnerId,
       partner_id: (v.partner_id as string) ?? partnerId,
       created_at: (v.created_at as string) ?? new Date().toISOString(),
@@ -383,14 +411,25 @@ export const partnerVehiclesService = {
     return detail;
   },
 
-  uploadDocument: (id: string, type: VehicleDocumentType) => {
+  uploadDocument: async (id: string, type: VehicleDocumentType, file: File) => {
     const partnerId = resolvePartnerId();
-    return apiClient.post<VehicleDetail>(
-      useLegacyPortalApi()
-        ? `/partner/vehicles/${id}/documents`
-        : LINKS.partner.vehicles.documents(partnerId, id),
-      { type }
+    if (useLegacyPortalApi()) {
+      return apiWithNotify.post<VehicleDetail>(
+        `/partner/vehicles/${id}/documents`,
+        { type, filename: file.name },
+        "Document envoyé — validation en cours"
+      );
+    }
+
+    await attachPartnerVehicleDocument(
+      partnerId,
+      id,
+      file,
+      mapVehicleDocumentTypeToApiCode(type)
     );
+    const detail = await getByIdV1(id);
+    notificationService.success("Document envoyé — validation en cours");
+    return detail;
   },
 
   assignDriver: async (

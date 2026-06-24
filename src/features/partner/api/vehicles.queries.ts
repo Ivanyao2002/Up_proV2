@@ -11,6 +11,7 @@ import type { VehiclePieceFile } from "../components/VehicleCreatePiecesSection"
 import { partnerDriversKeys } from "./drivers.queries";
 import type { ListParams } from "@/shared/types/listParams";
 import type { VehicleApprovalStatus } from "@/shared/types";
+import type { VehicleDocumentType } from "@/shared/types/vehicleDocuments";
 
 export const partnerVehiclesKeys = {
   all: ["partner", "vehicles"] as const,
@@ -82,6 +83,21 @@ export function useUploadVehicleRegistration(vehicleId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (file: File) => partnerVehiclesService.uploadRegistration(vehicleId, file),
+    onSuccess: (data) => {
+      qc.setQueryData(partnerVehiclesKeys.detail(vehicleId), data);
+      void qc.invalidateQueries({ queryKey: partnerVehiclesKeys.all });
+    },
+  });
+}
+
+export function useUploadVehicleDocument(
+  vehicleId: string,
+  type: VehicleDocumentType
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) =>
+      partnerVehiclesService.uploadDocument(vehicleId, type, file),
     onSuccess: (data) => {
       qc.setQueryData(partnerVehiclesKeys.detail(vehicleId), data);
       void qc.invalidateQueries({ queryKey: partnerVehiclesKeys.all });

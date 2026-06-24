@@ -14,6 +14,7 @@ import { VehicleTypeBadge } from "@/shared/ui/VehicleTypeBadge";
 import {
   usePartnerVehicleDetail,
   useUploadVehicleRegistration,
+  useUploadVehicleDocument,
 } from "../api/vehicles.queries";
 import { usePartnerDriversList } from "../api/drivers.queries";
 import { partnerVehiclesService } from "../api/vehicles.service";
@@ -27,6 +28,7 @@ interface PartnerVehicleDetailPageProps {
 export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPageProps) {
   const { data: vehicle, isLoading, isError } = usePartnerVehicleDetail(vehicleId);
   const uploadRegistration = useUploadVehicleRegistration(vehicleId);
+  const uploadInsurance = useUploadVehicleDocument(vehicleId, "insurance");
   const { data: driversData } = usePartnerDriversList();
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
@@ -73,12 +75,14 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
     );
   }
 
-  const doc = vehicle.registration_document;
-  const canUpload =
+  const canUploadDoc = (d: { status: string; uploaded_at: string }) =>
     vehicle.approval_status === "draft" ||
     vehicle.approval_status === "rejected" ||
-    doc.status === "rejected" ||
-    !doc.uploaded_at;
+    d.status === "rejected" ||
+    !d.uploaded_at;
+
+  const summary = vehicle.documents_summary;
+  const insuranceDoc = vehicle.insurance_document;
 
   const title = `${vehicle.brand} ${vehicle.model}`;
 
@@ -92,23 +96,79 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="rounded-card border border-border bg-surface p-6 shadow-card">
-          <h2 className="text-sm font-semibold">Carte grise</h2>
-          <p className="mt-1 text-sm text-muted">
-            Le véhicule n&apos;est approuvé qu&apos;après validation de la carte grise par
-            UpJunoo. En cas de rejet, corrigez le document et soumettez à nouveau.
-          </p>
-          <div className="mt-4">
-            <KycDocumentCard
-              document={vehicle.registration_document}
-              canUpload={canUpload}
-              uploadHint="PDF ou image (JPG, PNG) · max 5 Mo"
-              onUpload={(file) => {
-                uploadRegistration.mutate(file, {
-                  onError: () =>
-                    notificationService.error("Échec de l'envoi de la carte grise"),
-                });
-              }}
-            />
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold">Documents du véhicule</h2>
+              <p className="mt-1 text-sm text-muted">
+                Le véhicule n&apos;est approuvé qu&apos;après validation des documents par
+                UpJunoo. En cas de rejet, corrigez le document et soumettez à nouveau.
+              </p>
+            </div>
+            {summary && (
+              <span
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
+                  summary.isComplete
+                    ? "bg-green-100 text-green-700"
+                    : "bg-amber-50 text-amber-700"
+                }`}
+              >
+                {summary.uploadedCount}/{summary.requiredCount} document
+                {summary.requiredCount > 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+
+          {summary && summary.missingTypes.length > 0 && (
+            <p className="mt-2 text-xs text-amber-700">
+              Manquant{summary.missingTypes.length > 1 ? "s" : ""} :{" "}
+              {summary.missingTypes
+                .map((t) =>
+                  t === "REGISTRATION_CARD"
+                    ? "carte grise"
+                    : t === "INSURANCE"
+                      ? "assurance"
+                      : t.toLowerCase()
+                )
+                .join(", ")}
+            </p>
+          )}
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                Carte grise
+              </p>
+              <KycDocumentCard
+                document={vehicle.registration_document}
+                canUpload={canUploadDoc(vehicle.registration_document)}
+                uploadHint="PDF ou image (JPG, PNG) · max 5 Mo"
+                onUpload={(file) => {
+                  uploadRegistration.mutate(file, {
+                    onError: () =>
+                      notificationService.error("Échec de l'envoi de la carte grise"),
+                  });
+                }}
+              />
+            </div>
+
+            {insuranceDoc && (
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                  Assurance
+                </p>
+                <KycDocumentCard
+                  document={insuranceDoc}
+                  canUpload={canUploadDoc(insuranceDoc)}
+                  uploadHint="PDF ou image (JPG, PNG) · max 5 Mo"
+                  onUpload={(file) => {
+                    uploadInsurance.mutate(file, {
+                      onError: () =>
+                        notificationService.error("Échec de l'envoi de l'assurance"),
+                    });
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -139,7 +199,7 @@ export function PartnerVehicleDetailPage({ vehicleId }: PartnerVehicleDetailPage
               <div className="flex justify-between gap-2">
                 <dt>Année · Couleur</dt>
                 <dd className="text-foreground">
-                  {vehicle.year} · {vehicle.color}
+                  {vehicle.year > 0 ? vehicle.year : "—"} · {vehicle.color}
                 </dd>
               </div>
               <div className="flex justify-between gap-2">

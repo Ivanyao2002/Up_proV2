@@ -39,20 +39,17 @@ export function IvorianPlateBadge({
   }
 
   if (parsed.variant === "siv") {
+    // Plaque SIV ivoirienne : fond blanc, texte noir, bande bleue « CI / 01 » à DROITE
+    // uniquement (pas de bande gauche, contrairement aux plaques UE).
     return (
       <span
         className={`inline-flex overflow-hidden rounded border border-[#c5c5c5] bg-white font-bold text-black shadow-sm ${height} ${minWidth} ${className}`}
         title={parsed.display}
       >
         <span
-          className={`${bandWidth} shrink-0`}
-          style={{ backgroundColor: CI_BLUE }}
-          aria-hidden
-        />
-        <span
-          className={`flex min-w-0 flex-1 items-center justify-center tracking-wide ${textSize}`}
+          className={`flex min-w-0 flex-1 items-center justify-center pl-2 tracking-wide ${textSize}`}
         >
-          {parsed.display}
+          {`${parsed.letters1}-${parsed.numbers}-${parsed.letters2}`}
         </span>
         <span
           className={`${bandWidth} relative flex shrink-0 flex-col items-center justify-between py-0.5 text-[7px] font-bold leading-none text-white`}
@@ -60,7 +57,7 @@ export function IvorianPlateBadge({
           aria-hidden
         >
           <span>CI</span>
-          <span>01</span>
+          <span>{parsed.region ?? "01"}</span>
         </span>
       </span>
     );

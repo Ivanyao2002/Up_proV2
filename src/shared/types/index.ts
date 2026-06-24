@@ -822,12 +822,27 @@ export interface Vehicle {
   partner_name?: string | null;
 }
 
+export interface VehicleDocumentsSummary {
+  requiredCount: number;
+  uploadedCount: number;
+  approvedCount: number;
+  pendingCount: number;
+  rejectedCount: number;
+  missingCount: number;
+  missingTypes: string[];
+  isComplete: boolean;
+  hasAnyDocument: boolean;
+}
+
 export interface VehicleDetail extends Vehicle {
   brand: string;
   model: string;
   seats: number;
   owner_id: number | string;
   registration_document: KycDocument;
+  /** Attestation d'assurance — requise au même titre que la carte grise. */
+  insurance_document?: KycDocument;
+  documents_summary?: VehicleDocumentsSummary;
   approved_at?: string | null;
   driver_id?: string | null;
 }

@@ -20,6 +20,8 @@ interface VehicleTypeBadgeProps {
   showCategory?: boolean;
   /** Affiche le chip corps (voiture / moto…) — désactivé si l’icône est déjà dans la cellule. */
   showKind?: boolean;
+  /** Contenu du chip catégorie : libellé (« Economique », défaut) ou code (« ECO »). */
+  categoryDisplay?: "label" | "code";
   className?: string;
 }
 
@@ -47,14 +49,25 @@ export function VehicleTypeBadge({
   vehicle,
   showCategory = true,
   showKind = true,
+  categoryDisplay = "label",
   className = "",
 }: VehicleTypeBadgeProps) {
   const kind = inferVehicleKind(vehicle);
   const service = inferVehicleService(vehicle.category);
-  const categoryLabel =
-    vehicle.category_label?.trim() ||
-    vehicle.category_code?.trim() ||
-    getVehicleCategoryLabel(vehicle.category);
+  const categoryText =
+    categoryDisplay === "code"
+      ? vehicle.category_code?.trim() ||
+        vehicle.category_label?.trim() ||
+        getVehicleCategoryLabel(vehicle.category)
+      : vehicle.category_label?.trim() ||
+        vehicle.category_code?.trim() ||
+        getVehicleCategoryLabel(vehicle.category);
+
+  // Évite le doublon « Moto · MOTO » quand la catégorie répète le type de carrosserie.
+  const showCategoryChip =
+    showCategory &&
+    Boolean(categoryText) &&
+    categoryText.toLowerCase() !== VEHICLE_KIND_LABELS[kind].toLowerCase();
 
   return (
     <div className={`flex flex-wrap items-center gap-1.5 ${className}`}>
@@ -69,8 +82,8 @@ export function VehicleTypeBadge({
           {VEHICLE_SERVICE_LABELS[service]}
         </Chip>
       )}
-      {showCategory && categoryLabel && (
-        <Chip variant="outline">{categoryLabel}</Chip>
+      {showCategoryChip && (
+        <Chip variant="outline">{categoryText}</Chip>
       )}
     </div>
   );

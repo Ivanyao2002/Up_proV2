@@ -6,11 +6,17 @@ import { paginateClientList } from "@/shared/lib/clientList";
 import type { ApiV1VehicleItem } from "./adminVehicles.api.types";
 import type { VehicleCatalogLookups } from "./vehicleCatalog.service";
 
+// Catalogue API (8 catégories) → catégorie UI. Sans cette couverture complète,
+// MOTO/TRICYCLE/FOURGON/CAMION retombaient sur « taxi » → badge service erroné.
 const CATEGORY_CODE_TO_UI: Record<string, VehicleCategory> = {
   ECO: "taxi",
   CONFORT: "taxi",
   CONFORT_PLUS: "taxi",
   PREMIUM: "premium",
+  MOTO: "delivery",
+  TRICYCLE: "delivery",
+  FOURGON: "van",
+  CAMION: "van",
 };
 
 export function mapApiVehicleStatus(status?: string | null): VehicleApprovalStatus {
@@ -21,14 +27,41 @@ export function mapApiVehicleStatus(status?: string | null): VehicleApprovalStat
   return "pending";
 }
 
-function mapCategoryCode(code?: string): VehicleCategory {
+export function mapCategoryCode(code?: string): VehicleCategory {
   if (!code) return "taxi";
   return CATEGORY_CODE_TO_UI[code.toUpperCase()] ?? "taxi";
 }
 
 function resolveDriverName(item: ApiV1VehicleItem): string | null {
-  const d = (item as unknown as { driver?: { name?: string | null; first_name?: string | null; last_name?: string | null; profile?: { displayName?: string | null } | null } | null }).driver;
-  const name = d ? d.name ?? d.first_name ?? d.profile?.displayName ?? null : null;
+  const d = (item as unknown as {
+    driver?: {
+      name?: string | null;
+      displayName?: string | null;
+      first_name?: string | null;
+      last_name?: string | null;
+      profile?: { firstName?: string | null; lastName?: string | null; displayName?: string | null } | null;
+    } | null;
+    driverSummary?: { driverName?: string | null } | null;
+  });
+  const drv = d.driver;
+  const fromParts =
+    drv?.first_name && drv?.last_name ? `${drv.first_name} ${drv.last_name}`.trim() : null;
+  const fromProfile =
+    drv?.profile?.firstName && drv?.profile?.lastName
+      ? `${drv.profile.firstName} ${drv.profile.lastName}`.trim()
+      : null;
+
+  // Priorité au nom complet (displayName / nom+prénom) plutôt qu'au seul prénom.
+  const name =
+    drv?.displayName?.trim() ||
+    drv?.profile?.displayName?.trim() ||
+    d.driverSummary?.driverName?.trim() ||
+    fromParts ||
+    fromProfile ||
+    drv?.name?.trim() ||
+    drv?.first_name?.trim() ||
+    drv?.last_name?.trim() ||
+    null;
   if (name) return name;
   // L'API ne renvoie souvent que driver_id (sans objet driver) : éviter d'afficher « — »
   // pour un véhicule réellement affecté.
@@ -50,6 +83,7 @@ function readLabelParts(
     (item.model_id ? lookups?.modelById.get(item.model_id)?.label ?? "" : "");
   const color =
     item.color?.label ??
+    item.colorLabel ??
     (item.color_id ? lookups?.colorById.get(item.color_id)?.label ?? "" : "");
   const categoryCode =
     item.category?.code ??
@@ -57,6 +91,7 @@ function readLabelParts(
     (item.category_id ? lookups?.categoryById.get(item.category_id)?.code : undefined);
   const categoryLabel =
     item.category?.label ??
+    item.categoryLabel ??
     (item.category_id ? lookups?.categoryById.get(item.category_id)?.label ?? "—" : "—");
 
   return { brand, model, color, categoryLabel, categoryCode };
