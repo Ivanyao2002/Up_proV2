@@ -51,6 +51,21 @@ function isNavItemActiveLegacy(pathname: string, itemPath: string): boolean {
   if (itemPath === "/partner/bookings/new") {
     return pathname === "/partner/bookings/new";
   }
+  if (itemPath === "/partner/rental") {
+    // Actif sur la liste et le détail (/partner/rental/{id}), mais pas sur les
+    // sous-pages dédiées (flotte, calendrier, tarifs, finance).
+    const rentalSubPages = [
+      "/partner/rental/fleet",
+      "/partner/rental/calendar",
+      "/partner/rental/pricing",
+      "/partner/rental/finance",
+    ];
+    return (
+      pathname === "/partner/rental" ||
+      (/^\/partner\/rental\/[^/]+$/.test(pathname) &&
+        !rentalSubPages.includes(pathname))
+    );
+  }
   if (itemPath === "/partner/map") {
     return pathname === "/partner/map";
   }

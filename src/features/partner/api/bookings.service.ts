@@ -38,6 +38,11 @@ export interface ApiBookingItem {
   driver_name?: string | null;
   driver?: ApiBookingDriver | null;
   vehicle_id?: string | null;
+  vehicle?: {
+    id?: string | null;
+    plate?: string | null;
+    model?: string | null;
+  } | null;
   franchise_id?: string | null;
   city_id?: string | null;
   zone_id?: string | null;
@@ -103,6 +108,7 @@ export interface PartnerBooking {
   driver_id?: string | number;
   driver_name?: string;
   driver_phone?: string;
+  vehicle_plate?: string;
   notes?: string;
   created_at: string;
   payment_status?: string | null;
@@ -200,6 +206,7 @@ export function mapApiBookingItemToPartnerBooking(item: ApiBookingItem): Partner
     driver_id: item.driver_id ?? driver?.id ?? undefined,
     driver_name: driverName,
     driver_phone: driver?.phone ?? undefined,
+    vehicle_plate: item.vehicle?.plate?.trim() || undefined,
     notes: item.notes ?? undefined,
     created_at: item.created_at,
     payment_status: item.payment_status,

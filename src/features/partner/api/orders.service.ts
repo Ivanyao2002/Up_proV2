@@ -44,9 +44,15 @@ function mapOrdersResponse(
       meta: response.pagination
         ? {
             current_page: response.pagination.page,
-            last_page: response.pagination.hasMore
-              ? response.pagination.page + 1
-              : response.pagination.page,
+            // `last_page` se déduit de total/limit — `hasMore ? page + 1` ne
+            // donnait que « page courante + 1 » (affichage « 1 / 2 » au lieu de
+            // « 1 / 5 » et impossible de sauter à la dernière page).
+            last_page: Math.max(
+              1,
+              Math.ceil(
+                response.pagination.total / (response.pagination.limit || 1)
+              )
+            ),
             per_page: response.pagination.limit,
             total: response.pagination.total,
           }

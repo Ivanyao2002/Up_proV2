@@ -21,6 +21,9 @@ export interface Column<T> {
   exportValue?: (row: T) => string | number | null | undefined;
   /** Clé de tri — si fournie, la colonne est triable côté client */
   sortKey?: (row: T) => string | number | null | undefined;
+  /** Champ de tri serveur — si fourni et que la table est en mode serveur avec
+   *  `serverPagination.onSortChange`, la colonne devient triable côté serveur. */
+  sortField?: string;
   className?: string;
 }
 
@@ -40,6 +43,12 @@ export interface DataTableServerPagination {
   lastPage: number;
   onPageChange: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  /** Champ de tri serveur actif. */
+  sort?: string;
+  /** Sens de tri serveur actif. */
+  order?: "asc" | "desc";
+  /** Déclenché au clic sur un en-tête `sortField` (mode serveur). */
+  onSortChange?: (field: string) => void;
 }
 
 interface DataTableProps<T> {
@@ -61,6 +70,9 @@ interface DataTableProps<T> {
   maxHeight?: string;
   /** Nom de fichier sans extension pour export CSV / Excel */
   exportFileName?: string;
+  /** En pagination serveur : récupère TOUTES les lignes (toutes pages) pour
+   *  l'export. Si fourni, l'export ne se limite plus à la page affichée. */
+  onExportAll?: () => Promise<T[]>;
   /** Hauteur des lignes : default 52px, compact 40px */
   rowHeight?: DataTableRowHeight;
   /** Classes CSS additionnelles par ligne */
@@ -127,6 +139,7 @@ export function DataTable<T>({
   exportFileName,
   rowHeight = "default",
   getRowClassName,
+  onExportAll,
   onRowClick,
   rowAriaLabel,
   isError,
@@ -139,7 +152,7 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const serverMode = Boolean(serverPagination);
   const paginationEnabled = !serverMode && pagination !== false;
-  const pageSizeOptions =
+  const basePageSizeOptions =
     pagination !== false && typeof pagination === "object" && pagination.pageSizeOptions
       ? pagination.pageSizeOptions
       : DEFAULT_PAGE_SIZE_OPTIONS;
@@ -179,6 +192,14 @@ export function DataTable<T>({
   const activePage = serverMode ? serverPagination!.page : page;
   const activePageSize = serverMode ? serverPagination!.pageSize : pageSize;
   const totalItems = serverMode ? serverPagination!.total : data.length;
+
+  // Le serveur peut renvoyer une limite différente de celle demandée (ex. cap à
+  // 20 alors qu'on demande 25). Sans cela, `<select value={20}>` ne trouve pas
+  // l'option et retombe sur la 1ère valeur affichée (« 10 ») — on garantit donc
+  // que la taille de page active figure toujours dans les options.
+  const pageSizeOptions = basePageSizeOptions.includes(activePageSize)
+    ? basePageSizeOptions
+    : [...basePageSizeOptions, activePageSize].sort((a, b) => a - b);
   const totalPages = serverMode
     ? serverPagination!.lastPage
     : Math.max(1, Math.ceil(data.length / pageSize));
@@ -235,19 +256,30 @@ export function DataTable<T>({
       notificationService.warning("Export non configuré pour ce tableau");
       return;
     }
-    // En pagination serveur, l'export ne porte que sur la page chargée — le dire
-    // explicitement plutôt que de laisser croire à un export complet (#6 audit UX).
-    if (serverMode && totalItems > data.length) {
+    // En pagination serveur sans `onExportAll`, l'export ne porte que sur la page
+    // chargée — le dire explicitement plutôt que de laisser croire à un export
+    // complet (#6 audit UX).
+    if (serverMode && !onExportAll && totalItems > data.length) {
       notificationService.warning(
         `Export limité à la page affichée (${data.length} sur ${totalItems} lignes).`
       );
     }
     setExporting(format);
     try {
+      // Avec `onExportAll`, on récupère toutes les pages avant d'exporter.
+      let exportRows = data;
+      if (serverMode && onExportAll) {
+        try {
+          exportRows = await onExportAll();
+        } catch {
+          notificationService.error("Échec de la récupération des lignes à exporter");
+          return;
+        }
+      }
       const ok =
         format === "csv"
-          ? downloadCsv(columns, data, exportFileName)
-          : await downloadExcel(columns, data, exportFileName);
+          ? downloadCsv(columns, exportRows, exportFileName)
+          : await downloadExcel(columns, exportRows, exportFileName);
       if (ok) {
         notificationService.success(
           format === "csv" ? "Export CSV téléchargé" : "Export Excel téléchargé"
@@ -276,7 +308,7 @@ export function DataTable<T>({
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-medium text-muted">
                 Exporter
-                {serverMode && totalItems > data.length ? (
+                {serverMode && !onExportAll && totalItems > data.length ? (
                   <span className="ml-1 font-normal text-amber-600">
                     (page affichée)
                   </span>
@@ -358,28 +390,43 @@ export function DataTable<T>({
                 </th>
               )}
               {columns.map((col, colIndex) => {
-                // En pagination serveur, le tri client ne porterait que sur la page
-                // affichée (décision trompeuse) → on n'expose pas le tri (#5 audit UX).
-                const isSortable = Boolean(col.sortKey) && !serverMode;
-                const isActive = sortCol === col.id;
+                // Tri serveur : actif si la table est en mode serveur, qu'un
+                // `onSortChange` est fourni et que la colonne déclare un `sortField`.
+                const serverSortable =
+                  serverMode &&
+                  Boolean(serverPagination?.onSortChange) &&
+                  Boolean(col.sortField);
+                // Tri client : seulement hors mode serveur (sinon il ne porterait
+                // que sur la page affichée — décision trompeuse, #5 audit UX).
+                const clientSortable = Boolean(col.sortKey) && !serverMode;
+                const isSortable = serverSortable || clientSortable;
+                const isActive = serverSortable
+                  ? serverPagination?.sort === col.sortField
+                  : sortCol === col.id;
+                const activeDir = serverSortable
+                  ? serverPagination?.order ?? "desc"
+                  : sortDir;
+                const onHeaderSort = serverSortable
+                  ? () => serverPagination?.onSortChange?.(col.sortField!)
+                  : () => handleSort(col.id);
                 return (
                   <th
                     key={col.id}
                     className={`px-3 py-3 font-medium sm:px-6 ${
                       colIndex === 0 ? stickyFirstColClass : ""
                     } ${col.className ?? ""}`}
-                    aria-sort={isActive ? (sortDir === "asc" ? "ascending" : "descending") : undefined}
+                    aria-sort={isActive ? (activeDir === "asc" ? "ascending" : "descending") : undefined}
                   >
                     {isSortable ? (
                       <button
                         type="button"
-                        onClick={() => handleSort(col.id)}
+                        onClick={onHeaderSort}
                         aria-label={`Trier par ${typeof col.header === "string" ? col.header : col.id}`}
                         className="inline-flex select-none items-center gap-1 rounded outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-teal"
                       >
                         {col.header}
                         <span className={`text-[10px] ${isActive ? "text-teal" : "text-muted/40"}`}>
-                          {isActive ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}
+                          {isActive ? (activeDir === "asc" ? "▲" : "▼") : "⇅"}
                         </span>
                       </button>
                     ) : (

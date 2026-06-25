@@ -2,16 +2,21 @@
 
 import { DetailPageSkeleton } from "@/shared/ui/skeletons";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
 import { EntityStatusPill } from "@/shared/ui/EntityStatusPill";
 import { formatDateTime, formatDate } from "@/shared/lib/format";
+import { useScope } from "@/core/auth/useScope";
 import { usePartnerProfile, useUpdatePartnerProfile } from "../api/profile.queries";
 import { PartnerDocumentsSection } from "../components/PartnerDocumentsSection";
 
 export function PartnerProfilePage() {
   const { data, isLoading, isError } = usePartnerProfile();
   const update = useUpdatePartnerProfile();
+  const { hasModule } = useScope();
+  const isFleet = hasModule("fleet");
+  const isRental = hasModule("rental");
 
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -158,7 +163,9 @@ export function PartnerProfilePage() {
                     className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none ring-teal/30 focus:ring-2"
                   />
                   <span className="mt-1 block text-xs text-muted">
-                    KYC chauffeurs, validation véhicules, retraits
+                    {isFleet
+                      ? "KYC chauffeurs, validation véhicules, retraits"
+                      : "Validation des documents, réservations, retraits"}
                   </span>
                 </label>
 
@@ -245,34 +252,47 @@ export function PartnerProfilePage() {
           <section className="rounded-card border border-border bg-surface p-6 shadow-card">
             <h3 className="text-sm font-semibold text-foreground">Actions rapides</h3>
             <div className="mt-4 space-y-2">
-              <a
+              <Link
                 href="/partner/wallet"
                 className="flex items-center gap-3 rounded-lg p-3 text-sm hover:bg-canvas transition-colors"
               >
                 <span className="text-lg">💳</span>
                 <span className="flex-1">Voir mon portefeuille</span>
-              </a>
-              <a
-                href="/partner/drivers"
-                className="flex items-center gap-3 rounded-lg p-3 text-sm hover:bg-canvas transition-colors"
-              >
-                <span className="text-lg">👥</span>
-                <span className="flex-1">Gérer mes chauffeurs</span>
-              </a>
-              <a
-                href="/partner/fleet"
-                className="flex items-center gap-3 rounded-lg p-3 text-sm hover:bg-canvas transition-colors"
-              >
-                <span className="text-lg">🚗</span>
-                <span className="flex-1">Gérer ma flotte</span>
-              </a>
-              <a
+              </Link>
+              {isFleet && (
+                <>
+                  <Link
+                    href="/partner/drivers"
+                    className="flex items-center gap-3 rounded-lg p-3 text-sm hover:bg-canvas transition-colors"
+                  >
+                    <span className="text-lg">👥</span>
+                    <span className="flex-1">Gérer mes chauffeurs</span>
+                  </Link>
+                  <Link
+                    href="/partner/fleet"
+                    className="flex items-center gap-3 rounded-lg p-3 text-sm hover:bg-canvas transition-colors"
+                  >
+                    <span className="text-lg">🚗</span>
+                    <span className="flex-1">Gérer ma flotte</span>
+                  </Link>
+                </>
+              )}
+              {isRental && (
+                <Link
+                  href="/partner/rental/fleet"
+                  className="flex items-center gap-3 rounded-lg p-3 text-sm hover:bg-canvas transition-colors"
+                >
+                  <span className="text-lg">🚗</span>
+                  <span className="flex-1">Gérer ma flotte location</span>
+                </Link>
+              )}
+              <Link
                 href="/partner/support/chat"
                 className="flex items-center gap-3 rounded-lg p-3 text-sm hover:bg-canvas transition-colors"
               >
                 <span className="text-lg">💬</span>
                 <span className="flex-1">Contacter le support</span>
-              </a>
+              </Link>
             </div>
           </section>
 

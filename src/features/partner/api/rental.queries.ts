@@ -6,6 +6,7 @@ import {
   partnerRentalService,
   type CreateRentalOfferPayload,
   type UpdateRentalOfferPayload,
+  type RentalReschedulePayload,
 } from "./rental.service";
 import type { ListParams } from "@/shared/types/listParams";
 
@@ -14,6 +15,7 @@ export const partnerRentalKeys = {
   list: (filters?: ListParams) =>
     [...partnerRentalKeys.all, "list", filters] as const,
   detail: (id: string) => [...partnerRentalKeys.all, "detail", id] as const,
+  stats: () => [...partnerRentalKeys.all, "stats"] as const,
 };
 
 export function usePartnerRentalOffers(params?: ListParams) {
@@ -31,6 +33,15 @@ export function usePartnerRentalOfferDetail(offerId: string) {
     queryKey: partnerRentalKeys.detail(offerId),
     queryFn: () => partnerRentalService.getById(ownerId!, offerId),
     enabled: ownerId != null && !!offerId,
+  });
+}
+
+export function usePartnerRentalStats() {
+  const { ownerId } = useScope();
+  return useQuery({
+    queryKey: partnerRentalKeys.stats(),
+    queryFn: () => partnerRentalService.stats(ownerId!),
+    enabled: ownerId != null,
   });
 }
 
@@ -61,6 +72,20 @@ export function useUpdateRentalOffer() {
     }) => {
       if (!ownerId) throw new Error("Partner ID non disponible");
       return partnerRentalService.update(ownerId, id, data);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: partnerRentalKeys.all });
+    },
+  });
+}
+
+export function useRescheduleRentalOffer() {
+  const qc = useQueryClient();
+  const { ownerId } = useScope();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: RentalReschedulePayload }) => {
+      if (!ownerId) throw new Error("Partner ID non disponible");
+      return partnerRentalService.reschedule(ownerId, id, data);
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: partnerRentalKeys.all });

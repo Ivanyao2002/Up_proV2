@@ -786,12 +786,68 @@ export const LINKS = {
     },
 
     rental: {
+      // Réservations (offres) — cf. DEMANDES-BACKEND-RENTAL-PARTENAIRE.md
       list: (id: string | number) => `/v1/partners/${id}/rental-offers`,
       create: (id: string | number) => `/v1/partners/${id}/rental-offers`,
+      detail: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}`, // DB-RENT-01
       update: (id: string | number, offerId: string | number) =>
         `/v1/partners/${id}/rental-offers/${offerId}`,
       delete: (id: string | number, offerId: string | number) =>
         `/v1/partners/${id}/rental-offers/${offerId}`,
+      stats: (id: string | number) => `/v1/partners/${id}/rental-offers/stats`, // DB-RENT-02
+      reschedule: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}/reschedule`, // DB-RENT-16
+
+      // Exécution : états des lieux & clôture — DB-RENT-13/14
+      checkIn: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}/check-in`,
+      checkOut: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}/check-out`,
+      close: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}/close`,
+      documents: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}/documents`,
+
+      // Caution — DB-RENT-15
+      deposit: {
+        release: (id: string | number, offerId: string | number) =>
+          `/v1/partners/${id}/rental-offers/${offerId}/deposit/release`,
+        withhold: (id: string | number, offerId: string | number) =>
+          `/v1/partners/${id}/rental-offers/${offerId}/deposit/withhold`,
+      },
+
+      // Incidents — DB-RENT-18
+      incidents: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/rental-offers/${offerId}/incidents`,
+
+      // Flotte location dédiée — DB-RENT-10
+      vehicles: {
+        list: (id: string | number) => `/v1/partners/${id}/rental/vehicles`,
+        create: (id: string | number) => `/v1/partners/${id}/rental/vehicles`,
+        detail: (id: string | number, vehicleId: string | number) =>
+          `/v1/partners/${id}/rental/vehicles/${vehicleId}`,
+        update: (id: string | number, vehicleId: string | number) =>
+          `/v1/partners/${id}/rental/vehicles/${vehicleId}`,
+        delete: (id: string | number, vehicleId: string | number) =>
+          `/v1/partners/${id}/rental/vehicles/${vehicleId}`,
+        status: (id: string | number, vehicleId: string | number) =>
+          `/v1/partners/${id}/rental/vehicles/${vehicleId}/status`,
+        // Tarification & conditions — DB-RENT-11
+        pricing: (id: string | number, vehicleId: string | number) =>
+          `/v1/partners/${id}/rental/vehicles/${vehicleId}/pricing`,
+        // Disponibilités & calendrier — DB-RENT-12
+        availability: (id: string | number, vehicleId: string | number) =>
+          `/v1/partners/${id}/rental/vehicles/${vehicleId}/availability`,
+        blocks: (id: string | number, vehicleId: string | number) =>
+          `/v1/partners/${id}/rental/vehicles/${vehicleId}/blocks`,
+      },
+
+      // Finance & reversements Location — DB-RENT-17
+      finance: {
+        summary: (id: string | number) => `/v1/partners/${id}/rental/finance/summary`,
+        settlements: (id: string | number) => `/v1/partners/${id}/rental/settlements`,
+      },
     },
 
     safety: {

@@ -19,6 +19,12 @@ export interface NavItem {
    * connexes (ex. pages de détail) sans coder de règle en dur.
    */
   activePaths?: string[];
+  /**
+   * Module métier partenaire requis pour afficher l'entrée (filtrage par
+   * `partner_type`). `undefined` = visible par tous les partenaires (commun).
+   * Voir `useScope().hasModule`.
+   */
+  module?: "fleet" | "freight" | "rental";
 }
 
 export interface NavGroup {

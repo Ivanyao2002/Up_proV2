@@ -11,39 +11,55 @@ import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
-import { useServerTableState } from "@/shared/hooks/useServerTableState";
-import { formatFCFA } from "@/shared/lib/format";
+import {
+  serverPaginationFromMeta,
+  useServerTableState,
+} from "@/shared/hooks/useServerTableState";
+import { formatFCFA, formatDate } from "@/shared/lib/format";
+import { notificationService } from "@/core/http/notificationService";
 import {
   usePartnerRentalOffers,
+  usePartnerRentalStats,
   useUpdateRentalOffer,
   useCreateRentalOffer,
-  useDeleteRentalOffer,
 } from "../api/rental.queries";
-import type { RentalOffer, RentalOfferStatus, CreateRentalOfferPayload } from "../api/rental.service";
+import type { RentalOffer, CreateRentalOfferPayload } from "../api/rental.service";
+import {
+  RENTAL_STATUS_CONFIG,
+  rentalNextActions,
+  type RentalStatus,
+} from "../lib/rentalStatus";
+import { RentalRejectModal } from "../components/RentalRejectModal";
 
-const STATUS_FILTERS: { value: RentalOfferStatus | "all"; label: string }[] = [
+const STATUS_FILTERS: { value: RentalStatus | "all"; label: string }[] = [
   { value: "all", label: "Toutes" },
-  { value: "pending", label: "En attente" },
+  { value: "awaiting_confirmation", label: "À confirmer" },
   { value: "confirmed", label: "Confirmées" },
+  { value: "ready", label: "Prêtes" },
   { value: "active", label: "En cours" },
-  { value: "completed", label: "Terminées" },
+  { value: "to_close", label: "À clôturer" },
+  { value: "completed", label: "Clôturées" },
   { value: "cancelled", label: "Annulées" },
-  { value: "rejected", label: "Refusées" },
 ];
 
-const REVENUE_STATUSES: RentalOfferStatus[] = ["confirmed", "active", "completed"];
-
-// Icônes SVG inline
-const IconCalendar = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
-const IconCar = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>;
-const IconUser = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
-const IconCheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
-const IconXCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
+function StatusBadge({ status }: { status: RentalStatus }) {
+  const cfg = RENTAL_STATUS_CONFIG[status];
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${cfg.color}`}
+    >
+      {cfg.label}
+    </span>
+  );
+}
 
 export function PartnerRentalPage() {
-  const table = useServerTableState([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<RentalOfferStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<RentalStatus | "all">("all");
+
+  const table = useServerTableState([statusFilter], {
+    status: statusFilter !== "all" ? statusFilter : undefined,
+  });
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
@@ -52,57 +68,28 @@ export function PartnerRentalPage() {
     ],
   });
 
-  // Pas d'endpoint stats : on charge toute la liste et on calcule le dashboard côté client.
-  const { data, isLoading } = usePartnerRentalOffers({ per_page: 200 });
-  const allOffers = useMemo(() => data?.data ?? [], [data?.data]);
+  const { data, isLoading, isError } = usePartnerRentalOffers(table.listParams);
+  const { data: stats } = usePartnerRentalStats();
 
-  const stats = useMemo(() => {
-    const by = (s: RentalOfferStatus) => allOffers.filter((o) => o.status === s).length;
-    const revenue = allOffers
-      .filter((o) => REVENUE_STATUSES.includes(o.status))
-      .reduce((sum, o) => sum + (o.price_fcfa ?? 0), 0);
-    const deposits = allOffers
-      .filter((o) => o.status === "active")
-      .reduce((sum, o) => sum + (o.deposit_fcfa ?? 0), 0);
+  const rows = useMemo(() => data?.data ?? [], [data?.data]);
+  const meta = data?.meta;
+
+  const kpi = useMemo(() => {
+    const c = stats?.counters;
     return {
-      total: allOffers.length,
-      pending: by("pending"),
-      active: by("active"),
-      completed: by("completed"),
-      revenue,
-      deposits,
+      total: c?.total ?? meta?.total ?? rows.length,
+      toConfirm: c?.awaiting_confirmation ?? rows.filter((o) => o.status === "awaiting_confirmation").length,
+      active: c?.active ?? rows.filter((o) => o.status === "active").length,
+      revenue: stats?.revenue_fcfa,
     };
-  }, [allOffers]);
-
-  const searchTerm = table.search.trim().toLowerCase();
-  const offers = useMemo(
-    () =>
-      allOffers.filter((o) => {
-        if (statusFilter !== "all" && o.status !== statusFilter) return false;
-        if (!searchTerm) return true;
-        return [o.ref, o.client_name, o.client_phone, o.vehicle_label, o.pickup_location]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(searchTerm);
-      }),
-    [allOffers, statusFilter, searchTerm]
-  );
-
-  const statusConfig: Record<RentalOfferStatus, { label: string; color: string }> = {
-    pending: { label: "En attente", color: "bg-yellow-100 text-yellow-700" },
-    confirmed: { label: "Confirmée", color: "bg-blue-100 text-blue-700" },
-    rejected: { label: "Refusée", color: "bg-red-100 text-red-700" },
-    active: { label: "En cours", color: "bg-green-100 text-green-700" },
-    completed: { label: "Terminée", color: "bg-gray-100 text-gray-700" },
-    cancelled: { label: "Annulée", color: "bg-red-100 text-red-700" },
-  };
+  }, [stats, meta, rows]);
 
   const columns: Column<RentalOffer>[] = [
     {
       id: "ref",
       header: "Référence",
-      className: "min-w-[140px]",
+      sortField: "ref",
+      className: "min-w-[130px]",
       cell: (o) => (
         <Link
           href={`/partner/rental/${o.id}`}
@@ -111,89 +98,86 @@ export function PartnerRentalPage() {
           {o.ref}
         </Link>
       ),
+      exportValue: (o) => o.ref,
     },
     {
       id: "vehicle",
       header: "Véhicule",
-      cell: (o) => (
-        <div className="flex items-center gap-2">
-          <IconCar />
-          <span>{o.vehicle_label ?? "—"}</span>
-        </div>
-      ),
+      cell: (o) => o.vehicle_label ?? o.vehicle_plate ?? "—",
+      exportValue: (o) => o.vehicle_label ?? "",
     },
     {
       id: "client",
       header: "Client",
+      sortField: "client_name",
       cell: (o) => (
-        <div className="flex items-center gap-2">
-          <IconUser />
-          <div>
-            <div className="text-sm">{o.client_name}</div>
-            {o.client_phone && <div className="text-xs text-muted">{o.client_phone}</div>}
-          </div>
+        <div>
+          <p className="text-sm">{o.client_name || "—"}</p>
+          {o.client_phone && <p className="text-xs text-muted">{o.client_phone}</p>}
         </div>
       ),
+      exportValue: (o) => o.client_name || "",
     },
     {
-      id: "dates",
+      id: "period",
       header: "Période",
+      sortField: "pickup_date",
       cell: (o) => (
-        <div className="flex items-center gap-2">
-          <IconCalendar />
-          <div className="text-sm">
-            <div>{new Date(o.pickup_date).toLocaleDateString()} → {new Date(o.return_date).toLocaleDateString()}</div>
-          </div>
-        </div>
+        <span className="text-sm whitespace-nowrap">
+          {formatDate(o.pickup_date)} → {formatDate(o.return_date)}
+        </span>
       ),
+      exportValue: (o) => `${formatDate(o.pickup_date)} → ${formatDate(o.return_date)}`,
     },
     {
       id: "price",
       header: "Prix",
+      sortField: "price_fcfa",
       cell: (o) => (
         <div>
           <div className="font-medium text-teal">{formatFCFA(o.price_fcfa)}</div>
-          {o.deposit_fcfa && <div className="text-xs text-muted">Caution: {formatFCFA(o.deposit_fcfa)}</div>}
+          {o.deposit_fcfa ? (
+            <div className="text-xs text-muted">Caution {formatFCFA(o.deposit_fcfa)}</div>
+          ) : null}
         </div>
       ),
+      exportValue: (o) => String(o.price_fcfa),
     },
     {
       id: "status",
       header: "Statut",
-      cell: (o) => {
-        const config = statusConfig[o.status];
-        return (
-          <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${config.color}`}>
-            {config.label}
-          </span>
-        );
-      },
+      sortField: "status",
+      cell: (o) => <StatusBadge status={o.status} />,
+      exportValue: (o) => RENTAL_STATUS_CONFIG[o.status].label,
     },
     {
       id: "actions",
       header: "",
-      cell: (o) => <RentalActions offer={o} />,
+      cell: (o) => <RentalQuickActions offer={o} />,
     },
   ];
+
+  if (isError) {
+    return <p className="p-6 text-sm text-red-600">Impossible de charger les réservations.</p>;
+  }
 
   return (
     <div className="animate-fade-up pb-24">
       <PageHeader
         title="Réservations Location"
         breadcrumb={["Partenaire", "Location"]}
-        actions={
-          <Button onClick={() => setShowCreate(true)}>Nouvelle réservation</Button>
-        }
+        actions={<Button onClick={() => setShowCreate(true)}>Nouvelle réservation</Button>}
       />
 
       <div className="mb-5 grid gap-3 grid-cols-2 sm:grid-cols-4">
-        <KpiCard index={0} label="Total réservations" value={String(stats.total)} isLoading={isLoading} />
-        <KpiCard index={1} label="En attente" value={String(stats.pending)} isLoading={isLoading} />
-        <KpiCard index={2} label="En cours" value={String(stats.active)} isLoading={isLoading} />
+        <KpiCard index={0} label="Total" value={String(kpi.total)} isLoading={isLoading} />
+        <KpiCard index={1} label="À confirmer" value={String(kpi.toConfirm)} isLoading={isLoading} />
+        <KpiCard index={2} label="En cours" value={String(kpi.active)} isLoading={isLoading} />
         <KpiCard
           index={3}
-          label="Revenus (confirmés)"
-          value={isLoading ? "…" : formatFCFA(stats.revenue)}
+          label="Revenus"
+          value={kpi.revenue != null ? formatFCFA(kpi.revenue) : "—"}
+          isLoading={isLoading}
         />
       </div>
 
@@ -201,33 +185,128 @@ export function PartnerRentalPage() {
         search={table.search}
         onSearchChange={table.setSearch}
         searchPlaceholder="Référence, client, véhicule..."
-        totalLabel={`${offers.length} réservation${offers.length > 1 ? "s" : ""}`}
+        totalLabel={meta ? `${meta.total} réservation${meta.total > 1 ? "s" : ""}` : undefined}
         hasActiveFilters={hasActiveFilters}
         onReset={resetAll}
       >
-        <FilterChips
-          options={STATUS_FILTERS}
-          value={statusFilter}
-          onChange={setStatusFilter}
-        />
+        <FilterChips options={STATUS_FILTERS} value={statusFilter} onChange={setStatusFilter} />
       </TableFiltersBar>
 
       <DataTable
         columns={columns}
-        data={offers}
+        data={rows}
         rowKey={(o) => o.id}
         isLoading={isLoading}
-        pagination={{ pageSize: 10 }}
         hasActiveFilters={hasActiveFilters}
         onResetFilters={resetAll}
         emptyTitle="Aucune réservation"
         emptyDescription="Les demandes de location apparaîtront ici"
+        pagination={false}
+        serverPagination={serverPaginationFromMeta(
+          meta,
+          table.setPage,
+          table.setPageSize,
+          {
+            sortBy: table.sortBy,
+            sortOrder: table.sortOrder,
+            onSortChange: table.setSort,
+          }
+        )}
       />
 
       {showCreate && (
         <RentalCreateModal
           onClose={() => setShowCreate(false)}
           onSuccess={() => setShowCreate(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function RentalQuickActions({ offer }: { offer: RentalOffer }) {
+  const update = useUpdateRentalOffer();
+  const [confirmStatus, setConfirmStatus] = useState<{ to: RentalStatus; label: string } | null>(
+    null
+  );
+  const [rejectVariant, setRejectVariant] = useState<"reject" | "cancel" | null>(null);
+
+  // En triage on n'affiche que les actions « simples » ; le check-in/out se fait
+  // depuis la fiche (états des lieux — Lot 4).
+  const actions = rentalNextActions(offer.status).filter(
+    (a) => a.kind !== "check_in" && a.kind !== "check_out"
+  );
+  if (actions.length === 0) {
+    return (
+      <Link href={`/partner/rental/${offer.id}`} className="text-xs text-teal hover:underline">
+        Gérer
+      </Link>
+    );
+  }
+
+  const applyStatus = (to: RentalStatus, reason?: string) =>
+    update.mutate(
+      {
+        id: offer.id,
+        data: reason
+          ? { status: to, rejection_reason: reason, cancellation_reason: reason }
+          : { status: to },
+      },
+      {
+        onSuccess: () => notificationService.success("Réservation mise à jour"),
+        onError: () => notificationService.error("Action impossible."),
+      }
+    );
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {actions.map((a) =>
+        a.requiresReason ? (
+          <Button
+            key={a.kind}
+            variant="secondary"
+            className="px-2.5 py-1 text-xs text-red-600"
+            onClick={() => setRejectVariant(a.kind === "reject" ? "reject" : "cancel")}
+          >
+            {a.label}
+          </Button>
+        ) : (
+          <Button
+            key={a.kind}
+            variant={a.variant === "primary" ? "primary" : "secondary"}
+            className="px-2.5 py-1 text-xs"
+            onClick={() => setConfirmStatus({ to: a.to, label: a.label })}
+          >
+            {a.label}
+          </Button>
+        )
+      )}
+
+      {confirmStatus && (
+        <ConfirmModal
+          open
+          title={`${confirmStatus.label} la réservation`}
+          message={`Confirmer l'action « ${confirmStatus.label} » sur ${offer.ref} ?`}
+          confirmLabel={confirmStatus.label}
+          cancelLabel="Annuler"
+          onConfirm={() => {
+            applyStatus(confirmStatus.to);
+            setConfirmStatus(null);
+          }}
+          onCancel={() => setConfirmStatus(null)}
+        />
+      )}
+
+      {rejectVariant && (
+        <RentalRejectModal
+          offerRef={offer.ref}
+          variant={rejectVariant}
+          isPending={update.isPending}
+          onConfirm={(reason) => {
+            applyStatus("cancelled", reason);
+            setRejectVariant(null);
+          }}
+          onClose={() => setRejectVariant(null)}
         />
       )}
     </div>
@@ -256,204 +335,122 @@ function RentalCreateModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    create.mutate(form, { onSuccess });
+    create.mutate(form, {
+      onSuccess: () => {
+        notificationService.success("Réservation créée");
+        onSuccess();
+      },
+      onError: () => notificationService.error("Création impossible."),
+    });
   };
+
+  const inputClass = "w-full rounded-lg border border-border bg-surface px-3 py-2";
 
   return (
     <ModalPortal>
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-overlay" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-card bg-surface p-6 shadow-card overflow-y-auto max-h-[90vh]">
-        <h2 className="text-lg font-semibold mb-4">Nouvelle réservation</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Nom du client *</label>
-              <input
-                required
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                placeholder="Kouassi Jean"
-                value={form.client_name}
-                onChange={(e) => setForm({ ...form, client_name: e.target.value })}
-              />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-overlay" onClick={onClose} />
+        <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-card bg-surface p-6 shadow-card">
+          <h2 className="mb-4 text-lg font-semibold">Nouvelle réservation</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <label className="mb-1 block text-sm font-medium">Nom du client *</label>
+                <input
+                  required
+                  className={inputClass}
+                  value={form.client_name}
+                  onChange={(e) => setForm({ ...form, client_name: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="mb-1 block text-sm font-medium">Téléphone client</label>
+                <input
+                  className={inputClass}
+                  value={form.client_phone}
+                  onChange={(e) => setForm({ ...form, client_phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Prise en charge *</label>
+                <input
+                  required
+                  type="datetime-local"
+                  className={inputClass}
+                  value={form.pickup_date}
+                  onChange={(e) => setForm({ ...form, pickup_date: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Retour *</label>
+                <input
+                  required
+                  type="datetime-local"
+                  className={inputClass}
+                  value={form.return_date}
+                  onChange={(e) => setForm({ ...form, return_date: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="mb-1 block text-sm font-medium">Lieu de prise en charge *</label>
+                <input
+                  required
+                  className={inputClass}
+                  value={form.pickup_location}
+                  onChange={(e) => setForm({ ...form, pickup_location: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="mb-1 block text-sm font-medium">Lieu de retour</label>
+                <input
+                  className={inputClass}
+                  placeholder="Identique si vide"
+                  value={form.return_location}
+                  onChange={(e) => setForm({ ...form, return_location: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Prix total (FCFA) *</label>
+                <input
+                  required
+                  type="number"
+                  min="0"
+                  className={inputClass}
+                  value={form.price_fcfa || ""}
+                  onChange={(e) => setForm({ ...form, price_fcfa: Number(e.target.value) })}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Caution (FCFA)</label>
+                <input
+                  type="number"
+                  min="0"
+                  className={inputClass}
+                  value={form.deposit_fcfa || ""}
+                  onChange={(e) => setForm({ ...form, deposit_fcfa: Number(e.target.value) })}
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="mb-1 block text-sm font-medium">Notes</label>
+                <textarea
+                  rows={2}
+                  className={`${inputClass} resize-none`}
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                />
+              </div>
             </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Téléphone client</label>
-              <input
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                placeholder="+225 07 00 00 00 00"
-                value={form.client_phone}
-                onChange={(e) => setForm({ ...form, client_phone: e.target.value })}
-              />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="secondary" onClick={onClose} disabled={create.isPending}>
+                Annuler
+              </Button>
+              <Button type="submit" disabled={create.isPending}>
+                {create.isPending ? "Création..." : "Créer la réservation"}
+              </Button>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Date de prise en charge *</label>
-              <input
-                required
-                type="datetime-local"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                value={form.pickup_date}
-                onChange={(e) => setForm({ ...form, pickup_date: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Date de retour *</label>
-              <input
-                required
-                type="datetime-local"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                value={form.return_date}
-                onChange={(e) => setForm({ ...form, return_date: e.target.value })}
-              />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Lieu de prise en charge *</label>
-              <input
-                required
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                placeholder="Abidjan, Plateau"
-                value={form.pickup_location}
-                onChange={(e) => setForm({ ...form, pickup_location: e.target.value })}
-              />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Lieu de retour</label>
-              <input
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                placeholder="Identique si vide"
-                value={form.return_location}
-                onChange={(e) => setForm({ ...form, return_location: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Prix total (FCFA) *</label>
-              <input
-                required
-                type="number"
-                min="0"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                value={form.price_fcfa || ""}
-                onChange={(e) => setForm({ ...form, price_fcfa: Number(e.target.value) })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Caution (FCFA)</label>
-              <input
-                type="number"
-                min="0"
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2"
-                value={form.deposit_fcfa || ""}
-                onChange={(e) => setForm({ ...form, deposit_fcfa: Number(e.target.value) })}
-              />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Notes</label>
-              <textarea
-                rows={2}
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2 resize-none"
-                placeholder="Instructions particulières..."
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={onClose} disabled={create.isPending}>
-              Annuler
-            </Button>
-            <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Création..." : "Créer la réservation"}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
     </ModalPortal>
-  );
-}
-
-function RentalActions({ offer }: { offer: RentalOffer }) {
-  const [confirmAction, setConfirmAction] = useState<string | null>(null);
-  const update = useUpdateRentalOffer();
-
-  const actionMap: Record<string, { status: import("../api/rental.service").RentalOfferStatus; label: string }> = {
-    confirm: { status: "confirmed", label: "Confirmée" },
-    reject: { status: "rejected", label: "Refusée" },
-    start: { status: "active", label: "Démarrée" },
-    complete: { status: "completed", label: "Terminée" },
-    cancel: { status: "cancelled", label: "Annulée" },
-  };
-  const canCancel = ["pending", "confirmed", "active"].includes(offer.status);
-
-  const handleConfirm = () => {
-    if (!confirmAction) return;
-    const action = actionMap[confirmAction];
-    if (action) {
-      update.mutate({ id: offer.id, data: { status: action.status } });
-    }
-    setConfirmAction(null);
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      {offer.status === "pending" && (
-        <>
-          <Button
-            className="px-3 py-1.5 text-xs"
-            onClick={() => setConfirmAction("confirm")}
-          >
-            <IconCheckCircle />
-            Confirmer
-          </Button>
-          <Button
-            className="px-3 py-1.5 text-xs"
-            variant="secondary"
-            onClick={() => setConfirmAction("reject")}
-          >
-            <IconXCircle />
-            Refuser
-          </Button>
-        </>
-      )}
-      {offer.status === "confirmed" && (
-        <Button
-          className="px-3 py-1.5 text-xs"
-          onClick={() => setConfirmAction("start")}
-        >
-          Check-in
-        </Button>
-      )}
-      {offer.status === "active" && (
-        <Button
-          className="px-3 py-1.5 text-xs"
-          variant="secondary"
-          onClick={() => setConfirmAction("complete")}
-        >
-          Check-out
-        </Button>
-      )}
-      {canCancel && offer.status !== "pending" && (
-        <Button
-          className="px-3 py-1.5 text-xs text-red-600"
-          variant="secondary"
-          onClick={() => setConfirmAction("cancel")}
-        >
-          Annuler
-        </Button>
-      )}
-
-      {confirmAction && (
-        <ConfirmModal
-          open={true}
-          title="Confirmer l'action"
-          message={`Voulez-vous ${actionMap[confirmAction]?.label ?? confirmAction} cette réservation ?`}
-          confirmLabel="Confirmer"
-          cancelLabel="Annuler"
-          variant={confirmAction === "reject" ? "danger" : "primary"}
-          onConfirm={handleConfirm}
-          onCancel={() => setConfirmAction(null)}
-        />
-      )}
-    </div>
   );
 }

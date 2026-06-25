@@ -1,6 +1,11 @@
 import type { NavGroup } from "@/portals/shared/navTypes";
 
-/** Navigation partenaire — pas de RBAC granulaire en V1 (scope owner implicite) */
+/**
+ * Navigation partenaire.
+ * Le champ `module` filtre l'affichage selon le `partner_type` (VTC/FLEET,
+ * FREIGHT, RENTAL, MIXED) via `useScope().hasModule` — appliqué dans
+ * `PartnerShell`. Les entrées sans `module` sont communes à tous les partenaires.
+ */
 export const PARTNER_NAV: NavGroup[] = [
   {
     group: "MA FLOTTE",
@@ -16,61 +21,36 @@ export const PARTNER_NAV: NavGroup[] = [
         path: "/partner/fleet",
         icon: "fleet",
         permission: "fleet.drivers.view",
+        module: "fleet",
       },
-      // {
-      //   label: "Véhicules à valider",
-      //   path: "/partner/fleet/pending",
-      //   icon: "fleet-pending",
-      //   permission: "fleet.drivers.view",
-      // },
       {
         label: "Chauffeurs",
         path: "/partner/drivers",
         icon: "drivers",
         permission: "fleet.drivers.view",
+        module: "fleet",
       },
-      // {
-      //   label: "Chauffeurs KYC",
-      //   path: "/partner/drivers/pending",
-      //   icon: "drivers-pending",
-      //   permission: "fleet.drivers.view",
-      // },
-      // {
-      //   label: "Réservations",
-      //   path: "/partner/bookings",
-      //   icon: "trips",
-      //   permission: "ops.trips.view",
-      // },
       {
         label: "Courses",
         path: "/partner/orders",
         icon: "trips",
         permission: "ops.trips.view",
+        module: "fleet",
       },
       {
         label: "Carte live",
         path: "/partner/map",
         icon: "map",
         permission: "ops.map.view",
+        module: "fleet",
       },
       {
         label: "Performance",
         path: "/partner/performance",
         icon: "reports",
         permission: "fleet.drivers.view",
+        module: "fleet",
       },
-      // {
-      //   label: "Balises GPS",
-      //   path: "/partner/gps-devices",
-      //   icon: "map",
-      //   permission: "fleet.drivers.view",
-      // },
-      // {
-      //   label: "Sécurité / SOS",
-      //   path: "/partner/safety",
-      //   icon: "drivers-pending",
-      //   permission: "fleet.drivers.view",
-      // },
     ],
   },
   {
@@ -81,47 +61,73 @@ export const PARTNER_NAV: NavGroup[] = [
         path: "/partner/freight",
         icon: "trips",
         permission: "partner.freight.view",
+        module: "freight",
       },
       {
         label: "Zones & Couloirs",
         path: "/partner/freight/zones",
         icon: "map",
         permission: "partner.freight.view",
+        module: "freight",
+      },
+    ],
+  },
+  {
+    group: "LOCATION",
+    items: [
+      {
+        label: "Réservations",
+        path: "/partner/rental",
+        icon: "bookings",
+        permission: "partner.rental.view",
+        module: "rental",
       },
       {
-        label: "Réservations location",
-        path: "/partner/rental",
+        label: "Flotte location",
+        path: "/partner/rental/fleet",
         icon: "fleet",
         permission: "partner.rental.view",
+        module: "rental",
+      },
+      {
+        label: "Calendrier",
+        path: "/partner/rental/calendar",
+        icon: "shifts",
+        permission: "partner.rental.view",
+        module: "rental",
+      },
+      {
+        label: "Tarifs & conditions",
+        path: "/partner/rental/pricing",
+        icon: "commissions",
+        permission: "partner.rental.view",
+        module: "rental",
+      },
+      {
+        label: "Finance location",
+        path: "/partner/rental/finance",
+        icon: "finance",
+        permission: "partner.rental.view",
+        module: "rental",
       },
     ],
   },
   {
     group: "ACTIVITÉ",
     items: [
-      // {
-      //   label: "Nouvelle course",
-      //   path: "/partner/bookings/new",
-      //   icon: "booking-new",
-      //   permission: "ops.trips.view",
-      // },
-      // {
-      //   label: "Courses récurrentes",
-      //   path: "/partner/bookings/recurring",
-      //   icon: "recurring",
-      //   permission: "ops.trips.view",
-      // },
       {
         label: "Planification des heures de travail",
         path: "/partner/shifts",
         icon: "shifts",
         permission: "fleet.drivers.view",
+        module: "fleet",
       },
       {
         label: "Rapports",
         path: "/partner/reports",
         icon: "reports",
         permission: "ops.trips.view",
+        module: "fleet",
       },
     ],
   },
@@ -139,13 +145,14 @@ export const PARTNER_NAV: NavGroup[] = [
         path: "/partner/wallet/driver-transfers",
         icon: "wallet-transfer",
         permission: "finance.wallets.view",
+        module: "fleet",
       },
-      {
-        label: "Acomptes",
-        path: "/partner/wallet/settlements",
-        icon: "wallet",
-        permission: "finance.wallets.view",
-      },
+      // {
+      //   label: "Acomptes",
+      //   path: "/partner/wallet/settlements",
+      //   icon: "wallet",
+      //   permission: "finance.wallets.view",
+      // },
       {
         label: "Revenus",
         path: "/partner/wallet/revenue",
@@ -180,6 +187,7 @@ export const PARTNER_NAV: NavGroup[] = [
         path: "/partner/support/conversations",
         icon: "chat",
         permission: "ops.dashboard.view",
+        module: "fleet",
       },
     ],
   },

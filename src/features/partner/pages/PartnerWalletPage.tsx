@@ -8,6 +8,7 @@ import { HeroKpi } from "@/features/ops/components/HeroKpi";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { Button } from "@/shared/ui/Button";
 import { formatFCFA, formatDateTime } from "@/shared/lib/format";
+import { useScope } from "@/core/auth/useScope";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import {
   usePartnerDriverRechargeStats,
@@ -71,6 +72,8 @@ export function PartnerWalletPage() {
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [rechargeOpen, setRechargeOpen] = useState(false);
+  const { hasModule } = useScope();
+  const isFleet = hasModule("fleet");
   const { data, isLoading, isError } = usePartnerWallet();
   const { data: rechargeStats } = usePartnerDriverRechargeStats();
   const { data: cashData, isLoading: cashLoading } = usePartnerCashReconciliations();
@@ -102,19 +105,23 @@ export function PartnerWalletPage() {
         breadcrumb={["Partenaire", "Finance"]}
         actions={
           <div className="flex flex-wrap gap-2">
-            <Link href="/partner/wallet/driver-transfers">
-              <Button variant="secondary">Historique recharges</Button>
-            </Link>
+            {isFleet && (
+              <Link href="/partner/wallet/driver-transfers">
+                <Button variant="secondary">Historique recharges</Button>
+              </Link>
+            )}
             <Button variant="primary" onClick={() => setTopUpOpen(true)}>
               Alimenter mon compte
             </Button>
-            <Button
-              variant="primary"
-              disabled={(data.withdrawable_fcfa ?? data.available_fcfa) <= 0}
-              onClick={() => setRechargeOpen(true)}
-            >
-              Recharger un chauffeur
-            </Button>
+            {isFleet && (
+              <Button
+                variant="primary"
+                disabled={(data.withdrawable_fcfa ?? data.available_fcfa) <= 0}
+                onClick={() => setRechargeOpen(true)}
+              >
+                Recharger un chauffeur
+              </Button>
+            )}
             <Button
               variant="secondary"
               disabled={(data.withdrawable_fcfa ?? data.available_fcfa) <= 0 || (data.daily_cap_fcfa != null && (data.today_withdrawn_fcfa ?? 0) >= data.daily_cap_fcfa)}
@@ -132,19 +139,25 @@ export function PartnerWalletPage() {
           trendPct={0}
           label="Solde total"
         />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div
+          className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-3 ${
+            isFleet ? "xl:grid-cols-6" : ""
+          }`}
+        >
           <KpiCard
             index={0}
             label="Solde retirable"
             value={formatFCFA(data.withdrawable_fcfa ?? data.available_fcfa)}
             hint="Peut être retiré ou utilisé pour recharger"
           />
-          <KpiCard
-            index={1}
-            label="Solde de service"
-            value={formatFCFA(data.non_withdrawable_fcfa ?? 0)}
-            hint="Crédits plateforme — non retirables"
-          />
+          {isFleet && (
+            <KpiCard
+              index={1}
+              label="Solde de service"
+              value={formatFCFA(data.non_withdrawable_fcfa ?? 0)}
+              hint="Crédits plateforme — non retirables"
+            />
+          )}
           <KpiCard
             index={2}
             label="En attente de retrait"
@@ -161,7 +174,7 @@ export function PartnerWalletPage() {
             value={formatFCFA(data.daily_cap_fcfa ?? 30_000)}
             hint={`Retiré aujourd'hui : ${formatFCFA(data.today_withdrawn_fcfa ?? 0)}`}
           />
-          {rechargeStats ? (
+          {isFleet && rechargeStats ? (
             <>
               <KpiCard
                 index={4}
@@ -207,29 +220,33 @@ export function PartnerWalletPage() {
         </ul>
       </div>
 
-      <div className="mt-6 rounded-card border border-border bg-surface shadow-card overflow-hidden">
-        <div className="border-b border-border px-6 py-4">
-          <h2 className="text-sm font-semibold">Rapprochement des encaissements cash</h2>
-          <p className="mt-0.5 text-xs text-muted">Espèces collectées par les chauffeurs à reverser</p>
+      {isFleet && (
+        <div className="mt-6 rounded-card border border-border bg-surface shadow-card overflow-hidden">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-sm font-semibold">Rapprochement des encaissements cash</h2>
+            <p className="mt-0.5 text-xs text-muted">Espèces collectées par les chauffeurs à reverser</p>
+          </div>
+          <div className="px-2 pb-2">
+            <DataTable
+              columns={cashColumns}
+              data={cashRows}
+              rowKey={(r) => r.id}
+              isLoading={cashLoading}
+              emptyTitle="Aucun encaissement en attente"
+              emptyDescription="Les collectes cash de vos chauffeurs apparaîtront ici"
+              pagination={{ pageSize: 10 }}
+            />
+          </div>
         </div>
-        <div className="px-2 pb-2">
-          <DataTable
-            columns={cashColumns}
-            data={cashRows}
-            rowKey={(r) => r.id}
-            isLoading={cashLoading}
-            emptyTitle="Aucun encaissement en attente"
-            emptyDescription="Les collectes cash de vos chauffeurs apparaîtront ici"
-            pagination={{ pageSize: 10 }}
-          />
-        </div>
-      </div>
+      )}
 
-      <PartnerDriverRechargeModal
-        open={rechargeOpen}
-        availableFcfa={data.withdrawable_fcfa ?? data.available_fcfa}
-        onClose={() => setRechargeOpen(false)}
-      />
+      {isFleet && (
+        <PartnerDriverRechargeModal
+          open={rechargeOpen}
+          availableFcfa={data.withdrawable_fcfa ?? data.available_fcfa}
+          onClose={() => setRechargeOpen(false)}
+        />
+      )}
 
       <PartnerWalletTopUpModal
         open={topUpOpen}

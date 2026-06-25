@@ -3,12 +3,19 @@
 import { useScope } from "@/core/auth/useScope";
 import Link from "next/link";
 
+type PartnerModule = "fleet" | "freight" | "rental";
+
 interface PartnerModuleGuardProps {
-  module: "freight" | "rental";
+  module: PartnerModule;
   children: React.ReactNode;
 }
 
-const MODULE_LABELS: Record<"freight" | "rental", { title: string; description: string }> = {
+const MODULE_LABELS: Record<PartnerModule, { title: string; description: string }> = {
+  fleet: {
+    title: "Module VTC non disponible",
+    description:
+      "Votre compte partenaire n'est pas configuré pour l'activité VTC (chauffeurs, courses). Contactez votre franchise pour activer ce module.",
+  },
   freight: {
     title: "Module Fret non disponible",
     description:

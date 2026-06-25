@@ -3,6 +3,10 @@ export interface ListParams {
   page?: number;
   per_page?: number;
   search?: string;
+  /** Champ de tri serveur (ex. `created_at`, `amount_fcfa`). */
+  sort?: string;
+  /** Sens de tri serveur. */
+  order?: "asc" | "desc";
   status?: string;
   severity?: string;
   zone?: string;
@@ -32,6 +36,10 @@ export function buildListQuery(params?: ListParams): string {
   if (params.page) qs.set("page", String(params.page));
   if (params.per_page) qs.set("per_page", String(params.per_page));
   if (params.search?.trim()) qs.set("search", params.search.trim());
+  if (params.sort) {
+    qs.set("sort", params.sort);
+    qs.set("order", params.order ?? "desc");
+  }
   if (params.status && params.status !== "all") qs.set("status", params.status);
   if (params.severity && params.severity !== "all") qs.set("severity", params.severity);
   if (params.zone && params.zone !== "all") qs.set("zone", params.zone);

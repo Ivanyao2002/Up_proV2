@@ -6,12 +6,24 @@ import { HeroKpi } from "@/features/ops/components/HeroKpi";
 import { KpiCard } from "@/shared/ui/KpiCard";
 import { StatusPill } from "@/shared/ui/StatusPill";
 import { formatFCFA } from "@/shared/lib/format";
+import { useScope } from "@/core/auth/useScope";
 import { usePartnerDashboard } from "../api/dashboard.queries";
 import { LiveRefreshIndicator } from "@/shared/ui/LiveRefreshIndicator";
 import { PortalDashboardSkeleton } from "@/shared/ui/skeletons";
 import { WeeklyRevenueChart } from "@/shared/ui/WeeklyRevenueChart";
+import { RentalDashboard } from "../components/RentalDashboard";
 
 export function PartnerDashboardPage() {
+  const { partnerType } = useScope();
+  // Un loueur pur voit un tableau de bord orienté Location ; les autres types
+  // (FLEET/MIXED/FREIGHT) conservent le tableau de bord VTC.
+  if (partnerType === "RENTAL") {
+    return <RentalDashboard />;
+  }
+  return <FleetDashboard />;
+}
+
+function FleetDashboard() {
   const { data, isLoading, isError, isFetching, dataUpdatedAt } =
     usePartnerDashboard();
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebouncedValue } from "./useDebouncedValue";
 import type { Paginated } from "@/shared/types";
@@ -53,6 +53,27 @@ export function useServerTableState(
   const [search, setSearch] = useState(() => initialParams.current.get("search") ?? "");
   const debouncedSearch = useDebouncedValue(search);
 
+  // Tri serveur (champ + sens), miroir de l'URL (`?sort`, `?order`).
+  const [sortBy, setSortBy] = useState<string | undefined>(
+    () => initialParams.current.get("sort") ?? undefined
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(
+    () => (initialParams.current.get("order") === "asc" ? "asc" : "desc")
+  );
+
+  // Bascule le tri : même champ → inverse le sens ; nouveau champ → desc par défaut.
+  const setSort = useCallback((field: string) => {
+    setSortBy((prev) => {
+      if (prev === field) {
+        setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
+        return prev;
+      }
+      setSortOrder("desc");
+      return field;
+    });
+    setPage(1);
+  }, []);
+
   // Évite de réinitialiser la page au tout premier rendu (sinon une URL
   // arrivant avec `?page=3` serait immédiatement ramenée à 1).
   const firstResetRun = useRef(true);
@@ -69,6 +90,8 @@ export function useServerTableState(
     page,
     per_page: pageSize,
     search: debouncedSearch || undefined,
+    sort: sortBy,
+    order: sortBy ? sortOrder : undefined,
     ...extraParams,
   };
 
@@ -86,6 +109,10 @@ export function useServerTableState(
     if (page > 1) qs.set("page", String(page));
     if (pageSize !== defaultPageSize) qs.set("per_page", String(pageSize));
     if (debouncedSearch.trim()) qs.set("search", debouncedSearch.trim());
+    if (sortBy) {
+      qs.set("sort", sortBy);
+      qs.set("order", sortOrder);
+    }
     for (const [k, v] of JSON.parse(extraKey) as [string, string][]) {
       if (v !== "all") qs.set(k, v);
     }
@@ -95,7 +122,7 @@ export function useServerTableState(
 
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, debouncedSearch, extraKey, defaultPageSize, pathname, router]);
+  }, [page, pageSize, debouncedSearch, sortBy, sortOrder, extraKey, defaultPageSize, pathname, router]);
 
   return {
     page,
@@ -105,6 +132,9 @@ export function useServerTableState(
     search,
     setSearch,
     debouncedSearch,
+    sortBy,
+    sortOrder,
+    setSort,
     listParams,
   };
 }
@@ -112,7 +142,12 @@ export function useServerTableState(
 export function serverPaginationFromMeta<T>(
   meta: Paginated<T>["meta"] | undefined,
   setPage: (p: number) => void,
-  setPageSize: (s: number) => void
+  setPageSize: (s: number) => void,
+  sort?: {
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+    onSortChange?: (field: string) => void;
+  }
 ): DataTableServerPagination | undefined {
   if (!meta) return undefined;
   return {
@@ -125,5 +160,8 @@ export function serverPaginationFromMeta<T>(
       setPageSize(size);
       setPage(1);
     },
+    sort: sort?.sortBy,
+    order: sort?.sortOrder,
+    onSortChange: sort?.onSortChange,
   };
 }
