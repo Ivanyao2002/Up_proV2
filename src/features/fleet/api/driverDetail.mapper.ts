@@ -107,6 +107,7 @@ export function mapLiveMapDriverToDetail(
     zone: driver.zoneName ?? driver.cityId ?? "—",
     owner_name: driver.partnerName,
     vehicle_label: driver.vehicleLabel ?? driver.rideCategoryCode ?? "",
+    ride_category_code: driver.rideCategoryCode ?? null,
     account_status: mapAccountStatus(driver.approvalStatus),
     availability: mapAvailability(driver.availabilityStatus, Boolean(activeTrip)),
     franchise_id: driver.franchiseId as unknown as number | undefined,
@@ -296,6 +297,7 @@ export function mapApiV1DriverDetailToDriverDetail(
       response.partnerName ??
       undefined,
     vehicle_label: vehicleLabel,
+    ride_category_code: driver.ride_category_code ?? null,
     vehicle_id: vehicle?.id ?? driver.current_vehicle_id ?? null,
     account_status: mapAccountStatus(
       driver.approval_status,

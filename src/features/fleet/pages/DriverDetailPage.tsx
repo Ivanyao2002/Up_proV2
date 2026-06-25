@@ -41,6 +41,7 @@ import { canSetDriverAvailability } from "../api/driverAdminActions.service";
 import { canReviewKycDocument } from "@/shared/lib/kycReview";
 import { DriverTransferModal } from "../components/DriverTransferModal";
 import { DriverBonusWeekStartPanel } from "../components/DriverBonusWeekStartPanel";
+import { DriverRideCategoryCard } from "../components/DriverRideCategoryCard";
 import { useTransferDriverToPartner } from "../api/driverTransfer.queries";
 import { resolveDriverSourcePartnerId } from "../api/driverTransfer.service";
 
@@ -414,6 +415,10 @@ export function DriverDetailPage({ driverId }: DriverDetailPageProps) {
                     />
                   )}
                 </div>
+                <DriverRideCategoryCard
+                  driverId={driverId}
+                  currentCategory={driver.ride_category_code}
+                />
                 <div className="rounded-card border border-border bg-surface p-6 shadow-card">
                   <h3 className="text-sm font-semibold text-foreground">Historique</h3>
                   <div className="mt-4">
