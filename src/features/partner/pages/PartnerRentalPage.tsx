@@ -1,20 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Button } from "@/shared/ui/Button";
+import { KpiCard } from "@/shared/ui/KpiCard";
+import { FilterChips } from "@/shared/ui/FilterChips";
 import { ModalPortal } from "@/shared/ui/ModalPortal";
 import { DataTable, type Column } from "@/shared/ui/DataTable";
 import { TableFiltersBar } from "@/shared/ui/TableFiltersBar";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 import { useListFiltersReset } from "@/shared/hooks/useListFiltersReset";
-import {
-  serverPaginationFromMeta,
-  useServerTableState,
-} from "@/shared/hooks/useServerTableState";
+import { useServerTableState } from "@/shared/hooks/useServerTableState";
 import { formatFCFA } from "@/shared/lib/format";
-import { usePartnerRentalOffers, useUpdateRentalOffer, useCreateRentalOffer } from "../api/rental.queries";
+import {
+  usePartnerRentalOffers,
+  useUpdateRentalOffer,
+  useCreateRentalOffer,
+  useDeleteRentalOffer,
+} from "../api/rental.queries";
 import type { RentalOffer, RentalOfferStatus, CreateRentalOfferPayload } from "../api/rental.service";
+
+const STATUS_FILTERS: { value: RentalOfferStatus | "all"; label: string }[] = [
+  { value: "all", label: "Toutes" },
+  { value: "pending", label: "En attente" },
+  { value: "confirmed", label: "Confirmées" },
+  { value: "active", label: "En cours" },
+  { value: "completed", label: "Terminées" },
+  { value: "cancelled", label: "Annulées" },
+  { value: "rejected", label: "Refusées" },
+];
+
+const REVENUE_STATUSES: RentalOfferStatus[] = ["confirmed", "active", "completed"];
 
 // Icônes SVG inline
 const IconCalendar = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
@@ -26,14 +43,51 @@ const IconXCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" hei
 export function PartnerRentalPage() {
   const table = useServerTableState([]);
   const [showCreate, setShowCreate] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<RentalOfferStatus | "all">("all");
 
   const { hasActiveFilters, resetAll } = useListFiltersReset({
     search: { value: table.search, set: table.setSearch },
+    fields: [
+      { value: statusFilter, defaultValue: "all", reset: () => setStatusFilter("all") },
+    ],
   });
 
-  const { data, isLoading } = usePartnerRentalOffers(table.listParams);
-  const offers = data?.data ?? [];
-  const pagination = serverPaginationFromMeta(data?.meta, table.setPage, table.setPageSize);
+  // Pas d'endpoint stats : on charge toute la liste et on calcule le dashboard côté client.
+  const { data, isLoading } = usePartnerRentalOffers({ per_page: 200 });
+  const allOffers = useMemo(() => data?.data ?? [], [data?.data]);
+
+  const stats = useMemo(() => {
+    const by = (s: RentalOfferStatus) => allOffers.filter((o) => o.status === s).length;
+    const revenue = allOffers
+      .filter((o) => REVENUE_STATUSES.includes(o.status))
+      .reduce((sum, o) => sum + (o.price_fcfa ?? 0), 0);
+    const deposits = allOffers
+      .filter((o) => o.status === "active")
+      .reduce((sum, o) => sum + (o.deposit_fcfa ?? 0), 0);
+    return {
+      total: allOffers.length,
+      pending: by("pending"),
+      active: by("active"),
+      completed: by("completed"),
+      revenue,
+      deposits,
+    };
+  }, [allOffers]);
+
+  const searchTerm = table.search.trim().toLowerCase();
+  const offers = useMemo(
+    () =>
+      allOffers.filter((o) => {
+        if (statusFilter !== "all" && o.status !== statusFilter) return false;
+        if (!searchTerm) return true;
+        return [o.ref, o.client_name, o.client_phone, o.vehicle_label, o.pickup_location]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(searchTerm);
+      }),
+    [allOffers, statusFilter, searchTerm]
+  );
 
   const statusConfig: Record<RentalOfferStatus, { label: string; color: string }> = {
     pending: { label: "En attente", color: "bg-yellow-100 text-yellow-700" },
@@ -48,7 +102,15 @@ export function PartnerRentalPage() {
     {
       id: "ref",
       header: "Référence",
-      cell: (o) => <div className="font-medium">{o.ref}</div>,
+      className: "min-w-[140px]",
+      cell: (o) => (
+        <Link
+          href={`/partner/rental/${o.id}`}
+          className="font-medium text-foreground hover:text-teal"
+        >
+          {o.ref}
+        </Link>
+      ),
     },
     {
       id: "vehicle",
@@ -124,20 +186,40 @@ export function PartnerRentalPage() {
         }
       />
 
+      <div className="mb-5 grid gap-3 grid-cols-2 sm:grid-cols-4">
+        <KpiCard index={0} label="Total réservations" value={String(stats.total)} isLoading={isLoading} />
+        <KpiCard index={1} label="En attente" value={String(stats.pending)} isLoading={isLoading} />
+        <KpiCard index={2} label="En cours" value={String(stats.active)} isLoading={isLoading} />
+        <KpiCard
+          index={3}
+          label="Revenus (confirmés)"
+          value={isLoading ? "…" : formatFCFA(stats.revenue)}
+        />
+      </div>
+
       <TableFiltersBar
         search={table.search}
         onSearchChange={table.setSearch}
         searchPlaceholder="Référence, client, véhicule..."
+        totalLabel={`${offers.length} réservation${offers.length > 1 ? "s" : ""}`}
         hasActiveFilters={hasActiveFilters}
         onReset={resetAll}
-      />
+      >
+        <FilterChips
+          options={STATUS_FILTERS}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+      </TableFiltersBar>
 
       <DataTable
         columns={columns}
         data={offers}
         rowKey={(o) => o.id}
         isLoading={isLoading}
-        pagination={pagination}
+        pagination={{ pageSize: 10 }}
+        hasActiveFilters={hasActiveFilters}
+        onResetFilters={resetAll}
         emptyTitle="Aucune réservation"
         emptyDescription="Les demandes de location apparaîtront ici"
       />
@@ -299,7 +381,9 @@ function RentalActions({ offer }: { offer: RentalOffer }) {
     reject: { status: "rejected", label: "Refusée" },
     start: { status: "active", label: "Démarrée" },
     complete: { status: "completed", label: "Terminée" },
+    cancel: { status: "cancelled", label: "Annulée" },
   };
+  const canCancel = ["pending", "confirmed", "active"].includes(offer.status);
 
   const handleConfirm = () => {
     if (!confirmAction) return;
@@ -346,6 +430,15 @@ function RentalActions({ offer }: { offer: RentalOffer }) {
           onClick={() => setConfirmAction("complete")}
         >
           Check-out
+        </Button>
+      )}
+      {canCancel && offer.status !== "pending" && (
+        <Button
+          className="px-3 py-1.5 text-xs text-red-600"
+          variant="secondary"
+          onClick={() => setConfirmAction("cancel")}
+        >
+          Annuler
         </Button>
       )}
 

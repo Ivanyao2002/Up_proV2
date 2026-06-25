@@ -22,12 +22,45 @@ interface RentalApiResponse {
   };
 }
 
+/** Normalise une offre brute : dérive vehicle_label / driver_name d'éventuels objets inline. */
+function mapRentalOffer(raw: Record<string, unknown>): RentalOffer {
+  const vehicle = raw.vehicle as Record<string, unknown> | null | undefined;
+  const driver = raw.driver as Record<string, unknown> | null | undefined;
+  const vehicleLabel =
+    (raw.vehicle_label as string) ??
+    (vehicle
+      ? (vehicle.label as string) ??
+        [vehicle.brand, vehicle.model].filter(Boolean).join(" ") ??
+        (vehicle.plate_number as string)
+      : undefined);
+  const driverName =
+    (raw.driver_name as string) ??
+    (driver
+      ? (driver.displayName as string) ??
+        (driver.name as string) ??
+        [
+          (driver.first_name as string) ?? (driver.firstName as string),
+          (driver.last_name as string) ?? (driver.lastName as string),
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : undefined);
+
+  return {
+    ...(raw as unknown as RentalOffer),
+    vehicle_label: vehicleLabel || undefined,
+    vehicle_plate:
+      (raw.vehicle_plate as string) ?? (vehicle?.plate_number as string) ?? undefined,
+    driver_name: driverName || undefined,
+  };
+}
+
 function mapRentalResponse(
   response: RentalApiResponse | Paginated<RentalOffer>
 ): Paginated<RentalOffer> {
   if ("status" in response && response.status === "ok" && response.items) {
     return {
-      data: response.items,
+      data: response.items.map((o) => mapRentalOffer(o as unknown as Record<string, unknown>)),
       meta: response.pagination
         ? {
             current_page: response.pagination.page,
@@ -46,7 +79,10 @@ function mapRentalResponse(
     };
   }
   if ("data" in response && Array.isArray(response.data)) {
-    return response as Paginated<RentalOffer>;
+    return {
+      ...(response as Paginated<RentalOffer>),
+      data: response.data.map((o) => mapRentalOffer(o as unknown as Record<string, unknown>)),
+    };
   }
   return response as Paginated<RentalOffer>;
 }
@@ -102,11 +138,13 @@ export const partnerRentalService = {
     return mapRentalResponse(response);
   },
 
+  // Pas d'endpoint GET détail côté backend : on dérive l'offre depuis la liste.
   getById: async (partnerId: string | number, offerId: string) => {
     const response = await apiClient.get<RentalApiResponse>(
-      `${LINKS.partner.rental.list(partnerId)}/${offerId}`
+      `${LINKS.partner.rental.list(partnerId)}${buildListQuery({ per_page: 200 })}`
     );
-    return response.items?.[0] || null;
+    const list = mapRentalResponse(response).data;
+    return list.find((o) => o.id === offerId || o.ref === offerId) ?? null;
   },
 
   create: (partnerId: string | number, data: CreateRentalOfferPayload) =>
