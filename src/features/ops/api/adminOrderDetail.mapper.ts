@@ -272,6 +272,43 @@ function resolveRide(payload: ApiAdminOrderDetailPayload): ApiLiveMapOrderBase {
   };
 }
 
+/**
+ * Catégorie de service de la course (`category_code`, ex. `ECO`).
+ * Champ direct du ride, avec repli sur le devis tarifaire, l'offre acceptée
+ * puis l'event `ride.created` si le backend ne le renvoie pas à plat.
+ */
+function resolveRideCategoryCode(
+  payload: ApiAdminOrderDetailPayload,
+  ride: ApiLiveMapOrderBase
+): string | undefined {
+  const r = ride as ApiLiveMapOrderBase & Record<string, unknown>;
+  const direct = readRideField(r, "category_code", "categoryCode");
+  if (direct) return direct;
+
+  const pricing = (r.metadata as Record<string, unknown> | undefined)?.pricing as
+    | Record<string, unknown>
+    | undefined;
+  const fromPricing = pricing?.categoryCode;
+  if (typeof fromPricing === "string" && fromPricing.trim()) {
+    return fromPricing.trim();
+  }
+
+  const acceptedOffer = payload.dispatch?.dispatch?.offers?.find(
+    (o) => o.status === "accepted"
+  );
+  if (typeof acceptedOffer?.rideCategoryCode === "string" && acceptedOffer.rideCategoryCode.trim()) {
+    return acceptedOffer.rideCategoryCode.trim();
+  }
+
+  const fromEvent = payload.events?.find((e) => e.event_type === "ride.created")
+    ?.payload?.categoryCode;
+  if (typeof fromEvent === "string" && fromEvent.trim()) {
+    return fromEvent.trim();
+  }
+
+  return undefined;
+}
+
 function readNum(obj: Record<string, unknown> | null | undefined, ...keys: string[]): number | undefined {
   if (!obj) return undefined;
   for (const key of keys) {
@@ -443,6 +480,7 @@ export function mapAdminOrderDetailToTripDetail(
     id: ride.id,
     ref: payload.ref ?? orderRef(ride),
     service: mapApiServiceType(ride.service_type ?? payload.serviceType),
+    category_code: resolveRideCategoryCode(payload, ride),
     from_label: route.from_label,
     to_label: route.to_label,
     from_coords: route.from_coords,

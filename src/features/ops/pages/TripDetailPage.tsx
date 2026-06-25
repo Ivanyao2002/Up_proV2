@@ -159,6 +159,12 @@ export function TripDetailPage({ tripId }: TripDetailPageProps) {
           <div className="rounded-card border border-border bg-surface p-5 shadow-card text-sm">
             <h3 className="font-semibold text-foreground">Contexte</h3>
             <dl className="mt-3 space-y-2 text-muted">
+              {trip.category_code && (
+                <div className="flex justify-between gap-2">
+                  <dt>Catégorie</dt>
+                  <dd className="font-medium text-foreground">{trip.category_code}</dd>
+                </div>
+              )}
               {trip.zone_name && (
                 <div className="flex justify-between gap-2">
                   <dt>Zone</dt>
