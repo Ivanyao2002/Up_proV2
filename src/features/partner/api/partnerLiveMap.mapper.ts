@@ -31,13 +31,24 @@ export interface ApiPartnerLiveMapDriver {
   current_vehicle_id?: string;
   vehicle_label?: string;
   vehicle_color?: string | null;
+  // Couleur structurée (DB-09) : le backend renvoie désormais l'objet complet.
+  vehicleLabel?: string | null;
+  vehicleColorId?: string | null;
   vehicle?: {
     id?: string;
     brand?: string;
     model?: string;
     plate_number?: string;
+    plateNumber?: string;
     label?: string;
     display_name?: string;
+    colorId?: string;
+    color?: {
+      id?: string;
+      code?: string;
+      label?: string;
+      hex?: string;
+    } | null;
   } | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -334,13 +345,14 @@ export function mapApiPartnerLiveMapToData(
     const v = d.vehicle;
     const vehicleLabel =
       d.vehicle_label ??
+      d.vehicleLabel ??
       (v
         ? v.label ??
           v.display_name ??
           [v.brand, v.model].filter(Boolean).join(" ") ??
           null
         : null);
-    const vehiclePlate = v?.plate_number ?? null;
+    const vehiclePlate = v?.plate_number ?? v?.plateNumber ?? null;
     const vehicleDisplay = vehicleLabel
       ? vehiclePlate && !vehicleLabel.includes(vehiclePlate)
         ? `${vehicleLabel} · ${vehiclePlate}`
@@ -348,7 +360,12 @@ export function mapApiPartnerLiveMapToData(
       : d.current_vehicle_id
         ? `Véh. ${d.current_vehicle_id.slice(0, 8)}`
         : "—";
-    const vehicleColor = d.vehicle_color ?? null;
+
+    // DB-09 : exploiter l'objet couleur structuré ({code,label,hex}) renvoyé par
+    // le backend plutôt que de re-déduire le libellé depuis le hex côté front.
+    const colorObj = v?.color ?? null;
+    const vehicleColorHex = colorObj?.hex ?? d.vehicle_color ?? null;
+    const vehicleColorLabel = colorObj?.label ?? null;
 
     drivers.push({
       id: d.id,
@@ -360,8 +377,9 @@ export function mapApiPartnerLiveMapToData(
       speed_kmh: d.speed_kmh ?? d.location?.speedKmh ?? undefined,
       availability: mapAvailability(d.availability_status),
       vehicle: vehicleDisplay,
-      vehicle_color: vehicleColor,
-      vehicle_color_hex: vehicleColor,
+      vehicle_color: vehicleColorHex,
+      vehicle_color_label: vehicleColorLabel,
+      vehicle_color_hex: vehicleColorHex,
       zone_name: d.metadata?.zoneLabel,
       active_trip,
     });

@@ -96,9 +96,28 @@ export const partnerFreightService = {
     return mapFreightResponse(response);
   },
 
-  // Pas d'endpoint GET détail côté backend (cf. demande DB-01) : on dérive l'offre
-  // depuis la liste paginée tant que GET /freight-offers/{offerId} n'est pas livré.
+  // DB-01 : GET détail livré côté backend → on l'appelle directement. Repli sur la
+  // dérivation depuis la liste paginée si l'endpoint échoue (résilience).
   getById: async (partnerId: string | number, offerId: string) => {
+    try {
+      const raw = await apiClient.get<
+        | FreightOffer
+        | {
+            status?: string;
+            offer?: FreightOffer;
+            data?: FreightOffer;
+            item?: FreightOffer;
+          }
+      >(LINKS.partner.freight.detail(partnerId, offerId));
+      const offer =
+        (raw as { offer?: FreightOffer }).offer ??
+        (raw as { data?: FreightOffer }).data ??
+        (raw as { item?: FreightOffer }).item ??
+        (raw as FreightOffer);
+      if (offer?.id) return offer;
+    } catch {
+      // Repli sur la liste ci-dessous.
+    }
     const response = await partnerFreightService.list(partnerId, { per_page: 100 });
     const offer = response.data.find((o) => o.id === offerId || o.ref === offerId);
     if (!offer) throw new Error("Offre de fret introuvable");

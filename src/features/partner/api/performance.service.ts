@@ -253,6 +253,53 @@ export interface DriverPerformance {
   period: string;
 }
 
+/** Véhicule joint renvoyé par l'endpoint unifié `/fleet-performance` (DB-08). */
+interface ApiFleetVehicleInfo {
+  id?: string;
+  vehicle_id?: string;
+  plate?: string | null;
+  plate_number?: string | null;
+  brand?: string | null;
+  model?: string | null;
+  category_code?: string | null;
+  manufacture_year?: number | null;
+  color?: { id?: string; code?: string; label?: string; hex?: string } | null;
+}
+
+/** Item unifié : stats chauffeur (héritées) + véhicule joint par le backend. */
+interface ApiFleetPerformanceItem extends ApiDriverPerformanceItem {
+  total_km?: number;
+  vehicle?: ApiFleetVehicleInfo | null;
+}
+
+function mapApiFleetToRow(item: ApiFleetPerformanceItem): FleetPerformanceRow {
+  const driverId = String(item.driver_id ?? item.user_id ?? item.id);
+  const name = resolveDriverName(item, driverId);
+  const vehicle = item.vehicle ?? undefined;
+  const completed = item.trips_completed ?? item.trips_count ?? 0;
+
+  return {
+    id: item.id,
+    vehicle_id: vehicle?.vehicle_id ?? vehicle?.id,
+    driver_id: driverId,
+    brand: readOptionalText(vehicle?.brand),
+    model: readOptionalText(vehicle?.model),
+    plate: readOptionalText(vehicle?.plate ?? vehicle?.plate_number) || undefined,
+    category_code: vehicle?.category_code ?? undefined,
+    year: vehicle?.manufacture_year ?? undefined,
+    driver_first_name: name.first_name,
+    driver_last_name: name.last_name,
+    total_km: item.total_km ?? 0,
+    trips_count: completed,
+    trips_completed: completed,
+    trips_cancelled: item.trips_cancelled ?? 0,
+    revenue_fcfa: item.revenue_fcfa ?? item.revenue_xof ?? 0,
+    avg_rating: item.avg_rating ?? 0,
+    acceptance_rate_pct: item.acceptance_rate_pct ?? 0,
+    cancellation_rate_pct: item.cancellation_rate_pct ?? 0,
+  };
+}
+
 /** Ligne fusionnée véhicule + chauffeur pour le tableau Analytics. */
 export interface FleetPerformanceRow {
   id: string;
@@ -456,6 +503,32 @@ export const partnerPerformanceService = {
     // Charger toute la période avant agrégation/recherche (la page n'a pas de pagination) :
     // sans per_page élevé, seul le 1er lot serveur remonterait → KPI/tableau sous-évalués.
     const fullParams: ListParams = { ...params, per_page: 200 };
+
+    // DB-08 : endpoint unifié — chaque chauffeur porte déjà son véhicule joint
+    // (plus de matching heuristique par stats côté front).
+    try {
+      const response = await apiClient.get<PerformanceApiResponse<ApiFleetPerformanceItem>>(
+        `${LINKS.partner.vehicles.fleetPerformance(partnerId)}${buildListQuery(fullParams)}`
+      );
+      if (response?.status === "ok" && Array.isArray(response.items)) {
+        const data = response.items
+          .map(mapApiFleetToRow)
+          .sort((a, b) => b.revenue_fcfa - a.revenue_fcfa);
+        return {
+          data,
+          meta: {
+            total: data.length,
+            current_page: 1,
+            last_page: 1,
+            per_page: data.length || 20,
+          },
+        };
+      }
+    } catch {
+      // Repli sur la fusion héritée des deux endpoints séparés (résilience si l'endpoint
+      // unifié est indisponible).
+    }
+
     const [vehicles, drivers, assignments] = await Promise.all([
       partnerPerformanceService.vehicles(partnerId, fullParams),
       partnerPerformanceService.drivers(partnerId, fullParams),

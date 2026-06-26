@@ -246,6 +246,10 @@ textarea::placeholder {
   --color-border: #e9ebec;
   --color-surface: #ffffff;
   --color-surface-hover: #f8f9fc;
+  /* Champs de formulaire (recherche, filtre dispo) : la règle globale
+     `input/select` utilise --color-input-bg → on le force clair ici aussi,
+     sinon fond de champ sombre (mode nuit) + texte sombre = illisible. */
+  --color-input-bg: #ffffff;
   background-color: #ffffff;
   border-color: #e9ebec;
   color: var(--color-text);

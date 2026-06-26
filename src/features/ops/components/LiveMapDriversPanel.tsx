@@ -238,7 +238,7 @@ export function LiveMapDriversPanel({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher (nom, immatriculation)…"
             aria-label="Rechercher un chauffeur"
-            className="min-w-0 flex-1 rounded-lg border border-border bg-canvas px-3 py-2 text-xs text-foreground placeholder:text-muted outline-none ring-teal/30 focus:ring-2"
+            className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground placeholder:text-muted outline-none ring-teal/30 focus:ring-2"
           />
           <select
             value={availabilityFilter}
@@ -246,10 +246,10 @@ export function LiveMapDriversPanel({
               setAvailabilityFilter(e.target.value as AvailabilityFilter)
             }
             aria-label="Filtrer par disponibilité"
-            className="rounded-lg border border-border bg-canvas px-3 py-2 text-xs text-foreground outline-none ring-teal/30 focus:ring-2"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-foreground outline-none ring-teal/30 focus:ring-2"
           >
             {AVAILABILITY_FILTER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
+              <option key={opt.value} value={opt.value} className="bg-surface text-foreground">
                 {opt.label}
               </option>
             ))}

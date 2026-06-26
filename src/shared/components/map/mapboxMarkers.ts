@@ -3,6 +3,7 @@ import {
   formatLiveMapVehicleLine,
   getLiveMapVehicleColorLabel,
 } from "@/features/ops/lib/liveMapDriverDisplay";
+import { resolveVehicleMapIconUrl } from "@/shared/lib/vehicleMapIcons";
 import type { LiveMapData, LiveMapDriver, LiveMapOrderMarker } from "@/shared/types";
 import {
   buildDriverPopupHtml,
@@ -66,7 +67,9 @@ export function mapLiveMapDriverToFeature(driver: LiveMapDriver): MapboxPointFea
     heading: driver.heading,
     speedKmh: driver.speed_kmh,
     locationAgeSeconds: driver.location_age_seconds,
-    vehicleIconUrl: driver.vehicle_icon_url,
+    // Icône colorée selon la couleur réelle du véhicule (catalogue) ; à défaut
+    // l'icône fournie par l'API, sinon l'icône par défaut.
+    vehicleIconUrl: driver.vehicle_icon_url ?? resolveVehicleMapIconUrl(colorLabel),
     popupHtml: buildDriverPopupHtml(driver),
   };
 }

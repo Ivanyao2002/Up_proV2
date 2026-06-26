@@ -63,15 +63,12 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
     ],
   });
 
-  const searchTerm = table.search.trim().toLowerCase();
-  const isSearching = searchTerm.length > 0;
-
-  // Flotte chargée en entier (côté client) pour permettre tri + recherche multi-champs
-  // (le backend ne filtre que sur la plaque et ne trie pas de façon fiable par page).
-  // Le statut et la période restent filtrés côté serveur.
+  // DB-10 : la recherche serveur matche désormais plaque + marque/modèle + nom du
+  // chauffeur affecté (et couvre les flottes > 200 véhicules) → on délègue le
+  // filtrage au backend plutôt que de tout charger et filtrer côté client.
+  // Statut et période restent filtrés côté serveur ; tri + pagination d'affichage côté client.
   const serverParams = {
     ...table.listParams,
-    search: undefined,
     page: 1,
     per_page: 200,
   };
@@ -81,24 +78,8 @@ export function PartnerVehiclesListPage({ pendingOnly }: PartnerVehiclesListPage
     serverParams
   );
 
-  const allRows = data?.data ?? [];
-  const rows = isSearching
-    ? allRows.filter((v) =>
-        [
-          v.plate,
-          v.brand,
-          v.model,
-          v.driver_name,
-          v.color,
-          v.category_label,
-          v.category_code,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(searchTerm)
-      )
-    : allRows;
+  const rows = data?.data ?? [];
+  const isSearching = Boolean(table.listParams.search);
   const meta = data?.meta;
 
   const columns: Column<Vehicle>[] = [

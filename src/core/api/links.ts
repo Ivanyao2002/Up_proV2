@@ -702,6 +702,8 @@ export const LINKS = {
 
   partner: {
     dashboard: (id: string | number) => `/v1/partners/${id}/dashboard`,
+    // Suivi de flotte agrégé (DB-04) : compteurs + missions + chauffeurs dispo.
+    tracking: (id: string | number) => `/v1/partners/${id}/tracking`,
     profile: {
       get: (id: string | number) => `/v1/partners/${id}`,
       update: (id: string | number) => `/v1/partners/${id}`,
@@ -739,6 +741,8 @@ export const LINKS = {
       list: (id: string | number) => `/v1/partners/${id}/vehicles`,
       performance: (id: string | number) => `/v1/partners/${id}/vehicle-performance`,
       driverPerformance: (id: string | number) => `/v1/partners/${id}/driver-performance`,
+      // Endpoint unifié (DB-08) : chaque chauffeur avec son véhicule joint.
+      fleetPerformance: (id: string | number) => `/v1/partners/${id}/fleet-performance`,
       gpsDevices: {
         list: (id: string | number) => `/v1/partners/${id}/gps-devices`,
         create: (id: string | number) => `/v1/partners/${id}/gps-devices`,
@@ -779,6 +783,9 @@ export const LINKS = {
     freight: {
       list: (id: string | number) => `/v1/partners/${id}/freight-offers`,
       create: (id: string | number) => `/v1/partners/${id}/freight-offers`,
+      // Détail d'une offre (DB-01, livré backend).
+      detail: (id: string | number, offerId: string | number) =>
+        `/v1/partners/${id}/freight-offers/${offerId}`,
       update: (id: string | number, offerId: string | number) =>
         `/v1/partners/${id}/freight-offers/${offerId}`,
       delete: (id: string | number, offerId: string | number) =>
