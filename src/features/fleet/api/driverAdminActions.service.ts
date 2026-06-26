@@ -81,6 +81,27 @@ export async function activateDriverAccount(
   return { ok: true, message: "Chauffeur réactivé" };
 }
 
+/**
+ * Change la gamme (`ride_category_code`) d'un chauffeur — prérogative back-office
+ * (anti-fraude tarifaire : le chauffeur ne peut pas le faire lui-même).
+ *
+ * Sans `force`, une montée au-dessus de la catégorie réelle du véhicule est
+ * refusée par le backend (`422 DRIVER_CATEGORY_UPGRADE_REQUIRES_FORCE`). L'erreur
+ * est propagée telle quelle (`ApiError`) afin que l'UI propose la confirmation
+ * puis renvoie avec `force: true`. Voir docs/MONTEE-EN-GAMME-CHAUFFEUR.md.
+ */
+export async function setDriverRideCategory(
+  id: string | number,
+  categoryCode: string,
+  force = false
+): Promise<DriverAdminActionResult> {
+  await apiClient.patch(LINKS.admin.v1.driverById(String(id)), {
+    ride_category_code: categoryCode,
+    ...(force ? { force: true } : {}),
+  });
+  return { ok: true, message: `Gamme appliquée : ${categoryCode}` };
+}
+
 export function canSetDriverAvailability(driver: Pick<Driver, "account_status">): boolean {
   return driver.account_status === "approved";
 }

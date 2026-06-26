@@ -37,6 +37,7 @@ import type {
 import {
   activateDriverAccount,
   setDriverAvailability,
+  setDriverRideCategory,
   suspendDriverAccount,
   type DriverAvailabilityAction,
 } from "./driverAdminActions.service";
@@ -352,6 +353,19 @@ export const driverDetailService = {
 
   activate: async (id: string | number) => {
     const result = await activateDriverAccount(id);
+    return {
+      ok: result.ok,
+      message: result.message,
+      driver: {} as DriverDetail,
+    };
+  },
+
+  setRideCategory: async (
+    id: string | number,
+    categoryCode: string,
+    force = false
+  ) => {
+    const result = await setDriverRideCategory(id, categoryCode, force);
     return {
       ok: result.ok,
       message: result.message,

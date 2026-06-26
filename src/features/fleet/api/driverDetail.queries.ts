@@ -127,6 +127,25 @@ export function useSetDriverAvailability(id: string) {
   });
 }
 
+/**
+ * Change la gamme du chauffeur. Pas de `onError` ici : le composant appelant
+ * inspecte le `422 DRIVER_CATEGORY_UPGRADE_REQUIRES_FORCE` pour proposer la
+ * confirmation puis renvoyer avec `force: true`.
+ */
+export function useSetDriverRideCategory(id: string) {
+  const qc = useQueryClient();
+  const scopeKey = useScopeQueryKey();
+  return useMutation({
+    mutationFn: (vars: { categoryCode: string; force?: boolean }) =>
+      driverDetailService.setRideCategory(id, vars.categoryCode, vars.force ?? false),
+    onSuccess: (data) => {
+      void qc.invalidateQueries({ queryKey: driverDetailKeys.detail(id) });
+      void qc.invalidateQueries({ queryKey: driversKeys.all(scopeKey) });
+      notificationService.success(data.message);
+    },
+  });
+}
+
 export function useDeleteAdminDriver() {
   const qc = useQueryClient();
   const scopeKey = useScopeQueryKey();
